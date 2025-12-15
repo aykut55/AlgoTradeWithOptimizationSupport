@@ -2,6 +2,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
     public partial class Form1 : Form
     {
+        private MainControlLoop? _mainLoop;
+
         public Form1()
         {
             InitializeComponent();
@@ -9,6 +11,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             LoadInitialTabs();
             InitializeStatusTimer();
             InitializePanelSpacing();
+            InitializeMainLoop();
+        }
+
+        private void InitializeMainLoop()
+        {
+            _mainLoop = new MainControlLoop(this);
+            // Main loop'u başlatma butonuna bağlayabiliriz
+            // veya form açılınca otomatik başlatılabilir
+            // _mainLoop.Start();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            // Main loop'u güvenli şekilde durdur
+            _mainLoop?.Stop();
+            base.OnFormClosing(e);
         }
 
         private void InitializePanelSpacing()
@@ -625,15 +643,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             switch (e.ClickedItem?.Name)
             {
                 case "runStrategyButton":
-                    MessageBox.Show("Run Strategy functionality will be implemented here.\n\nThis will execute the selected trading strategy.",
-                        "Run Strategy", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    statusLabel.Text = "Run Strategy clicked";
+                    if (_mainLoop != null && !_mainLoop.IsRunning)
+                    {
+                        _mainLoop.Start();
+                        _mainLoop.SetStrategyRunning(true);
+                        statusLabel.Text = "Main loop started";
+                    }
+                    else
+                    {
+                        statusLabel.Text = "Main loop already running";
+                    }
                     break;
 
                 case "stopStrategyButton":
-                    MessageBox.Show("Stop Strategy functionality will be implemented here.\n\nThis will stop the running strategy.",
-                        "Stop Strategy", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    statusLabel.Text = "Stop Strategy clicked";
+                    if (_mainLoop != null && _mainLoop.IsRunning)
+                    {
+                        _mainLoop.SetStrategyRunning(false);
+                        _mainLoop.Stop();
+                        statusLabel.Text = "Main loop stopped";
+                    }
+                    else
+                    {
+                        statusLabel.Text = "Main loop not running";
+                    }
                     break;
 
                 case "optimizeButton":
