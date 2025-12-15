@@ -582,10 +582,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // topPanel
-            // 
+            //
             topPanel.BorderStyle = BorderStyle.FixedSingle;
             topPanel.Dock = DockStyle.Top;
-            topPanel.Location = new Point(0, 49);
+            topPanel.Location = new Point(0, 74);
             topPanel.Name = "topPanel";
             topPanel.Size = new Size(1200, 50);
             topPanel.TabIndex = 3;
