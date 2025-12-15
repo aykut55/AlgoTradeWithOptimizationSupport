@@ -8,6 +8,26 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeTabControl();
             LoadInitialTabs();
             InitializeStatusTimer();
+            InitializePanelSpacing();
+        }
+
+        private void InitializePanelSpacing()
+        {
+            // centerPanel'e padding ekle (TabControl kenarlardan uzak durur)
+            centerPanel.Padding = new Padding(5);
+
+            // Diğer panellere de padding ekleyebilirsiniz
+            leftPanel.Padding = new Padding(5);
+            rightPanel.Padding = new Padding(5);
+            topPanel.Padding = new Padding(5);
+            bottomPanel.Padding = new Padding(5);
+
+            // Panel kenarlarını ayarla
+            SetAllPanelsBorderStyle(BorderStyle.None); // None, FixedSingle, veya Fixed3D
+
+            // DEBUG: Panelleri renklendir (işiniz bitince bu satırı yorum satırı yapın)
+            SetPanelDebugColors();
+            //ResetPanelColors();
         }
 
         private void InitializeStatusTimer()
@@ -26,17 +46,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private void LoadInitialTabs()
         {
+            // Add main tabs first
+            AddStrategyTab("SingleTrader");
+            AddStrategyTab("MultipleTraders");
+            AddStrategyTab("SingleTraderOptimization");
+
             // Add sample tabs for testing
-            AddStrategyTab("AAPL - MA Strategy");
-            AddStrategyTab("GOOG - RSI Strategy");
-            AddStrategyTab("TSLA - MACD Strategy");
-            AddStrategyTab("MSFT - Bollinger");
-            AddStrategyTab("AMZN - Stochastic");
-            AddStrategyTab("META - EMA Cross");
-            AddStrategyTab("NVDA - Volume");
-            AddStrategyTab("AMD - Momentum");
-            AddStrategyTab("NFLX - ATR");
-            AddStrategyTab("BIST100 - Combo");
+            //AddStrategyTab("AAPL - MA Strategy");
+            //AddStrategyTab("GOOG - RSI Strategy");
+            //AddStrategyTab("TSLA - MACD Strategy");
+            //AddStrategyTab("MSFT - Bollinger");
+            //AddStrategyTab("AMZN - Stochastic");
+            //AddStrategyTab("META - EMA Cross");
+            //AddStrategyTab("NVDA - Volume");
+            //AddStrategyTab("AMD - Momentum");
+            //AddStrategyTab("NFLX - ATR");
+            //AddStrategyTab("BIST100 - Combo");
         }
 
         private void InitializeTabControl()
@@ -45,8 +70,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Multiline = false;
             mainTabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             mainTabControl.SizeMode = TabSizeMode.Fixed;
-            mainTabControl.ItemSize = new Size(120, 30);
+            mainTabControl.ItemSize = new Size(200, 30); // Width: 120 → 200 (daha uzun caption'lar için)
             mainTabControl.DrawItem += MainTabControl_DrawItem;
+
+            // TabControl border/appearance
+            // Appearance.Normal (default - kalın border)
+            // Appearance.Buttons (buton görünümü)
+            // Appearance.FlatButtons (düz butonlar - ince border)
+            mainTabControl.Appearance = TabAppearance.FlatButtons;
         }
 
         private void MainTabControl_DrawItem(object? sender, DrawItemEventArgs e)
@@ -190,6 +221,65 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             statusBarToolStripMenuItem.Checked = statusStrip.Visible;
         }
 
+        private void defaultPanelsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Default: Left + Bottom visible, Top + Right hidden
+            SetPanelsVisibility(new Dictionary<Panel, bool>
+            {
+                { topPanel, false },
+                { leftPanel, true },
+                { rightPanel, false },
+                { bottomPanel, true }
+            });
+            statusLabel.Text = "Panels set to default layout";
+        }
+
+        private void hideAllPanelsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Hide all panels, only centerPanel visible
+            SetPanelsVisibility(new Dictionary<Panel, bool>
+            {
+                { topPanel, false },
+                { leftPanel, false },
+                { rightPanel, false },
+                { bottomPanel, false }
+            });
+            statusLabel.Text = "All panels hidden";
+        }
+
+        private void showAllPanelsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Show all panels
+            SetPanelsVisibility(new Dictionary<Panel, bool>
+            {
+                { topPanel, true },
+                { leftPanel, true },
+                { rightPanel, true },
+                { bottomPanel, true }
+            });
+            statusLabel.Text = "All panels visible";
+        }
+
+        private void topPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetPanelVisibility(topPanel, topPanelToolStripMenuItem);
+        }
+
+        private void leftPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetPanelVisibility(leftPanel, leftPanelToolStripMenuItem);
+        }
+
+        private void rightPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetPanelVisibility(rightPanel, rightPanelToolStripMenuItem);
+        }
+
+        private void bottomPanelToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SetPanelVisibility(bottomPanel, bottomPanelToolStripMenuItem);
+        }
+
         private void fullScreenToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (this.WindowState == FormWindowState.Normal)
@@ -206,6 +296,156 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 fullScreenToolStripMenuItem.Text = "&Full Screen";
                 statusLabel.Text = "Normal mode restored";
             }
+        }
+
+        #endregion
+
+        #region Panel Visibility Helper Methods
+
+        /// <summary>
+        /// Toggle visibility of a single panel and update its menu item check state
+        /// </summary>
+        private void SetPanelVisibility(Panel panel, ToolStripMenuItem menuItem)
+        {
+            panel.Visible = !panel.Visible;
+            menuItem.Checked = panel.Visible;
+            statusLabel.Text = $"{panel.Name}: {(panel.Visible ? "Visible" : "Hidden")}";
+        }
+
+        /// <summary>
+        /// Set visibility for multiple panels at once
+        /// </summary>
+        /// <param name="panelVisibilityList">Dictionary with Panel and desired visibility state</param>
+        public void SetPanelsVisibility(Dictionary<Panel, bool> panelVisibilityList)
+        {
+            foreach (var kvp in panelVisibilityList)
+            {
+                kvp.Key.Visible = kvp.Value;
+
+                // Update corresponding menu item
+                if (kvp.Key == topPanel)
+                    topPanelToolStripMenuItem.Checked = kvp.Value;
+                else if (kvp.Key == leftPanel)
+                    leftPanelToolStripMenuItem.Checked = kvp.Value;
+                else if (kvp.Key == rightPanel)
+                    rightPanelToolStripMenuItem.Checked = kvp.Value;
+                else if (kvp.Key == bottomPanel)
+                    bottomPanelToolStripMenuItem.Checked = kvp.Value;
+            }
+
+            statusLabel.Text = "Panel visibility updated";
+        }
+
+        #endregion
+
+        #region Panel Spacing Helper Methods
+
+        /// <summary>
+        /// Set margin (spacing) for a single panel
+        /// </summary>
+        /// <param name="panel">Panel to apply margin to</param>
+        /// <param name="margin">Margin size in pixels (applied to all sides)</param>
+        public void SetPanelMargin(Panel panel, int margin)
+        {
+            panel.Margin = new Padding(margin);
+        }
+
+        /// <summary>
+        /// Set margin (spacing) for a single panel with individual side values
+        /// </summary>
+        /// <param name="panel">Panel to apply margin to</param>
+        /// <param name="left">Left margin in pixels</param>
+        /// <param name="top">Top margin in pixels</param>
+        /// <param name="right">Right margin in pixels</param>
+        /// <param name="bottom">Bottom margin in pixels</param>
+        public void SetPanelMargin(Panel panel, int left, int top, int right, int bottom)
+        {
+            panel.Margin = new Padding(left, top, right, bottom);
+        }
+
+        /// <summary>
+        /// Set margin (spacing) for all panels at once
+        /// </summary>
+        /// <param name="margin">Margin size in pixels (applied to all sides of all panels)</param>
+        public void SetAllPanelsMargin(int margin)
+        {
+            topPanel.Margin = new Padding(margin);
+            leftPanel.Margin = new Padding(margin);
+            rightPanel.Margin = new Padding(margin);
+            bottomPanel.Margin = new Padding(margin);
+            centerPanel.Margin = new Padding(margin);
+        }
+
+        /// <summary>
+        /// Set custom margins for each panel individually
+        /// </summary>
+        /// <param name="panelMargins">Dictionary with Panel and Padding values</param>
+        public void SetPanelsMargin(Dictionary<Panel, Padding> panelMargins)
+        {
+            foreach (var kvp in panelMargins)
+            {
+                kvp.Key.Margin = kvp.Value;
+            }
+        }
+
+        /// <summary>
+        /// Set border style for a single panel
+        /// </summary>
+        /// <param name="panel">Panel to apply border style to</param>
+        /// <param name="borderStyle">BorderStyle: None, FixedSingle, or Fixed3D</param>
+        public void SetPanelBorderStyle(Panel panel, BorderStyle borderStyle)
+        {
+            panel.BorderStyle = borderStyle;
+        }
+
+        /// <summary>
+        /// Set border style for all panels at once
+        /// </summary>
+        /// <param name="borderStyle">BorderStyle: None (no border), FixedSingle (thin line), Fixed3D (3D effect)</param>
+        public void SetAllPanelsBorderStyle(BorderStyle borderStyle)
+        {
+            topPanel.BorderStyle = borderStyle;
+            leftPanel.BorderStyle = borderStyle;
+            rightPanel.BorderStyle = borderStyle;
+            bottomPanel.BorderStyle = borderStyle;
+            centerPanel.BorderStyle = borderStyle;
+        }
+
+        /// <summary>
+        /// Set custom border styles for each panel individually
+        /// </summary>
+        /// <param name="panelBorderStyles">Dictionary with Panel and BorderStyle values</param>
+        public void SetPanelsBorderStyle(Dictionary<Panel, BorderStyle> panelBorderStyles)
+        {
+            foreach (var kvp in panelBorderStyles)
+            {
+                kvp.Key.BorderStyle = kvp.Value;
+            }
+        }
+
+        /// <summary>
+        /// DEBUG: Set different colors for each panel to identify them easily
+        /// Call this during development, disable when done
+        /// </summary>
+        public void SetPanelDebugColors()
+        {
+            topPanel.BackColor = Color.LightCoral;        // Açık kırmızı (Üst)
+            leftPanel.BackColor = Color.LightBlue;        // Açık mavi (Sol)
+            rightPanel.BackColor = Color.LightGreen;      // Açık yeşil (Sağ)
+            bottomPanel.BackColor = Color.LightYellow;    // Açık sarı (Alt)
+            //centerPanel.BackColor = Color.LightGray;      // Açık gri (Merkez)
+        }
+
+        /// <summary>
+        /// Reset all panels to default white background
+        /// </summary>
+        public void ResetPanelColors()
+        {
+            topPanel.BackColor = SystemColors.Control;    // Varsayılan form rengi
+            leftPanel.BackColor = SystemColors.Control;
+            rightPanel.BackColor = SystemColors.Control;
+            bottomPanel.BackColor = SystemColors.Control;
+            centerPanel.BackColor = SystemColors.Control;
         }
 
         #endregion

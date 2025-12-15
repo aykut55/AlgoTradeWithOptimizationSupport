@@ -35,20 +35,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
-
-            // Initialize components
             mainMenuStrip = new MenuStrip();
-            mainToolStrip = new ToolStrip();
-            statusStrip = new StatusStrip();
-            topPanel = new Panel();
-            leftPanel = new Panel();
-            rightPanel = new Panel();
-            bottomPanel = new Panel();
-            centerPanel = new Panel();
-            mainTabControl = new TabControl();
-
-            // Menu Items
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
             openToolStripMenuItem = new ToolStripMenuItem();
@@ -65,15 +52,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             viewToolStripMenuItem = new ToolStripMenuItem();
             toolbarsToolStripMenuItem = new ToolStripMenuItem();
             statusBarToolStripMenuItem = new ToolStripMenuItem();
+            panelsToolStripMenuItem = new ToolStripMenuItem();
+            defaultPanelsToolStripMenuItem = new ToolStripMenuItem();
+            hideAllPanelsToolStripMenuItem = new ToolStripMenuItem();
+            showAllPanelsToolStripMenuItem = new ToolStripMenuItem();
+            toolStripSeparator3 = new ToolStripSeparator();
+            topPanelToolStripMenuItem = new ToolStripMenuItem();
+            leftPanelToolStripMenuItem = new ToolStripMenuItem();
+            rightPanelToolStripMenuItem = new ToolStripMenuItem();
+            bottomPanelToolStripMenuItem = new ToolStripMenuItem();
             fullScreenToolStripMenuItem = new ToolStripMenuItem();
             toolsToolStripMenuItem = new ToolStripMenuItem();
             optionsToolStripMenuItem = new ToolStripMenuItem();
             preferencesToolStripMenuItem = new ToolStripMenuItem();
             helpToolStripMenuItem = new ToolStripMenuItem();
-            aboutToolStripMenuItem = new ToolStripMenuItem();
             documentationToolStripMenuItem = new ToolStripMenuItem();
-
-            // ToolStrip Items
+            aboutToolStripMenuItem = new ToolStripMenuItem();
+            mainToolStrip = new ToolStrip();
             newToolStripButton = new ToolStripButton();
             openToolStripButton = new ToolStripButton();
             saveToolStripButton = new ToolStripButton();
@@ -83,413 +78,440 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             pasteToolStripButton = new ToolStripButton();
             toolStripSeparator2 = new ToolStripSeparator();
             helpToolStripButton = new ToolStripButton();
-
-            // StatusStrip Items
+            statusStrip = new StatusStrip();
             statusLabel = new ToolStripStatusLabel();
             progressBar = new ToolStripProgressBar();
             spacerLabel = new ToolStripStatusLabel();
             timeLabel = new ToolStripStatusLabel();
-
+            topPanel = new Panel();
+            leftPanel = new Panel();
+            rightPanel = new Panel();
+            bottomPanel = new Panel();
+            centerPanel = new Panel();
+            mainTabControl = new TabControl();
+            mainMenuStrip.SuspendLayout();
+            mainToolStrip.SuspendLayout();
+            statusStrip.SuspendLayout();
+            centerPanel.SuspendLayout();
             SuspendLayout();
-
-            //
+            // 
             // mainMenuStrip
-            //
+            // 
             mainMenuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, viewToolStripMenuItem, toolsToolStripMenuItem, helpToolStripMenuItem });
             mainMenuStrip.Location = new Point(0, 0);
             mainMenuStrip.Name = "mainMenuStrip";
             mainMenuStrip.Size = new Size(1200, 24);
             mainMenuStrip.TabIndex = 0;
             mainMenuStrip.Text = "mainMenuStrip";
-
-            //
+            // 
             // fileToolStripMenuItem
-            //
+            // 
             fileToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { newToolStripMenuItem, openToolStripMenuItem, saveToolStripMenuItem, saveAsToolStripMenuItem, exitToolStripMenuItem });
             fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             fileToolStripMenuItem.Size = new Size(37, 20);
             fileToolStripMenuItem.Text = "&File";
-
-            //
+            // 
             // newToolStripMenuItem
-            //
+            // 
             newToolStripMenuItem.Name = "newToolStripMenuItem";
             newToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.N;
             newToolStripMenuItem.Size = new Size(146, 22);
             newToolStripMenuItem.Text = "&New";
             newToolStripMenuItem.Click += newToolStripMenuItem_Click;
-
-            //
+            // 
             // openToolStripMenuItem
-            //
+            // 
             openToolStripMenuItem.Name = "openToolStripMenuItem";
             openToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.O;
             openToolStripMenuItem.Size = new Size(146, 22);
             openToolStripMenuItem.Text = "&Open";
             openToolStripMenuItem.Click += openToolStripMenuItem_Click;
-
-            //
+            // 
             // saveToolStripMenuItem
-            //
+            // 
             saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             saveToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.S;
             saveToolStripMenuItem.Size = new Size(146, 22);
             saveToolStripMenuItem.Text = "&Save";
             saveToolStripMenuItem.Click += saveToolStripMenuItem_Click;
-
-            //
+            // 
             // saveAsToolStripMenuItem
-            //
+            // 
             saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             saveAsToolStripMenuItem.Size = new Size(146, 22);
             saveAsToolStripMenuItem.Text = "Save &As...";
             saveAsToolStripMenuItem.Click += saveAsToolStripMenuItem_Click;
-
-            //
+            // 
             // exitToolStripMenuItem
-            //
+            // 
             exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             exitToolStripMenuItem.Size = new Size(146, 22);
             exitToolStripMenuItem.Text = "E&xit";
             exitToolStripMenuItem.Click += exitToolStripMenuItem_Click;
-
-            //
+            // 
             // editToolStripMenuItem
-            //
+            // 
             editToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { undoToolStripMenuItem, redoToolStripMenuItem, cutToolStripMenuItem, copyToolStripMenuItem, pasteToolStripMenuItem, selectAllToolStripMenuItem });
             editToolStripMenuItem.Name = "editToolStripMenuItem";
             editToolStripMenuItem.Size = new Size(39, 20);
             editToolStripMenuItem.Text = "&Edit";
-
-            //
+            // 
             // undoToolStripMenuItem
-            //
+            // 
             undoToolStripMenuItem.Name = "undoToolStripMenuItem";
             undoToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Z;
             undoToolStripMenuItem.Size = new Size(164, 22);
             undoToolStripMenuItem.Text = "&Undo";
             undoToolStripMenuItem.Click += undoToolStripMenuItem_Click;
-
-            //
+            // 
             // redoToolStripMenuItem
-            //
+            // 
             redoToolStripMenuItem.Name = "redoToolStripMenuItem";
             redoToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Y;
             redoToolStripMenuItem.Size = new Size(164, 22);
             redoToolStripMenuItem.Text = "&Redo";
             redoToolStripMenuItem.Click += redoToolStripMenuItem_Click;
-
-            //
+            // 
             // cutToolStripMenuItem
-            //
+            // 
             cutToolStripMenuItem.Name = "cutToolStripMenuItem";
             cutToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.X;
             cutToolStripMenuItem.Size = new Size(164, 22);
             cutToolStripMenuItem.Text = "Cu&t";
             cutToolStripMenuItem.Click += cutToolStripMenuItem_Click;
-
-            //
+            // 
             // copyToolStripMenuItem
-            //
+            // 
             copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             copyToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.C;
             copyToolStripMenuItem.Size = new Size(164, 22);
             copyToolStripMenuItem.Text = "&Copy";
             copyToolStripMenuItem.Click += copyToolStripMenuItem_Click;
-
-            //
+            // 
             // pasteToolStripMenuItem
-            //
+            // 
             pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             pasteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.V;
             pasteToolStripMenuItem.Size = new Size(164, 22);
             pasteToolStripMenuItem.Text = "&Paste";
             pasteToolStripMenuItem.Click += pasteToolStripMenuItem_Click;
-
-            //
+            // 
             // selectAllToolStripMenuItem
-            //
+            // 
             selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
             selectAllToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.A;
             selectAllToolStripMenuItem.Size = new Size(164, 22);
             selectAllToolStripMenuItem.Text = "Select &All";
             selectAllToolStripMenuItem.Click += selectAllToolStripMenuItem_Click;
-
-            //
+            // 
             // viewToolStripMenuItem
-            //
-            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolbarsToolStripMenuItem, statusBarToolStripMenuItem, fullScreenToolStripMenuItem });
+            // 
+            viewToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { toolbarsToolStripMenuItem, statusBarToolStripMenuItem, panelsToolStripMenuItem, fullScreenToolStripMenuItem });
             viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             viewToolStripMenuItem.Size = new Size(44, 20);
             viewToolStripMenuItem.Text = "&View";
-
-            //
+            // 
             // toolbarsToolStripMenuItem
-            //
+            // 
             toolbarsToolStripMenuItem.Name = "toolbarsToolStripMenuItem";
             toolbarsToolStripMenuItem.Size = new Size(156, 22);
             toolbarsToolStripMenuItem.Text = "&Toolbars";
             toolbarsToolStripMenuItem.Click += toolbarsToolStripMenuItem_Click;
-
-            //
+            // 
             // statusBarToolStripMenuItem
-            //
+            // 
             statusBarToolStripMenuItem.Checked = true;
             statusBarToolStripMenuItem.CheckState = CheckState.Checked;
             statusBarToolStripMenuItem.Name = "statusBarToolStripMenuItem";
             statusBarToolStripMenuItem.Size = new Size(156, 22);
             statusBarToolStripMenuItem.Text = "&Status Bar";
             statusBarToolStripMenuItem.Click += statusBarToolStripMenuItem_Click;
-
-            //
+            // 
+            // panelsToolStripMenuItem
+            // 
+            panelsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { defaultPanelsToolStripMenuItem, hideAllPanelsToolStripMenuItem, showAllPanelsToolStripMenuItem, toolStripSeparator3, topPanelToolStripMenuItem, leftPanelToolStripMenuItem, rightPanelToolStripMenuItem, bottomPanelToolStripMenuItem });
+            panelsToolStripMenuItem.Name = "panelsToolStripMenuItem";
+            panelsToolStripMenuItem.Size = new Size(156, 22);
+            panelsToolStripMenuItem.Text = "&Panels";
+            // 
+            // defaultPanelsToolStripMenuItem
+            // 
+            defaultPanelsToolStripMenuItem.Name = "defaultPanelsToolStripMenuItem";
+            defaultPanelsToolStripMenuItem.Size = new Size(146, 22);
+            defaultPanelsToolStripMenuItem.Text = "&Default";
+            defaultPanelsToolStripMenuItem.Click += defaultPanelsToolStripMenuItem_Click;
+            // 
+            // hideAllPanelsToolStripMenuItem
+            // 
+            hideAllPanelsToolStripMenuItem.Name = "hideAllPanelsToolStripMenuItem";
+            hideAllPanelsToolStripMenuItem.Size = new Size(146, 22);
+            hideAllPanelsToolStripMenuItem.Text = "&Hide All";
+            hideAllPanelsToolStripMenuItem.Click += hideAllPanelsToolStripMenuItem_Click;
+            // 
+            // showAllPanelsToolStripMenuItem
+            // 
+            showAllPanelsToolStripMenuItem.Name = "showAllPanelsToolStripMenuItem";
+            showAllPanelsToolStripMenuItem.Size = new Size(146, 22);
+            showAllPanelsToolStripMenuItem.Text = "&Show All";
+            showAllPanelsToolStripMenuItem.Click += showAllPanelsToolStripMenuItem_Click;
+            // 
+            // toolStripSeparator3
+            // 
+            toolStripSeparator3.Name = "toolStripSeparator3";
+            toolStripSeparator3.Size = new Size(143, 6);
+            // 
+            // topPanelToolStripMenuItem
+            // 
+            topPanelToolStripMenuItem.Name = "topPanelToolStripMenuItem";
+            topPanelToolStripMenuItem.Size = new Size(146, 22);
+            topPanelToolStripMenuItem.Text = "&Top Panel";
+            topPanelToolStripMenuItem.Click += topPanelToolStripMenuItem_Click;
+            // 
+            // leftPanelToolStripMenuItem
+            // 
+            leftPanelToolStripMenuItem.Checked = true;
+            leftPanelToolStripMenuItem.CheckState = CheckState.Checked;
+            leftPanelToolStripMenuItem.Name = "leftPanelToolStripMenuItem";
+            leftPanelToolStripMenuItem.Size = new Size(146, 22);
+            leftPanelToolStripMenuItem.Text = "&Left Panel";
+            leftPanelToolStripMenuItem.Click += leftPanelToolStripMenuItem_Click;
+            // 
+            // rightPanelToolStripMenuItem
+            // 
+            rightPanelToolStripMenuItem.Name = "rightPanelToolStripMenuItem";
+            rightPanelToolStripMenuItem.Size = new Size(146, 22);
+            rightPanelToolStripMenuItem.Text = "&Right Panel";
+            rightPanelToolStripMenuItem.Click += rightPanelToolStripMenuItem_Click;
+            // 
+            // bottomPanelToolStripMenuItem
+            // 
+            bottomPanelToolStripMenuItem.Checked = true;
+            bottomPanelToolStripMenuItem.CheckState = CheckState.Checked;
+            bottomPanelToolStripMenuItem.Name = "bottomPanelToolStripMenuItem";
+            bottomPanelToolStripMenuItem.Size = new Size(146, 22);
+            bottomPanelToolStripMenuItem.Text = "&Bottom Panel";
+            bottomPanelToolStripMenuItem.Click += bottomPanelToolStripMenuItem_Click;
+            // 
             // fullScreenToolStripMenuItem
-            //
+            // 
             fullScreenToolStripMenuItem.Name = "fullScreenToolStripMenuItem";
             fullScreenToolStripMenuItem.ShortcutKeys = Keys.F11;
             fullScreenToolStripMenuItem.Size = new Size(156, 22);
             fullScreenToolStripMenuItem.Text = "&Full Screen";
             fullScreenToolStripMenuItem.Click += fullScreenToolStripMenuItem_Click;
-
-            //
+            // 
             // toolsToolStripMenuItem
-            //
+            // 
             toolsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { optionsToolStripMenuItem, preferencesToolStripMenuItem });
             toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             toolsToolStripMenuItem.Size = new Size(47, 20);
             toolsToolStripMenuItem.Text = "&Tools";
-
-            //
+            // 
             // optionsToolStripMenuItem
-            //
+            // 
             optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             optionsToolStripMenuItem.Size = new Size(135, 22);
             optionsToolStripMenuItem.Text = "&Options";
             optionsToolStripMenuItem.Click += optionsToolStripMenuItem_Click;
-
-            //
+            // 
             // preferencesToolStripMenuItem
-            //
+            // 
             preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
             preferencesToolStripMenuItem.Size = new Size(135, 22);
             preferencesToolStripMenuItem.Text = "&Preferences";
             preferencesToolStripMenuItem.Click += preferencesToolStripMenuItem_Click;
-
-            //
+            // 
             // helpToolStripMenuItem
-            //
+            // 
             helpToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { documentationToolStripMenuItem, aboutToolStripMenuItem });
             helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             helpToolStripMenuItem.Size = new Size(44, 20);
             helpToolStripMenuItem.Text = "&Help";
-
-            //
+            // 
             // documentationToolStripMenuItem
-            //
+            // 
             documentationToolStripMenuItem.Name = "documentationToolStripMenuItem";
             documentationToolStripMenuItem.ShortcutKeys = Keys.F1;
             documentationToolStripMenuItem.Size = new Size(176, 22);
             documentationToolStripMenuItem.Text = "&Documentation";
             documentationToolStripMenuItem.Click += documentationToolStripMenuItem_Click;
-
-            //
+            // 
             // aboutToolStripMenuItem
-            //
+            // 
             aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
             aboutToolStripMenuItem.Size = new Size(176, 22);
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
-
-            //
+            // 
             // mainToolStrip
-            //
+            // 
             mainToolStrip.Items.AddRange(new ToolStripItem[] { newToolStripButton, openToolStripButton, saveToolStripButton, toolStripSeparator1, cutToolStripButton, copyToolStripButton, pasteToolStripButton, toolStripSeparator2, helpToolStripButton });
             mainToolStrip.Location = new Point(0, 24);
             mainToolStrip.Name = "mainToolStrip";
             mainToolStrip.Size = new Size(1200, 25);
             mainToolStrip.TabIndex = 1;
             mainToolStrip.ItemClicked += mainToolStrip_ItemClicked;
-
-            //
+            // 
             // newToolStripButton
-            //
+            // 
             newToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             newToolStripButton.Name = "newToolStripButton";
             newToolStripButton.Size = new Size(50, 22);
             newToolStripButton.Text = "📄 New";
             newToolStripButton.ToolTipText = "Create a new file (Ctrl+N)";
-
-            //
+            // 
             // openToolStripButton
-            //
+            // 
             openToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             openToolStripButton.Name = "openToolStripButton";
             openToolStripButton.Size = new Size(55, 22);
             openToolStripButton.Text = "📁 Open";
             openToolStripButton.ToolTipText = "Open an existing file (Ctrl+O)";
-
-            //
+            // 
             // saveToolStripButton
-            //
+            // 
             saveToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             saveToolStripButton.Name = "saveToolStripButton";
             saveToolStripButton.Size = new Size(50, 22);
             saveToolStripButton.Text = "💾 Save";
             saveToolStripButton.ToolTipText = "Save the current file (Ctrl+S)";
-
-            //
+            // 
             // toolStripSeparator1
-            //
+            // 
             toolStripSeparator1.Name = "toolStripSeparator1";
             toolStripSeparator1.Size = new Size(6, 25);
-
-            //
+            // 
             // cutToolStripButton
-            //
+            // 
             cutToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             cutToolStripButton.Name = "cutToolStripButton";
             cutToolStripButton.Size = new Size(45, 22);
             cutToolStripButton.Text = "✂️ Cut";
             cutToolStripButton.ToolTipText = "Cut selected content (Ctrl+X)";
-
-            //
+            // 
             // copyToolStripButton
-            //
+            // 
             copyToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             copyToolStripButton.Name = "copyToolStripButton";
             copyToolStripButton.Size = new Size(54, 22);
             copyToolStripButton.Text = "📋 Copy";
             copyToolStripButton.ToolTipText = "Copy selected content (Ctrl+C)";
-
-            //
+            // 
             // pasteToolStripButton
-            //
+            // 
             pasteToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             pasteToolStripButton.Name = "pasteToolStripButton";
             pasteToolStripButton.Size = new Size(54, 22);
             pasteToolStripButton.Text = "📌 Paste";
             pasteToolStripButton.ToolTipText = "Paste clipboard content (Ctrl+V)";
-
-            //
+            // 
             // toolStripSeparator2
-            //
+            // 
             toolStripSeparator2.Name = "toolStripSeparator2";
             toolStripSeparator2.Size = new Size(6, 25);
-
-            //
+            // 
             // helpToolStripButton
-            //
+            // 
             helpToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             helpToolStripButton.Name = "helpToolStripButton";
             helpToolStripButton.Size = new Size(51, 22);
             helpToolStripButton.Text = "❓ Help";
             helpToolStripButton.ToolTipText = "Show help documentation (F1)";
-
-            //
+            // 
             // statusStrip
-            //
+            // 
             statusStrip.Items.AddRange(new ToolStripItem[] { statusLabel, progressBar, spacerLabel, timeLabel });
-            statusStrip.Location = new Point(0, 728);
+            statusStrip.Location = new Point(0, 725);
             statusStrip.Name = "statusStrip";
-            statusStrip.Size = new Size(1200, 22);
+            statusStrip.Size = new Size(1200, 25);
             statusStrip.TabIndex = 2;
-
-            //
+            // 
             // statusLabel
-            //
+            // 
             statusLabel.Name = "statusLabel";
             statusLabel.Size = new Size(39, 20);
             statusLabel.Text = "Ready";
-
-            //
+            // 
             // progressBar
-            //
+            // 
             progressBar.Name = "progressBar";
             progressBar.Size = new Size(100, 19);
-
-            //
+            // 
             // spacerLabel
-            //
+            // 
             spacerLabel.Name = "spacerLabel";
-            spacerLabel.Size = new Size(768, 20);
+            spacerLabel.Size = new Size(995, 20);
             spacerLabel.Spring = true;
-
-            //
+            // 
             // timeLabel
-            //
+            // 
             timeLabel.Name = "timeLabel";
             timeLabel.Size = new Size(49, 20);
             timeLabel.Text = "00:00:00";
             timeLabel.TextAlign = ContentAlignment.MiddleRight;
-
-            //
+            // 
             // topPanel
-            //
+            // 
+            topPanel.BorderStyle = BorderStyle.FixedSingle;
             topPanel.Dock = DockStyle.Top;
             topPanel.Location = new Point(0, 49);
             topPanel.Name = "topPanel";
             topPanel.Size = new Size(1200, 50);
             topPanel.TabIndex = 3;
-            topPanel.BorderStyle = BorderStyle.FixedSingle;
-
-            //
-            // bottomPanel
-            //
-            bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Location = new Point(0, 628);
-            bottomPanel.Name = "bottomPanel";
-            bottomPanel.Size = new Size(1200, 100);
-            bottomPanel.TabIndex = 4;
-            bottomPanel.BorderStyle = BorderStyle.FixedSingle;
-
-            //
+            topPanel.Visible = false;
+            // 
             // leftPanel
-            //
+            // 
+            leftPanel.BorderStyle = BorderStyle.FixedSingle;
             leftPanel.Dock = DockStyle.Left;
             leftPanel.Location = new Point(0, 99);
             leftPanel.Name = "leftPanel";
-            leftPanel.Size = new Size(200, 529);
+            leftPanel.Size = new Size(103, 526);
             leftPanel.TabIndex = 5;
-            leftPanel.BorderStyle = BorderStyle.FixedSingle;
-
-            //
+            // 
             // rightPanel
-            //
-            rightPanel.Dock = DockStyle.Right;
-            rightPanel.Location = new Point(1000, 99);
-            rightPanel.Name = "rightPanel";
-            rightPanel.Size = new Size(200, 529);
-            rightPanel.TabIndex = 6;
+            // 
             rightPanel.BorderStyle = BorderStyle.FixedSingle;
-
-            //
+            rightPanel.Dock = DockStyle.Right;
+            rightPanel.Location = new Point(1082, 99);
+            rightPanel.Name = "rightPanel";
+            rightPanel.Size = new Size(118, 526);
+            rightPanel.TabIndex = 6;
+            rightPanel.Visible = false;
+            // 
+            // bottomPanel
+            // 
+            bottomPanel.BorderStyle = BorderStyle.FixedSingle;
+            bottomPanel.Dock = DockStyle.Bottom;
+            bottomPanel.Location = new Point(0, 625);
+            bottomPanel.Name = "bottomPanel";
+            bottomPanel.Size = new Size(1200, 100);
+            bottomPanel.TabIndex = 4;
+            // 
             // centerPanel
-            //
-            centerPanel.Dock = DockStyle.Fill;
-            centerPanel.Location = new Point(200, 99);
-            centerPanel.Name = "centerPanel";
-            centerPanel.Size = new Size(800, 529);
-            centerPanel.TabIndex = 7;
+            // 
             centerPanel.BorderStyle = BorderStyle.FixedSingle;
             centerPanel.Controls.Add(mainTabControl);
-
-            //
+            centerPanel.Dock = DockStyle.Fill;
+            centerPanel.Location = new Point(103, 99);
+            centerPanel.Name = "centerPanel";
+            centerPanel.Size = new Size(979, 526);
+            centerPanel.TabIndex = 7;
+            // 
             // mainTabControl
-            //
+            // 
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(798, 527);
+            mainTabControl.Size = new Size(977, 524);
             mainTabControl.TabIndex = 0;
-
-            //
+            // 
             // Form1
-            //
+            // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(1200, 750);
-
-            // Add controls in reverse dock order
             Controls.Add(centerPanel);
             Controls.Add(rightPanel);
             Controls.Add(leftPanel);
@@ -498,19 +520,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             Controls.Add(mainToolStrip);
             Controls.Add(mainMenuStrip);
             Controls.Add(statusStrip);
-
             MainMenuStrip = mainMenuStrip;
             Name = "Form1";
-            Text = "Algo Trade - Optimization Support";
             StartPosition = FormStartPosition.CenterScreen;
-
+            Text = "Algo Trade - Optimization Support";
             mainMenuStrip.ResumeLayout(false);
             mainMenuStrip.PerformLayout();
             mainToolStrip.ResumeLayout(false);
             mainToolStrip.PerformLayout();
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
-
+            centerPanel.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -544,6 +564,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private ToolStripMenuItem viewToolStripMenuItem;
         private ToolStripMenuItem toolbarsToolStripMenuItem;
         private ToolStripMenuItem statusBarToolStripMenuItem;
+        private ToolStripMenuItem panelsToolStripMenuItem;
+        private ToolStripMenuItem defaultPanelsToolStripMenuItem;
+        private ToolStripMenuItem hideAllPanelsToolStripMenuItem;
+        private ToolStripMenuItem showAllPanelsToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator3;
+        private ToolStripMenuItem topPanelToolStripMenuItem;
+        private ToolStripMenuItem leftPanelToolStripMenuItem;
+        private ToolStripMenuItem rightPanelToolStripMenuItem;
+        private ToolStripMenuItem bottomPanelToolStripMenuItem;
         private ToolStripMenuItem fullScreenToolStripMenuItem;
         private ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripMenuItem optionsToolStripMenuItem;
