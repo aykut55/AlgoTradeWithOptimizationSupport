@@ -592,21 +592,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             topPanel.Visible = false;
             // 
             // leftPanel
-            // 
+            //
             leftPanel.BorderStyle = BorderStyle.FixedSingle;
             leftPanel.Dock = DockStyle.Left;
-            leftPanel.Location = new Point(0, 99);
+            leftPanel.Location = new Point(0, 124);
             leftPanel.Name = "leftPanel";
-            leftPanel.Size = new Size(103, 526);
+            leftPanel.Size = new Size(103, 501);
             leftPanel.TabIndex = 5;
             // 
             // rightPanel
-            // 
+            //
             rightPanel.BorderStyle = BorderStyle.FixedSingle;
             rightPanel.Dock = DockStyle.Right;
-            rightPanel.Location = new Point(1082, 99);
+            rightPanel.Location = new Point(1082, 124);
             rightPanel.Name = "rightPanel";
-            rightPanel.Size = new Size(118, 526);
+            rightPanel.Size = new Size(118, 501);
             rightPanel.TabIndex = 6;
             rightPanel.Visible = false;
             // 
@@ -620,22 +620,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.TabIndex = 4;
             // 
             // centerPanel
-            // 
+            //
             centerPanel.BorderStyle = BorderStyle.FixedSingle;
             centerPanel.Controls.Add(mainTabControl);
             centerPanel.Dock = DockStyle.Fill;
-            centerPanel.Location = new Point(103, 99);
+            centerPanel.Location = new Point(103, 124);
             centerPanel.Name = "centerPanel";
-            centerPanel.Size = new Size(979, 526);
+            centerPanel.Size = new Size(979, 501);
             centerPanel.TabIndex = 7;
             // 
             // mainTabControl
-            // 
+            //
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(977, 524);
+            mainTabControl.Size = new Size(977, 499);
             mainTabControl.TabIndex = 0;
             // 
             // Form1
