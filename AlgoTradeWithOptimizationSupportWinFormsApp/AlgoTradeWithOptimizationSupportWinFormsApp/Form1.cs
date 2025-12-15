@@ -47,21 +47,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void LoadInitialTabs()
         {
             // Add main tabs first
-            AddStrategyTab("SingleTrader");
-            AddStrategyTab("MultipleTraders");
-            AddStrategyTab("SingleTraderOptimization");
+            AddNewTab("SingleTrader");
+            AddNewTab("MultipleTraders");
+            AddNewTab("SingleTraderOptimization");
 
             // Add sample tabs for testing
-            //AddStrategyTab("AAPL - MA Strategy");
-            //AddStrategyTab("GOOG - RSI Strategy");
-            //AddStrategyTab("TSLA - MACD Strategy");
-            //AddStrategyTab("MSFT - Bollinger");
-            //AddStrategyTab("AMZN - Stochastic");
-            //AddStrategyTab("META - EMA Cross");
-            //AddStrategyTab("NVDA - Volume");
-            //AddStrategyTab("AMD - Momentum");
-            //AddStrategyTab("NFLX - ATR");
-            //AddStrategyTab("BIST100 - Combo");
+            //AddNewTab("AAPL - MA Strategy");
+            //AddNewTab("GOOG - RSI Strategy");
+            //AddNewTab("TSLA - MACD Strategy");
+            //AddNewTab("MSFT - Bollinger");
+            //AddNewTab("AMZN - Stochastic");
+            //AddNewTab("META - EMA Cross");
+            //AddNewTab("NVDA - Volume");
+            //AddNewTab("AMD - Momentum");
+            //AddNewTab("NFLX - ATR");
+            //AddNewTab("BIST100 - Combo");
+
+            // Select the first tab after all tabs are added
+            SelectTab(0);
         }
 
         private void InitializeTabControl()
@@ -107,12 +110,74 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             e.Graphics.DrawRectangle(Pens.Gray, tabRect);
         }
 
-        public void AddStrategyTab(string tabName)
+        public TabPage AddNewTab(string tabName)
         {
             TabPage newTab = new TabPage(tabName);
             newTab.BackColor = Color.White;
             mainTabControl.TabPages.Add(newTab);
-            mainTabControl.SelectedTab = newTab;
+            // Not: SelectedTab burada ayarlanmıyor, tüm tab'ler eklendikten sonra ilki seçilecek
+            return newTab;
+        }
+
+        /// <summary>
+        /// Get a TabPage by index
+        /// </summary>
+        /// <param name="index">Tab index (0-based)</param>
+        /// <returns>TabPage at the specified index, or null if not found</returns>
+        public TabPage? GetTab(int index)
+        {
+            if (index >= 0 && index < mainTabControl.TabPages.Count)
+            {
+                return mainTabControl.TabPages[index];
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Get a TabPage by name
+        /// </summary>
+        /// <param name="tabName">Tab name (Text property)</param>
+        /// <returns>First TabPage with matching name, or null if not found</returns>
+        public TabPage? GetTab(string tabName)
+        {
+            foreach (TabPage tab in mainTabControl.TabPages)
+            {
+                if (tab.Text == tabName)
+                {
+                    return tab;
+                }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Select (activate) a tab by index
+        /// </summary>
+        /// <param name="index">Tab index (0-based)</param>
+        public void SelectTab(int index)
+        {
+            if (index >= 0 && index < mainTabControl.TabPages.Count)
+            {
+                mainTabControl.SelectedIndex = index;
+            }
+        }
+
+        /// <summary>
+        /// Get the currently active (selected) tab
+        /// </summary>
+        /// <returns>Currently selected TabPage, or null if no tab is selected</returns>
+        public TabPage? GetActiveTab()
+        {
+            return mainTabControl.SelectedTab;
+        }
+
+        /// <summary>
+        /// Get the index of the currently active (selected) tab
+        /// </summary>
+        /// <returns>Index of selected tab (0-based), or -1 if no tab is selected</returns>
+        public int GetActiveTabIndex()
+        {
+            return mainTabControl.SelectedIndex;
         }
 
         public TabControl GetMainTabControl() => mainTabControl;
@@ -208,11 +273,48 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         #region Menu Event Handlers - View
 
-        private void toolbarsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void defaultToolbarsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            mainToolStrip.Visible = !mainToolStrip.Visible;
-            toolbarsToolStripMenuItem.Checked = mainToolStrip.Visible;
-            statusLabel.Text = mainToolStrip.Visible ? "Toolbar shown" : "Toolbar hidden";
+            // Default: mainToolStrip1 visible, mainToolStrip2 hidden
+            mainToolStrip1.Visible = true;
+            mainToolStrip2.Visible = false;
+            mainToolStrip1ToolStripMenuItem.Checked = true;
+            mainToolStrip2ToolStripMenuItem.Checked = false;
+            statusLabel.Text = "Toolbars set to default";
+        }
+
+        private void hideAllToolbarsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Hide all toolbars
+            mainToolStrip1.Visible = false;
+            mainToolStrip2.Visible = false;
+            mainToolStrip1ToolStripMenuItem.Checked = false;
+            mainToolStrip2ToolStripMenuItem.Checked = false;
+            statusLabel.Text = "All toolbars hidden";
+        }
+
+        private void showAllToolbarsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // Show all toolbars
+            mainToolStrip1.Visible = true;
+            mainToolStrip2.Visible = true;
+            mainToolStrip1ToolStripMenuItem.Checked = true;
+            mainToolStrip2ToolStripMenuItem.Checked = true;
+            statusLabel.Text = "All toolbars visible";
+        }
+
+        private void mainToolStrip1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mainToolStrip1.Visible = !mainToolStrip1.Visible;
+            mainToolStrip1ToolStripMenuItem.Checked = mainToolStrip1.Visible;
+            statusLabel.Text = mainToolStrip1.Visible ? "ToolStrip 1 shown" : "ToolStrip 1 hidden";
+        }
+
+        private void mainToolStrip2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mainToolStrip2.Visible = !mainToolStrip2.Visible;
+            mainToolStrip2ToolStripMenuItem.Checked = mainToolStrip2.Visible;
+            statusLabel.Text = mainToolStrip2.Visible ? "ToolStrip 2 shown" : "ToolStrip 2 hidden";
         }
 
         private void statusBarToolStripMenuItem_Click(object sender, EventArgs e)
@@ -490,7 +592,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private void mainToolStrip_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            // Handle toolbar clicks through the ItemClicked event
+            // Handle mainToolStrip1 clicks through the ItemClicked event
             switch (e.ClickedItem?.Name)
             {
                 case "newToolStripButton":
@@ -513,6 +615,43 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     break;
                 case "helpToolStripButton":
                     documentationToolStripMenuItem_Click(sender, e);
+                    break;
+            }
+        }
+
+        private void mainToolStrip2_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+            // Handle mainToolStrip2 clicks through the ItemClicked event (centralized)
+            switch (e.ClickedItem?.Name)
+            {
+                case "runStrategyButton":
+                    MessageBox.Show("Run Strategy functionality will be implemented here.\n\nThis will execute the selected trading strategy.",
+                        "Run Strategy", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    statusLabel.Text = "Run Strategy clicked";
+                    break;
+
+                case "stopStrategyButton":
+                    MessageBox.Show("Stop Strategy functionality will be implemented here.\n\nThis will stop the running strategy.",
+                        "Stop Strategy", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    statusLabel.Text = "Stop Strategy clicked";
+                    break;
+
+                case "optimizeButton":
+                    MessageBox.Show("Optimize functionality will be implemented here.\n\nThis will optimize strategy parameters using historical data.",
+                        "Optimize", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    statusLabel.Text = "Optimize clicked";
+                    break;
+
+                case "exportResultsButton":
+                    MessageBox.Show("Export Results functionality will be implemented here.\n\nThis will export backtest/optimization results to Excel or CSV.",
+                        "Export Results", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    statusLabel.Text = "Export Results clicked";
+                    break;
+
+                case "settingsButton":
+                    MessageBox.Show("Settings functionality will be implemented here.\n\nThis will open strategy settings dialog.",
+                        "Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    statusLabel.Text = "Settings clicked";
                     break;
             }
         }
