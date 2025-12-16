@@ -121,6 +121,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement
         private bool _mainConsoleAllocated = false;
         private bool _isDisposed = false;
         private ConsoleCtrlDelegate? _consoleCtrlHandler;
+        private System.Threading.Thread? _keyListenerThread;
 
         #endregion
 
@@ -184,6 +185,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement
 
                         _consoles.TryAdd(0, consoleInfo);
 
+                        // Key listener thread'i başlat
+                        StartKeyListener();
+
                         return true;
                     }
                 }
@@ -216,6 +220,80 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement
                 default:
                     return false;
             }
+        }
+
+        /// <summary>
+        /// Key listener thread'i başlat
+        /// </summary>
+        private void StartKeyListener()
+        {
+            _keyListenerThread = new System.Threading.Thread(() =>
+            {
+                try
+                {
+                    System.Console.WriteLine();
+                    System.Console.WriteLine("Keyboard shortcuts:");
+                    System.Console.WriteLine("  ESC        - Exit application");
+                    System.Console.WriteLine("  F5         - Clear console");
+                    System.Console.WriteLine("  CTRL+L     - Clear console");
+                    System.Console.WriteLine();
+
+                    while (!_isDisposed && _mainConsoleAllocated)
+                    {
+                        if (System.Console.KeyAvailable)
+                        {
+                            var key = System.Console.ReadKey(true); // true = intercept, don't display
+
+                            // ESC - Uygulamayı kapat
+                            if (key.Key == ConsoleKey.Escape)
+                            {
+                                System.Console.WriteLine();
+                                System.Console.WriteLine("ESC pressed - Exiting application...");
+                                System.Threading.Thread.Sleep(50);
+                                Environment.Exit(0);
+                            }
+                            // F5 - Ekranı temizle
+                            else if (key.Key == ConsoleKey.F5)
+                            {
+                                ClearConsole(0);
+                                System.Threading.Thread.Sleep(50);
+                                //System.Console.WriteLine("Console cleared (F5)");
+                            }
+                            // CTRL+L - Ekranı temizle
+                            else if (key.Key == ConsoleKey.L && key.Modifiers == ConsoleModifiers.Control)
+                            {
+                                ClearConsole(0);
+                                System.Threading.Thread.Sleep(50);
+                                //System.Console.WriteLine("Console cleared (CTRL+L)");
+                            }
+                            // F1 - Ekranı temizle
+                            else if (key.Key == ConsoleKey.F1)
+                            {
+                                ClearConsole(0);
+                                System.Threading.Thread.Sleep(50);
+                                System.Console.WriteLine();
+                                System.Console.WriteLine("Keyboard shortcuts:");
+                                System.Console.WriteLine("  ESC        - Exit application");
+                                System.Console.WriteLine("  F5         - Clear console");
+                                System.Console.WriteLine("  CTRL+L     - Clear console");
+                                System.Console.WriteLine();
+                            }
+                        }
+
+                        System.Threading.Thread.Sleep(100);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"ConsoleManager: Key listener error: {ex.Message}");
+                }
+            })
+            {
+                IsBackground = true,
+                Name = "ConsoleKeyListener"
+            };
+
+            _keyListenerThread.Start();
         }
 
 
@@ -571,6 +649,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement
                 return;
 
             _isDisposed = true;
+
+            // Key listener thread'i durdur
+            if (_keyListenerThread != null && _keyListenerThread.IsAlive)
+            {
+                // Thread sonlanmasını bekle (max 1 saniye)
+                _keyListenerThread.Join(1000);
+            }
 
             CloseAllConsoles();
 

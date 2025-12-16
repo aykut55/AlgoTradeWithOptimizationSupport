@@ -165,7 +165,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                                 $"Runtime: {_metrics.TotalRuntime.TotalSeconds:F1}s, " +
                                 $"Last iteration: {_metrics.LastIterationTime.TotalMilliseconds:F2}ms");
                         }
+
+                        // Her 100 iterasyonda bir LogManager buffer'ını temizle
+                        if (_metrics.TotalIterations % 100 == 0)
+                        {
+                            LogManager.Instance.ClearBuffer();
+                        }
                     }
+
                 }
                 catch (Exception ex)
                 {

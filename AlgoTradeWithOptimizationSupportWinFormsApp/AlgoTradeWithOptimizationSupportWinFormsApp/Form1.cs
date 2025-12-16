@@ -28,6 +28,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _logManager = LogManager.Instance;
             _logManager.RegisterSink(new RichTextBoxSink(richTextBox1));
             _logManager.RegisterSink(new ConsoleSink()); // Ana console (index 0)
+            _logManager.RegisterSink(new FileSink("logs/app.log"));
 
             // Test mesajı
             LogManager.LogInfo("Console window opened successfully!");

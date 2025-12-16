@@ -26,7 +26,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks
         /// </summary>
         public int FlushIntervalMs { get; set; } = 1000;
 
-        public FileSink(string filePath, bool appendMode = true)
+        public FileSink(string filePath, bool appendMode = false)
         {
             _filePath = filePath;
 
