@@ -5,6 +5,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.src.timer;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
@@ -107,51 +108,86 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void MainLoop(CancellationToken cancellationToken)
         {
+            // MainLoop başlangıç log mesajı
+            TimeManager.Instance.ResetTimer("MainLoop_Total");
+            TimeManager.Instance.StartTimer("MainLoop_Total");
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 _iterationStopwatch.Restart();
+
+                // Her iterasyon için timer'ları sıfırla
+                TimeManager.Instance.ResetTimer("MainLoop_Iteration");
+                TimeManager.Instance.ResetTimer("ReadGuiItems");
+                TimeManager.Instance.ResetTimer("ReadNetwork");
+                TimeManager.Instance.ResetTimer("ReadConfig");
+                TimeManager.Instance.ResetTimer("ExecuteBusinessLogic");
+                TimeManager.Instance.ResetTimer("UpdateConfig");
+                TimeManager.Instance.ResetTimer("SendNetwork");
+                TimeManager.Instance.ResetTimer("WriteDataToFiles");
+                TimeManager.Instance.ResetTimer("UpdateGui");
+
+                TimeManager.Instance.StartTimer("MainLoop_Iteration");
 
                 try
                 {
                     // ============================================
                     // 1. GUI OKUMA
                     // ============================================
+                    TimeManager.Instance.StartTimer("ReadGuiItems");
                     ReadGuiItems();
+                    TimeManager.Instance.StopTimer("ReadGuiItems");
 
                     // ============================================
                     // 2. NETWORK OKUMA
                     // ============================================
+                    TimeManager.Instance.StartTimer("ReadNetwork");
                     ReadNetwork();
+                    TimeManager.Instance.StopTimer("ReadNetwork");
 
                     // ============================================
                     // 3. CONFIG OKUMA
                     // ============================================
+                    TimeManager.Instance.StartTimer("ReadConfig");
                     ReadConfig();
+                    TimeManager.Instance.StopTimer("ReadConfig");
 
                     // ============================================
                     // 4. İŞ MANTIK ÇALIŞIR (Execute/Run)
                     // ============================================
+                    TimeManager.Instance.StartTimer("ExecuteBusinessLogic");
                     ExecuteBusinessLogic();
+                    TimeManager.Instance.StopTimer("ExecuteBusinessLogic");
 
                     // ============================================
                     // 5. CONFIG GÜNCELLEME
                     // ============================================
+                    TimeManager.Instance.StartTimer("UpdateConfig");
                     UpdateConfig();
+                    TimeManager.Instance.StopTimer("UpdateConfig");
 
                     // ============================================
                     // 6. NETWORK GÖNDERME
                     // ============================================
+                    TimeManager.Instance.StartTimer("SendNetwork");
                     SendNetwork();
+                    TimeManager.Instance.StopTimer("SendNetwork");
 
                     // ============================================
                     // 7. DOSYAYA YAZMA
                     // ============================================
+                    TimeManager.Instance.StartTimer("WriteDataToFiles");
                     WriteDataToFiles();
+                    TimeManager.Instance.StopTimer("WriteDataToFiles");
 
                     // ============================================
                     // 8. GUI GÜNCELLEME
                     // ============================================
+                    TimeManager.Instance.StartTimer("UpdateGui");
                     UpdateGui();
+                    TimeManager.Instance.StopTimer("UpdateGui");
+
+                    TimeManager.Instance.StopTimer("MainLoop_Iteration");
 
                     // Başarılı iterasyon
                     UpdateMetrics(success: true);
@@ -164,6 +200,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                             LogManager.LogInfo($"MainLoop: Iteration {_metrics.TotalIterations} completed - " +
                                 $"Runtime: {_metrics.TotalRuntime.TotalSeconds:F1}s, " +
                                 $"Last iteration: {_metrics.LastIterationTime.TotalMilliseconds:F2}ms");
+
+                            // Method bazında timing bilgilerini bulk olarak loga yaz
+                            var timings = $"[TIMING] MainLoop Iteration #{_metrics.TotalIterations} - " +
+                                $"Total: {TimeManager.Instance.GetElapsedTime("MainLoop_Iteration")}ms | " +
+                                $"ReadGuiItems: {TimeManager.Instance.GetElapsedTime("ReadGuiItems")}ms | " +
+                                $"ReadNetwork: {TimeManager.Instance.GetElapsedTime("ReadNetwork")}ms | " +
+                                $"ReadConfig: {TimeManager.Instance.GetElapsedTime("ReadConfig")}ms | " +
+                                $"ExecuteBusinessLogic: {TimeManager.Instance.GetElapsedTime("ExecuteBusinessLogic")}ms | " +
+                                $"UpdateConfig: {TimeManager.Instance.GetElapsedTime("UpdateConfig")}ms | " +
+                                $"SendNetwork: {TimeManager.Instance.GetElapsedTime("SendNetwork")}ms | " +
+                                $"WriteDataToFiles: {TimeManager.Instance.GetElapsedTime("WriteDataToFiles")}ms | " +
+                                $"UpdateGui: {TimeManager.Instance.GetElapsedTime("UpdateGui")}ms";
+                            LogManager.LogDebug(timings);
                         }
 
                         // Her 100 iterasyonda bir LogManager buffer'ını temizle
@@ -176,6 +225,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
                 catch (Exception ex)
                 {
+                    TimeManager.Instance.StopTimer("MainLoop_Iteration");
                     LogManager.LogError("MainLoop: Exception in main loop", ex);
                     UpdateMetrics(success: false);
 
@@ -202,7 +252,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
             }
 
-            LogManager.LogInfo("MainLoop: stopped");
+            TimeManager.Instance.StopTimer("MainLoop_Total");
+            LogManager.LogInfo($"MainLoop: stopped - Total runtime: {TimeManager.Instance.GetElapsedTime("MainLoop_Total")}ms");
         }
 
         /// <summary>
