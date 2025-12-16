@@ -76,6 +76,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // DEBUG: Panelleri renklendir (işiniz bitince bu satırı yorum satırı yapın)
             SetPanelDebugColors();
             //ResetPanelColors();
+            CorrectControlsZOrder();
         }
 
         private void InitializeStatusTimer()
@@ -349,6 +350,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainToolStrip1ToolStripMenuItem.Checked = true;
             mainToolStrip2ToolStripMenuItem.Checked = true;
             statusLabel.Text = "All toolbars visible";
+            CorrectControlsZOrder();
         }
 
         private void mainToolStrip1ToolStripMenuItem_Click(object sender, EventArgs e)
@@ -408,6 +410,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 { bottomPanel, true }
             });
             statusLabel.Text = "All panels visible";
+            CorrectControlsZOrder();
         }
 
         private void topPanelToolStripMenuItem_Click(object sender, EventArgs e)
@@ -596,6 +599,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             rightPanel.BackColor = SystemColors.Control;
             bottomPanel.BackColor = SystemColors.Control;
             centerPanel.BackColor = SystemColors.Control;
+        }
+
+        /// <summary>
+        /// Corrects the Z-Order of controls to ensure proper docking layout.
+        /// Desired Packing Order (Edge to Center):
+        /// Menu -> Strip1 -> Strip2 -> topPanel -> Status -> Bottom -> Sides -> Center
+        /// </summary>
+        public void CorrectControlsZOrder()
+        {
+            this.SuspendLayout();
+            // BringToFront pushes item to Index 0 (Innermost).
+            // So we call Outermost first, Innermost last.
+            
+            mainMenuStrip.BringToFront();
+            mainToolStrip1.BringToFront();
+            mainToolStrip2.BringToFront();
+            topPanel.BringToFront();
+            
+            statusStrip.BringToFront();
+            bottomPanel.BringToFront();
+            
+            leftPanel.BringToFront();
+            rightPanel.BringToFront();
+            
+            centerPanel.BringToFront();
+            this.ResumeLayout(false);
+            this.PerformLayout();
         }
 
         #endregion
