@@ -1,8 +1,12 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
+
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
     public partial class Form1 : Form
     {
         private MainControlLoop? _mainLoop;
+        private LogManager _logManager;
 
         public Form1()
         {
@@ -11,7 +15,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             LoadInitialTabs();
             InitializeStatusTimer();
             InitializePanelSpacing();
+            InitializeLogManager();
             InitializeMainLoop();
+        }
+
+        private void InitializeLogManager()
+        {
+            _logManager = LogManager.Instance;
+            _logManager.RegisterSink(new RichTextBoxSink(richTextBox1));
+            _logManager.RegisterSink(new ConsoleSink());
         }
 
         private void InitializeMainLoop()
@@ -19,13 +31,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _mainLoop = new MainControlLoop(this);
             // Main loop'u başlatma butonuna bağlayabiliriz
             // veya form açılınca otomatik başlatılabilir
-            // _mainLoop.Start();
+            _mainLoop.Start();
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             // Main loop'u güvenli şekilde durdur
             _mainLoop?.Stop();
+
+            // LogManager'ı temizle
+            _logManager?.Dispose();
+
             base.OnFormClosing(e);
         }
 
@@ -552,7 +568,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             topPanel.BackColor = Color.LightCoral;        // Açık kırmızı (Üst)
             leftPanel.BackColor = Color.LightBlue;        // Açık mavi (Sol)
             rightPanel.BackColor = Color.LightGreen;      // Açık yeşil (Sağ)
-            bottomPanel.BackColor = Color.LightYellow;    // Açık sarı (Alt)
+            // bottomPanel.BackColor = Color.LightYellow;    // Açık sarı (Alt)
             //centerPanel.BackColor = Color.LightGray;      // Açık gri (Merkez)
         }
 

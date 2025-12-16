@@ -24,10 +24,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks
                 try
                 {
                     // Renkli console output
-                    var originalColor = Console.ForegroundColor;
-                    Console.ForegroundColor = GetColor(entry.Level);
-                    Console.WriteLine(entry.ToString("medium"));
-                    Console.ForegroundColor = originalColor;
+                    var originalColor = System.Console.ForegroundColor;
+                    System.Console.ForegroundColor = GetColor(entry.Level);
+                    System.Console.WriteLine(entry.ToString("medium"));
+                    System.Console.ForegroundColor = originalColor;
                 }
                 catch (Exception ex)
                 {
@@ -57,7 +57,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks
             {
                 try
                 {
-                    Console.Clear();
+                    System.Console.Clear();
                 }
                 catch { }
             }

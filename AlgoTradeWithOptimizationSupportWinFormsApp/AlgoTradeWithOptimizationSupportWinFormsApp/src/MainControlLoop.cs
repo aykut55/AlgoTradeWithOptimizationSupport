@@ -96,7 +96,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 return;
 
             _cancellationTokenSource?.Cancel();
-            _mainLoopTask?.Wait(5000); // 5 saniye bekle
+
+            // Kısa bir süre bekle, loop hemen çıkmalı
+            _mainLoopTask?.Wait(50); // 500ms yeterli (cancellation-aware sleep sayesinde)
             _isRunning = false;
         }
 
@@ -153,6 +155,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                     // Başarılı iterasyon
                     UpdateMetrics(success: true);
+
+                    // Her 10 iterasyonda bir periyodik log mesajı
+                    lock (_metricsLock)
+                    {
+                        if (_metrics.TotalIterations % 10 == 0)
+                        {
+                            LogManager.LogInfo($"MainLoop: Iteration {_metrics.TotalIterations} completed - " +
+                                $"Runtime: {_metrics.TotalRuntime.TotalSeconds:F1}s, " +
+                                $"Last iteration: {_metrics.LastIterationTime.TotalMilliseconds:F2}ms");
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -160,7 +173,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     UpdateMetrics(success: false);
 
                     // Hata durumunda döngü durmasın, devam etsin
-                    Thread.Sleep(100); // Hata durumunda biraz bekle
+                    // Cancellation-aware sleep
+                    try { Task.Delay(100, cancellationToken).Wait(); } catch { }
                 }
 
                 // Döngü hızını ayarla (CPU'yu %100 kullanmaması için)
@@ -169,7 +183,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     delayMs = _config.LoopDelayMs;
                 }
-                Thread.Sleep(delayMs);
+
+                // Cancellation-aware sleep - hemen çıkış yapabilir
+                try
+                {
+                    Task.Delay(delayMs, cancellationToken).Wait();
+                }
+                catch (AggregateException)
+                {
+                    // Cancellation requested, loop will exit
+                }
             }
 
             LogManager.LogInfo("MainLoop: stopped");

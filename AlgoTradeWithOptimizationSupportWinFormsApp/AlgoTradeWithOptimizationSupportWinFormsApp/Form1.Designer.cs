@@ -103,9 +103,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel = new Panel();
             centerPanel = new Panel();
             mainTabControl = new TabControl();
+            richTextBox1 = new RichTextBox();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
+            mainToolStrip2.SuspendLayout();
             statusStrip.SuspendLayout();
+            bottomPanel.SuspendLayout();
             centerPanel.SuspendLayout();
             SuspendLayout();
             // 
@@ -224,63 +227,56 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             viewToolStripMenuItem.Size = new Size(44, 20);
             viewToolStripMenuItem.Text = "&View";
-            //
+            // 
             // toolbarsToolStripMenuItem
-            //
+            // 
             toolbarsToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { defaultToolbarsToolStripMenuItem, hideAllToolbarsToolStripMenuItem, showAllToolbarsToolStripMenuItem, toolStripSeparator4, mainToolStrip1ToolStripMenuItem, mainToolStrip2ToolStripMenuItem });
             toolbarsToolStripMenuItem.Name = "toolbarsToolStripMenuItem";
             toolbarsToolStripMenuItem.Size = new Size(156, 22);
             toolbarsToolStripMenuItem.Text = "&Toolbars";
-
-            //
+            // 
             // defaultToolbarsToolStripMenuItem
-            //
+            // 
             defaultToolbarsToolStripMenuItem.Name = "defaultToolbarsToolStripMenuItem";
-            defaultToolbarsToolStripMenuItem.Size = new Size(180, 22);
+            defaultToolbarsToolStripMenuItem.Size = new Size(160, 22);
             defaultToolbarsToolStripMenuItem.Text = "&Default";
             defaultToolbarsToolStripMenuItem.Click += defaultToolbarsToolStripMenuItem_Click;
-
-            //
+            // 
             // hideAllToolbarsToolStripMenuItem
-            //
+            // 
             hideAllToolbarsToolStripMenuItem.Name = "hideAllToolbarsToolStripMenuItem";
-            hideAllToolbarsToolStripMenuItem.Size = new Size(180, 22);
+            hideAllToolbarsToolStripMenuItem.Size = new Size(160, 22);
             hideAllToolbarsToolStripMenuItem.Text = "&Hide All";
             hideAllToolbarsToolStripMenuItem.Click += hideAllToolbarsToolStripMenuItem_Click;
-
-            //
+            // 
             // showAllToolbarsToolStripMenuItem
-            //
+            // 
             showAllToolbarsToolStripMenuItem.Name = "showAllToolbarsToolStripMenuItem";
-            showAllToolbarsToolStripMenuItem.Size = new Size(180, 22);
+            showAllToolbarsToolStripMenuItem.Size = new Size(160, 22);
             showAllToolbarsToolStripMenuItem.Text = "&Show All";
             showAllToolbarsToolStripMenuItem.Click += showAllToolbarsToolStripMenuItem_Click;
-
-            //
+            // 
             // toolStripSeparator4
-            //
+            // 
             toolStripSeparator4.Name = "toolStripSeparator4";
-            toolStripSeparator4.Size = new Size(177, 6);
-
-            //
+            toolStripSeparator4.Size = new Size(157, 6);
+            // 
             // mainToolStrip1ToolStripMenuItem
-            //
+            // 
             mainToolStrip1ToolStripMenuItem.Checked = true;
             mainToolStrip1ToolStripMenuItem.CheckState = CheckState.Checked;
             mainToolStrip1ToolStripMenuItem.Name = "mainToolStrip1ToolStripMenuItem";
-            mainToolStrip1ToolStripMenuItem.Size = new Size(180, 22);
+            mainToolStrip1ToolStripMenuItem.Size = new Size(160, 22);
             mainToolStrip1ToolStripMenuItem.Text = "Main ToolStrip &1";
             mainToolStrip1ToolStripMenuItem.Click += mainToolStrip1ToolStripMenuItem_Click;
-
-            //
+            // 
             // mainToolStrip2ToolStripMenuItem
-            //
+            // 
             mainToolStrip2ToolStripMenuItem.Name = "mainToolStrip2ToolStripMenuItem";
-            mainToolStrip2ToolStripMenuItem.Size = new Size(180, 22);
+            mainToolStrip2ToolStripMenuItem.Size = new Size(160, 22);
             mainToolStrip2ToolStripMenuItem.Text = "Main ToolStrip &2";
             mainToolStrip2ToolStripMenuItem.Click += mainToolStrip2ToolStripMenuItem_Click;
-
-            //
+            // 
             // statusBarToolStripMenuItem
             // 
             statusBarToolStripMenuItem.Checked = true;
@@ -405,9 +401,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             aboutToolStripMenuItem.Size = new Size(176, 22);
             aboutToolStripMenuItem.Text = "&About";
             aboutToolStripMenuItem.Click += aboutToolStripMenuItem_Click;
-            //
+            // 
             // mainToolStrip1
-            //
+            // 
             mainToolStrip1.Items.AddRange(new ToolStripItem[] { newToolStripButton, openToolStripButton, saveToolStripButton, toolStripSeparator1, cutToolStripButton, copyToolStripButton, pasteToolStripButton, toolStripSeparator2, helpToolStripButton });
             mainToolStrip1.Location = new Point(0, 24);
             mainToolStrip1.Name = "mainToolStrip1";
@@ -472,17 +468,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             toolStripSeparator2.Name = "toolStripSeparator2";
             toolStripSeparator2.Size = new Size(6, 25);
-            //
+            // 
             // helpToolStripButton
-            //
+            // 
             helpToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             helpToolStripButton.Name = "helpToolStripButton";
             helpToolStripButton.Size = new Size(51, 22);
             helpToolStripButton.Text = "❓ Help";
             helpToolStripButton.ToolTipText = "Show help documentation (F1)";
-            //
+            // 
             // mainToolStrip2
-            //
+            // 
             mainToolStrip2.Items.AddRange(new ToolStripItem[] { runStrategyButton, stopStrategyButton, toolStripSeparator5, optimizeButton, exportResultsButton, toolStripSeparator6, settingsButton });
             mainToolStrip2.Location = new Point(0, 49);
             mainToolStrip2.Name = "mainToolStrip2";
@@ -491,64 +487,57 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainToolStrip2.Text = "mainToolStrip2";
             mainToolStrip2.Visible = false;
             mainToolStrip2.ItemClicked += mainToolStrip2_ItemClicked;
-
-            //
+            // 
             // runStrategyButton
-            //
+            // 
             runStrategyButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             runStrategyButton.Name = "runStrategyButton";
-            runStrategyButton.Size = new Size(80, 22);
+            runStrategyButton.Size = new Size(45, 22);
             runStrategyButton.Text = "▶️ Run";
             runStrategyButton.ToolTipText = "Run selected strategy";
-
-            //
+            // 
             // stopStrategyButton
-            //
+            // 
             stopStrategyButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             stopStrategyButton.Name = "stopStrategyButton";
-            stopStrategyButton.Size = new Size(60, 22);
+            stopStrategyButton.Size = new Size(50, 22);
             stopStrategyButton.Text = "⏹️ Stop";
             stopStrategyButton.ToolTipText = "Stop running strategy";
-
-            //
+            // 
             // toolStripSeparator5
-            //
+            // 
             toolStripSeparator5.Name = "toolStripSeparator5";
             toolStripSeparator5.Size = new Size(6, 25);
-
-            //
+            // 
             // optimizeButton
-            //
+            // 
             optimizeButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             optimizeButton.Name = "optimizeButton";
-            optimizeButton.Size = new Size(85, 22);
+            optimizeButton.Size = new Size(74, 22);
             optimizeButton.Text = "🎯 Optimize";
             optimizeButton.ToolTipText = "Optimize strategy parameters";
-
-            //
+            // 
             // exportResultsButton
-            //
+            // 
             exportResultsButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             exportResultsButton.Name = "exportResultsButton";
-            exportResultsButton.Size = new Size(75, 22);
+            exportResultsButton.Size = new Size(59, 22);
             exportResultsButton.Text = "📊 Export";
             exportResultsButton.ToolTipText = "Export results to file";
-
-            //
+            // 
             // toolStripSeparator6
-            //
+            // 
             toolStripSeparator6.Name = "toolStripSeparator6";
             toolStripSeparator6.Size = new Size(6, 25);
-
-            //
+            // 
             // settingsButton
-            //
+            // 
             settingsButton.DisplayStyle = ToolStripItemDisplayStyle.Text;
             settingsButton.Name = "settingsButton";
-            settingsButton.Size = new Size(75, 22);
+            settingsButton.Size = new Size(68, 22);
             settingsButton.Text = "⚙️ Settings";
             settingsButton.ToolTipText = "Strategy settings";
-            //
+            // 
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { statusLabel, progressBar, spacerLabel, timeLabel });
@@ -582,61 +571,71 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             timeLabel.TextAlign = ContentAlignment.MiddleRight;
             // 
             // topPanel
-            //
+            // 
             topPanel.BorderStyle = BorderStyle.FixedSingle;
             topPanel.Dock = DockStyle.Top;
-            topPanel.Location = new Point(0, 74);
+            topPanel.Location = new Point(0, 49);
             topPanel.Name = "topPanel";
-            topPanel.Size = new Size(1200, 50);
+            topPanel.Size = new Size(1200, 27);
             topPanel.TabIndex = 3;
             topPanel.Visible = false;
             // 
             // leftPanel
-            //
+            // 
             leftPanel.BorderStyle = BorderStyle.FixedSingle;
             leftPanel.Dock = DockStyle.Left;
-            leftPanel.Location = new Point(0, 124);
+            leftPanel.Location = new Point(0, 76);
             leftPanel.Name = "leftPanel";
-            leftPanel.Size = new Size(103, 501);
+            leftPanel.Size = new Size(103, 492);
             leftPanel.TabIndex = 5;
             // 
             // rightPanel
-            //
+            // 
             rightPanel.BorderStyle = BorderStyle.FixedSingle;
             rightPanel.Dock = DockStyle.Right;
-            rightPanel.Location = new Point(1082, 124);
+            rightPanel.Location = new Point(1129, 76);
             rightPanel.Name = "rightPanel";
-            rightPanel.Size = new Size(118, 501);
+            rightPanel.Size = new Size(71, 492);
             rightPanel.TabIndex = 6;
             rightPanel.Visible = false;
             // 
             // bottomPanel
             // 
             bottomPanel.BorderStyle = BorderStyle.FixedSingle;
+            bottomPanel.Controls.Add(richTextBox1);
             bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Location = new Point(0, 625);
+            bottomPanel.Location = new Point(0, 568);
             bottomPanel.Name = "bottomPanel";
-            bottomPanel.Size = new Size(1200, 100);
+            bottomPanel.Size = new Size(1200, 157);
             bottomPanel.TabIndex = 4;
             // 
             // centerPanel
-            //
+            // 
             centerPanel.BorderStyle = BorderStyle.FixedSingle;
             centerPanel.Controls.Add(mainTabControl);
             centerPanel.Dock = DockStyle.Fill;
-            centerPanel.Location = new Point(103, 124);
+            centerPanel.Location = new Point(103, 76);
             centerPanel.Name = "centerPanel";
-            centerPanel.Size = new Size(979, 501);
+            centerPanel.Size = new Size(1026, 492);
             centerPanel.TabIndex = 7;
             // 
             // mainTabControl
-            //
+            // 
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(977, 499);
+            mainTabControl.Size = new Size(1024, 490);
             mainTabControl.TabIndex = 0;
+            // 
+            // richTextBox1
+            // 
+            richTextBox1.Dock = DockStyle.Fill;
+            richTextBox1.Location = new Point(0, 0);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.Size = new Size(1198, 155);
+            richTextBox1.TabIndex = 0;
+            richTextBox1.Text = "";
             // 
             // Form1
             // 
@@ -660,8 +659,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainMenuStrip.PerformLayout();
             mainToolStrip1.ResumeLayout(false);
             mainToolStrip1.PerformLayout();
+            mainToolStrip2.ResumeLayout(false);
+            mainToolStrip2.PerformLayout();
             statusStrip.ResumeLayout(false);
             statusStrip.PerformLayout();
+            bottomPanel.ResumeLayout(false);
             centerPanel.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
@@ -748,5 +750,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         // Timer
         private System.Windows.Forms.Timer? statusTimer;
+        private RichTextBox richTextBox1;
     }
 }
