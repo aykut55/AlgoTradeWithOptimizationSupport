@@ -30,11 +30,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _logManager.RegisterSink(new ConsoleSink()); // Ana console (index 0)
             _logManager.RegisterSink(new FileSink("logs/app.log"));
 
+            // Add DoubleClick event to clear logs
+            richTextBox1.DoubleClick += RichTextBox1_DoubleClick;
+
             // Test mesajı
             LogManager.LogInfo("Console window opened successfully!");
             ConsoleManager.WriteLine("=================================", ConsoleColor.Cyan);
             ConsoleManager.WriteLine("AlgoTrade Console Initialized", ConsoleColor.Green);
             ConsoleManager.WriteLine("=================================", ConsoleColor.Cyan);
+        }
+
+        private void RichTextBox1_DoubleClick(object? sender, EventArgs e)
+        {
+            richTextBox1.Clear();
         }
 
         private void InitializeMainLoop()
