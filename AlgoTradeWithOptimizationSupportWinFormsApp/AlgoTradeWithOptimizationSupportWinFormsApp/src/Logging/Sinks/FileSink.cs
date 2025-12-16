@@ -47,6 +47,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks
             _flushTimer = new System.Threading.Timer(_ => Flush(), null, FlushIntervalMs, FlushIntervalMs);
         }
 
+        public FileSink(string fileDirectory, string fileName, bool appendMode = false)
+            : this(Path.Combine(fileDirectory, fileName), appendMode)
+        {
+        }
+
         public void Write(LogEntry entry)
         {
             if (_isDisposed || !IsEnabled)

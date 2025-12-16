@@ -393,6 +393,80 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         /// </summary>
         public int BufferCount => _buffer.Count;
 
+        /// <summary>
+        /// Buffer'da hiç log mesajı var mı kontrol et
+        /// </summary>
+        /// <returns>True ise buffer'da en az bir log var</returns>
+        public bool HasAnyLogMessage()
+        {
+            return !_buffer.IsEmpty;
+        }
+
+        /// <summary>
+        /// Buffer'da belirli bir mesaj var mı kontrol et (contains)
+        /// </summary>
+        /// <param name="message">Aranacak mesaj</param>
+        /// <param name="ignoreCase">Büyük/küçük harf duyarsız (default: true)</param>
+        /// <returns>True ise mesaj bulundu</returns>
+        public bool HasLogMessage(string message, bool ignoreCase = true)
+        {
+            if (string.IsNullOrEmpty(message))
+                return false;
+
+            var comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            return _buffer.Any(entry => entry.Message.Contains(message, comparison));
+        }
+
+        /// <summary>
+        /// Buffer'da belirli bir log level var mı kontrol et
+        /// </summary>
+        /// <param name="level">Aranacak log level</param>
+        /// <returns>True ise log level bulundu</returns>
+        public bool HasLogLevel(LogLevel level)
+        {
+            return _buffer.Any(entry => entry.Level == level);
+        }
+
+        /// <summary>
+        /// Buffer'da belirli bir source var mı kontrol et
+        /// </summary>
+        /// <param name="source">Aranacak source</param>
+        /// <param name="ignoreCase">Büyük/küçük harf duyarsız (default: true)</param>
+        /// <returns>True ise source bulundu</returns>
+        public bool HasLogSource(string source, bool ignoreCase = true)
+        {
+            if (string.IsNullOrEmpty(source))
+                return false;
+
+            var comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            return _buffer.Any(entry => entry.Source.Equals(source, comparison));
+        }
+
+        /// <summary>
+        /// Buffer'daki tüm logları belirli bir level'a göre filtrele
+        /// </summary>
+        /// <param name="level">Filtrelenecek log level</param>
+        /// <returns>Filtrelenmiş log listesi</returns>
+        public List<LogEntry> GetLogsByLevel(LogLevel level)
+        {
+            return _buffer.Where(entry => entry.Level == level).ToList();
+        }
+
+        /// <summary>
+        /// Buffer'daki tüm logları belirli bir mesaja göre filtrele
+        /// </summary>
+        /// <param name="message">Aranacak mesaj</param>
+        /// <param name="ignoreCase">Büyük/küçük harf duyarsız (default: true)</param>
+        /// <returns>Filtrelenmiş log listesi</returns>
+        public List<LogEntry> GetLogsByMessage(string message, bool ignoreCase = true)
+        {
+            if (string.IsNullOrEmpty(message))
+                return new List<LogEntry>();
+
+            var comparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+            return _buffer.Where(entry => entry.Message.Contains(message, comparison)).ToList();
+        }
+
         // ====================================================================
         // DISPOSE
         // ====================================================================

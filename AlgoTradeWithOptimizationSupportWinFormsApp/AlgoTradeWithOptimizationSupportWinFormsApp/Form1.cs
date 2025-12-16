@@ -28,7 +28,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _logManager = LogManager.Instance;
             _logManager.RegisterSink(new RichTextBoxSink(richTextBox1));
             _logManager.RegisterSink(new ConsoleSink()); // Ana console (index 0)
-            _logManager.RegisterSink(new FileSink("logs/app.log"));
+            _logManager.RegisterSink(new FileSink("logs", "app.log"));
 
             // Add DoubleClick event to clear logs
             richTextBox1.DoubleClick += RichTextBox1_DoubleClick;
