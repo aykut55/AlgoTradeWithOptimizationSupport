@@ -1,5 +1,6 @@
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
+using AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
@@ -21,9 +22,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private void InitializeLogManager()
         {
+            // ConsoleManager ile ana console'u aç
+            ConsoleManager.Instance.OpenMainConsole("AlgoTrade - Console");
+
             _logManager = LogManager.Instance;
             _logManager.RegisterSink(new RichTextBoxSink(richTextBox1));
-            _logManager.RegisterSink(new ConsoleSink());
+            _logManager.RegisterSink(new ConsoleSink()); // Ana console (index 0)
+
+            // Test mesajı
+            LogManager.LogInfo("Console window opened successfully!");
+            ConsoleManager.WriteLine("=================================", ConsoleColor.Cyan);
+            ConsoleManager.WriteLine("AlgoTrade Console Initialized", ConsoleColor.Green);
+            ConsoleManager.WriteLine("=================================", ConsoleColor.Cyan);
         }
 
         private void InitializeMainLoop()
@@ -41,6 +51,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             // LogManager'ı temizle
             _logManager?.Dispose();
+
+            // Tüm console'ları kapat
+            ConsoleManager.Instance.Dispose();
 
             base.OnFormClosing(e);
         }
