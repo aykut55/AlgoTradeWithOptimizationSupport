@@ -1,3 +1,9 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Config;
+using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.src.timer;
+using OoplesFinance.StockIndicators.Models;
+using ScottPlot.Colormaps;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,11 +13,6 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using OoplesFinance.StockIndicators.Models;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
-using AlgoTradeWithOptimizationSupportWinFormsApp.src.timer;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Config;
-
 // Merkezi tanımlardan StockData kullanımı (OoplesFinance ile karışmaması için açıkça belirtildi)
 using StockData = AlgoTradeWithOptimizationSupportWinFormsApp.Definitions.StockData;
 
@@ -1330,3 +1331,63 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
     }
     */
 }
+
+
+
+
+
+
+
+
+
+/*
+● Çok iyi plan! 👍
+
+  Önerdiğin yapı:
+  src / DataReader /
+    ├── StockDataReader.cs           // Text okuma (mevcut)
+    ├── StockDataWriter.cs           // Text yazma (CSV export)
+    ├── StockDataBinaryReader.cs     // Binary okuma (ReadList, GetRecord, GetRecordRange, vs.)
+    └── StockDataBinaryWriter.cs     // Binary yazma (WriteList, AppendToFile, vs.)
+
+  Artıları:
+  - ✅ .NET naming convention'larına uygun (BinaryReader/BinaryWriter gibi)
+  - ✅ Single Responsibility - her class tek bir iş yapar
+  - ✅ Okuma/Yazma açıkça ayrı
+  - ✅ Text/Binary açıkça ayrı
+  - ✅ Scalable - ileride StockDataJsonReader, StockDataParquetWriter eklenebilir
+  - ✅ Unit test yazmak kolay
+
+  Opsiyonel iyileştirme:
+  // Her birinden interface implement edebilirsin
+  public interface IStockDataReader
+{
+    List<StockData> ReadList(string filePath);
+    StockData GetRecord(string filePath, int index);
+}
+
+public class StockDataBinaryReader : IStockDataReader { ... }
+public class StockDataTextReader : IStockDataReader { ... }
+
+İleride dependency injection ile kullanabilirsin. Ama şimdilik basit versiyonu yeterli.
+
+  Güzel refactoring planı, mantıklı. 👌
+*/
+
+
+/*
+DataReader klasörünün adı ne olsun?
+
+● Birkaç seçenek:
+
+  1. Data (Önerim ⭐)
+  src/Data/
+    ├── StockDataReader.cs
+    ├── StockDataWriter.cs
+    ├── StockDataBinaryReader.cs
+    └── StockDataBinaryWriter.cs
+  - ✅ Kısa ve öz
+  - ✅ .NET convention'a uygun
+  - ✅ Hem okuma hem yazma kapsıyor
+
+*/
