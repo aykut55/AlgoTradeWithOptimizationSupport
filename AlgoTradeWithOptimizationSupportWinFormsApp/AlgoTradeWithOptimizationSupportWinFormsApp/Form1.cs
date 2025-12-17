@@ -919,7 +919,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void BtnBrowseFile_Click(object? sender, EventArgs e)
         {
             // OpenFileDialog ayarları
-            openFileDialog1.Filter = "Binary Files (*.bin)|*.bin|Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            openFileDialog1.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
             openFileDialog1.Title = "Select Stock Data File";
             openFileDialog1.InitialDirectory = Application.StartupPath;
 
@@ -934,7 +934,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void BtnSaveFile_Click(object? sender, EventArgs e)
         {
             // SaveFileDialog ayarları
-            saveFileDialog1.Filter = "Binary Files (*.bin)|*.bin|Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            saveFileDialog1.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
             saveFileDialog1.Title = "Save Stock Data File";
             saveFileDialog1.InitialDirectory = Application.StartupPath;
 
