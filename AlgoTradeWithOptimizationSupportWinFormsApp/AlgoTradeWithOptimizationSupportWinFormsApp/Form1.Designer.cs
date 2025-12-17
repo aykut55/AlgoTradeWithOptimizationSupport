@@ -115,6 +115,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridViewLabel = new Label();
             stockDataGridView = new DataGridView();
             textBoxMetaData = new TextBox();
+            btnFirstPage = new Button();
+            btnPreviousPage = new Button();
+            btnNextPage = new Button();
+            btnLastPage = new Button();
+            cmbPageSize = new ComboBox();
+            lblPageSize = new Label();
             groupBox1 = new GroupBox();
             btnSaveFile2 = new Button();
             btnBrowseFile2 = new Button();
@@ -703,9 +709,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // panel3
             // 
             panel3.Dock = DockStyle.Fill;
-            panel3.Location = new Point(1042, 3);
+            panel3.Location = new Point(1093, 3);
             panel3.Name = "panel3";
-            panel3.Size = new Size(255, 767);
+            panel3.Size = new Size(204, 767);
             panel3.TabIndex = 3;
             // 
             // panel2
@@ -715,7 +721,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel2.Dock = DockStyle.Left;
             panel2.Location = new Point(3, 3);
             panel2.Name = "panel2";
-            panel2.Size = new Size(1039, 767);
+            panel2.Size = new Size(1090, 767);
             panel2.TabIndex = 2;
             // 
             // panel1
@@ -727,73 +733,79 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel1.Controls.Add(stockDataGridViewLabel);
             panel1.Controls.Add(stockDataGridView);
             panel1.Controls.Add(textBoxMetaData);
+            panel1.Controls.Add(btnFirstPage);
+            panel1.Controls.Add(btnPreviousPage);
+            panel1.Controls.Add(btnNextPage);
+            panel1.Controls.Add(btnLastPage);
+            panel1.Controls.Add(cmbPageSize);
+            panel1.Controls.Add(lblPageSize);
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(0, 219);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1039, 548);
+            panel1.Size = new Size(1090, 548);
             panel1.TabIndex = 2;
             // 
             // btnLastRow
             // 
-            btnLastRow.Location = new Point(833, 95);
+            btnLastRow.Location = new Point(1001, 128);
             btnLastRow.Name = "btnLastRow";
             btnLastRow.Size = new Size(75, 23);
             btnLastRow.TabIndex = 22;
-            btnLastRow.Text = "Last >|";
+            btnLastRow.Text = "Last ▶|";
             btnLastRow.UseVisualStyleBackColor = true;
             btnLastRow.Click += BtnLastRow_Click;
             // 
             // btnNextRow
             // 
-            btnNextRow.Location = new Point(752, 95);
+            btnNextRow.Location = new Point(920, 128);
             btnNextRow.Name = "btnNextRow";
             btnNextRow.Size = new Size(75, 23);
             btnNextRow.TabIndex = 21;
-            btnNextRow.Text = "Next >";
+            btnNextRow.Text = "Next ▶";
             btnNextRow.UseVisualStyleBackColor = true;
             btnNextRow.Click += BtnNextRow_Click;
             // 
             // btnPrevRow
             // 
-            btnPrevRow.Location = new Point(671, 95);
+            btnPrevRow.Location = new Point(832, 128);
             btnPrevRow.Name = "btnPrevRow";
-            btnPrevRow.Size = new Size(75, 23);
+            btnPrevRow.Size = new Size(82, 23);
             btnPrevRow.TabIndex = 20;
-            btnPrevRow.Text = "< Prev";
+            btnPrevRow.Text = "◀ Previous";
             btnPrevRow.UseVisualStyleBackColor = true;
             btnPrevRow.Click += BtnPrevRow_Click;
             // 
             // btnFirstRow
             // 
-            btnFirstRow.Location = new Point(590, 95);
+            btnFirstRow.Location = new Point(751, 128);
             btnFirstRow.Name = "btnFirstRow";
             btnFirstRow.Size = new Size(75, 23);
             btnFirstRow.TabIndex = 19;
-            btnFirstRow.Text = "|< First";
+            btnFirstRow.Text = "|◀ First";
             btnFirstRow.UseVisualStyleBackColor = true;
             btnFirstRow.Click += BtnFirstRow_Click;
             // 
             // stockDataGridViewLabel
             // 
             stockDataGridViewLabel.AutoSize = true;
-            stockDataGridViewLabel.Location = new Point(993, 103);
+            stockDataGridViewLabel.Location = new Point(820, 96);
             stockDataGridViewLabel.Name = "stockDataGridViewLabel";
-            stockDataGridViewLabel.Size = new Size(24, 15);
+            stockDataGridViewLabel.Size = new Size(158, 15);
             stockDataGridViewLabel.TabIndex = 18;
-            stockDataGridViewLabel.Text = "0/0";
+            stockDataGridViewLabel.Text = "Row: 0/0 | Page: 0/0 | Total: 0";
             // 
             // stockDataGridView
             // 
             stockDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            stockDataGridView.Location = new Point(15, 124);
+            stockDataGridView.Location = new Point(15, 157);
             stockDataGridView.Name = "stockDataGridView";
-            stockDataGridView.Size = new Size(1016, 475);
+            stockDataGridView.Size = new Size(1061, 393);
             stockDataGridView.TabIndex = 17;
             // 
             // textBoxMetaData
             // 
             textBoxMetaData.Font = new Font("Consolas", 9F);
-            textBoxMetaData.Location = new Point(15, 6);
+            textBoxMetaData.Location = new Point(15, 9);
             textBoxMetaData.Multiline = true;
             textBoxMetaData.Name = "textBoxMetaData";
             textBoxMetaData.ReadOnly = true;
@@ -801,6 +813,66 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             textBoxMetaData.Size = new Size(533, 112);
             textBoxMetaData.TabIndex = 16;
             textBoxMetaData.Text = "Kayit Zamani     : \r\nGrafikSembol     : \r\nGrafikPeriyot    : \r\nBarCount         : \r\nBaşlangiç Tarihi : \r\nBitiş Tarihi     : \r\nFormat           :\r\n";
+            // 
+            // btnFirstPage
+            // 
+            btnFirstPage.Location = new Point(220, 128);
+            btnFirstPage.Name = "btnFirstPage";
+            btnFirstPage.Size = new Size(75, 23);
+            btnFirstPage.TabIndex = 23;
+            btnFirstPage.Text = "|◀ First";
+            btnFirstPage.UseVisualStyleBackColor = true;
+            btnFirstPage.Click += BtnFirstPage_Click;
+            // 
+            // btnPreviousPage
+            // 
+            btnPreviousPage.Location = new Point(301, 128);
+            btnPreviousPage.Name = "btnPreviousPage";
+            btnPreviousPage.Size = new Size(85, 23);
+            btnPreviousPage.TabIndex = 24;
+            btnPreviousPage.Text = "◀ Previous";
+            btnPreviousPage.UseVisualStyleBackColor = true;
+            btnPreviousPage.Click += BtnPreviousPage_Click;
+            // 
+            // btnNextPage
+            // 
+            btnNextPage.Location = new Point(392, 128);
+            btnNextPage.Name = "btnNextPage";
+            btnNextPage.Size = new Size(75, 23);
+            btnNextPage.TabIndex = 25;
+            btnNextPage.Text = "Next ▶";
+            btnNextPage.UseVisualStyleBackColor = true;
+            btnNextPage.Click += BtnNextPage_Click;
+            // 
+            // btnLastPage
+            // 
+            btnLastPage.Location = new Point(473, 128);
+            btnLastPage.Name = "btnLastPage";
+            btnLastPage.Size = new Size(75, 23);
+            btnLastPage.TabIndex = 26;
+            btnLastPage.Text = "Last ▶|";
+            btnLastPage.UseVisualStyleBackColor = true;
+            btnLastPage.Click += BtnLastPage_Click;
+            // 
+            // cmbPageSize
+            // 
+            cmbPageSize.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbPageSize.FormattingEnabled = true;
+            cmbPageSize.Items.AddRange(new object[] { "100", "500", "1000", "5000", "10000" });
+            cmbPageSize.Location = new Point(85, 128);
+            cmbPageSize.Name = "cmbPageSize";
+            cmbPageSize.Size = new Size(80, 23);
+            cmbPageSize.TabIndex = 27;
+            cmbPageSize.SelectedIndexChanged += CmbPageSize_SelectedIndexChanged;
+            // 
+            // lblPageSize
+            // 
+            lblPageSize.AutoSize = true;
+            lblPageSize.Location = new Point(20, 132);
+            lblPageSize.Name = "lblPageSize";
+            lblPageSize.Size = new Size(59, 15);
+            lblPageSize.TabIndex = 28;
+            lblPageSize.Text = "Page Size:";
             // 
             // groupBox1
             // 
@@ -829,7 +901,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.Dock = DockStyle.Top;
             groupBox1.Location = new Point(0, 0);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(1039, 219);
+            groupBox1.Size = new Size(1090, 219);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Stock Data Reader";
@@ -1231,5 +1303,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Label lblConfigFileName;
         private OpenFileDialog openFileDialog2;
         private SaveFileDialog saveFileDialog2;
+        private Button btnFirstPage;
+        private Button btnPreviousPage;
+        private Button btnNextPage;
+        private Button btnLastPage;
+        private ComboBox cmbPageSize;
+        private Label lblPageSize;
     }
 }

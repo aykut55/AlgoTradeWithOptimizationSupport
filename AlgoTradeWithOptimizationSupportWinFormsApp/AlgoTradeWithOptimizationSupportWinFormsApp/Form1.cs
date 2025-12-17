@@ -32,6 +32,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private ConcurrentDictionary<string, string> stockMetaData;
         private List<StockData> stockDataList;
 
+        // Pagination fields
+        private List<StockData> fullStockDataList;
+        private int currentPage = 1;
+        private int pageSize = 1000;
+        private int totalPages = 0;
+
         public Form1()
         {
             InitializeComponent();
@@ -51,10 +57,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeMainLoop();
             InitializeFilterModeComboBox();
             InitializeStockDataGridView();
+            InitializePagination();
             stockDataReader = new StockDataReader();
             stockDataReader.EnableLogManager(true);
             stockMetaData = new ConcurrentDictionary<string, string>();
             stockDataList = new List<StockData>();
+            fullStockDataList = new List<StockData>();
 
             txtDataFileName.Text = @"C:\data\csvFiles\VIP\\01\VIP-X030-T.csv";
         }
@@ -1078,7 +1086,7 @@ Format           : ";
             }
         }
 
-        private void BtnReadStockData_Click(object? sender, EventArgs e)
+        private async void BtnReadStockData_Click(object? sender, EventArgs e)
         {
             string fileName = txtDataFileName.Text;
             string fileDir = "";
@@ -1092,7 +1100,7 @@ Format           : ";
                 }
                 else
                 {
-                    // ComboBox'tan seçili modu al (Form1.FilterMode)
+                    // ComboBox'tan seçili modu al
                     if (cmbFilterMode.SelectedItem == null)
                         return;
 
@@ -1100,6 +1108,8 @@ Format           : ";
                     filePath = Path.Combine(fileDir, fileName);
 
                     statusLabel.Text = $"Loading data from : {filePath}";
+
+                    stockDataList.Clear();
 
                     stockDataReader.Clear();
 
@@ -1116,34 +1126,38 @@ Format           : ";
 
                     StockDataReader.FilterMode mode = (StockDataReader.FilterMode)cmbFilterMode.SelectedItem;
 
-                    if (mode == StockDataReader.FilterMode.All)
+                    // Async okuma - UI thread'i bloklamaz
+                    await Task.Run(() =>
                     {
-                        stockDataList = stockDataReader.ReadDataFast(filePath);
-                    }
-                    else if (mode == StockDataReader.FilterMode.LastN)
-                    {                        
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.LastN, n1);
-                    }
-                    else if (mode == StockDataReader.FilterMode.FirstN)
-                    {
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.FirstN, n2);
-                    }
-                    else if (mode == StockDataReader.FilterMode.IndexRange)
-                    {
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.IndexRange, n1, n2);
-                    }
-                    else if (mode == StockDataReader.FilterMode.AfterDateTime)
-                    {
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.AfterDateTime, dt1: dt1);
-                    }
-                    else if (mode == StockDataReader.FilterMode.BeforeDateTime)
-                    {
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.BeforeDateTime, dt1: dt1);
-                    }
-                    else if (mode == StockDataReader.FilterMode.DateTimeRange)
-                    {
-                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.DateTimeRange, dt1: dt1, dt2: dt2);
-                    }
+                        if (mode == StockDataReader.FilterMode.All)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath);
+                        }
+                        else if (mode == StockDataReader.FilterMode.LastN)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.LastN, n1);
+                        }
+                        else if (mode == StockDataReader.FilterMode.FirstN)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.FirstN, n2);
+                        }
+                        else if (mode == StockDataReader.FilterMode.IndexRange)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.IndexRange, n1, n2);
+                        }
+                        else if (mode == StockDataReader.FilterMode.AfterDateTime)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.AfterDateTime, dt1: dt1);
+                        }
+                        else if (mode == StockDataReader.FilterMode.BeforeDateTime)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.BeforeDateTime, dt1: dt1);
+                        }
+                        else if (mode == StockDataReader.FilterMode.DateTimeRange)
+                        {
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.DateTimeRange, dt1: dt1, dt2: dt2);
+                        }
+                    });
 
                     stockDataReader.StopTimer();
 
@@ -1155,11 +1169,15 @@ Format           : ";
 
                     long t1 = stockDataReader.GetElapsedTimeMsec();
                     int itemsCount = stockDataReader.ReadCount;
-                    statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
 
-                    //stockDataGridView.DataSource = stockDataList;
+                    // Veriyi fullStockDataList'e aktar ve pagination hazırla
+                    fullStockDataList = new List<StockData>(stockDataList);
+                    totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
 
-                    //UpdateStockDataGridViewLabel();
+                    statusLabel.Text = $"Data loaded: {itemsCount:N0} records in {t1} ms. Preparing pagination...";
+
+                    // İlk sayfayı yükle
+                    await LoadPageAsync(1);
                 }
             }
             catch (Exception ex)
@@ -1167,6 +1185,160 @@ Format           : ";
                 MessageBox.Show($"An error occurred while reading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        /// <summary>
+        /// DataGridView'e veriyi performanslı şekilde async yükler
+        /// </summary>
+        private async Task LoadDataToGridAsync(List<StockData> dataList)
+        {
+            await Task.Run(() =>
+            {
+                // UI thread'de çalışması gereken kısım
+                this.Invoke((MethodInvoker)delegate
+                {
+                    stockDataGridView.SuspendLayout();
+                    try
+                    {
+                        stockDataGridView.DataSource = null; // Önce temizle
+                        stockDataGridView.DataSource = dataList;
+                    }
+                    finally
+                    {
+                        stockDataGridView.ResumeLayout();
+                    }
+                });
+            });
+        }
+
+        #endregion
+
+        #region Pagination Methods
+
+        /// <summary>
+        /// Pagination kontrollerini initialize eder
+        /// </summary>
+        private void InitializePagination()
+        {
+            // Page Size ComboBox default değerini ayarla (1000)
+            cmbPageSize.SelectedIndex = 2;
+
+            currentPage = 1;
+            pageSize = 1000;
+            totalPages = 0;
+        }
+
+        /// <summary>
+        /// Belirtilen sayfayı DataGridView'e yükler
+        /// </summary>
+        private async Task LoadPageAsync(int pageNumber)
+        {
+            if (fullStockDataList == null || fullStockDataList.Count == 0)
+                return;
+
+            // Sayfa sınırlarını kontrol et
+            if (pageNumber < 1)
+                pageNumber = 1;
+            if (pageNumber > totalPages && totalPages > 0)
+                pageNumber = totalPages;
+
+            currentPage = pageNumber;
+
+            // Sayfa için veriyi hazırla
+            int skip = (currentPage - 1) * pageSize;
+            stockDataList = fullStockDataList.Skip(skip).Take(pageSize).ToList();
+
+            // SelectionChanged event'ini geçici olarak devre dışı bırak (flickering önleme)
+            stockDataGridView.SelectionChanged -= StockDataGridView_SelectionChanged;
+
+            try
+            {
+                // DataGridView'e yükle
+                await LoadDataToGridAsync(stockDataList);
+
+                // Pagination bilgisini güncelle
+                UpdatePaginationInfo();
+                UpdateStockDataGridViewLabel();
+            }
+            finally
+            {
+                // SelectionChanged event'ini tekrar aktif et
+                stockDataGridView.SelectionChanged += StockDataGridView_SelectionChanged;
+            }
+        }
+
+        /// <summary>
+        /// Pagination bilgilerini günceller (Label, buton durumları vb.)
+        /// </summary>
+        private void UpdatePaginationInfo()
+        {
+            if (fullStockDataList == null || fullStockDataList.Count == 0)
+            {
+                statusLabel.Text = "No data loaded";
+                return;
+            }
+
+            int startRow = (currentPage - 1) * pageSize + 1;
+            int endRow = Math.Min(currentPage * pageSize, fullStockDataList.Count);
+
+            statusLabel.Text = $"Showing rows {startRow:N0}-{endRow:N0} of {fullStockDataList.Count:N0} | Page {currentPage}/{totalPages} | Page size: {pageSize}";
+        }
+
+        /// <summary>
+        /// İlk sayfaya git
+        /// </summary>
+        private async void BtnFirstPage_Click(object sender, EventArgs e)
+        {
+            await LoadPageAsync(1);
+        }
+
+        /// <summary>
+        /// Önceki sayfaya git
+        /// </summary>
+        private async void BtnPreviousPage_Click(object sender, EventArgs e)
+        {
+            await LoadPageAsync(currentPage - 1);
+        }
+
+        /// <summary>
+        /// Sonraki sayfaya git
+        /// </summary>
+        private async void BtnNextPage_Click(object sender, EventArgs e)
+        {
+            await LoadPageAsync(currentPage + 1);
+        }
+
+        /// <summary>
+        /// Son sayfaya git
+        /// </summary>
+        private async void BtnLastPage_Click(object sender, EventArgs e)
+        {
+            await LoadPageAsync(totalPages);
+        }
+
+        /// <summary>
+        /// Sayfa boyutunu değiştir
+        /// </summary>
+        private async void CmbPageSize_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // ComboBox'tan seçilen değeri al
+            if (sender is ComboBox cmb && cmb.SelectedItem != null)
+            {
+                if (int.TryParse(cmb.SelectedItem.ToString(), out int newPageSize))
+                {
+                    pageSize = newPageSize;
+
+                    // Toplam sayfa sayısını yeniden hesapla
+                    if (fullStockDataList != null && fullStockDataList.Count > 0)
+                    {
+                        totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
+
+                        // Mevcut sayfayı yeniden yükle
+                        await LoadPageAsync(1); // İlk sayfaya dön
+                    }
+                }
+            }
+        }
+
         #endregion
 
         private void BtnFirstRow_Click(object sender, EventArgs e)
@@ -1175,6 +1347,7 @@ Format           : ";
             {
                 stockDataGridView.CurrentCell = stockDataGridView.Rows[0].Cells[0];
                 stockDataGridView.FirstDisplayedScrollingRowIndex = 0;
+                UpdateStockDataGridViewLabel();
             }
         }
 
@@ -1187,6 +1360,7 @@ Format           : ";
                 {
                     stockDataGridView.CurrentCell = stockDataGridView.Rows[prevIndex].Cells[0];
                     stockDataGridView.FirstDisplayedScrollingRowIndex = prevIndex;
+                    UpdateStockDataGridViewLabel();
                 }
             }
         }
@@ -1200,6 +1374,7 @@ Format           : ";
                 {
                     stockDataGridView.CurrentCell = stockDataGridView.Rows[nextIndex].Cells[0];
                     stockDataGridView.FirstDisplayedScrollingRowIndex = nextIndex;
+                    UpdateStockDataGridViewLabel();
                 }
             }
         }
@@ -1211,6 +1386,7 @@ Format           : ";
                 int lastIndex = stockDataGridView.Rows.Count - 1;
                 stockDataGridView.CurrentCell = stockDataGridView.Rows[lastIndex].Cells[0];
                 stockDataGridView.FirstDisplayedScrollingRowIndex = lastIndex;
+                UpdateStockDataGridViewLabel();
             }
         }
 
@@ -1223,13 +1399,32 @@ Format           : ";
         {
             if (stockDataGridView.Rows.Count > 0 && stockDataGridView.CurrentRow != null)
             {
-                int currentIndex = stockDataGridView.CurrentRow.Index + 1;
-                int totalRows = stockDataGridView.Rows.Count;
-                stockDataGridViewLabel.Text = $"Index: {currentIndex} / Total: {totalRows}";
+                // Grid içindeki satır bilgisi
+                int currentRowIndex = stockDataGridView.CurrentRow.Index + 1;
+                int pageRowCount = stockDataGridView.Rows.Count;
+
+                // Pagination bilgisi
+                if (fullStockDataList != null && fullStockDataList.Count > 0)
+                {
+                    // Format: "Row: 3/1000 | Page: 5/2000 | Total: 2,000,000"
+                    stockDataGridViewLabel.Text = $"Row: {currentRowIndex}/{pageRowCount} | Page: {currentPage}/{totalPages} | Total: {fullStockDataList.Count:N0}";
+                }
+                else
+                {
+                    // Pagination olmadan (eski format)
+                    stockDataGridViewLabel.Text = $"Row: {currentRowIndex}/{pageRowCount}";
+                }
             }
             else
             {
-                stockDataGridViewLabel.Text = "Index: 0 / Total: 0";
+                if (fullStockDataList != null && fullStockDataList.Count > 0)
+                {
+                    stockDataGridViewLabel.Text = $"Row: 0/0 | Page: {currentPage}/{totalPages} | Total: {fullStockDataList.Count:N0}";
+                }
+                else
+                {
+                    stockDataGridViewLabel.Text = "Row: 0/0";
+                }
             }
         }
 
