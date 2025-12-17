@@ -158,7 +158,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ChangePct", HeaderText = "Change %", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
             stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Range", HeaderText = "Range", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
             stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "BodySize", HeaderText = "Body Size", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
-            
+
             // Bayraklar (Boolean) - CheckBoxColumn olarak gösterilebilir
             stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBullish", HeaderText = "Bullish" });
             stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBearish", HeaderText = "Bearish" });
@@ -763,18 +763,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             this.SuspendLayout();
             // BringToFront pushes item to Index 0 (Innermost).
             // So we call Outermost first, Innermost last.
-            
+
             mainMenuStrip.BringToFront();
             mainToolStrip1.BringToFront();
             mainToolStrip2.BringToFront();
             topPanel.BringToFront();
-            
+
             statusStrip.BringToFront();
             bottomPanel.BringToFront();
-            
+
             leftPanel.BringToFront();
             rightPanel.BringToFront();
-            
+
             centerPanel.BringToFront();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -962,16 +962,16 @@ Format           : ";
         private void BtnReadMetaData_Click(object? sender, EventArgs e)
         {
             // Örnek metadata göster
-/*
-            // Metadata oku
-            var symbol = reader.Metadata.GetValueOrDefault("GrafikSembol", "N/A");
-            var barCount = reader.Metadata.GetValueOrDefault("BarCount", "N/A");
-            var period = reader.Metadata.GetValueOrDefault("Periyot", "N/A");
+            /*
+                        // Metadata oku
+                        var symbol = reader.Metadata.GetValueOrDefault("GrafikSembol", "N/A");
+                        var barCount = reader.Metadata.GetValueOrDefault("BarCount", "N/A");
+                        var period = reader.Metadata.GetValueOrDefault("Periyot", "N/A");
 
-            Console.WriteLine($"Symbol: {symbol}");
-            Console.WriteLine($"Bar Count: {barCount}");
-            Console.WriteLine($"Period: {period}");
-*/
+                        Console.WriteLine($"Symbol: {symbol}");
+                        Console.WriteLine($"Bar Count: {barCount}");
+                        Console.WriteLine($"Period: {period}");
+            */
 
             textBoxMetaData.Text = @"Kayit Zamani     : 2025.11.12 23:02:18
 GrafikSembol     : VIP'VIP-X030-T
@@ -1004,52 +1004,52 @@ Format           : Id Date Time Open High Low Close Volume Lot";
 
                     statusLabel.Text = $"Loading data from : {filePath}";
 
-/*
-                    StockDataReader.Clear();
+                    /*
+                                        StockDataReader.Clear();
 
-                    StockDataReader.StartTimer();
+                                        StockDataReader.StartTimer();
 
-                    if (mode == FilterMode.All)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath);
-                    }
-                    else if (mode == FilterMode.LastN)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.LastN, 300);
-                    }
-                    else if (mode == FilterMode.FirstN)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.FirstN, 300);
-                    }
-                    else if (mode == FilterMode.IndexRange)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.IndexRange, 1000, 2000);
-                    }
-                    else if (mode == FilterMode.AfterDateTime)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.AfterDateTime, dt1: new DateTime(2025, 11, 12));
-                    }
-                    else if (mode == FilterMode.BeforeDateTime)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.BeforeDateTime, dt1: new DateTime(2025, 11, 12));
-                    }
-                    else if (mode == FilterMode.DateTimeRange)
-                    {
-                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.DateTimeRange, dt1: new DateTime(2025, 11, 12), dt2: new DateTime(2025, 11, 12, 23, 59, 59));
-                    }
+                                        if (mode == FilterMode.All)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath);
+                                        }
+                                        else if (mode == FilterMode.LastN)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.LastN, 300);
+                                        }
+                                        else if (mode == FilterMode.FirstN)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.FirstN, 300);
+                                        }
+                                        else if (mode == FilterMode.IndexRange)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.IndexRange, 1000, 2000);
+                                        }
+                                        else if (mode == FilterMode.AfterDateTime)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.AfterDateTime, dt1: new DateTime(2025, 11, 12));
+                                        }
+                                        else if (mode == FilterMode.BeforeDateTime)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.BeforeDateTime, dt1: new DateTime(2025, 11, 12));
+                                        }
+                                        else if (mode == FilterMode.DateTimeRange)
+                                        {
+                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.DateTimeRange, dt1: new DateTime(2025, 11, 12), dt2: new DateTime(2025, 11, 12, 23, 59, 59));
+                                        }
 
-                    dataReader.StopTimer();
+                                        dataReader.StopTimer();
 
-                    if (stockDataList == null || !stockDataList.Any())
-                    {
-                        MessageBox.Show("No valid data was read from the file.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        return;
-                    }
+                                        if (stockDataList == null || !stockDataList.Any())
+                                        {
+                                            MessageBox.Show("No valid data was read from the file.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                                            return;
+                                        }
 
-                    long t1 = dataReader.GetElapsedTimeMsec();
-                    int itemsCount = dataReader.ReadCount;
-                    statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
-*/
+                                        long t1 = dataReader.GetElapsedTimeMsec();
+                                        int itemsCount = dataReader.ReadCount;
+                                        statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
+                    */
                 }
             }
             catch (Exception ex)
