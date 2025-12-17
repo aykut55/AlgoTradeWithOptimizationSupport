@@ -168,7 +168,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // Grid ayarları
             stockDataGridView.AutoGenerateColumns = false;
             stockDataGridView.ReadOnly = true;
-            stockDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            stockDataGridView.SelectionMode = DataGridViewSelectionMode.CellSelect;
             stockDataGridView.MultiSelect = false;
             stockDataGridView.AllowUserToAddRows = false;
             stockDataGridView.AllowUserToDeleteRows = false;
@@ -1045,6 +1045,8 @@ BarCount         :
 Başlangiç Tarihi : 
 Bitiş Tarihi     : 
 Format           : ";
+
+            btnClearStockData_Click(sender, e);
         }
 
         private void BtnReadMetaData_Click(object? sender, EventArgs e)
@@ -1095,6 +1097,31 @@ Format           : ";
             catch (Exception ex)
             {
                 MessageBox.Show($"An error occurred while reading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void btnClearStockData_Click(object sender, EventArgs e)
+        {
+            stockDataList.Clear();
+
+            stockDataReader.Clear();
+
+            // Veriyi fullStockDataList'e aktar ve pagination hazırla
+            fullStockDataList = new List<StockData>(stockDataList);
+            totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
+
+            //statusLabel.Text = $"Data loaded: {itemsCount:N0} records in {t1} ms. Preparing pagination...";
+
+            // İlk sayfayı yükle
+            stockDataGridView.SuspendLayout();
+            try
+            {
+                stockDataGridView.DataSource = null; // Önce temizle
+                //stockDataGridView.DataSource = dataList;
+            }
+            finally
+            {
+                stockDataGridView.ResumeLayout();
             }
         }
 

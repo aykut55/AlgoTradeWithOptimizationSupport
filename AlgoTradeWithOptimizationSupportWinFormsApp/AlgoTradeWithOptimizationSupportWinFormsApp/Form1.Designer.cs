@@ -122,6 +122,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             cmbPageSize = new ComboBox();
             lblPageSize = new Label();
             groupBox1 = new GroupBox();
+            btnClearStockData = new Button();
             btnSaveFile2 = new Button();
             btnBrowseFile2 = new Button();
             txtConfigFileName = new TextBox();
@@ -876,6 +877,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(btnClearStockData);
             groupBox1.Controls.Add(btnSaveFile2);
             groupBox1.Controls.Add(btnBrowseFile2);
             groupBox1.Controls.Add(txtConfigFileName);
@@ -905,6 +907,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Stock Data Reader";
+            // 
+            // btnClearStockData
+            // 
+            btnClearStockData.Location = new Point(823, 173);
+            btnClearStockData.Name = "btnClearStockData";
+            btnClearStockData.Size = new Size(100, 25);
+            btnClearStockData.TabIndex = 22;
+            btnClearStockData.Text = "Clear StockData";
+            btnClearStockData.UseVisualStyleBackColor = true;
+            btnClearStockData.Click += btnClearStockData_Click;
             // 
             // btnSaveFile2
             // 
@@ -944,9 +956,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnUpdateFilters
             // 
-            btnUpdateFilters.Location = new Point(843, 143);
+            btnUpdateFilters.Location = new Point(823, 142);
             btnUpdateFilters.Name = "btnUpdateFilters";
-            btnUpdateFilters.Size = new Size(120, 25);
+            btnUpdateFilters.Size = new Size(100, 25);
             btnUpdateFilters.TabIndex = 17;
             btnUpdateFilters.Text = "Update Filters";
             btnUpdateFilters.UseVisualStyleBackColor = true;
@@ -954,9 +966,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnSaveConfigFile
             // 
-            btnSaveConfigFile.Location = new Point(843, 45);
+            btnSaveConfigFile.Location = new Point(823, 45);
             btnSaveConfigFile.Name = "btnSaveConfigFile";
-            btnSaveConfigFile.Size = new Size(120, 25);
+            btnSaveConfigFile.Size = new Size(100, 25);
             btnSaveConfigFile.TabIndex = 16;
             btnSaveConfigFile.Text = "Save Config File";
             btnSaveConfigFile.UseVisualStyleBackColor = true;
@@ -965,7 +977,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             btnReadConfigFile.Location = new Point(717, 45);
             btnReadConfigFile.Name = "btnReadConfigFile";
-            btnReadConfigFile.Size = new Size(120, 25);
+            btnReadConfigFile.Size = new Size(100, 25);
             btnReadConfigFile.TabIndex = 15;
             btnReadConfigFile.Text = "Read Config File";
             btnReadConfigFile.UseVisualStyleBackColor = true;
@@ -974,7 +986,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             btnClear.Location = new Point(717, 114);
             btnClear.Name = "btnClear";
-            btnClear.Size = new Size(120, 25);
+            btnClear.Size = new Size(206, 25);
             btnClear.TabIndex = 14;
             btnClear.Text = "Clear";
             btnClear.UseVisualStyleBackColor = true;
@@ -1048,9 +1060,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadStockData
             // 
-            btnReadStockData.Location = new Point(843, 173);
+            btnReadStockData.Location = new Point(717, 173);
             btnReadStockData.Name = "btnReadStockData";
-            btnReadStockData.Size = new Size(120, 25);
+            btnReadStockData.Size = new Size(100, 25);
             btnReadStockData.TabIndex = 3;
             btnReadStockData.Text = "Read StockData";
             btnReadStockData.UseVisualStyleBackColor = true;
@@ -1058,9 +1070,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadMetaData
             // 
-            btnReadMetaData.Location = new Point(843, 112);
+            btnReadMetaData.Location = new Point(717, 142);
             btnReadMetaData.Name = "btnReadMetaData";
-            btnReadMetaData.Size = new Size(120, 25);
+            btnReadMetaData.Size = new Size(100, 25);
             btnReadMetaData.TabIndex = 2;
             btnReadMetaData.Text = "Read MetaData";
             btnReadMetaData.UseVisualStyleBackColor = true;
@@ -1309,5 +1321,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button btnLastPage;
         private ComboBox cmbPageSize;
         private Label lblPageSize;
+        private Button btnClearStockData;
     }
 }
