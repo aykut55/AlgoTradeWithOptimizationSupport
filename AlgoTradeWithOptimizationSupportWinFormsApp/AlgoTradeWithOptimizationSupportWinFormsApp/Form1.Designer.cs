@@ -105,13 +105,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBox1 = new RichTextBox();
             centerPanel = new Panel();
             mainTabControl = new TabControl();
-            tabPageSingleTrader = new TabPage();
+            tabPageStockDataReader = new TabPage();
             panel3 = new Panel();
             panel2 = new Panel();
             panel1 = new Panel();
+            btnLastRow = new Button();
+            btnNextRow = new Button();
+            btnPrevRow = new Button();
+            btnFirstRow = new Button();
+            stockDataGridViewLabel = new Label();
             stockDataGridView = new DataGridView();
             textBoxMetaData = new TextBox();
             groupBox1 = new GroupBox();
+            btnUpdateFilters = new Button();
+            btnSaveConfigFile = new Button();
+            btnReadConfigFile = new Button();
             btnClear = new Button();
             dtpFilterDateTime2 = new DateTimePicker();
             dtpFilterDateTime1 = new DateTimePicker();
@@ -127,11 +135,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnBrowseFile = new Button();
             txtFileName = new TextBox();
             lblFileName = new Label();
+            tabPageSingleTrader = new TabPage();
             tabPageMultipleTraders = new TabPage();
             tabPageSingleTraderOptimization = new TabPage();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
-            stockDataGridViewLabel = new Label();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -139,7 +147,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.SuspendLayout();
             centerPanel.SuspendLayout();
             mainTabControl.SuspendLayout();
-            tabPageSingleTrader.SuspendLayout();
+            tabPageStockDataReader.SuspendLayout();
             panel2.SuspendLayout();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)stockDataGridView).BeginInit();
@@ -664,6 +672,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // mainTabControl
             // 
+            mainTabControl.Controls.Add(tabPageStockDataReader);
             mainTabControl.Controls.Add(tabPageSingleTrader);
             mainTabControl.Controls.Add(tabPageMultipleTraders);
             mainTabControl.Controls.Add(tabPageSingleTraderOptimization);
@@ -674,17 +683,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Size = new Size(1308, 801);
             mainTabControl.TabIndex = 0;
             // 
-            // tabPageSingleTrader
+            // tabPageStockDataReader
             // 
-            tabPageSingleTrader.BackColor = Color.White;
-            tabPageSingleTrader.Controls.Add(panel3);
-            tabPageSingleTrader.Controls.Add(panel2);
-            tabPageSingleTrader.Location = new Point(4, 24);
-            tabPageSingleTrader.Name = "tabPageSingleTrader";
-            tabPageSingleTrader.Padding = new Padding(3);
-            tabPageSingleTrader.Size = new Size(1300, 773);
-            tabPageSingleTrader.TabIndex = 0;
-            tabPageSingleTrader.Text = "SingleTrader";
+            tabPageStockDataReader.BackColor = Color.White;
+            tabPageStockDataReader.Controls.Add(panel3);
+            tabPageStockDataReader.Controls.Add(panel2);
+            tabPageStockDataReader.Location = new Point(4, 24);
+            tabPageStockDataReader.Name = "tabPageStockDataReader";
+            tabPageStockDataReader.Padding = new Padding(3);
+            tabPageStockDataReader.Size = new Size(1300, 773);
+            tabPageStockDataReader.TabIndex = 0;
+            tabPageStockDataReader.Text = "StockDataReader";
             // 
             // panel3
             // 
@@ -706,21 +715,74 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel1
             // 
+            panel1.Controls.Add(btnLastRow);
+            panel1.Controls.Add(btnNextRow);
+            panel1.Controls.Add(btnPrevRow);
+            panel1.Controls.Add(btnFirstRow);
             panel1.Controls.Add(stockDataGridViewLabel);
             panel1.Controls.Add(stockDataGridView);
             panel1.Controls.Add(textBoxMetaData);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(0, 173);
+            panel1.Location = new Point(0, 148);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1039, 594);
+            panel1.Size = new Size(1039, 619);
             panel1.TabIndex = 2;
+            // 
+            // btnLastRow
+            // 
+            btnLastRow.Location = new Point(833, 95);
+            btnLastRow.Name = "btnLastRow";
+            btnLastRow.Size = new Size(75, 23);
+            btnLastRow.TabIndex = 22;
+            btnLastRow.Text = "Last >|";
+            btnLastRow.UseVisualStyleBackColor = true;
+            btnLastRow.Click += BtnLastRow_Click;
+            // 
+            // btnNextRow
+            // 
+            btnNextRow.Location = new Point(752, 95);
+            btnNextRow.Name = "btnNextRow";
+            btnNextRow.Size = new Size(75, 23);
+            btnNextRow.TabIndex = 21;
+            btnNextRow.Text = "Next >";
+            btnNextRow.UseVisualStyleBackColor = true;
+            btnNextRow.Click += BtnNextRow_Click;
+            // 
+            // btnPrevRow
+            // 
+            btnPrevRow.Location = new Point(671, 95);
+            btnPrevRow.Name = "btnPrevRow";
+            btnPrevRow.Size = new Size(75, 23);
+            btnPrevRow.TabIndex = 20;
+            btnPrevRow.Text = "< Prev";
+            btnPrevRow.UseVisualStyleBackColor = true;
+            btnPrevRow.Click += BtnPrevRow_Click;
+            // 
+            // btnFirstRow
+            // 
+            btnFirstRow.Location = new Point(590, 95);
+            btnFirstRow.Name = "btnFirstRow";
+            btnFirstRow.Size = new Size(75, 23);
+            btnFirstRow.TabIndex = 19;
+            btnFirstRow.Text = "|< First";
+            btnFirstRow.UseVisualStyleBackColor = true;
+            btnFirstRow.Click += BtnFirstRow_Click;
+            // 
+            // stockDataGridViewLabel
+            // 
+            stockDataGridViewLabel.AutoSize = true;
+            stockDataGridViewLabel.Location = new Point(993, 103);
+            stockDataGridViewLabel.Name = "stockDataGridViewLabel";
+            stockDataGridViewLabel.Size = new Size(24, 15);
+            stockDataGridViewLabel.TabIndex = 18;
+            stockDataGridViewLabel.Text = "0/0";
             // 
             // stockDataGridView
             // 
             stockDataGridView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             stockDataGridView.Location = new Point(15, 124);
             stockDataGridView.Name = "stockDataGridView";
-            stockDataGridView.Size = new Size(1016, 570);
+            stockDataGridView.Size = new Size(1016, 475);
             stockDataGridView.TabIndex = 17;
             // 
             // textBoxMetaData
@@ -737,6 +799,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(btnUpdateFilters);
+            groupBox1.Controls.Add(btnSaveConfigFile);
+            groupBox1.Controls.Add(btnReadConfigFile);
             groupBox1.Controls.Add(btnClear);
             groupBox1.Controls.Add(dtpFilterDateTime2);
             groupBox1.Controls.Add(dtpFilterDateTime1);
@@ -755,14 +820,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.Dock = DockStyle.Top;
             groupBox1.Location = new Point(0, 0);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(1039, 173);
+            groupBox1.Size = new Size(1039, 148);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Stock Data Reader";
             // 
+            // btnUpdateFilters
+            // 
+            btnUpdateFilters.Location = new Point(843, 72);
+            btnUpdateFilters.Name = "btnUpdateFilters";
+            btnUpdateFilters.Size = new Size(120, 25);
+            btnUpdateFilters.TabIndex = 17;
+            btnUpdateFilters.Text = "Update Filters";
+            btnUpdateFilters.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveConfigFile
+            // 
+            btnSaveConfigFile.Location = new Point(843, 19);
+            btnSaveConfigFile.Name = "btnSaveConfigFile";
+            btnSaveConfigFile.Size = new Size(120, 25);
+            btnSaveConfigFile.TabIndex = 16;
+            btnSaveConfigFile.Text = "Save Config File";
+            btnSaveConfigFile.UseVisualStyleBackColor = true;
+            // 
+            // btnReadConfigFile
+            // 
+            btnReadConfigFile.Location = new Point(717, 19);
+            btnReadConfigFile.Name = "btnReadConfigFile";
+            btnReadConfigFile.Size = new Size(120, 25);
+            btnReadConfigFile.TabIndex = 15;
+            btnReadConfigFile.Text = "Read Config File";
+            btnReadConfigFile.UseVisualStyleBackColor = true;
+            // 
             // btnClear
             // 
-            btnClear.Location = new Point(15, 129);
+            btnClear.Location = new Point(717, 72);
             btnClear.Name = "btnClear";
             btnClear.Size = new Size(120, 25);
             btnClear.TabIndex = 14;
@@ -773,7 +865,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dtpFilterDateTime2
             // 
             dtpFilterDateTime2.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime2.Location = new Point(489, 47);
+            dtpFilterDateTime2.Location = new Point(384, 50);
             dtpFilterDateTime2.Name = "dtpFilterDateTime2";
             dtpFilterDateTime2.Size = new Size(100, 23);
             dtpFilterDateTime2.TabIndex = 11;
@@ -781,7 +873,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dtpFilterDateTime1
             // 
             dtpFilterDateTime1.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime1.Location = new Point(383, 47);
+            dtpFilterDateTime1.Location = new Point(384, 21);
             dtpFilterDateTime1.Name = "dtpFilterDateTime1";
             dtpFilterDateTime1.Size = new Size(100, 23);
             dtpFilterDateTime1.TabIndex = 10;
@@ -838,7 +930,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadStockData
             // 
-            btnReadStockData.Location = new Point(267, 129);
+            btnReadStockData.Location = new Point(843, 103);
             btnReadStockData.Name = "btnReadStockData";
             btnReadStockData.Size = new Size(120, 25);
             btnReadStockData.TabIndex = 3;
@@ -848,7 +940,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadMetaData
             // 
-            btnReadMetaData.Location = new Point(141, 129);
+            btnReadMetaData.Location = new Point(717, 103);
             btnReadMetaData.Name = "btnReadMetaData";
             btnReadMetaData.Size = new Size(120, 25);
             btnReadMetaData.TabIndex = 2;
@@ -864,6 +956,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnSaveFile.TabIndex = 13;
             btnSaveFile.Text = "💾";
             btnSaveFile.UseVisualStyleBackColor = true;
+            btnSaveFile.Click += BtnSaveFile_Click;
             // 
             // btnBrowseFile
             // 
@@ -873,6 +966,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnBrowseFile.TabIndex = 12;
             btnBrowseFile.Text = "📁";
             btnBrowseFile.UseVisualStyleBackColor = true;
+            btnBrowseFile.Click += BtnBrowseFile_Click;
             // 
             // txtFileName
             // 
@@ -891,6 +985,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblFileName.TabIndex = 0;
             lblFileName.Text = "File Name:";
             // 
+            // tabPageSingleTrader
+            // 
+            tabPageSingleTrader.BackColor = Color.White;
+            tabPageSingleTrader.Location = new Point(4, 24);
+            tabPageSingleTrader.Name = "tabPageSingleTrader";
+            tabPageSingleTrader.Padding = new Padding(3);
+            tabPageSingleTrader.Size = new Size(1300, 773);
+            tabPageSingleTrader.TabIndex = 1;
+            tabPageSingleTrader.Text = "SingleTrader";
+            // 
             // tabPageMultipleTraders
             // 
             tabPageMultipleTraders.BackColor = Color.White;
@@ -898,7 +1002,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageMultipleTraders.Name = "tabPageMultipleTraders";
             tabPageMultipleTraders.Padding = new Padding(3);
             tabPageMultipleTraders.Size = new Size(1300, 773);
-            tabPageMultipleTraders.TabIndex = 1;
+            tabPageMultipleTraders.TabIndex = 2;
             tabPageMultipleTraders.Text = "MultipleTraders";
             // 
             // tabPageSingleTraderOptimization
@@ -908,21 +1012,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
             tabPageSingleTraderOptimization.Padding = new Padding(3);
             tabPageSingleTraderOptimization.Size = new Size(1300, 773);
-            tabPageSingleTraderOptimization.TabIndex = 2;
+            tabPageSingleTraderOptimization.TabIndex = 3;
             tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
             // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
-            // 
-            // stockDataGridViewLabel
-            // 
-            stockDataGridViewLabel.AutoSize = true;
-            stockDataGridViewLabel.Location = new Point(993, 103);
-            stockDataGridViewLabel.Name = "stockDataGridViewLabel";
-            stockDataGridViewLabel.Size = new Size(38, 15);
-            stockDataGridViewLabel.TabIndex = 18;
-            stockDataGridViewLabel.Text = "label1";
             // 
             // Form1
             // 
@@ -954,7 +1049,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.ResumeLayout(false);
             centerPanel.ResumeLayout(false);
             mainTabControl.ResumeLayout(false);
-            tabPageSingleTrader.ResumeLayout(false);
+            tabPageStockDataReader.ResumeLayout(false);
             panel2.ResumeLayout(false);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -977,6 +1072,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Panel bottomPanel;
         private Panel centerPanel;
         private TabControl mainTabControl;
+        private TabPage tabPageStockDataReader;
         private TabPage tabPageSingleTrader;
         private TabPage tabPageMultipleTraders;
         private TabPage tabPageSingleTraderOptimization;
@@ -1074,5 +1170,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private TextBox txtFileName;
         private Label lblFileName;
         private Label stockDataGridViewLabel;
+        private Button btnSaveConfigFile;
+        private Button btnReadConfigFile;
+        private Button btnUpdateFilters;
+        private Button btnFirstRow;
+        private Button btnPrevRow;
+        private Button btnNextRow;
+        private Button btnLastRow;
     }
 }

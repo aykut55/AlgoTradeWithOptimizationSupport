@@ -2,6 +2,11 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
 using System.Windows.Forms;
+using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
@@ -20,6 +25,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private MainControlLoop? _mainLoop;
         private LogManager _logManager;
+        private StockDataReader dataReader;
+        private List<StockData> stockDataList;
 
         public Form1()
         {
@@ -32,6 +39,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeMainLoop();
             InitializeFilterModeComboBox();
             InitializeStockDataGridView();
+            dataReader = new StockDataReader();
+            dataReader.EnableLogManager(true);
+            stockDataList = new List<StockData>();
         }
 
         private void InitializeFilterModeComboBox()
@@ -162,6 +172,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // Bayraklar (Boolean) - CheckBoxColumn olarak gösterilebilir
             stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBullish", HeaderText = "Bullish" });
             stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBearish", HeaderText = "Bearish" });
+
+            stockDataGridView.SelectionChanged += StockDataGridView_SelectionChanged;
         }
 
         private void InitializeLogManager()
@@ -1004,7 +1016,42 @@ Format           : Id Date Time Open High Low Close Volume Lot";
 
                     statusLabel.Text = $"Loading data from : {filePath}";
 
+                    dataReader.Clear();
+                    dataReader.StartTimer();
+
+                    StockDataReader.FilterMode readerMode = (StockDataReader.FilterMode)(int)mode;
+
+                    int n1 = 0, n2 = 0;
+                    DateTime? dt1 = null, dt2 = null;
+
+                    if (int.TryParse(txtFilterValue1.Text, out int val1)) n1 = val1;
+                    if (int.TryParse(txtFilterValue2.Text, out int val2)) n2 = val2;
+
+                    dt1 = dtpFilterDateTime1.Value;
+                    dt2 = dtpFilterDateTime2.Value;
+
+                    stockDataList = dataReader.ReadDataFast(filePath, readerMode, n1, n2, dt1, dt2);
+
+                    dataReader.StopTimer();
+
+                    if (stockDataList == null || !stockDataList.Any())
+                    {
+                        MessageBox.Show("No valid data was read from the file.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    stockDataGridView.DataSource = stockDataList;
+
+                    long t1 = dataReader.GetElapsedTimeMsec();
+                    int itemsCount = dataReader.ReadCount;
+                    statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
+
+                    UpdateStockDataGridViewLabel();
+
+
                     /*
+                     * TODO : BU KODU SILME, MANUAL OLARAK BEN SILECEGIM
+                     * 
                                         StockDataReader.Clear();
 
                                         StockDataReader.StartTimer();
@@ -1050,6 +1097,13 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                                         int itemsCount = dataReader.ReadCount;
                                         statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
                     */
+
+
+
+
+
+
+
                 }
             }
             catch (Exception ex)
@@ -1057,7 +1111,70 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                 MessageBox.Show($"An error occurred while reading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
         #endregion
+
+        private void BtnFirstRow_Click(object sender, EventArgs e)
+        {
+            if (stockDataGridView.Rows.Count > 0)
+            {
+                stockDataGridView.CurrentCell = stockDataGridView.Rows[0].Cells[0];
+                stockDataGridView.FirstDisplayedScrollingRowIndex = 0;
+            }
+        }
+
+        private void BtnPrevRow_Click(object sender, EventArgs e)
+        {
+            if (stockDataGridView.Rows.Count > 0 && stockDataGridView.CurrentRow != null)
+            {
+                int prevIndex = stockDataGridView.CurrentRow.Index - 1;
+                if (prevIndex >= 0)
+                {
+                    stockDataGridView.CurrentCell = stockDataGridView.Rows[prevIndex].Cells[0];
+                    stockDataGridView.FirstDisplayedScrollingRowIndex = prevIndex;
+                }
+            }
+        }
+
+        private void BtnNextRow_Click(object sender, EventArgs e)
+        {
+            if (stockDataGridView.Rows.Count > 0 && stockDataGridView.CurrentRow != null)
+            {
+                int nextIndex = stockDataGridView.CurrentRow.Index + 1;
+                if (nextIndex < stockDataGridView.Rows.Count)
+                {
+                    stockDataGridView.CurrentCell = stockDataGridView.Rows[nextIndex].Cells[0];
+                    stockDataGridView.FirstDisplayedScrollingRowIndex = nextIndex;
+                }
+            }
+        }
+
+        private void BtnLastRow_Click(object sender, EventArgs e)
+        {
+            if (stockDataGridView.Rows.Count > 0)
+            {
+                int lastIndex = stockDataGridView.Rows.Count - 1;
+                stockDataGridView.CurrentCell = stockDataGridView.Rows[lastIndex].Cells[0];
+                stockDataGridView.FirstDisplayedScrollingRowIndex = lastIndex;
+            }
+        }
+
+        private void StockDataGridView_SelectionChanged(object? sender, EventArgs e)
+        {
+            UpdateStockDataGridViewLabel();
+        }
+
+        private void UpdateStockDataGridViewLabel()
+        {
+            if (stockDataGridView.Rows.Count > 0 && stockDataGridView.CurrentRow != null)
+            {
+                int currentIndex = stockDataGridView.CurrentRow.Index + 1;
+                int totalRows = stockDataGridView.Rows.Count;
+                stockDataGridViewLabel.Text = $"Index: {currentIndex} / Total: {totalRows}";
+            }
+            else
+            {
+                stockDataGridViewLabel.Text = "Index: 0 / Total: 0";
+            }
+        }
     }
 }
