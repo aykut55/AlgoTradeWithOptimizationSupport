@@ -101,15 +101,40 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             leftPanel = new Panel();
             rightPanel = new Panel();
             bottomPanel = new Panel();
+            richTextBox1 = new RichTextBox();
             centerPanel = new Panel();
             mainTabControl = new TabControl();
-            richTextBox1 = new RichTextBox();
+            tabPageSingleTrader = new TabPage();
+            panel1 = new Panel();
+            groupBox1 = new GroupBox();
+            btnClear = new Button();
+            dtpFilterDateTime2 = new DateTimePicker();
+            dtpFilterDateTime1 = new DateTimePicker();
+            txtFilterValue2 = new TextBox();
+            lblFilterValue2 = new Label();
+            txtFilterValue1 = new TextBox();
+            lblFilterValue1 = new Label();
+            cmbFilterMode = new ComboBox();
+            lblFilterMode = new Label();
+            btnReadStockData = new Button();
+            btnReadMetaData = new Button();
+            btnSaveFile = new Button();
+            btnBrowseFile = new Button();
+            txtFileName = new TextBox();
+            lblFileName = new Label();
+            tabPageMultipleTraders = new TabPage();
+            tabPageSingleTraderOptimization = new TabPage();
+            openFileDialog1 = new OpenFileDialog();
+            saveFileDialog1 = new SaveFileDialog();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
             statusStrip.SuspendLayout();
             bottomPanel.SuspendLayout();
             centerPanel.SuspendLayout();
+            mainTabControl.SuspendLayout();
+            tabPageSingleTrader.SuspendLayout();
+            groupBox1.SuspendLayout();
             SuspendLayout();
             // 
             // mainMenuStrip
@@ -609,6 +634,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.Size = new Size(1200, 157);
             bottomPanel.TabIndex = 4;
             // 
+            // richTextBox1
+            // 
+            richTextBox1.Dock = DockStyle.Fill;
+            richTextBox1.Location = new Point(0, 0);
+            richTextBox1.Name = "richTextBox1";
+            richTextBox1.Size = new Size(1198, 155);
+            richTextBox1.TabIndex = 0;
+            richTextBox1.Text = "";
+            // 
             // centerPanel
             // 
             centerPanel.BorderStyle = BorderStyle.FixedSingle;
@@ -621,6 +655,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // mainTabControl
             // 
+            mainTabControl.Controls.Add(tabPageSingleTrader);
+            mainTabControl.Controls.Add(tabPageMultipleTraders);
+            mainTabControl.Controls.Add(tabPageSingleTraderOptimization);
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
@@ -628,14 +665,203 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Size = new Size(1024, 490);
             mainTabControl.TabIndex = 0;
             // 
-            // richTextBox1
+            // tabPageSingleTrader
             // 
-            richTextBox1.Dock = DockStyle.Fill;
-            richTextBox1.Location = new Point(0, 0);
-            richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(1198, 155);
-            richTextBox1.TabIndex = 0;
-            richTextBox1.Text = "";
+            tabPageSingleTrader.BackColor = Color.White;
+            tabPageSingleTrader.Controls.Add(panel1);
+            tabPageSingleTrader.Controls.Add(groupBox1);
+            tabPageSingleTrader.Location = new Point(4, 24);
+            tabPageSingleTrader.Name = "tabPageSingleTrader";
+            tabPageSingleTrader.Padding = new Padding(3);
+            tabPageSingleTrader.Size = new Size(1016, 462);
+            tabPageSingleTrader.TabIndex = 0;
+            tabPageSingleTrader.Text = "SingleTrader";
+            // 
+            // panel1
+            // 
+            panel1.Dock = DockStyle.Fill;
+            panel1.Location = new Point(3, 150);
+            panel1.Name = "panel1";
+            panel1.Size = new Size(1010, 309);
+            panel1.TabIndex = 1;
+            // 
+            // groupBox1
+            // 
+            groupBox1.Controls.Add(btnClear);
+            groupBox1.Controls.Add(dtpFilterDateTime2);
+            groupBox1.Controls.Add(dtpFilterDateTime1);
+            groupBox1.Controls.Add(txtFilterValue2);
+            groupBox1.Controls.Add(lblFilterValue2);
+            groupBox1.Controls.Add(txtFilterValue1);
+            groupBox1.Controls.Add(lblFilterValue1);
+            groupBox1.Controls.Add(cmbFilterMode);
+            groupBox1.Controls.Add(lblFilterMode);
+            groupBox1.Controls.Add(btnReadStockData);
+            groupBox1.Controls.Add(btnReadMetaData);
+            groupBox1.Controls.Add(btnSaveFile);
+            groupBox1.Controls.Add(btnBrowseFile);
+            groupBox1.Controls.Add(txtFileName);
+            groupBox1.Controls.Add(lblFileName);
+            groupBox1.Dock = DockStyle.Top;
+            groupBox1.Location = new Point(3, 3);
+            groupBox1.Name = "groupBox1";
+            groupBox1.Size = new Size(1010, 147);
+            groupBox1.TabIndex = 0;
+            groupBox1.TabStop = false;
+            groupBox1.Text = "Stock Data Reader";
+            // 
+            // btnClear
+            // 
+            btnClear.Location = new Point(749, 50);
+            btnClear.Name = "btnClear";
+            btnClear.Size = new Size(120, 25);
+            btnClear.TabIndex = 14;
+            btnClear.Text = "Clear";
+            btnClear.UseVisualStyleBackColor = true;
+            // 
+            // dtpFilterDateTime2
+            // 
+            dtpFilterDateTime2.Format = DateTimePickerFormat.Short;
+            dtpFilterDateTime2.Location = new Point(277, 107);
+            dtpFilterDateTime2.Name = "dtpFilterDateTime2";
+            dtpFilterDateTime2.Size = new Size(100, 23);
+            dtpFilterDateTime2.TabIndex = 11;
+            // 
+            // dtpFilterDateTime1
+            // 
+            dtpFilterDateTime1.Format = DateTimePickerFormat.Short;
+            dtpFilterDateTime1.Location = new Point(171, 107);
+            dtpFilterDateTime1.Name = "dtpFilterDateTime1";
+            dtpFilterDateTime1.Size = new Size(100, 23);
+            dtpFilterDateTime1.TabIndex = 10;
+            // 
+            // txtFilterValue2
+            // 
+            txtFilterValue2.Location = new Point(277, 78);
+            txtFilterValue2.Name = "txtFilterValue2";
+            txtFilterValue2.Size = new Size(100, 23);
+            txtFilterValue2.TabIndex = 9;
+            // 
+            // lblFilterValue2
+            // 
+            lblFilterValue2.AutoSize = true;
+            lblFilterValue2.Location = new Point(277, 60);
+            lblFilterValue2.Name = "lblFilterValue2";
+            lblFilterValue2.Size = new Size(47, 15);
+            lblFilterValue2.TabIndex = 8;
+            lblFilterValue2.Text = "Value 2:";
+            // 
+            // txtFilterValue1
+            // 
+            txtFilterValue1.Location = new Point(171, 78);
+            txtFilterValue1.Name = "txtFilterValue1";
+            txtFilterValue1.Size = new Size(100, 23);
+            txtFilterValue1.TabIndex = 7;
+            // 
+            // lblFilterValue1
+            // 
+            lblFilterValue1.AutoSize = true;
+            lblFilterValue1.Location = new Point(171, 60);
+            lblFilterValue1.Name = "lblFilterValue1";
+            lblFilterValue1.Size = new Size(47, 15);
+            lblFilterValue1.TabIndex = 6;
+            lblFilterValue1.Text = "Value 1:";
+            // 
+            // cmbFilterMode
+            // 
+            cmbFilterMode.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbFilterMode.FormattingEnabled = true;
+            cmbFilterMode.Location = new Point(15, 78);
+            cmbFilterMode.Name = "cmbFilterMode";
+            cmbFilterMode.Size = new Size(150, 23);
+            cmbFilterMode.TabIndex = 5;
+            // 
+            // lblFilterMode
+            // 
+            lblFilterMode.AutoSize = true;
+            lblFilterMode.Location = new Point(15, 60);
+            lblFilterMode.Name = "lblFilterMode";
+            lblFilterMode.Size = new Size(70, 15);
+            lblFilterMode.TabIndex = 4;
+            lblFilterMode.Text = "Filter Mode:";
+            // 
+            // btnReadStockData
+            // 
+            btnReadStockData.Location = new Point(875, 82);
+            btnReadStockData.Name = "btnReadStockData";
+            btnReadStockData.Size = new Size(120, 25);
+            btnReadStockData.TabIndex = 3;
+            btnReadStockData.Text = "Read StockData";
+            btnReadStockData.UseVisualStyleBackColor = true;
+            // 
+            // btnReadMetaData
+            // 
+            btnReadMetaData.Location = new Point(875, 50);
+            btnReadMetaData.Name = "btnReadMetaData";
+            btnReadMetaData.Size = new Size(120, 25);
+            btnReadMetaData.TabIndex = 2;
+            btnReadMetaData.Text = "Read MetaData";
+            btnReadMetaData.UseVisualStyleBackColor = true;
+            // 
+            // btnSaveFile
+            // 
+            btnSaveFile.Location = new Point(965, 20);
+            btnSaveFile.Name = "btnSaveFile";
+            btnSaveFile.Size = new Size(30, 25);
+            btnSaveFile.TabIndex = 13;
+            btnSaveFile.Text = "💾";
+            btnSaveFile.UseVisualStyleBackColor = true;
+            btnSaveFile.Click += BtnSaveFile_Click;
+            // 
+            // btnBrowseFile
+            // 
+            btnBrowseFile.Location = new Point(930, 20);
+            btnBrowseFile.Name = "btnBrowseFile";
+            btnBrowseFile.Size = new Size(30, 25);
+            btnBrowseFile.TabIndex = 12;
+            btnBrowseFile.Text = "📁";
+            btnBrowseFile.UseVisualStyleBackColor = true;
+            btnBrowseFile.Click += BtnBrowseFile_Click;
+            // 
+            // txtFileName
+            // 
+            txtFileName.Location = new Point(85, 22);
+            txtFileName.Name = "txtFileName";
+            txtFileName.Size = new Size(839, 23);
+            txtFileName.TabIndex = 1;
+            // 
+            // lblFileName
+            // 
+            lblFileName.AutoSize = true;
+            lblFileName.Location = new Point(15, 25);
+            lblFileName.Name = "lblFileName";
+            lblFileName.Size = new Size(63, 15);
+            lblFileName.TabIndex = 0;
+            lblFileName.Text = "File Name:";
+            // 
+            // tabPageMultipleTraders
+            // 
+            tabPageMultipleTraders.BackColor = Color.White;
+            tabPageMultipleTraders.Location = new Point(4, 24);
+            tabPageMultipleTraders.Name = "tabPageMultipleTraders";
+            tabPageMultipleTraders.Padding = new Padding(3);
+            tabPageMultipleTraders.Size = new Size(1016, 462);
+            tabPageMultipleTraders.TabIndex = 1;
+            tabPageMultipleTraders.Text = "MultipleTraders";
+            // 
+            // tabPageSingleTraderOptimization
+            // 
+            tabPageSingleTraderOptimization.BackColor = Color.White;
+            tabPageSingleTraderOptimization.Location = new Point(4, 24);
+            tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
+            tabPageSingleTraderOptimization.Padding = new Padding(3);
+            tabPageSingleTraderOptimization.Size = new Size(1016, 462);
+            tabPageSingleTraderOptimization.TabIndex = 2;
+            tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
+            // 
+            // openFileDialog1
+            // 
+            openFileDialog1.FileName = "openFileDialog1";
             // 
             // Form1
             // 
@@ -665,6 +891,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             statusStrip.PerformLayout();
             bottomPanel.ResumeLayout(false);
             centerPanel.ResumeLayout(false);
+            mainTabControl.ResumeLayout(false);
+            tabPageSingleTrader.ResumeLayout(false);
+            groupBox1.ResumeLayout(false);
+            groupBox1.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -681,6 +911,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Panel bottomPanel;
         private Panel centerPanel;
         private TabControl mainTabControl;
+        private TabPage tabPageSingleTrader;
+        private TabPage tabPageMultipleTraders;
+        private TabPage tabPageSingleTraderOptimization;
+        private GroupBox groupBox1;
+        private Label lblFileName;
+        private TextBox txtFileName;
+        private Button btnBrowseFile;
+        private Button btnSaveFile;
+        private Button btnReadMetaData;
+        private Button btnReadStockData;
+        private Label lblFilterMode;
+        private ComboBox cmbFilterMode;
+        private Label lblFilterValue1;
+        private TextBox txtFilterValue1;
+        private Label lblFilterValue2;
+        private TextBox txtFilterValue2;
+        private DateTimePicker dtpFilterDateTime1;
+        private DateTimePicker dtpFilterDateTime2;
+        private Panel panel1;
 
         // Menu Items
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -751,5 +1000,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         // Timer
         private System.Windows.Forms.Timer? statusTimer;
         private RichTextBox richTextBox1;
+        private OpenFileDialog openFileDialog1;
+        private SaveFileDialog saveFileDialog1;
+        private Button btnClear;
     }
 }

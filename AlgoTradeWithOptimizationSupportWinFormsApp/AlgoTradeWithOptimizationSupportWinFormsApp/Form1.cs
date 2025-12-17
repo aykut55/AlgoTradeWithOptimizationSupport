@@ -6,6 +6,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
     public partial class Form1 : Form
     {
+        public enum FilterMode
+        {
+            All,
+            LastN,
+            FirstN,
+            IndexRange,
+            AfterDateTime,
+            BeforeDateTime,
+            DateTimeRange
+        }
+
         private MainControlLoop? _mainLoop;
         private LogManager _logManager;
 
@@ -18,6 +29,99 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializePanelSpacing();
             InitializeLogManager();
             InitializeMainLoop();
+            InitializeFilterModeComboBox();
+        }
+
+        private void InitializeFilterModeComboBox()
+        {
+            // FilterMode enum değerlerini ComboBox'a ekle
+            cmbFilterMode.Items.Clear();
+            foreach (FilterMode mode in Enum.GetValues(typeof(FilterMode)))
+            {
+                cmbFilterMode.Items.Add(mode);
+            }
+
+            // Varsayılan olarak "All" seçili olsun
+            cmbFilterMode.SelectedItem = FilterMode.All;
+
+            // ComboBox değiştiğinde ilgili kontrollerin görünürlüğünü ayarla
+            cmbFilterMode.SelectedIndexChanged += CmbFilterMode_SelectedIndexChanged;
+
+            // Başlangıçta filtre kontrollerini gizle
+            UpdateFilterControlsVisibility();
+        }
+
+        private void CmbFilterMode_SelectedIndexChanged(object? sender, EventArgs e)
+        {
+            UpdateFilterControlsVisibility();
+        }
+
+        private void UpdateFilterControlsVisibility()
+        {
+            if (cmbFilterMode.SelectedItem == null) return;
+
+            FilterMode selectedMode = (FilterMode)cmbFilterMode.SelectedItem;
+
+            // Tüm kontrolleri gizle
+            lblFilterValue1.Visible = false;
+            txtFilterValue1.Visible = false;
+            lblFilterValue2.Visible = false;
+            txtFilterValue2.Visible = false;
+            dtpFilterDateTime1.Visible = false;
+            dtpFilterDateTime2.Visible = false;
+
+            switch (selectedMode)
+            {
+                case FilterMode.All:
+                    // Hiçbir ek kontrol gösterme
+                    break;
+
+                case FilterMode.LastN:
+                case FilterMode.FirstN:
+                    // Sadece N değeri için bir TextBox göster
+                    lblFilterValue1.Text = "N:";
+                    lblFilterValue1.Visible = true;
+                    txtFilterValue1.Visible = true;
+                    break;
+
+                case FilterMode.IndexRange:
+                    // Start ve End index için iki TextBox göster
+                    lblFilterValue1.Text = "Start Index:";
+                    lblFilterValue1.Visible = true;
+                    txtFilterValue1.Visible = true;
+                    lblFilterValue2.Text = "End Index:";
+                    lblFilterValue2.Visible = true;
+                    txtFilterValue2.Visible = true;
+                    break;
+
+                case FilterMode.AfterDateTime:
+                    // DateTimePicker'ı txtFilterValue1'in yerine yerleştir
+                    lblFilterValue1.Text = "After:";
+                    lblFilterValue1.Visible = true;
+                    dtpFilterDateTime1.Location = txtFilterValue1.Location;
+                    dtpFilterDateTime1.Visible = true;
+                    break;
+
+                case FilterMode.BeforeDateTime:
+                    // DateTimePicker'ı txtFilterValue1'in yerine yerleştir
+                    lblFilterValue1.Text = "Before:";
+                    lblFilterValue1.Visible = true;
+                    dtpFilterDateTime1.Location = txtFilterValue1.Location;
+                    dtpFilterDateTime1.Visible = true;
+                    break;
+
+                case FilterMode.DateTimeRange:
+                    // DateTimePicker'ları TextBox'ların yerine yerleştir
+                    lblFilterValue1.Text = "From:";
+                    lblFilterValue1.Visible = true;
+                    dtpFilterDateTime1.Location = txtFilterValue1.Location;
+                    dtpFilterDateTime1.Visible = true;
+                    lblFilterValue2.Text = "To:";
+                    lblFilterValue2.Visible = true;
+                    dtpFilterDateTime2.Location = txtFilterValue2.Location;
+                    dtpFilterDateTime2.Visible = true;
+                    break;
+            }
         }
 
         private void InitializeLogManager()
@@ -103,10 +207,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private void LoadInitialTabs()
         {
-            // Add main tabs first
-            AddNewTab("SingleTrader");
-            AddNewTab("MultipleTraders");
-            AddNewTab("SingleTraderOptimization");
+            // Add main tabs (runtime - bunlar tasarım zamanında eklenen tabların peşine gelir)
+            AddNewTab("SingleTrader1");
+            AddNewTab("MultipleTraders1");
+            AddNewTab("SingleTraderOptimization1");
 
             // Add sample tabs for testing
             //AddNewTab("AAPL - MA Strategy");
@@ -753,6 +857,46 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         "Settings", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     statusLabel.Text = "Settings clicked";
                     break;
+            }
+        }
+
+        #endregion
+
+        #region File Browse Event Handler
+
+        private void BtnBrowseFile_Click(object? sender, EventArgs e)
+        {
+            // OpenFileDialog ayarları
+            openFileDialog1.Filter = "Binary Files (*.bin)|*.bin|Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            openFileDialog1.Title = "Select Stock Data File";
+            openFileDialog1.InitialDirectory = Application.StartupPath;
+
+            // Dosya seçim dialogu aç
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txtFileName.Text = openFileDialog1.FileName;
+                statusLabel.Text = $"File selected: {Path.GetFileName(openFileDialog1.FileName)}";
+            }
+        }
+
+        private void BtnSaveFile_Click(object? sender, EventArgs e)
+        {
+            // SaveFileDialog ayarları
+            saveFileDialog1.Filter = "Binary Files (*.bin)|*.bin|Text Files (*.txt)|*.txt|CSV Files (*.csv)|*.csv|All Files (*.*)|*.*";
+            saveFileDialog1.Title = "Save Stock Data File";
+            saveFileDialog1.InitialDirectory = Application.StartupPath;
+
+            // Eğer txtFileName'de bir dosya adı varsa, onu varsayılan olarak kullan
+            if (!string.IsNullOrWhiteSpace(txtFileName.Text))
+            {
+                saveFileDialog1.FileName = Path.GetFileName(txtFileName.Text);
+            }
+
+            // Dosya kaydetme dialogu aç
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                txtFileName.Text = saveFileDialog1.FileName;
+                statusLabel.Text = $"Save location: {Path.GetFileName(saveFileDialog1.FileName)}";
             }
         }
 
