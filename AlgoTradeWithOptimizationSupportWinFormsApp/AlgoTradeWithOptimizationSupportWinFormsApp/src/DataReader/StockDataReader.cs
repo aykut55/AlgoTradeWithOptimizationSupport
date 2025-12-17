@@ -43,7 +43,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
         private bool _isDisposed;
 
         // Metadata storage
-        private readonly ConcurrentDictionary<string, string> _metadata = new ConcurrentDictionary<string, string>();
+        private readonly ConcurrentDictionary<string, string> _metaData = new ConcurrentDictionary<string, string>();
+        private readonly List<string> _metaDataLines = new List<string>();
 
         // Manager integrations
         private readonly string _timerIdPrefix = "StockDataReader";
@@ -436,7 +437,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
         /// <summary>
         /// Metadata dictionary'si (# ile başlayan satırlardan okunan bilgiler)
         /// </summary>
-        public ConcurrentDictionary<string, string> Metadata => _metadata;
+        public ConcurrentDictionary<string, string> Metadata => _metaData;
+
+        /// <summary>
+        /// Metadata satırları (# ile başlayan tüm satırlar, orijinal haliyle)
+        /// Loop ile iterate etmek için kullanılabilir
+        /// </summary>
+        public List<string> MetadataLines => _metaDataLines;
 
         /// <summary>
         /// Metadata satırını parse et
@@ -454,12 +461,80 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
             {
                 var key = content.Substring(0, separatorIndex).Trim();
                 var value = content.Substring(separatorIndex + 1).Trim();
-                _metadata[key] = value;
+                _metaData[key] = value;
 
                 if (_useLogManager)
                 {
                     LogManager.LogTrace($"StockDataReader: Metadata loaded - {key}: {value}");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Verilen CSV data dosyasından sadece header/metadata bilgilerini okur
+        /// Format: # Key: Value
+        /// Örnek: # Kayit_Zamani: 2025.12.07 16:47:50
+        /// </summary>
+        /// <param name="filePath">Okunacak dosya yolu</param>
+        /// <returns>Metadata dictionary</returns>
+        public ConcurrentDictionary<string, string> ReadMetaData(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("The specified data file was not found.", filePath);
+            }
+
+            // Mevcut metadata'yı temizle
+            _metaData.Clear();
+            _metaDataLines.Clear();
+
+            if (_useLogManager)
+            {
+                LogManager.LogInfo($"StockDataReader: Reading metadata from {filePath}");
+            }
+
+            try
+            {
+                using var fileStream = new FileStream(
+                    filePath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.Read,
+                    bufferSize: 4096,
+                    FileOptions.SequentialScan);
+
+                using var reader = new StreamReader(fileStream);
+
+                string? line;
+                while ((line = reader.ReadLine()) != null)
+                {
+                    // # ile başlamayan satıra geldiğinde dur (data başladı)
+                    if (!line.TrimStart().StartsWith("#"))
+                    {
+                        break;
+                    }
+
+                    // Orijinal satırı listeye ekle
+                    _metaDataLines.Add(line);
+
+                    // Metadata satırını parse et ve dictionary'ye ekle
+                    ProcessMetadataLine(line);
+                }
+
+                if (_useLogManager)
+                {
+                    LogManager.LogInfo($"StockDataReader: Metadata read completed - {_metaData.Count} entries, {_metaDataLines.Count} lines");
+                }
+
+                return _metaData;
+            }
+            catch (Exception ex)
+            {
+                if (_useLogManager)
+                {
+                    LogManager.LogError($"StockDataReader: Error reading metadata - {ex.Message}", ex);
+                }
+                throw;
             }
         }
 
@@ -623,6 +698,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
                         // Process metadata
                         if (line.TrimStart().StartsWith("#"))
                         {
+                            _metaDataLines.Add(line);
                             ProcessMetadataLine(line);
                             continue;
                         }
@@ -946,7 +1022,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
             _cancellationTokenSource?.Dispose();
             _dataQueue?.Dispose();
 
-            _metadata.Clear();
+            _metaData.Clear();
+            _metaDataLines.Clear();
         }
     }
 
@@ -1212,7 +1289,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
             using var reader = new StockDataReader();
             reader.EnableLogManager(true);
 
-            await reader.StartStreamingAsync("data/AAPL_with_metadata.txt");
+            await reader.StartStreamingAsync("data/AAPL_with_metaData.txt");
 
             // Metadata oku
             var symbol = reader.Metadata.GetValueOrDefault("GrafikSembol", "N/A");

@@ -1,18 +1,21 @@
 using AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
-using System.Windows.Forms;
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
     public partial class Form1 : Form
     {
-        public enum FilterMode
+        /*public enum FilterMode
         {
             All,
             LastN,
@@ -21,16 +24,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             AfterDateTime,
             BeforeDateTime,
             DateTimeRange
-        }
+        }*/
 
         private MainControlLoop? _mainLoop;
         private LogManager _logManager;
-        private StockDataReader dataReader;
+        private StockDataReader stockDataReader;
+        private ConcurrentDictionary<string, string> stockMetaData;
         private List<StockData> stockDataList;
 
         public Form1()
         {
             InitializeComponent();
+
+            // DateTimePicker'ları tarih + saat gösterecek şekilde ayarla
+            dtpFilterDateTime1.Format = DateTimePickerFormat.Custom;
+            dtpFilterDateTime1.CustomFormat = "yyyy.MM.dd HH:mm:ss";
+
+            dtpFilterDateTime2.Format = DateTimePickerFormat.Custom;
+            dtpFilterDateTime2.CustomFormat = "yyyy.MM.dd HH:mm:ss";
+
             InitializeTabControl();
             LoadInitialTabs();
             InitializeStatusTimer();
@@ -39,22 +51,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeMainLoop();
             InitializeFilterModeComboBox();
             InitializeStockDataGridView();
-            dataReader = new StockDataReader();
-            dataReader.EnableLogManager(true);
+            stockDataReader = new StockDataReader();
+            stockDataReader.EnableLogManager(true);
+            stockMetaData = new ConcurrentDictionary<string, string>();
             stockDataList = new List<StockData>();
+
+            txtDataFileName.Text = @"C:\data\csvFiles\VIP\\01\VIP-X030-T.csv";
         }
 
         private void InitializeFilterModeComboBox()
         {
             // FilterMode enum değerlerini ComboBox'a ekle
             cmbFilterMode.Items.Clear();
-            foreach (FilterMode mode in Enum.GetValues(typeof(FilterMode)))
+            foreach (StockDataReader.FilterMode mode in Enum.GetValues(typeof(StockDataReader.FilterMode)))
             {
                 cmbFilterMode.Items.Add(mode);
             }
 
             // Varsayılan olarak "All" seçili olsun
-            cmbFilterMode.SelectedItem = FilterMode.All;
+            cmbFilterMode.SelectedItem = StockDataReader.FilterMode.All;
 
             // ComboBox değiştiğinde ilgili kontrollerin görünürlüğünü ayarla
             cmbFilterMode.SelectedIndexChanged += CmbFilterMode_SelectedIndexChanged;
@@ -72,7 +87,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         {
             if (cmbFilterMode.SelectedItem == null) return;
 
-            FilterMode selectedMode = (FilterMode)cmbFilterMode.SelectedItem;
+            StockDataReader.FilterMode selectedMode = (StockDataReader.FilterMode)cmbFilterMode.SelectedItem;
 
             // Tüm kontrolleri gizle
             lblFilterValue1.Visible = false;
@@ -84,53 +99,57 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             switch (selectedMode)
             {
-                case FilterMode.All:
+                case StockDataReader.FilterMode.All:
                     // Hiçbir ek kontrol gösterme
                     break;
 
-                case FilterMode.LastN:
-                case FilterMode.FirstN:
+                case StockDataReader.FilterMode.LastN:
+                case StockDataReader.FilterMode.FirstN:
                     // Sadece N değeri için bir TextBox göster
-                    lblFilterValue1.Text = "N:";
+                    lblFilterValue1.Text = "N";
                     lblFilterValue1.Visible = true;
                     txtFilterValue1.Visible = true;
                     break;
 
-                case FilterMode.IndexRange:
+                case StockDataReader.FilterMode.IndexRange:
                     // Start ve End index için iki TextBox göster
-                    lblFilterValue1.Text = "Start Index:";
+                    lblFilterValue1.Text = "Start Index";
                     lblFilterValue1.Visible = true;
                     txtFilterValue1.Visible = true;
-                    lblFilterValue2.Text = "End Index:";
+                    lblFilterValue2.Text = "End Index";
                     lblFilterValue2.Visible = true;
                     txtFilterValue2.Visible = true;
                     break;
 
-                case FilterMode.AfterDateTime:
+                case StockDataReader.FilterMode.AfterDateTime:
                     // DateTimePicker'ı txtFilterValue1'in yerine yerleştir
-                    lblFilterValue1.Text = "After:";
+                    lblFilterValue1.Text = "After";
                     lblFilterValue1.Visible = true;
                     dtpFilterDateTime1.Location = txtFilterValue1.Location;
                     dtpFilterDateTime1.Visible = true;
                     break;
 
-                case FilterMode.BeforeDateTime:
+                case StockDataReader.FilterMode.BeforeDateTime:
                     // DateTimePicker'ı txtFilterValue1'in yerine yerleştir
-                    lblFilterValue1.Text = "Before:";
+                    lblFilterValue1.Text = "Before";
                     lblFilterValue1.Visible = true;
                     dtpFilterDateTime1.Location = txtFilterValue1.Location;
                     dtpFilterDateTime1.Visible = true;
                     break;
 
-                case FilterMode.DateTimeRange:
-                    // DateTimePicker'ları TextBox'ların yerine yerleştir
-                    lblFilterValue1.Text = "From:";
+                case StockDataReader.FilterMode.DateTimeRange:
+                    // DateTimePicker'ları yerleştir
+                    lblFilterValue1.Text = "From";
                     lblFilterValue1.Visible = true;
                     dtpFilterDateTime1.Location = txtFilterValue1.Location;
                     dtpFilterDateTime1.Visible = true;
-                    lblFilterValue2.Text = "To:";
+
+                    lblFilterValue2.Text = "To";
                     lblFilterValue2.Visible = true;
-                    dtpFilterDateTime2.Location = txtFilterValue2.Location;
+                    // lblFilterValue2 ve dtpFilterDateTime2'yi yan yana yerleştir
+                    int spacing = 0; // Boşluk miktarı
+                    lblFilterValue2.Location = new Point(dtpFilterDateTime1.Right + spacing, lblFilterValue1.Location.Y);
+                    dtpFilterDateTime2.Location = new Point(lblFilterValue2.Left + 5, txtFilterValue1.Location.Y);
                     dtpFilterDateTime2.Visible = true;
                     break;
             }
@@ -996,6 +1015,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         {
             // TextBoxMetaData'yı temizle
             textBoxMetaData.Clear();
+            stockMetaData.Clear();
             statusLabel.Text = "Metadata cleared";
 
             textBoxMetaData.Text = @"Kayit Zamani     : 
@@ -1009,36 +1029,9 @@ Format           : ";
 
         private void BtnReadMetaData_Click(object? sender, EventArgs e)
         {
-            // Örnek metadata göster
-            /*
-                        // Metadata oku
-                        var symbol = reader.Metadata.GetValueOrDefault("GrafikSembol", "N/A");
-                        var barCount = reader.Metadata.GetValueOrDefault("BarCount", "N/A");
-                        var period = reader.Metadata.GetValueOrDefault("Periyot", "N/A");
-
-                        Console.WriteLine($"Symbol: {symbol}");
-                        Console.WriteLine($"Bar Count: {barCount}");
-                        Console.WriteLine($"Period: {period}");
-            */
-
-            textBoxMetaData.Text = @"Kayit Zamani     : 2025.11.12 23:02:18
-GrafikSembol     : VIP'VIP-X030-T
-GrafikPeriyot    : G
-BarCount         : 5216
-Başlangiç Tarihi : 2005.02.09 00:00:00
-Bitiş Tarihi     : 2025.11.12 00:00:00
-Format           : Id Date Time Open High Low Close Volume Lot";
-
-            statusLabel.Text = "Metadata loaded";
-        }
-
-        private void BtnReadStockData_Click(object? sender, EventArgs e)
-        {
             string fileName = txtDataFileName.Text;
             string fileDir = "";
             string filePath = "";
-            FilterMode mode = FilterMode.All;
-
             try
             {
                 if (!File.Exists(fileName))
@@ -1050,12 +1043,67 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                     fileDir = Path.GetDirectoryName(fileName);
                     filePath = Path.Combine(fileDir, fileName);
 
+                    statusLabel.Text = $"Reading Meta Data from : {filePath}";
+
+                    stockMetaData = stockDataReader.ReadMetaData(filePath);
+
+                    // Dictionary'den direkt eriş
+                    var kayitZamani = stockMetaData.GetValueOrDefault("Kayit_Zamani", "N/A");
+                    var grafikSembol = stockMetaData.GetValueOrDefault("GrafikSembol", "N/A");
+                    var grafikPeriyot = stockMetaData.GetValueOrDefault("GrafikPeriyot", "N/A");
+                    var barCount = stockMetaData.GetValueOrDefault("BarCount", "N/A");
+                    var baslangicTarihi = stockMetaData.GetValueOrDefault("Baslangic_Tarihi", "N/A");
+                    var bitisTarihi = stockMetaData.GetValueOrDefault("Bitis_Tarihi", "N/A");
+                    var format = stockMetaData.GetValueOrDefault("Format", "N/A");
+
+                    // Padding uzunluğu (en uzun label'ın uzunluğu)
+                    int padding = 17;
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"{"Kayit Zamani".PadRight(padding)}: {kayitZamani}");
+                    sb.AppendLine($"{"GrafikSembol".PadRight(padding)}: {grafikSembol}");
+                    sb.AppendLine($"{"GrafikPeriyot".PadRight(padding)}: {grafikPeriyot}");
+                    sb.AppendLine($"{"BarCount".PadRight(padding)}: {barCount}");
+                    sb.AppendLine($"{"Başlangıç Tarihi".PadRight(padding)}: {baslangicTarihi}");
+                    sb.AppendLine($"{"Bitiş Tarihi".PadRight(padding)}: {bitisTarihi}");
+                    sb.AppendLine($"{"Format".PadRight(padding)}: {format}");
+
+                    textBoxMetaData.Text = sb.ToString();
+
+                    statusLabel.Text = "Metadata loaded";
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while reading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private void BtnReadStockData_Click(object? sender, EventArgs e)
+        {
+            string fileName = txtDataFileName.Text;
+            string fileDir = "";
+            string filePath = "";
+
+            try
+            {
+                if (!File.Exists(fileName))
+                {
+                    statusLabel.Text = $"File does not exit : {fileName}";
+                }
+                else
+                {
+                    // ComboBox'tan seçili modu al (Form1.FilterMode)
+                    if (cmbFilterMode.SelectedItem == null)
+                        return;
+
+                    fileDir = Path.GetDirectoryName(fileName);
+                    filePath = Path.Combine(fileDir, fileName);
+
                     statusLabel.Text = $"Loading data from : {filePath}";
 
-                    dataReader.Clear();
-                    dataReader.StartTimer();
+                    stockDataReader.Clear();
 
-                    StockDataReader.FilterMode readerMode = (StockDataReader.FilterMode)(int)mode;
+                    stockDataReader.StartTimer();
 
                     int n1 = 0, n2 = 0;
                     DateTime? dt1 = null, dt2 = null;
@@ -1066,9 +1114,38 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                     dt1 = dtpFilterDateTime1.Value;
                     dt2 = dtpFilterDateTime2.Value;
 
-                    stockDataList = dataReader.ReadDataFast(filePath, readerMode, n1, n2, dt1, dt2);
+                    StockDataReader.FilterMode mode = (StockDataReader.FilterMode)cmbFilterMode.SelectedItem;
 
-                    dataReader.StopTimer();
+                    if (mode == StockDataReader.FilterMode.All)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath);
+                    }
+                    else if (mode == StockDataReader.FilterMode.LastN)
+                    {                        
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.LastN, n1);
+                    }
+                    else if (mode == StockDataReader.FilterMode.FirstN)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.FirstN, n2);
+                    }
+                    else if (mode == StockDataReader.FilterMode.IndexRange)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.IndexRange, n1, n2);
+                    }
+                    else if (mode == StockDataReader.FilterMode.AfterDateTime)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.AfterDateTime, dt1: dt1);
+                    }
+                    else if (mode == StockDataReader.FilterMode.BeforeDateTime)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.BeforeDateTime, dt1: dt1);
+                    }
+                    else if (mode == StockDataReader.FilterMode.DateTimeRange)
+                    {
+                        stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.DateTimeRange, dt1: dt1, dt2: dt2);
+                    }
+
+                    stockDataReader.StopTimer();
 
                     if (stockDataList == null || !stockDataList.Any())
                     {
@@ -1076,70 +1153,13 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                         return;
                     }
 
-                    stockDataGridView.DataSource = stockDataList;
-
-                    long t1 = dataReader.GetElapsedTimeMsec();
-                    int itemsCount = dataReader.ReadCount;
+                    long t1 = stockDataReader.GetElapsedTimeMsec();
+                    int itemsCount = stockDataReader.ReadCount;
                     statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
 
-                    UpdateStockDataGridViewLabel();
+                    //stockDataGridView.DataSource = stockDataList;
 
-
-                    /*
-                     * TODO : BU KODU SILME, MANUAL OLARAK BEN SILECEGIM
-                     * 
-                                        StockDataReader.Clear();
-
-                                        StockDataReader.StartTimer();
-
-                                        if (mode == FilterMode.All)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath);
-                                        }
-                                        else if (mode == FilterMode.LastN)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.LastN, 300);
-                                        }
-                                        else if (mode == FilterMode.FirstN)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.FirstN, 300);
-                                        }
-                                        else if (mode == FilterMode.IndexRange)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.IndexRange, 1000, 2000);
-                                        }
-                                        else if (mode == FilterMode.AfterDateTime)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.AfterDateTime, dt1: new DateTime(2025, 11, 12));
-                                        }
-                                        else if (mode == FilterMode.BeforeDateTime)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.BeforeDateTime, dt1: new DateTime(2025, 11, 12));
-                                        }
-                                        else if (mode == FilterMode.DateTimeRange)
-                                        {
-                                            stockDataList = dataReader.ReadDataFast(filePath, FilterMode.DateTimeRange, dt1: new DateTime(2025, 11, 12), dt2: new DateTime(2025, 11, 12, 23, 59, 59));
-                                        }
-
-                                        dataReader.StopTimer();
-
-                                        if (stockDataList == null || !stockDataList.Any())
-                                        {
-                                            MessageBox.Show("No valid data was read from the file.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                            return;
-                                        }
-
-                                        long t1 = dataReader.GetElapsedTimeMsec();
-                                        int itemsCount = dataReader.ReadCount;
-                                        statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
-                    */
-
-
-
-
-
-
-
+                    //UpdateStockDataGridViewLabel();
                 }
             }
             catch (Exception ex)
@@ -1210,6 +1230,34 @@ Format           : Id Date Time Open High Low Close Volume Lot";
             else
             {
                 stockDataGridViewLabel.Text = "Index: 0 / Total: 0";
+            }
+        }
+
+        private void btnUpdateFilters_Click(object sender, EventArgs e)
+        {
+            if (!stockMetaData.IsEmpty)
+            {
+                txtFilterValue1.Text = "0";
+                txtFilterValue2.Text = stockMetaData.GetValueOrDefault("BarCount", "0");
+
+                SetDateTimePicker(dtpFilterDateTime1, stockMetaData.GetValueOrDefault("Baslangic_Tarihi", ""));
+                SetDateTimePicker(dtpFilterDateTime2, stockMetaData.GetValueOrDefault("Bitis_Tarihi", ""));
+            }
+        }
+
+        /// <summary>
+        /// DateTimePicker kontrolüne string formatındaki tarih değerini set eder
+        /// Format: yyyy.MM.dd HH:mm:ss
+        /// </summary>
+        private void SetDateTimePicker(DateTimePicker dtp, string dateTimeStr)
+        {
+            if (string.IsNullOrEmpty(dateTimeStr) || dateTimeStr == "N/A")
+                return;
+
+            if (DateTime.TryParseExact(dateTimeStr, "yyyy.MM.dd HH:mm:ss",
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out var dateTime))
+            {
+                dtp.Value = dateTime;
             }
         }
     }

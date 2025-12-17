@@ -35,7 +35,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             mainMenuStrip = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -801,7 +800,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             textBoxMetaData.ScrollBars = ScrollBars.Vertical;
             textBoxMetaData.Size = new Size(533, 112);
             textBoxMetaData.TabIndex = 16;
-            textBoxMetaData.Text = resources.GetString("textBoxMetaData.Text");
+            textBoxMetaData.Text = "Kayit Zamani     : \r\nGrafikSembol     : \r\nGrafikPeriyot    : \r\nBarCount         : \r\nBaşlangiç Tarihi : \r\nBitiş Tarihi     : \r\nFormat           :\r\n";
             // 
             // groupBox1
             // 
@@ -879,6 +878,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnUpdateFilters.TabIndex = 17;
             btnUpdateFilters.Text = "Update Filters";
             btnUpdateFilters.UseVisualStyleBackColor = true;
+            btnUpdateFilters.Click += btnUpdateFilters_Click;
             // 
             // btnSaveConfigFile
             // 
@@ -911,17 +911,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dtpFilterDateTime2
             // 
             dtpFilterDateTime2.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime2.Location = new Point(489, 177);
+            dtpFilterDateTime2.Location = new Point(531, 175);
             dtpFilterDateTime2.Name = "dtpFilterDateTime2";
-            dtpFilterDateTime2.Size = new Size(100, 23);
+            dtpFilterDateTime2.Size = new Size(142, 23);
             dtpFilterDateTime2.TabIndex = 11;
             // 
             // dtpFilterDateTime1
             // 
             dtpFilterDateTime1.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime1.Location = new Point(383, 177);
+            dtpFilterDateTime1.Location = new Point(383, 175);
             dtpFilterDateTime1.Name = "dtpFilterDateTime1";
-            dtpFilterDateTime1.Size = new Size(100, 23);
+            dtpFilterDateTime1.Size = new Size(142, 23);
             dtpFilterDateTime1.TabIndex = 10;
             // 
             // txtFilterValue2
