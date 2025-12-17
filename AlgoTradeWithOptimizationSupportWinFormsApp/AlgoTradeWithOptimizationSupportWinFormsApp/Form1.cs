@@ -901,5 +901,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         }
 
         #endregion
+
+        #region Stock Data Event Handlers
+
+        private void BtnClear_Click(object? sender, EventArgs e)
+        {
+            // TextBoxMetaData'yı temizle
+            textBoxMetaData.Clear();
+            statusLabel.Text = "Metadata cleared";
+        }
+
+        private void BtnReadMetaData_Click(object? sender, EventArgs e)
+        {
+            // Örnek metadata göster
+            textBoxMetaData.Text = @"Kayit Zamani     : 2025.11.12 23:02:18
+GrafikSembol     : VIP'VIP-X030-T
+GrafikPeriyot    : G
+BarCount         : 5216
+Başlangiç Tarihi : 2005.02.09 00:00:00
+Bitiş Tarihi     : 2025.11.12 00:00:00
+Format           : Id Date Time Open High Low Close Volume Lot";
+
+            statusLabel.Text = "Metadata loaded";
+        }
+
+        private void BtnReadStockData_Click(object? sender, EventArgs e)
+        {
+            // Şimdilik boş - ileride implement edilecek
+            statusLabel.Text = "Read StockData clicked (not implemented yet)";
+        }
+
+        #endregion
     }
 }
