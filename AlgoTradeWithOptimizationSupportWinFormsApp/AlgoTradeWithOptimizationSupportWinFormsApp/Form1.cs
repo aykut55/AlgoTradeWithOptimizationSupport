@@ -175,6 +175,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridView.RowHeadersVisible = false;
             stockDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
 
+            // Column Header Styling (Başlıklar için özel stil)
+            stockDataGridView.EnableHeadersVisualStyles = false; // Özel stil için gerekli
+            stockDataGridView.ColumnHeadersDefaultCellStyle.BackColor = Color.Orange;
+            stockDataGridView.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            stockDataGridView.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            stockDataGridView.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            stockDataGridView.ColumnHeadersHeight = 30;
+
+            // Alternatif satır renklendirme (Zebra striping - daha okunabilir)
+            stockDataGridView.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+            stockDataGridView.DefaultCellStyle.BackColor = Color.White;
+
             // Kolonları temizle
             stockDataGridView.Columns.Clear();
 
