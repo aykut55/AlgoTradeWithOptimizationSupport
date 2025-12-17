@@ -1,6 +1,7 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
-using AlgoTradeWithOptimizationSupportWinFormsApp.ConsoleManagement;
+using System.Windows.Forms;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
@@ -909,11 +910,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // TextBoxMetaData'yı temizle
             textBoxMetaData.Clear();
             statusLabel.Text = "Metadata cleared";
+
+            textBoxMetaData.Text = @"Kayit Zamani     : 
+GrafikSembol     : 
+GrafikPeriyot    : 
+BarCount         : 
+Başlangiç Tarihi : 
+Bitiş Tarihi     : 
+Format           : ";
         }
 
         private void BtnReadMetaData_Click(object? sender, EventArgs e)
         {
             // Örnek metadata göster
+/*
+            // Metadata oku
+            var symbol = reader.Metadata.GetValueOrDefault("GrafikSembol", "N/A");
+            var barCount = reader.Metadata.GetValueOrDefault("BarCount", "N/A");
+            var period = reader.Metadata.GetValueOrDefault("Periyot", "N/A");
+
+            Console.WriteLine($"Symbol: {symbol}");
+            Console.WriteLine($"Bar Count: {barCount}");
+            Console.WriteLine($"Period: {period}");
+*/
+
             textBoxMetaData.Text = @"Kayit Zamani     : 2025.11.12 23:02:18
 GrafikSembol     : VIP'VIP-X030-T
 GrafikPeriyot    : G
@@ -927,8 +947,75 @@ Format           : Id Date Time Open High Low Close Volume Lot";
 
         private void BtnReadStockData_Click(object? sender, EventArgs e)
         {
-            // Şimdilik boş - ileride implement edilecek
-            statusLabel.Text = "Read StockData clicked (not implemented yet)";
+            string fileName = txtFileName.Text;
+            string fileDir = "";
+            string filePath = "";
+            FilterMode mode = FilterMode.All;
+
+            try
+            {
+                if (!File.Exists(fileName))
+                {
+                    statusLabel.Text = $"File does not exit : {fileName}";
+                }
+                else
+                {
+                    fileDir = Path.GetDirectoryName(fileName);
+                    filePath = Path.Combine(fileDir, fileName);
+
+                    statusLabel.Text = $"Loading data from : {filePath}";
+/*
+                    dataReader.Clear();
+
+                    dataReader.StartTimer();
+
+                    if (mode == FilterMode.All)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath);
+                    }
+                    else if (mode == FilterMode.LastN)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.LastN, 300);
+                    }
+                    else if (mode == FilterMode.FirstN)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.FirstN, 300);
+                    }
+                    else if (mode == FilterMode.IndexRange)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.IndexRange, 1000, 2000);
+                    }
+                    else if (mode == FilterMode.AfterDateTime)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.AfterDateTime, dt1: new DateTime(2025, 11, 12));
+                    }
+                    else if (mode == FilterMode.BeforeDateTime)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.BeforeDateTime, dt1: new DateTime(2025, 11, 12));
+                    }
+                    else if (mode == FilterMode.DateTimeRange)
+                    {
+                        stockDataList = dataReader.ReadDataFast(filePath, FilterMode.DateTimeRange, dt1: new DateTime(2025, 11, 12), dt2: new DateTime(2025, 11, 12, 23, 59, 59));
+                    }
+
+                    dataReader.StopTimer();
+
+                    if (stockDataList == null || !stockDataList.Any())
+                    {
+                        MessageBox.Show("No valid data was read from the file.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        return;
+                    }
+
+                    long t1 = dataReader.GetElapsedTimeMsec();
+                    int itemsCount = dataReader.ReadCount;
+                    statusLabel.Text = $"Data is loaded...Total count : {itemsCount}, Elapsed time : {t1} ms";
+*/
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"An error occurred while reading data: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         #endregion

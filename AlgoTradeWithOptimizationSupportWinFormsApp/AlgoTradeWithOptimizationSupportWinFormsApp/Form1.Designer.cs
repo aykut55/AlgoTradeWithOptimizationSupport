@@ -35,6 +35,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             mainMenuStrip = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -106,8 +107,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl = new TabControl();
             tabPageSingleTrader = new TabPage();
             panel1 = new Panel();
-            groupBox1 = new GroupBox();
             textBoxMetaData = new TextBox();
+            groupBox1 = new GroupBox();
             btnClear = new Button();
             dtpFilterDateTime2 = new DateTimePicker();
             dtpFilterDateTime1 = new DateTimePicker();
@@ -135,6 +136,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             centerPanel.SuspendLayout();
             mainTabControl.SuspendLayout();
             tabPageSingleTrader.SuspendLayout();
+            panel1.SuspendLayout();
             groupBox1.SuspendLayout();
             SuspendLayout();
             // 
@@ -567,7 +569,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { statusLabel, progressBar, spacerLabel, timeLabel });
-            statusStrip.Location = new Point(0, 692);
+            statusStrip.Location = new Point(0, 1036);
             statusStrip.Name = "statusStrip";
             statusStrip.Size = new Size(1292, 25);
             statusStrip.TabIndex = 2;
@@ -612,7 +614,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             leftPanel.Dock = DockStyle.Left;
             leftPanel.Location = new Point(0, 76);
             leftPanel.Name = "leftPanel";
-            leftPanel.Size = new Size(103, 459);
+            leftPanel.Size = new Size(103, 803);
             leftPanel.TabIndex = 5;
             // 
             // rightPanel
@@ -621,7 +623,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             rightPanel.Dock = DockStyle.Right;
             rightPanel.Location = new Point(1221, 76);
             rightPanel.Name = "rightPanel";
-            rightPanel.Size = new Size(71, 459);
+            rightPanel.Size = new Size(71, 803);
             rightPanel.TabIndex = 6;
             rightPanel.Visible = false;
             // 
@@ -630,7 +632,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.BorderStyle = BorderStyle.FixedSingle;
             bottomPanel.Controls.Add(richTextBox1);
             bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Location = new Point(0, 535);
+            bottomPanel.Location = new Point(0, 879);
             bottomPanel.Name = "bottomPanel";
             bottomPanel.Size = new Size(1292, 157);
             bottomPanel.TabIndex = 4;
@@ -651,7 +653,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             centerPanel.Dock = DockStyle.Fill;
             centerPanel.Location = new Point(103, 76);
             centerPanel.Name = "centerPanel";
-            centerPanel.Size = new Size(1118, 459);
+            centerPanel.Size = new Size(1118, 803);
             centerPanel.TabIndex = 7;
             // 
             // mainTabControl
@@ -663,7 +665,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(1116, 457);
+            mainTabControl.Size = new Size(1116, 801);
             mainTabControl.TabIndex = 0;
             // 
             // tabPageSingleTrader
@@ -674,21 +676,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTrader.Location = new Point(4, 24);
             tabPageSingleTrader.Name = "tabPageSingleTrader";
             tabPageSingleTrader.Padding = new Padding(3);
-            tabPageSingleTrader.Size = new Size(1108, 429);
+            tabPageSingleTrader.Size = new Size(1108, 773);
             tabPageSingleTrader.TabIndex = 0;
             tabPageSingleTrader.Text = "SingleTrader";
             // 
             // panel1
             // 
+            panel1.Controls.Add(textBoxMetaData);
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(3, 203);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1102, 223);
+            panel1.Size = new Size(1102, 567);
             panel1.TabIndex = 1;
+            // 
+            // textBoxMetaData
+            // 
+            textBoxMetaData.Font = new Font("Consolas", 9F);
+            textBoxMetaData.Location = new Point(12, 6);
+            textBoxMetaData.Multiline = true;
+            textBoxMetaData.Name = "textBoxMetaData";
+            textBoxMetaData.ReadOnly = true;
+            textBoxMetaData.ScrollBars = ScrollBars.Vertical;
+            textBoxMetaData.Size = new Size(617, 112);
+            textBoxMetaData.TabIndex = 16;
+            textBoxMetaData.Text = resources.GetString("textBoxMetaData.Text");
             // 
             // groupBox1
             // 
-            groupBox1.Controls.Add(textBoxMetaData);
             groupBox1.Controls.Add(btnClear);
             groupBox1.Controls.Add(dtpFilterDateTime2);
             groupBox1.Controls.Add(dtpFilterDateTime1);
@@ -711,17 +725,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.TabIndex = 0;
             groupBox1.TabStop = false;
             groupBox1.Text = "Stock Data Reader";
-            // 
-            // textBoxMetaData
-            // 
-            textBoxMetaData.Font = new Font("Consolas", 9F);
-            textBoxMetaData.Location = new Point(707, 29);
-            textBoxMetaData.Multiline = true;
-            textBoxMetaData.Name = "textBoxMetaData";
-            textBoxMetaData.ReadOnly = true;
-            textBoxMetaData.ScrollBars = ScrollBars.Vertical;
-            textBoxMetaData.Size = new Size(365, 154);
-            textBoxMetaData.TabIndex = 15;
             // 
             // btnClear
             // 
@@ -845,6 +848,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             txtFileName.Name = "txtFileName";
             txtFileName.Size = new Size(614, 23);
             txtFileName.TabIndex = 1;
+            txtFileName.Text = "Select File...";
             // 
             // lblFileName
             // 
@@ -861,7 +865,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageMultipleTraders.Location = new Point(4, 24);
             tabPageMultipleTraders.Name = "tabPageMultipleTraders";
             tabPageMultipleTraders.Padding = new Padding(3);
-            tabPageMultipleTraders.Size = new Size(1108, 429);
+            tabPageMultipleTraders.Size = new Size(1108, 773);
             tabPageMultipleTraders.TabIndex = 1;
             tabPageMultipleTraders.Text = "MultipleTraders";
             // 
@@ -871,7 +875,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTraderOptimization.Location = new Point(4, 24);
             tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
             tabPageSingleTraderOptimization.Padding = new Padding(3);
-            tabPageSingleTraderOptimization.Size = new Size(1108, 429);
+            tabPageSingleTraderOptimization.Size = new Size(1108, 773);
             tabPageSingleTraderOptimization.TabIndex = 2;
             tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
             // 
@@ -883,7 +887,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1292, 717);
+            ClientSize = new Size(1292, 1061);
             Controls.Add(centerPanel);
             Controls.Add(rightPanel);
             Controls.Add(leftPanel);
@@ -910,6 +914,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             centerPanel.ResumeLayout(false);
             mainTabControl.ResumeLayout(false);
             tabPageSingleTrader.ResumeLayout(false);
+            panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
             ResumeLayout(false);

@@ -129,6 +129,15 @@
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>421, 17</value>
   </metadata>
+  <data name="textBoxMetaData.Text" xml:space="preserve">
+    <value>Kayit Zamani     : 2025.11.12 23:02:18
+GrafikSembol     : VIP'VIP-X030-T
+GrafikPeriyot    : G
+BarCount         : 5216
+Başlangiç Tarihi : 2005.02.09 00:00:00
+Bitiş Tarihi     : 2025.11.12 00:00:00
+Format           : Id Date Time Open High Low Close Volume Lot</value>
+  </data>
   <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>530, 17</value>
   </metadata>
