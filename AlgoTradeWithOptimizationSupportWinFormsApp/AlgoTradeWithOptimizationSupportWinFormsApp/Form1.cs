@@ -916,7 +916,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         #region File Browse Event Handler
 
-        private void BtnBrowseFile_Click(object? sender, EventArgs e)
+        private void BtnBrowseFile1_Click(object? sender, EventArgs e)
         {
             // OpenFileDialog ayarları
             openFileDialog1.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
@@ -926,12 +926,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // Dosya seçim dialogu aç
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                txtFileName.Text = openFileDialog1.FileName;
+                txtDataFileName.Text = openFileDialog1.FileName;
                 statusLabel.Text = $"File selected: {Path.GetFileName(openFileDialog1.FileName)}";
             }
         }
 
-        private void BtnSaveFile_Click(object? sender, EventArgs e)
+        private void BtnSaveFile1_Click(object? sender, EventArgs e)
         {
             // SaveFileDialog ayarları
             saveFileDialog1.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
@@ -939,16 +939,52 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             saveFileDialog1.InitialDirectory = Application.StartupPath;
 
             // Eğer txtFileName'de bir dosya adı varsa, onu varsayılan olarak kullan
-            if (!string.IsNullOrWhiteSpace(txtFileName.Text))
+            if (!string.IsNullOrWhiteSpace(txtDataFileName.Text))
             {
-                saveFileDialog1.FileName = Path.GetFileName(txtFileName.Text);
+                saveFileDialog1.FileName = Path.GetFileName(txtDataFileName.Text);
             }
 
             // Dosya kaydetme dialogu aç
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                txtFileName.Text = saveFileDialog1.FileName;
+                txtDataFileName.Text = saveFileDialog1.FileName;
                 statusLabel.Text = $"Save location: {Path.GetFileName(saveFileDialog1.FileName)}";
+            }
+        }
+
+        private void BtnBrowseFile2_Click(object? sender, EventArgs e)
+        {
+            // OpenFileDialog ayarları
+            openFileDialog2.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
+            openFileDialog2.Title = "Select Stock Data File";
+            openFileDialog2.InitialDirectory = Application.StartupPath;
+
+            // Dosya seçim dialogu aç
+            if (openFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                txtConfigFileName.Text = openFileDialog2.FileName;
+                statusLabel.Text = $"File selected: {Path.GetFileName(openFileDialog2.FileName)}";
+            }
+        }
+
+        private void BtnSaveFile2_Click(object? sender, EventArgs e)
+        {
+            // SaveFileDialog ayarları
+            saveFileDialog2.Filter = "CSV Files (*.csv)|*.csv|Text Files (*.txt)|*.txt|Binary Files (*.bin)|*.bin|All Files (*.*)|*.*";
+            saveFileDialog2.Title = "Save Stock Data File";
+            saveFileDialog2.InitialDirectory = Application.StartupPath;
+
+            // Eğer txtFileName'de bir dosya adı varsa, onu varsayılan olarak kullan
+            if (!string.IsNullOrWhiteSpace(txtConfigFileName.Text))
+            {
+                saveFileDialog2.FileName = Path.GetFileName(txtConfigFileName.Text);
+            }
+
+            // Dosya kaydetme dialogu aç
+            if (saveFileDialog2.ShowDialog() == DialogResult.OK)
+            {
+                txtConfigFileName.Text = saveFileDialog2.FileName;
+                statusLabel.Text = $"Save location: {Path.GetFileName(saveFileDialog2.FileName)}";
             }
         }
 
@@ -998,7 +1034,7 @@ Format           : Id Date Time Open High Low Close Volume Lot";
 
         private void BtnReadStockData_Click(object? sender, EventArgs e)
         {
-            string fileName = txtFileName.Text;
+            string fileName = txtDataFileName.Text;
             string fileDir = "";
             string filePath = "";
             FilterMode mode = FilterMode.All;

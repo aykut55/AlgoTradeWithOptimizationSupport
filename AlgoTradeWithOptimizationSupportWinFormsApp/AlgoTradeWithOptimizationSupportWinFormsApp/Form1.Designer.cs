@@ -117,6 +117,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridView = new DataGridView();
             textBoxMetaData = new TextBox();
             groupBox1 = new GroupBox();
+            btnSaveFile2 = new Button();
+            btnBrowseFile2 = new Button();
+            txtConfigFileName = new TextBox();
+            lblConfigFileName = new Label();
             btnUpdateFilters = new Button();
             btnSaveConfigFile = new Button();
             btnReadConfigFile = new Button();
@@ -131,15 +135,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblFilterMode = new Label();
             btnReadStockData = new Button();
             btnReadMetaData = new Button();
-            btnSaveFile = new Button();
-            btnBrowseFile = new Button();
-            txtFileName = new TextBox();
-            lblFileName = new Label();
+            btnSaveFile1 = new Button();
+            btnBrowseFile1 = new Button();
+            txtDataFileName = new TextBox();
+            lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             tabPageMultipleTraders = new TabPage();
             tabPageSingleTraderOptimization = new TabPage();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
+            openFileDialog2 = new OpenFileDialog();
+            saveFileDialog2 = new SaveFileDialog();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -723,9 +729,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel1.Controls.Add(stockDataGridView);
             panel1.Controls.Add(textBoxMetaData);
             panel1.Dock = DockStyle.Fill;
-            panel1.Location = new Point(0, 148);
+            panel1.Location = new Point(0, 219);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1039, 619);
+            panel1.Size = new Size(1039, 548);
             panel1.TabIndex = 2;
             // 
             // btnLastRow
@@ -799,6 +805,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // groupBox1
             // 
+            groupBox1.Controls.Add(btnSaveFile2);
+            groupBox1.Controls.Add(btnBrowseFile2);
+            groupBox1.Controls.Add(txtConfigFileName);
+            groupBox1.Controls.Add(lblConfigFileName);
             groupBox1.Controls.Add(btnUpdateFilters);
             groupBox1.Controls.Add(btnSaveConfigFile);
             groupBox1.Controls.Add(btnReadConfigFile);
@@ -813,21 +823,57 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.Controls.Add(lblFilterMode);
             groupBox1.Controls.Add(btnReadStockData);
             groupBox1.Controls.Add(btnReadMetaData);
-            groupBox1.Controls.Add(btnSaveFile);
-            groupBox1.Controls.Add(btnBrowseFile);
-            groupBox1.Controls.Add(txtFileName);
-            groupBox1.Controls.Add(lblFileName);
+            groupBox1.Controls.Add(btnSaveFile1);
+            groupBox1.Controls.Add(btnBrowseFile1);
+            groupBox1.Controls.Add(txtDataFileName);
+            groupBox1.Controls.Add(lblDataFileName);
             groupBox1.Dock = DockStyle.Top;
             groupBox1.Location = new Point(0, 0);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(1039, 148);
+            groupBox1.Size = new Size(1039, 219);
             groupBox1.TabIndex = 1;
             groupBox1.TabStop = false;
             groupBox1.Text = "Stock Data Reader";
             // 
+            // btnSaveFile2
+            // 
+            btnSaveFile2.Location = new Point(671, 45);
+            btnSaveFile2.Name = "btnSaveFile2";
+            btnSaveFile2.Size = new Size(30, 25);
+            btnSaveFile2.TabIndex = 21;
+            btnSaveFile2.Text = "💾";
+            btnSaveFile2.UseVisualStyleBackColor = true;
+            btnSaveFile2.Click += BtnSaveFile2_Click;
+            // 
+            // btnBrowseFile2
+            // 
+            btnBrowseFile2.Location = new Point(635, 45);
+            btnBrowseFile2.Name = "btnBrowseFile2";
+            btnBrowseFile2.Size = new Size(30, 25);
+            btnBrowseFile2.TabIndex = 20;
+            btnBrowseFile2.Text = "📁";
+            btnBrowseFile2.UseVisualStyleBackColor = true;
+            btnBrowseFile2.Click += BtnBrowseFile2_Click;
+            // 
+            // txtConfigFileName
+            // 
+            txtConfigFileName.Location = new Point(15, 45);
+            txtConfigFileName.Name = "txtConfigFileName";
+            txtConfigFileName.Size = new Size(614, 23);
+            txtConfigFileName.TabIndex = 19;
+            // 
+            // lblConfigFileName
+            // 
+            lblConfigFileName.AutoSize = true;
+            lblConfigFileName.Location = new Point(15, 27);
+            lblConfigFileName.Name = "lblConfigFileName";
+            lblConfigFileName.Size = new Size(96, 15);
+            lblConfigFileName.TabIndex = 18;
+            lblConfigFileName.Text = "ConfigFile Name";
+            // 
             // btnUpdateFilters
             // 
-            btnUpdateFilters.Location = new Point(843, 72);
+            btnUpdateFilters.Location = new Point(843, 143);
             btnUpdateFilters.Name = "btnUpdateFilters";
             btnUpdateFilters.Size = new Size(120, 25);
             btnUpdateFilters.TabIndex = 17;
@@ -836,7 +882,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnSaveConfigFile
             // 
-            btnSaveConfigFile.Location = new Point(843, 19);
+            btnSaveConfigFile.Location = new Point(843, 45);
             btnSaveConfigFile.Name = "btnSaveConfigFile";
             btnSaveConfigFile.Size = new Size(120, 25);
             btnSaveConfigFile.TabIndex = 16;
@@ -845,7 +891,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadConfigFile
             // 
-            btnReadConfigFile.Location = new Point(717, 19);
+            btnReadConfigFile.Location = new Point(717, 45);
             btnReadConfigFile.Name = "btnReadConfigFile";
             btnReadConfigFile.Size = new Size(120, 25);
             btnReadConfigFile.TabIndex = 15;
@@ -854,7 +900,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnClear
             // 
-            btnClear.Location = new Point(717, 72);
+            btnClear.Location = new Point(717, 114);
             btnClear.Name = "btnClear";
             btnClear.Size = new Size(120, 25);
             btnClear.TabIndex = 14;
@@ -865,7 +911,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dtpFilterDateTime2
             // 
             dtpFilterDateTime2.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime2.Location = new Point(384, 50);
+            dtpFilterDateTime2.Location = new Point(489, 177);
             dtpFilterDateTime2.Name = "dtpFilterDateTime2";
             dtpFilterDateTime2.Size = new Size(100, 23);
             dtpFilterDateTime2.TabIndex = 11;
@@ -873,14 +919,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dtpFilterDateTime1
             // 
             dtpFilterDateTime1.Format = DateTimePickerFormat.Short;
-            dtpFilterDateTime1.Location = new Point(384, 21);
+            dtpFilterDateTime1.Location = new Point(383, 177);
             dtpFilterDateTime1.Name = "dtpFilterDateTime1";
             dtpFilterDateTime1.Size = new Size(100, 23);
             dtpFilterDateTime1.TabIndex = 10;
             // 
             // txtFilterValue2
             // 
-            txtFilterValue2.Location = new Point(277, 47);
+            txtFilterValue2.Location = new Point(277, 175);
             txtFilterValue2.Name = "txtFilterValue2";
             txtFilterValue2.Size = new Size(100, 23);
             txtFilterValue2.TabIndex = 9;
@@ -888,15 +934,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblFilterValue2
             // 
             lblFilterValue2.AutoSize = true;
-            lblFilterValue2.Location = new Point(277, 29);
+            lblFilterValue2.Location = new Point(277, 157);
             lblFilterValue2.Name = "lblFilterValue2";
-            lblFilterValue2.Size = new Size(47, 15);
+            lblFilterValue2.Size = new Size(44, 15);
             lblFilterValue2.TabIndex = 8;
-            lblFilterValue2.Text = "Value 2:";
+            lblFilterValue2.Text = "Value 2";
             // 
             // txtFilterValue1
             // 
-            txtFilterValue1.Location = new Point(171, 47);
+            txtFilterValue1.Location = new Point(171, 175);
             txtFilterValue1.Name = "txtFilterValue1";
             txtFilterValue1.Size = new Size(100, 23);
             txtFilterValue1.TabIndex = 7;
@@ -904,17 +950,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblFilterValue1
             // 
             lblFilterValue1.AutoSize = true;
-            lblFilterValue1.Location = new Point(171, 29);
+            lblFilterValue1.Location = new Point(171, 157);
             lblFilterValue1.Name = "lblFilterValue1";
-            lblFilterValue1.Size = new Size(47, 15);
+            lblFilterValue1.Size = new Size(44, 15);
             lblFilterValue1.TabIndex = 6;
-            lblFilterValue1.Text = "Value 1:";
+            lblFilterValue1.Text = "Value 1";
             // 
             // cmbFilterMode
             // 
             cmbFilterMode.DropDownStyle = ComboBoxStyle.DropDownList;
             cmbFilterMode.FormattingEnabled = true;
-            cmbFilterMode.Location = new Point(15, 47);
+            cmbFilterMode.Location = new Point(15, 175);
             cmbFilterMode.Name = "cmbFilterMode";
             cmbFilterMode.Size = new Size(150, 23);
             cmbFilterMode.TabIndex = 5;
@@ -922,15 +968,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblFilterMode
             // 
             lblFilterMode.AutoSize = true;
-            lblFilterMode.Location = new Point(15, 29);
+            lblFilterMode.Location = new Point(15, 157);
             lblFilterMode.Name = "lblFilterMode";
-            lblFilterMode.Size = new Size(70, 15);
+            lblFilterMode.Size = new Size(67, 15);
             lblFilterMode.TabIndex = 4;
-            lblFilterMode.Text = "Filter Mode:";
+            lblFilterMode.Text = "Filter Mode";
             // 
             // btnReadStockData
             // 
-            btnReadStockData.Location = new Point(843, 103);
+            btnReadStockData.Location = new Point(843, 173);
             btnReadStockData.Name = "btnReadStockData";
             btnReadStockData.Size = new Size(120, 25);
             btnReadStockData.TabIndex = 3;
@@ -940,7 +986,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnReadMetaData
             // 
-            btnReadMetaData.Location = new Point(717, 103);
+            btnReadMetaData.Location = new Point(843, 112);
             btnReadMetaData.Name = "btnReadMetaData";
             btnReadMetaData.Size = new Size(120, 25);
             btnReadMetaData.TabIndex = 2;
@@ -948,42 +994,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnReadMetaData.UseVisualStyleBackColor = true;
             btnReadMetaData.Click += BtnReadMetaData_Click;
             // 
-            // btnSaveFile
+            // btnSaveFile1
             // 
-            btnSaveFile.Location = new Point(671, 100);
-            btnSaveFile.Name = "btnSaveFile";
-            btnSaveFile.Size = new Size(30, 25);
-            btnSaveFile.TabIndex = 13;
-            btnSaveFile.Text = "💾";
-            btnSaveFile.UseVisualStyleBackColor = true;
-            btnSaveFile.Click += BtnSaveFile_Click;
+            btnSaveFile1.Location = new Point(671, 114);
+            btnSaveFile1.Name = "btnSaveFile1";
+            btnSaveFile1.Size = new Size(30, 25);
+            btnSaveFile1.TabIndex = 13;
+            btnSaveFile1.Text = "💾";
+            btnSaveFile1.UseVisualStyleBackColor = true;
+            btnSaveFile1.Click += BtnSaveFile1_Click;
             // 
-            // btnBrowseFile
+            // btnBrowseFile1
             // 
-            btnBrowseFile.Location = new Point(635, 100);
-            btnBrowseFile.Name = "btnBrowseFile";
-            btnBrowseFile.Size = new Size(30, 25);
-            btnBrowseFile.TabIndex = 12;
-            btnBrowseFile.Text = "📁";
-            btnBrowseFile.UseVisualStyleBackColor = true;
-            btnBrowseFile.Click += BtnBrowseFile_Click;
+            btnBrowseFile1.Location = new Point(635, 114);
+            btnBrowseFile1.Name = "btnBrowseFile1";
+            btnBrowseFile1.Size = new Size(30, 25);
+            btnBrowseFile1.TabIndex = 12;
+            btnBrowseFile1.Text = "📁";
+            btnBrowseFile1.UseVisualStyleBackColor = true;
+            btnBrowseFile1.Click += BtnBrowseFile1_Click;
             // 
-            // txtFileName
+            // txtDataFileName
             // 
-            txtFileName.Location = new Point(15, 100);
-            txtFileName.Name = "txtFileName";
-            txtFileName.Size = new Size(614, 23);
-            txtFileName.TabIndex = 1;
-            txtFileName.Text = "Select File...";
+            txtDataFileName.Location = new Point(15, 114);
+            txtDataFileName.Name = "txtDataFileName";
+            txtDataFileName.Size = new Size(614, 23);
+            txtDataFileName.TabIndex = 1;
             // 
-            // lblFileName
+            // lblDataFileName
             // 
-            lblFileName.AutoSize = true;
-            lblFileName.Location = new Point(15, 82);
-            lblFileName.Name = "lblFileName";
-            lblFileName.Size = new Size(63, 15);
-            lblFileName.TabIndex = 0;
-            lblFileName.Text = "File Name:";
+            lblDataFileName.AutoSize = true;
+            lblDataFileName.Location = new Point(15, 96);
+            lblDataFileName.Name = "lblDataFileName";
+            lblDataFileName.Size = new Size(84, 15);
+            lblDataFileName.TabIndex = 0;
+            lblDataFileName.Text = "DataFile Name";
             // 
             // tabPageSingleTrader
             // 
@@ -1019,6 +1064,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             openFileDialog1.FileName = "openFileDialog1";
             // 
+            // openFileDialog2
+            // 
+            openFileDialog2.FileName = "openFileDialog1";
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1037,7 +1086,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Algo Trade - Optimization Support";
-            WindowState = FormWindowState.Maximized;
             mainMenuStrip.ResumeLayout(false);
             mainMenuStrip.PerformLayout();
             mainToolStrip1.ResumeLayout(false);
@@ -1165,10 +1213,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Label lblFilterMode;
         private Button btnReadStockData;
         private Button btnReadMetaData;
-        private Button btnSaveFile;
-        private Button btnBrowseFile;
-        private TextBox txtFileName;
-        private Label lblFileName;
+        private Button btnSaveFile1;
+        private Button btnBrowseFile1;
+        private TextBox txtDataFileName;
+        private Label lblDataFileName;
         private Label stockDataGridViewLabel;
         private Button btnSaveConfigFile;
         private Button btnReadConfigFile;
@@ -1177,5 +1225,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button btnPrevRow;
         private Button btnNextRow;
         private Button btnLastRow;
+        private Button btnSaveFile2;
+        private Button btnBrowseFile2;
+        private TextBox txtConfigFileName;
+        private Label lblConfigFileName;
+        private OpenFileDialog openFileDialog2;
+        private SaveFileDialog saveFileDialog2;
     }
 }
