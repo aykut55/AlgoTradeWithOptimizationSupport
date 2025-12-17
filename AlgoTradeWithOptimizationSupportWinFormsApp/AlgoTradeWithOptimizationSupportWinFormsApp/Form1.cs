@@ -31,6 +31,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeLogManager();
             InitializeMainLoop();
             InitializeFilterModeComboBox();
+            InitializeStockDataGridView();
         }
 
         private void InitializeFilterModeComboBox()
@@ -123,6 +124,44 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     dtpFilterDateTime2.Visible = true;
                     break;
             }
+        }
+
+        private void InitializeStockDataGridView()
+        {
+            // Grid ayarları
+            stockDataGridView.AutoGenerateColumns = false;
+            stockDataGridView.ReadOnly = true;
+            stockDataGridView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            stockDataGridView.MultiSelect = false;
+            stockDataGridView.AllowUserToAddRows = false;
+            stockDataGridView.AllowUserToDeleteRows = false;
+            stockDataGridView.RowHeadersVisible = false;
+            stockDataGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+
+            // Kolonları temizle
+            stockDataGridView.Columns.Clear();
+
+            // Ana Veri Kolonları
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Id", HeaderText = "Id" });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "DateTime", HeaderText = "DateTime", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy.MM.dd HH:mm:ss" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Date", HeaderText = "Date", DefaultCellStyle = new DataGridViewCellStyle { Format = "yyyy.MM.dd" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Time", HeaderText = "Time" });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Open", HeaderText = "Open", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "High", HeaderText = "High", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Low", HeaderText = "Low", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Close", HeaderText = "Close", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Volume", HeaderText = "Volume", DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Size", HeaderText = "Size (Lot)", DefaultCellStyle = new DataGridViewCellStyle { Format = "N0" } });
+
+            // Hesaplanmış Değerler
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Diff", HeaderText = "Diff", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "ChangePct", HeaderText = "Change %", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "Range", HeaderText = "Range", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            stockDataGridView.Columns.Add(new DataGridViewTextBoxColumn { DataPropertyName = "BodySize", HeaderText = "Body Size", DefaultCellStyle = new DataGridViewCellStyle { Format = "N2" } });
+            
+            // Bayraklar (Boolean) - CheckBoxColumn olarak gösterilebilir
+            stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBullish", HeaderText = "Bullish" });
+            stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBearish", HeaderText = "Bearish" });
         }
 
         private void InitializeLogManager()
@@ -964,10 +1003,11 @@ Format           : Id Date Time Open High Low Close Volume Lot";
                     filePath = Path.Combine(fileDir, fileName);
 
                     statusLabel.Text = $"Loading data from : {filePath}";
-/*
-                    dataReader.Clear();
 
-                    dataReader.StartTimer();
+/*
+                    StockDataReader.Clear();
+
+                    StockDataReader.StartTimer();
 
                     if (mode == FilterMode.All)
                     {
