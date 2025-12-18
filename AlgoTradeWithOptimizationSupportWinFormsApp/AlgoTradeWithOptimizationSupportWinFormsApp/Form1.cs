@@ -30,10 +30,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private LogManager _logManager;
         private StockDataReader stockDataReader;
         private ConcurrentDictionary<string, string> stockMetaData;
-        private List<StockData> stockDataList;
+
+        // Data management
+        private List<StockData> stockDataList;        // Data read from file (filtered or full) - source data for processing
 
         // Pagination fields
-        private List<StockData> fullStockDataList;
+        private List<StockData> pagedStockDataList;   // Copy of stockDataList for pagination - source for page navigation
+        private List<StockData> currentPageDataList;  // Current page data displayed in grid
         private int currentPage = 1;
         private int pageSize = 1000;
         private int totalPages = 0;
@@ -62,7 +65,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataReader.EnableLogManager(true);
             stockMetaData = new ConcurrentDictionary<string, string>();
             stockDataList = new List<StockData>();
-            fullStockDataList = new List<StockData>();
+            pagedStockDataList = new List<StockData>();
+            currentPageDataList = new List<StockData>();
 
             txtDataFileName.Text = @"C:\data\csvFiles\VIP\\01\VIP-X030-T.csv";
         }
@@ -1103,26 +1107,28 @@ Format           : ";
         private void btnClearStockData_Click(object sender, EventArgs e)
         {
             stockDataList.Clear();
-
             stockDataReader.Clear();
 
-            // Veriyi fullStockDataList'e aktar ve pagination hazırla
-            fullStockDataList = new List<StockData>(stockDataList);
-            totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
+            // Pagination verilerini temizle
+            pagedStockDataList = new List<StockData>();
+            currentPageDataList = new List<StockData>();
+            currentPage = 1;
+            totalPages = 0;
 
-            //statusLabel.Text = $"Data loaded: {itemsCount:N0} records in {t1} ms. Preparing pagination...";
-
-            // İlk sayfayı yükle
+            // Grid'i temizle
             stockDataGridView.SuspendLayout();
             try
             {
-                stockDataGridView.DataSource = null; // Önce temizle
-                //stockDataGridView.DataSource = dataList;
+                stockDataGridView.DataSource = null;
             }
             finally
             {
                 stockDataGridView.ResumeLayout();
             }
+
+            // UI bilgilerini güncelle
+            UpdatePaginationInfo();
+            UpdateStockDataGridViewLabel();
         }
 
         private async void BtnReadStockData_Click(object? sender, EventArgs e)
@@ -1209,9 +1215,9 @@ Format           : ";
                     long t1 = stockDataReader.GetElapsedTimeMsec();
                     int itemsCount = stockDataReader.ReadCount;
 
-                    // Veriyi fullStockDataList'e aktar ve pagination hazırla
-                    fullStockDataList = new List<StockData>(stockDataList);
-                    totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
+                    // Veriyi pagedStockDataList'e aktar ve pagination hazırla
+                    pagedStockDataList = new List<StockData>(stockDataList);
+                    totalPages = (int)Math.Ceiling((double)pagedStockDataList.Count / pageSize);
 
                     statusLabel.Text = $"Data loaded: {itemsCount:N0} records in {t1} ms. Preparing pagination...";
 
@@ -1271,7 +1277,7 @@ Format           : ";
         /// </summary>
         private async Task LoadPageAsync(int pageNumber)
         {
-            if (fullStockDataList == null || fullStockDataList.Count == 0)
+            if (pagedStockDataList == null || pagedStockDataList.Count == 0)
                 return;
 
             // Sayfa sınırlarını kontrol et
@@ -1284,7 +1290,7 @@ Format           : ";
 
             // Sayfa için veriyi hazırla
             int skip = (currentPage - 1) * pageSize;
-            stockDataList = fullStockDataList.Skip(skip).Take(pageSize).ToList();
+            currentPageDataList = pagedStockDataList.Skip(skip).Take(pageSize).ToList();
 
             // SelectionChanged event'ini geçici olarak devre dışı bırak (flickering önleme)
             stockDataGridView.SelectionChanged -= StockDataGridView_SelectionChanged;
@@ -1292,7 +1298,7 @@ Format           : ";
             try
             {
                 // DataGridView'e yükle
-                await LoadDataToGridAsync(stockDataList);
+                await LoadDataToGridAsync(currentPageDataList);
 
                 // Pagination bilgisini güncelle
                 UpdatePaginationInfo();
@@ -1310,16 +1316,16 @@ Format           : ";
         /// </summary>
         private void UpdatePaginationInfo()
         {
-            if (fullStockDataList == null || fullStockDataList.Count == 0)
+            if (pagedStockDataList == null || pagedStockDataList.Count == 0)
             {
                 statusLabel.Text = "No data loaded";
                 return;
             }
 
             int startRow = (currentPage - 1) * pageSize + 1;
-            int endRow = Math.Min(currentPage * pageSize, fullStockDataList.Count);
+            int endRow = Math.Min(currentPage * pageSize, pagedStockDataList.Count);
 
-            statusLabel.Text = $"Showing rows {startRow:N0}-{endRow:N0} of {fullStockDataList.Count:N0} | Page {currentPage}/{totalPages} | Page size: {pageSize}";
+            statusLabel.Text = $"Showing rows {startRow:N0}-{endRow:N0} of {pagedStockDataList.Count:N0} | Page {currentPage}/{totalPages} | Page size: {pageSize}";
         }
 
         /// <summary>
@@ -1367,9 +1373,9 @@ Format           : ";
                     pageSize = newPageSize;
 
                     // Toplam sayfa sayısını yeniden hesapla
-                    if (fullStockDataList != null && fullStockDataList.Count > 0)
+                    if (pagedStockDataList != null && pagedStockDataList.Count > 0)
                     {
-                        totalPages = (int)Math.Ceiling((double)fullStockDataList.Count / pageSize);
+                        totalPages = (int)Math.Ceiling((double)pagedStockDataList.Count / pageSize);
 
                         // Mevcut sayfayı yeniden yükle
                         await LoadPageAsync(1); // İlk sayfaya dön
@@ -1443,10 +1449,10 @@ Format           : ";
                 int pageRowCount = stockDataGridView.Rows.Count;
 
                 // Pagination bilgisi
-                if (fullStockDataList != null && fullStockDataList.Count > 0)
+                if (pagedStockDataList != null && pagedStockDataList.Count > 0)
                 {
                     // Format: "Row: 3/1000 | Page: 5/2000 | Total: 2,000,000"
-                    stockDataGridViewLabel.Text = $"Row: {currentRowIndex}/{pageRowCount} | Page: {currentPage}/{totalPages} | Total: {fullStockDataList.Count:N0}";
+                    stockDataGridViewLabel.Text = $"Row: {currentRowIndex}/{pageRowCount} | Page: {currentPage}/{totalPages} | Total: {pagedStockDataList.Count:N0}";
                 }
                 else
                 {
@@ -1456,9 +1462,9 @@ Format           : ";
             }
             else
             {
-                if (fullStockDataList != null && fullStockDataList.Count > 0)
+                if (pagedStockDataList != null && pagedStockDataList.Count > 0)
                 {
-                    stockDataGridViewLabel.Text = $"Row: 0/0 | Page: {currentPage}/{totalPages} | Total: {fullStockDataList.Count:N0}";
+                    stockDataGridViewLabel.Text = $"Row: 0/0 | Page: {currentPage}/{totalPages} | Total: {pagedStockDataList.Count:N0}";
                 }
                 else
                 {
