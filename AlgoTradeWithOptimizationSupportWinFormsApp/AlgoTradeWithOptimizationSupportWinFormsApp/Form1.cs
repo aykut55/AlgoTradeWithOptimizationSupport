@@ -23,6 +23,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         // Data management
         private List<StockData> stockDataList;        // Data read from file (filtered or full) - source data for processing
 
+        // Data status properties
+        public bool IsStockDataLoaded => stockDataList != null;                                    // True if stockDataList is initialized (can be empty)
+        public bool IsStockDataReady => stockDataList != null && stockDataList.Count > 0;         // True if stockDataList has data and ready for processing
+
         // Pagination fields
         private List<StockData> pagedStockDataList;   // Copy of stockDataList for pagination - source for page navigation
         private List<StockData> currentPageDataList;  // Current page data displayed in grid
