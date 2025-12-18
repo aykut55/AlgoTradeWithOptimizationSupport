@@ -15,17 +15,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
     public partial class Form1 : Form
     {
-        /*public enum FilterMode
-        {
-            All,
-            LastN,
-            FirstN,
-            IndexRange,
-            AfterDateTime,
-            BeforeDateTime,
-            DateTimeRange
-        }*/
-
         private MainControlLoop? _mainLoop;
         private LogManager _logManager;
         private StockDataReader stockDataReader;
