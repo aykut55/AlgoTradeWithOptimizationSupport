@@ -147,12 +147,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             txtDataFileName = new TextBox();
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
+            panel4 = new Panel();
+            richTextBoxSingleTrader = new RichTextBox();
+            btnTestAlgoTrader = new Button();
             tabPageMultipleTraders = new TabPage();
             tabPageSingleTraderOptimization = new TabPage();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
+            button1 = new Button();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -165,6 +169,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)stockDataGridView).BeginInit();
             groupBox1.SuspendLayout();
+            tabPageSingleTrader.SuspendLayout();
+            panel4.SuspendLayout();
             SuspendLayout();
             // 
             // mainMenuStrip
@@ -1128,12 +1134,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // tabPageSingleTrader
             // 
             tabPageSingleTrader.BackColor = Color.White;
+            tabPageSingleTrader.Controls.Add(panel4);
             tabPageSingleTrader.Location = new Point(4, 24);
             tabPageSingleTrader.Name = "tabPageSingleTrader";
             tabPageSingleTrader.Padding = new Padding(3);
             tabPageSingleTrader.Size = new Size(1300, 793);
             tabPageSingleTrader.TabIndex = 1;
             tabPageSingleTrader.Text = "SingleTrader";
+            // 
+            // panel4
+            // 
+            panel4.Controls.Add(button1);
+            panel4.Controls.Add(richTextBoxSingleTrader);
+            panel4.Controls.Add(btnTestAlgoTrader);
+            panel4.Location = new Point(32, 26);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(1222, 717);
+            panel4.TabIndex = 0;
+            // 
+            // richTextBoxSingleTrader
+            // 
+            richTextBoxSingleTrader.Location = new Point(24, 16);
+            richTextBoxSingleTrader.Name = "richTextBoxSingleTrader";
+            richTextBoxSingleTrader.Size = new Size(750, 668);
+            richTextBoxSingleTrader.TabIndex = 1;
+            richTextBoxSingleTrader.Text = "";
+            // 
+            // btnTestAlgoTrader
+            // 
+            btnTestAlgoTrader.Location = new Point(780, 45);
+            btnTestAlgoTrader.Name = "btnTestAlgoTrader";
+            btnTestAlgoTrader.Size = new Size(131, 23);
+            btnTestAlgoTrader.TabIndex = 0;
+            btnTestAlgoTrader.Text = "Test AlgoTrader";
+            btnTestAlgoTrader.UseVisualStyleBackColor = true;
+            btnTestAlgoTrader.Click += btnTestAlgoTrader_Click;
             // 
             // tabPageMultipleTraders
             // 
@@ -1162,6 +1197,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // openFileDialog2
             // 
             openFileDialog2.FileName = "openFileDialog1";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(780, 16);
+            button1.Name = "button1";
+            button1.Size = new Size(131, 23);
+            button1.TabIndex = 2;
+            button1.Text = "Read StockData";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += BtnReadStockData_Click;
             // 
             // Form1
             // 
@@ -1199,6 +1244,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             ((System.ComponentModel.ISupportInitialize)stockDataGridView).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();
+            tabPageSingleTrader.ResumeLayout(false);
+            panel4.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1334,5 +1381,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Label lblPageSize;
         private Button btnClearStockData;
         private Label lblReadStockDataTime;
+        private Panel panel4;
+        private Button btnTestAlgoTrader;
+        private RichTextBox richTextBoxSingleTrader;
+        private Button button1;
     }
 }

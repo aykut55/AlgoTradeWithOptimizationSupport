@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.IO;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
-using AlgoTradeWithOptimizationSupportWinFormsApp.src.timer;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {

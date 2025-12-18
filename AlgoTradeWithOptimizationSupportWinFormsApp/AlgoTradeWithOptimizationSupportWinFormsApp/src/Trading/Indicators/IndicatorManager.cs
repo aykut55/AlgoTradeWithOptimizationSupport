@@ -12,6 +12,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
 {
@@ -99,7 +100,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             if (_config.EnableDebugLogging)
             {
                 _logManager = LogManager.Instance;
-                _logManager.Log("IndicatorManager initialized with debug logging enabled");
+                _logManager.WriteLog("IndicatorManager initialized with debug logging enabled");
             }
 
             // Setup timing
@@ -117,7 +118,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             PriceAction = new PriceActionIndicators(this, _config);
             Utils = new PriceUtils(_config.EnableDebugLogging);
 
-            _logManager?.Log("All sub-managers initialized successfully");
+            _logManager?.WriteLog("All sub-managers initialized successfully");
         }
 
         #endregion
@@ -129,13 +130,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         /// </summary>
         /// <param name="data">Stock data list</param>
         /// <returns>Self for method chaining</returns>
-        public IndicatorManager Initialize(List<StockData> data)
+        public IndicatorManager SetData(List<StockData> data)
         {
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty", nameof(data));
 
             Data = data;
-            _logManager?.Log($"IndicatorManager initialized with {data.Count} bars");
+            _logManager?.WriteLog($"IndicatorManager initialized with {data.Count} bars");
 
             return this;
         }
@@ -147,7 +148,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         {
             _cache.Clear();
             Data?.Clear();
-            _logManager?.Log("IndicatorManager reset - cache and data cleared");
+            _logManager?.WriteLog("IndicatorManager reset - cache and data cleared");
         }
 
         #endregion
@@ -162,11 +163,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             // Check cache
             if (_cache.TryGetValue(cacheKey, out var cached))
             {
-                _logManager?.Log($"Cache HIT: {cacheKey}");
+                _logManager?.WriteLog($"Cache HIT: {cacheKey}");
                 return cached;
             }
 
-            _logManager?.Log($"Cache MISS: {cacheKey} - calculating...");
+            _logManager?.WriteLog($"Cache MISS: {cacheKey} - calculating...");
 
             // Start timing
             string? timerId = null;
@@ -184,18 +185,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             {
                 _timeManager.StopTimer(timerId);
                 var elapsed = _timeManager.GetElapsedTime(timerId);
-                _logManager?.Log($"Calculated {cacheKey} in {elapsed}ms");
+                _logManager?.WriteLog($"Calculated {cacheKey} in {elapsed}ms");
             }
 
             // Cache if not full
             if (_cache.Count < _config.CacheSize)
             {
                 _cache[cacheKey] = result;
-                _logManager?.Log($"Cached result for {cacheKey}");
+                _logManager?.WriteLog($"Cached result for {cacheKey}");
             }
             else
             {
-                _logManager?.Log($"Cache FULL ({_cache.Count}/{_config.CacheSize}) - not caching {cacheKey}");
+                _logManager?.WriteLog($"Cache FULL ({_cache.Count}/{_config.CacheSize}) - not caching {cacheKey}");
             }
 
             return result;
@@ -220,7 +221,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         public void ClearCache()
         {
             _cache.Clear();
-            _logManager?.Log("Cache cleared");
+            _logManager?.WriteLog("Cache cleared");
         }
 
         #endregion
@@ -297,7 +298,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             ClearCache();
             Data?.Clear();
 
-            _logManager?.Log("IndicatorManager disposed");
+            _logManager?.WriteLog("IndicatorManager disposed");
 
             _disposed = true;
             GC.SuppressFinalize(this);

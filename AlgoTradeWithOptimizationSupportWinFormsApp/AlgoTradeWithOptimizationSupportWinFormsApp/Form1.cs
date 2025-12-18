@@ -62,6 +62,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             currentPageDataList = new List<StockData>();
 
             txtDataFileName.Text = @"C:\data\csvFiles\VIP\\01\VIP-X030-T.csv";
+
+            // AlgoTrader objelerini oluştur (Form1.AlgoTrader.cs)
+            CreateObjects();
         }
 
         private void InitializeFilterModeComboBox()

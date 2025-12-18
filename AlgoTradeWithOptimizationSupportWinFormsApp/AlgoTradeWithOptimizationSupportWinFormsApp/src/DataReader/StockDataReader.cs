@@ -1,7 +1,7 @@
 using AlgoTradeWithOptimizationSupportWinFormsApp.Config;
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
-using AlgoTradeWithOptimizationSupportWinFormsApp.src.timer;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
 using OoplesFinance.StockIndicators.Models;
 using ScottPlot.Colormaps;
 using System;

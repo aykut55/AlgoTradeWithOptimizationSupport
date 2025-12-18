@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace AlgoTradeWithOptimizationSupportWinFormsApp.src.timer
+namespace AlgoTradeWithOptimizationSupportWinFormsApp.Timer
 {
     /// <summary>
     /// Thread-safe singleton timer manager for measuring elapsed time across different parts of the application.

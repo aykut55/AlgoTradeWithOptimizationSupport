@@ -181,11 +181,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         // ====================================================================
-        // LOG METODLARI (Variadic)
+        // LOG METODLARI - STATIC (Global logging to all sinks)
         // ====================================================================
 
         /// <summary>
-        /// Genel log metodu (variadic)
+        /// Genel log metodu (variadic) - STATIC
         /// </summary>
         public static void Log(params object[] args)
         {
@@ -193,7 +193,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Log seviyesi ve sink seçimiyle
+        /// Log seviyesi ve sink seçimiyle - STATIC
         /// </summary>
         public static void Log(LogLevel level, LogSinks sinks, params object[] args)
         {
@@ -201,7 +201,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Log seviyesi, source ve sink seçimiyle
+        /// Log seviyesi, source ve sink seçimiyle - STATIC
         /// </summary>
         public static void Log(LogLevel level, string source, LogSinks sinks, params object[] args)
         {
@@ -209,7 +209,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Trace level log
+        /// Trace level log - STATIC
         /// </summary>
         public static void LogTrace(params object[] args)
         {
@@ -217,7 +217,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Debug level log
+        /// Debug level log - STATIC
         /// </summary>
         public static void LogDebug(params object[] args)
         {
@@ -225,7 +225,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Info level log
+        /// Info level log - STATIC
         /// </summary>
         public static void LogInfo(params object[] args)
         {
@@ -233,7 +233,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Warning level log
+        /// Warning level log - STATIC
         /// </summary>
         public static void LogWarning(params object[] args)
         {
@@ -241,7 +241,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Error level log
+        /// Error level log - STATIC
         /// </summary>
         public static void LogError(params object[] args)
         {
@@ -249,11 +249,89 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
         }
 
         /// <summary>
-        /// Fatal level log
+        /// Fatal level log - STATIC
         /// </summary>
         public static void LogFatal(params object[] args)
         {
             Instance.LogInternal(LogLevel.Fatal, null, LogSinks.All, args);
+        }
+
+        // ====================================================================
+        // LOG METODLARI - INSTANCE (Can be used with filtered sinks)
+        // Note: Different names to avoid conflicts with static methods
+        // ====================================================================
+
+        /// <summary>
+        /// Genel log metodu (variadic) - INSTANCE
+        /// Usage: logManager.WriteLog("message");
+        /// </summary>
+        public void WriteLog(params object[] args)
+        {
+            LogInternal(LogLevel.Info, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Log seviyesi ve sink seçimiyle - INSTANCE
+        /// </summary>
+        public void WriteLog(LogLevel level, LogSinks sinks, params object[] args)
+        {
+            LogInternal(level, null, sinks, args);
+        }
+
+        /// <summary>
+        /// Log seviyesi, source ve sink seçimiyle - INSTANCE
+        /// </summary>
+        public void WriteLog(LogLevel level, string source, LogSinks sinks, params object[] args)
+        {
+            LogInternal(level, source, sinks, args);
+        }
+
+        /// <summary>
+        /// Trace level log - INSTANCE
+        /// </summary>
+        public void WriteTrace(params object[] args)
+        {
+            LogInternal(LogLevel.Trace, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Debug level log - INSTANCE
+        /// </summary>
+        public void WriteDebug(params object[] args)
+        {
+            LogInternal(LogLevel.Debug, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Info level log - INSTANCE
+        /// </summary>
+        public void WriteInfo(params object[] args)
+        {
+            LogInternal(LogLevel.Info, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Warning level log - INSTANCE
+        /// </summary>
+        public void WriteWarning(params object[] args)
+        {
+            LogInternal(LogLevel.Warning, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Error level log - INSTANCE
+        /// </summary>
+        public void WriteError(params object[] args)
+        {
+            LogInternal(LogLevel.Error, null, LogSinks.All, args);
+        }
+
+        /// <summary>
+        /// Fatal level log - INSTANCE
+        /// </summary>
+        public void WriteFatal(params object[] args)
+        {
+            LogInternal(LogLevel.Fatal, null, LogSinks.All, args);
         }
 
         // ====================================================================

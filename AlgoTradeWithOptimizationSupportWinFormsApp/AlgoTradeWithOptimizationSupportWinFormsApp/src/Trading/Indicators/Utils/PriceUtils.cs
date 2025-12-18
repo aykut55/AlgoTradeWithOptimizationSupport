@@ -35,7 +35,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils
             if (period <= 0)
                 throw new ArgumentException("Period must be positive", nameof(period));
 
-            _logManager?.Log($"PriceUtils.HHV: period={period}, length={source.Length}");
+            _logManager?.WriteLog($"PriceUtils.HHV: period={period}, length={source.Length}");
 
             var result = new double[source.Length];
 
@@ -72,7 +72,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils
             if (period <= 0)
                 throw new ArgumentException("Period must be positive", nameof(period));
 
-            _logManager?.Log($"PriceUtils.LLV: period={period}, length={source.Length}");
+            _logManager?.WriteLog($"PriceUtils.LLV: period={period}, length={source.Length}");
 
             var result = new double[source.Length];
 
@@ -109,7 +109,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils
             if (period <= 0)
                 throw new ArgumentException("Period must be positive", nameof(period));
 
-            _logManager?.Log($"PriceUtils.Sum: period={period}, length={source.Length}");
+            _logManager?.WriteLog($"PriceUtils.Sum: period={period}, length={source.Length}");
 
             var result = new double[source.Length];
 
@@ -146,7 +146,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils
             if (period <= 0)
                 throw new ArgumentException("Period must be positive", nameof(period));
 
-            _logManager?.Log($"PriceUtils.StdDev: period={period}, length={source.Length}");
+            _logManager?.WriteLog($"PriceUtils.StdDev: period={period}, length={source.Length}");
 
             var result = new double[source.Length];
 
@@ -258,7 +258,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils
             if (high.Length != low.Length || high.Length != close.Length)
                 throw new ArgumentException("Price arrays must have the same length");
 
-            _logManager?.Log($"PriceUtils.TrueRange: length={high.Length}");
+            _logManager?.WriteLog($"PriceUtils.TrueRange: length={high.Length}");
 
             var result = new double[high.Length];
             result[0] = high[0] - low[0]; // First bar
