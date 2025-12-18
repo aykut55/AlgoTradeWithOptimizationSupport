@@ -108,6 +108,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel3 = new Panel();
             panel2 = new Panel();
             panel1 = new Panel();
+            lblReadStockDataTime = new Label();
             btnLastRow = new Button();
             btnNextRow = new Button();
             btnPrevRow = new Button();
@@ -727,6 +728,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel1
             // 
+            panel1.Controls.Add(lblReadStockDataTime);
             panel1.Controls.Add(btnLastRow);
             panel1.Controls.Add(btnNextRow);
             panel1.Controls.Add(btnPrevRow);
@@ -745,6 +747,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel1.Name = "panel1";
             panel1.Size = new Size(1090, 568);
             panel1.TabIndex = 2;
+            // 
+            // lblReadStockDataTime
+            // 
+            lblReadStockDataTime.AutoSize = true;
+            lblReadStockDataTime.Location = new Point(832, 11);
+            lblReadStockDataTime.Name = "lblReadStockDataTime";
+            lblReadStockDataTime.Size = new Size(152, 15);
+            lblReadStockDataTime.TabIndex = 29;
+            lblReadStockDataTime.Text = "Last StockData Read Time : ";
             // 
             // btnLastRow
             // 
@@ -789,7 +800,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // stockDataGridViewLabel
             // 
             stockDataGridViewLabel.AutoSize = true;
-            stockDataGridViewLabel.Location = new Point(820, 96);
+            stockDataGridViewLabel.Location = new Point(832, 95);
             stockDataGridViewLabel.Name = "stockDataGridViewLabel";
             stockDataGridViewLabel.Size = new Size(158, 15);
             stockDataGridViewLabel.TabIndex = 18;
@@ -1120,7 +1131,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTrader.Location = new Point(4, 24);
             tabPageSingleTrader.Name = "tabPageSingleTrader";
             tabPageSingleTrader.Padding = new Padding(3);
-            tabPageSingleTrader.Size = new Size(1300, 773);
+            tabPageSingleTrader.Size = new Size(1300, 793);
             tabPageSingleTrader.TabIndex = 1;
             tabPageSingleTrader.Text = "SingleTrader";
             // 
@@ -1130,7 +1141,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageMultipleTraders.Location = new Point(4, 24);
             tabPageMultipleTraders.Name = "tabPageMultipleTraders";
             tabPageMultipleTraders.Padding = new Padding(3);
-            tabPageMultipleTraders.Size = new Size(1300, 773);
+            tabPageMultipleTraders.Size = new Size(1300, 793);
             tabPageMultipleTraders.TabIndex = 2;
             tabPageMultipleTraders.Text = "MultipleTraders";
             // 
@@ -1140,7 +1151,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTraderOptimization.Location = new Point(4, 24);
             tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
             tabPageSingleTraderOptimization.Padding = new Padding(3);
-            tabPageSingleTraderOptimization.Size = new Size(1300, 773);
+            tabPageSingleTraderOptimization.Size = new Size(1300, 793);
             tabPageSingleTraderOptimization.TabIndex = 3;
             tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
             // 
@@ -1322,5 +1333,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private ComboBox cmbPageSize;
         private Label lblPageSize;
         private Button btnClearStockData;
+        private Label lblReadStockDataTime;
     }
 }

@@ -1118,6 +1118,9 @@ Format           : ";
             // UI bilgilerini güncelle
             UpdatePaginationInfo();
             UpdateStockDataGridViewLabel();
+
+            string currentTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
+            lblReadStockDataTime.Text = $"Last StockData Read Time : ";
         }
 
         private async void BtnReadStockData_Click(object? sender, EventArgs e)
@@ -1212,6 +1215,9 @@ Format           : ";
 
                     // İlk sayfayı yükle
                     await LoadPageAsync(1);
+
+                    string currentTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
+                    lblReadStockDataTime.Text = $"Last StockData Read Time : {currentTime}";
                 }
             }
             catch (Exception ex)
