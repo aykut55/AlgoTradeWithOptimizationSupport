@@ -1178,7 +1178,7 @@ Format           : ";
                         }
                         else if (mode == StockDataReader.FilterMode.FirstN)
                         {
-                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.FirstN, n2);
+                            stockDataList = stockDataReader.ReadDataFast(filePath, StockDataReader.FilterMode.FirstN, n1);
                         }
                         else if (mode == StockDataReader.FilterMode.IndexRange)
                         {
