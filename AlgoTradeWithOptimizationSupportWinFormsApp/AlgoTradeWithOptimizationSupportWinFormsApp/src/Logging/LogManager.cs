@@ -5,6 +5,15 @@ using System.Linq;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
 {
+    // 1. Property olarak singleton
+    // var sharedLogger = LogManager.Instance;
+
+    // 2. Method olarak singleton
+    // var sharedLogger = LogManager.GetInstance();
+
+    // 3. Lokal yeni instance
+    // var localLogger = LogManager.GetNewInstance();
+
     /// <summary>
     /// Ana Log Manager - Singleton, Thread-safe
     ///
@@ -74,6 +83,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Logging
                 }
                 return _instance;
             }
+        }
+
+        /// <summary>
+        /// Gets the singleton instance of LogManager.
+        /// </summary>
+        /// <returns>The shared singleton instance</returns>
+        public static LogManager GetInstance()
+        {
+            return Instance;
+        }
+
+        /// <summary>
+        /// Creates a new instance of LogManager for local use.
+        /// Use this when you need an isolated logger instead of the shared singleton.
+        /// </summary>
+        /// <returns>A new LogManager instance</returns>
+        public static LogManager GetNewInstance()
+        {
+            return new LogManager();
         }
 
         // ====================================================================
