@@ -48,7 +48,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public IStrategy Strategy { get; private set; }
         public Position Position { get; private set; }
         public Bakiye Bakiye { get; private set; }
-        public KarZarar KarZarar { get; private set; }
         public TradeStatistics Statistics { get; private set; }
         public int CurrentIndex { get; private set; }
 
@@ -97,7 +96,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public KarAlZararKes karAlZararKes { get; private set; }
         public Komisyon komisyon { get; private set; }
         public Bakiye bakiye { get; private set; }
-        public PozisyonBuyuklugu pozisyonBuyuklugu { get; private set; }    
+        public PozisyonBuyuklugu pozisyonBuyuklugu { get; private set; }
 
         #endregion
 
@@ -106,9 +105,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         // Parametresiz constructor (eski kullanımlar için)
         public SingleTrader()
         {
+            karZarar = new KarZarar(this);
+
             Position = new Position();
             Bakiye = new Bakiye();
-            KarZarar = new KarZarar();
             Statistics = new TradeStatistics();
             _isInitialized = false;
         }
@@ -116,9 +116,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         // Parametreli constructor (yeni kullanım)
         public SingleTrader(List<StockData> data, IndicatorManager indicators, BaseStrategy strategy)
         {
+            karZarar = new KarZarar(this);
+
             Position = new Position();
             Bakiye = new Bakiye();
-            KarZarar = new KarZarar();
             Statistics = new TradeStatistics();
 
             // Set data, indicators and strategy
@@ -236,11 +237,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public void CreateModules()
         {
-            // Create or reinitialize modules
-            Position = new Position();
-            Bakiye = new Bakiye();
-            KarZarar = new KarZarar();
-            Statistics = new TradeStatistics();
+
         }
         public void InitModules()
         {
@@ -277,20 +274,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.IlkBakiyeFiyat = 100000.0;
 
             CurrentIndex = 0;
+            karZarar.Reset();
+
             Position.Close();
             Bakiye.Reset();
-            KarZarar.Reset();
             Statistics.Reset();
             Strategy?.Reset();
         }
         public void Init()
         {
-            CurrentIndex = 0;
-            Position.Close();
-            Bakiye.Reset();
-            KarZarar.Reset();
-            Statistics.Reset();
-            Strategy?.Reset();
+
         }
 
         public void Initialize(int i)

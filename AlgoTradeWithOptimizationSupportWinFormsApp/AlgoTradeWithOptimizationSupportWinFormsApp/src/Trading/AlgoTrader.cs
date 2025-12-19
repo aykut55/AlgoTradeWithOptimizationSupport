@@ -3,6 +3,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Backtest;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
@@ -45,7 +46,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public BaseStrategy strategy { get; private set; }
 
         public TimeManager timeManager { get; private set; }
-        
+
         #endregion
 
         #region Constructor
