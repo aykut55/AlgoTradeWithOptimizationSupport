@@ -301,24 +301,27 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.InitModules();                 // Bir kez cagrilir
 
             // --------------------------------------------------------------
+            this.timeManager.ResetTimer("1");
             this.timeManager.StartTimer("1");
-            Log("Single Trader - Initialize");
+            Log("Single Trader - Initialize (~10 ms)");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Initialize(i);
             }
             this.timeManager.StopTimer("1");
 
+            this.timeManager.ResetTimer("2");
             this.timeManager.StartTimer("2");
-            Log("Single Trader - Run");
+            Log("Single Trader - Run (~100 ms)");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Run(i);
             }
             this.timeManager.StopTimer("2");
 
+            this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
-            Log("Single Trader - Finalize");
+            Log("Single Trader - Finalize (~10 ms)");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Finalize(i);

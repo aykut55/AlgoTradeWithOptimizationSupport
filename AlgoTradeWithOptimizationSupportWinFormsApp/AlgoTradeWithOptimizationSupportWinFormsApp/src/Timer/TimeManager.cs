@@ -105,6 +105,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Timer
         }
 
         /// <summary>
+        /// Resets the timer to zero and starts it from the beginning.
+        /// This is equivalent to calling ResetTimer() followed by StartTimer().
+        /// Use this when you want to measure a new operation from scratch.
+        /// </summary>
+        /// <param name="timerId">Unique identifier for the timer</param>
+        public void RestartTimer(string timerId)
+        {
+            if (string.IsNullOrWhiteSpace(timerId))
+                throw new ArgumentException("Timer ID cannot be null or empty.", nameof(timerId));
+
+            var stopwatch = _timers.GetOrAdd(timerId, _ => new Stopwatch());
+            stopwatch.Restart();  // Reset to 0 and start
+        }
+
+        /// <summary>
         /// Starts all existing timers.
         /// </summary>
         public void StartAll()
