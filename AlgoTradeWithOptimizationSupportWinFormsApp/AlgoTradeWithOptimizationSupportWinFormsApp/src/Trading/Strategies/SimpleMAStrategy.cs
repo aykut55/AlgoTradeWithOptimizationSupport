@@ -90,6 +90,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 sell = true;
             }
 
+            //takeProfit = trader.Signals.KarAlEnabled
+            //takeProfit = takeProfit and trader.KarAlZararKes.son_fiyata_gore_kar_al_seviye_hesapla(i, 5, 50, 1000) != 0
+
+            //stopLoss = trader.Signals.ZararKesEnabled
+            //stopLoss = stopLoss and trader.KarAlZararKes.son_fiyata_gore_zarar_kes_seviye_hesapla(i, -1, -10, 1000) != 0
+
             if (1 == 2)
             {
                 takeProfit = true;

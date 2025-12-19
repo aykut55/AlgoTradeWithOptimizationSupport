@@ -7,7 +7,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
     public class Signals
     {
         #region Signal Flags
-
+        public bool None { get; set; }
         public bool Al { get; set; }
         public bool Sat { get; set; }
         public bool FlatOl { get; set; }
@@ -77,12 +77,82 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #endregion
 
+        #region Signal Status
+
+        public bool AlEnabled { get; set; }
+        public bool SatEnabled { get; set; }
+        public bool FlatOlEnabled { get; set; }
+        public bool PasGecEnabled { get; set; }
+        public bool KarAlEnabled { get; set; }
+        public bool ZararKesEnabled { get; set; }
+
+        public bool Alindi { get; set; }
+        public bool Satildi { get; set; }
+        public bool FlatOlundu { get; set; }
+        public bool PasGecildi { get; set; }
+        public bool KarAlindi { get; set; }
+        public bool ZararKesildi { get; set; }
+
+        public bool PozAcilabilir { get; set; }
+        public bool PozAcildi { get; set; }
+
+        public bool PozKapatilabilir { get; set; }
+        public bool PozKapatildi { get; set; }
+
+        public bool PozAcilabilirAlis { get; set; }
+        public bool PozAcilabilirSatis { get; set; }
+
+        public bool PozAcildiAlis { get; set; }
+        public bool PozAcildiSatis { get; set; }
+
+        public bool GunSonuPozKapatEnabled { get; set; }
+
+        public bool GunSonuPozKapatildi { get; set; }
+
+        public bool TimeFilteringEnabled { get; set; }
+
+        public bool IsTradeEnabled { get; set; }
+
+        public bool IsPozKapatEnabled { get; set; }
+
+
+        #endregion
+
         #region Constructor
 
         public Signals()
         {
             // Initialize with default values
             Reset();
+
+            // Bunlar burada olacak ve baska hicbir sekilde resetlenmeyecek
+            AlEnabled = false;
+            SatEnabled = false;
+            FlatOlEnabled = false;
+            PasGecEnabled = false;
+            KarAlEnabled = false;
+            ZararKesEnabled = false;
+
+            Alindi = false;
+            Satildi = false;
+            FlatOlundu = false;
+            PasGecildi = false;
+            KarAlindi = false;
+            ZararKesildi = false;
+
+            PozAcilabilir = false;
+            PozAcildi = false;
+            PozKapatilabilir = false;
+            PozKapatildi = false;
+            PozAcilabilirAlis = false;
+            PozAcilabilirSatis = false;
+            PozAcildiAlis = false;
+            PozAcildiSatis = false;
+            GunSonuPozKapatEnabled = false;
+            GunSonuPozKapatildi = false;
+            TimeFilteringEnabled = false;
+            IsTradeEnabled = false;
+            IsPozKapatEnabled = false;
         }
 
         #endregion

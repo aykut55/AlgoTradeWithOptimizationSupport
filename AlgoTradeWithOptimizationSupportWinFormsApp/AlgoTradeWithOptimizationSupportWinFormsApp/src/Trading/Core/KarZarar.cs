@@ -20,7 +20,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         public Status? Status { get; set; }
         public Lists? Lists { get; set; }
         public PozisyonBuyuklugu? PozisyonBuyuklugu { get; set; }
-        public SingleTrader? SingleTrader { get; set; }
+        public SingleTrader? Trader { get; set; }
 
         #endregion
 
@@ -49,10 +49,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// Constructor with SingleTrader dependency (RECOMMENDED)
         /// Creates and initializes KarZarar with all required dependencies from SingleTrader
         /// </summary>
-        public KarZarar(SingleTrader singleTrader)
+        public KarZarar(SingleTrader trader)
         {
             Reset();
-            Init(singleTrader);
+            Init(trader);
         }
 
         /// <summary>
@@ -92,19 +92,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// Initialize with SingleTrader instance (RECOMMENDED)
         /// Gets all required dependencies from SingleTrader
         /// </summary>
-        public KarZarar Init(SingleTrader singleTrader)
+        public KarZarar Init(SingleTrader trader)
         {
-            if (singleTrader == null)
-                throw new ArgumentNullException(nameof(singleTrader));
+            if (trader == null)
+                throw new ArgumentNullException(nameof(trader));
 
-            SingleTrader = singleTrader;
+            Trader = trader;
 
-            Data = singleTrader.Data;
-            Flags = singleTrader.flags;
-            Signals = singleTrader.signals;
-            Status = singleTrader.status;
-            Lists = singleTrader.lists;
-            PozisyonBuyuklugu = singleTrader.pozisyonBuyuklugu;
+            Data = trader.Data;
+            Flags = trader.flags;
+            Signals = trader.signals;
+            Status = trader.status;
+            Lists = trader.lists;
+            PozisyonBuyuklugu = trader.pozisyonBuyuklugu;
             return this;
         }
 
@@ -130,6 +130,107 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// <param name="type">Price type: "C" (Close), "O" (Open), "H" (High), "L" (Low)</param>
         /// <returns>Always returns 0 (for compatibility)</returns>
         public double AnlikKarZararHesapla(int barIndex, string type = "C")
+        {
+            double result = 0.0;
+
+            if (Trader != null)
+            {
+                if (Trader.MicroLotSizeEnabled)
+                {
+                    result = anlikKarZararHesaplaMicro(barIndex, type);
+                }
+                else
+                {
+                    result = anlikKarZararHesapla(barIndex, type);
+                }
+            }
+
+            return result;
+        }
+        private double anlikKarZararHesapla(int barIndex, string type = "C")
+        {
+            // Validate dependencies
+            if (Data == null || Flags == null || Signals == null || Status == null || Lists == null || PozisyonBuyuklugu == null)
+                return 0.0;
+
+            // Validate bar index
+            if (barIndex < 0 || barIndex >= Data.Count)
+                return 0.0;
+
+            double result = 0.0;
+            int i = barIndex;
+
+            // Get current price based on type
+            double anlikFiyat = Data[i].Close;
+            bool anlikKarZararHesaplaEnabled = Flags.AnlikKarZararHesaplaEnabled;
+            string sonYon = Signals.SonYon;
+            double sonFiyat = Signals.SonFiyat;
+            int varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedi;
+
+            if (!anlikKarZararHesaplaEnabled)
+                return result;
+
+            // Select price based on type
+            if (type != "C")
+            {
+                if (type == "O")
+                    anlikFiyat = Data[i].Open;
+                else if (type == "H")
+                    anlikFiyat = Data[i].High;
+                else if (type == "L")
+                    anlikFiyat = Data[i].Low;
+            }
+
+            // Calculate profit/loss based on position direction
+            if (sonYon == "A")  // Long position (Al - Buy)
+            {
+                Status.KarZararPuan = anlikFiyat - sonFiyat;
+                Status.KarZararFiyat = Status.KarZararPuan * varlikAdedSayisi;
+                Lists.KarZararPuanList[i] = Status.KarZararPuan;
+                Lists.KarZararFiyatList[i] = Status.KarZararFiyat;
+
+                if (sonFiyat != 0)
+                    Status.KarZararFiyatYuzde = 100.0 * Status.KarZararPuan / sonFiyat;
+                else
+                    Status.KarZararFiyatYuzde = 0.0;                            // KarZararPuanYuzde
+
+                Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;    // KarZararPuanYuzdeList
+            }
+            else if (sonYon == "S")  // Short position (Sat - Sell)
+            {
+                Status.KarZararPuan = sonFiyat - anlikFiyat;
+                Status.KarZararFiyat = Status.KarZararPuan * varlikAdedSayisi;
+                Lists.KarZararPuanList[i] = Status.KarZararPuan;
+                Lists.KarZararFiyatList[i] = Status.KarZararFiyat;
+
+                if (sonFiyat != 0)
+                    Status.KarZararFiyatYuzde = 100.0 * Status.KarZararPuan / sonFiyat;
+                else
+                    Status.KarZararFiyatYuzde = 0.0;
+
+                Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;
+            }
+
+            // Update bar count statistics
+            if (Status.KarZararPuan > 0)
+            {
+                Status.KardaBarSayisi += 1;
+                Status.ZarardaBarSayisi -= 1;
+            }
+            else if (Status.KarZararPuan == 0)
+            {
+                Status.KardaBarSayisi = 0;
+                Status.ZarardaBarSayisi = 0;
+            }
+            else  // KarZararPuan < 0
+            {
+                Status.KardaBarSayisi -= 1;
+                Status.ZarardaBarSayisi += 1;
+            }
+
+            return result;
+        }
+        private double anlikKarZararHesaplaMicro(int barIndex, string type = "C")
         {
             // Validate dependencies
             if (Data == null || Flags == null || Signals == null || Status == null || Lists == null || PozisyonBuyuklugu == null)

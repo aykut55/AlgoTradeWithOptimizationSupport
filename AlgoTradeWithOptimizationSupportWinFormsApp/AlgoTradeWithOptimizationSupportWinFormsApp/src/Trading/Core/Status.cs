@@ -51,8 +51,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Profit/Loss
 
-        public double KarZararFiyat { get; set; }
         public double KarZararPuan { get; set; }
+        public double KarZararFiyat { get; set; }
+        public double KarZararPuanYuzde { get; set; }
         public double KarZararFiyatYuzde { get; set; }
 
         #endregion
@@ -182,8 +183,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             KardaBarSayisi = 0;
             ZarardaBarSayisi = 0;
 
-            KarZararFiyat = 0.0;
             KarZararPuan = 0.0;
+            KarZararFiyat = 0.0;
+            KarZararPuanYuzde = 0.0;
             KarZararFiyatYuzde = 0.0;
 
             KomisyonIslemSayisi = 0;

@@ -256,12 +256,39 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.SetLogger(Logger);
 
             // --------------------------------------------------------------
+            singleTrader.CreateModules();               // Bir kez cagrilir
             singleTrader.Reset();                       // Bir kez cagrilir
 
-            // --------------------------------------------------------------
-            singleTrader.BuySignalEnabled = true;
-            singleTrader.SellSignalEnabled = true;
+            singleTrader.signals.AlEnabled = false;
+            singleTrader.signals.SatEnabled = false;
+            singleTrader.signals.FlatOlEnabled = false;
+            singleTrader.signals.PasGecEnabled = false;
+            singleTrader.signals.KarAlEnabled = false;
+            singleTrader.signals.ZararKesEnabled = false;
+            singleTrader.signals.Alindi = false;
+            singleTrader.signals.Satildi = false;
+            singleTrader.signals.FlatOlundu = false;
+            singleTrader.signals.PasGecildi = false;
+            singleTrader.signals.KarAlindi = false;
+            singleTrader.signals.ZararKesildi = false;
+            singleTrader.signals.PozAcilabilir = false;
+            singleTrader.signals.PozAcildi = false;
+            singleTrader.signals.PozKapatilabilir = false;
+            singleTrader.signals.PozKapatildi = false;
+            singleTrader.signals.PozAcilabilirAlis = false;
+            singleTrader.signals.PozAcilabilirSatis = false;
+            singleTrader.signals.PozAcildiAlis = false;
+            singleTrader.signals.PozAcildiSatis = false;
+            singleTrader.signals.GunSonuPozKapatEnabled = false;
+            singleTrader.signals.GunSonuPozKapatildi = false;
+            singleTrader.signals.TimeFilteringEnabled = false;
+            singleTrader.signals.IsTradeEnabled = false;
+            singleTrader.signals.IsPozKapatEnabled = false;
+
             singleTrader.IlkBakiyeFiyat = 100000.0;
+            singleTrader.SonBakiyeFiyat = 0.0;
+            singleTrader.NetBakiyeFiyat = 0.0;
+
             singleTrader.MarketType = MarketTypes.ViopEndex;            
             if (singleTrader.MarketType == MarketTypes.ViopEndex)       // VIP-X030-T
             {
@@ -297,7 +324,6 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             }
 
             // --------------------------------------------------------------
-            singleTrader.CreateModules();               // Bir kez cagrilir
             singleTrader.Init();                        // Bir kez cagrilir
             singleTrader.InitModules();                 // Bir kez cagrilir
 

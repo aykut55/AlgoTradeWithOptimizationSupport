@@ -19,7 +19,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         public List<string> YonList { get; set; }
         public List<double> SeviyeList { get; set; }
-        public List<string> SinyalList { get; set; }
+        public List<double> SinyalList { get; set; }
 
         #endregion
 
@@ -27,6 +27,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         public List<double> KarZararPuanList { get; set; }
         public List<double> KarZararFiyatList { get; set; }
+        public List<double> KarZararPuanYuzdeList { get; set; }
         public List<double> KarZararFiyatYuzdeList { get; set; }
 
         #endregion
@@ -128,10 +129,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             BarIndexList = new List<int>();
             YonList = new List<string>();
             SeviyeList = new List<double>();
-            SinyalList = new List<string>();
+            SinyalList = new List<double>();
 
             KarZararPuanList = new List<double>();
             KarZararFiyatList = new List<double>();
+            KarZararPuanYuzdeList = new List<double>();
             KarZararFiyatYuzdeList = new List<double>();
 
             KarAlList = new List<bool>();
@@ -201,6 +203,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             KarZararPuanList?.Clear();
             KarZararFiyatList?.Clear();
+            KarZararPuanYuzdeList?.Clear();
             KarZararFiyatYuzdeList?.Clear();
 
             KarAlList?.Clear();
@@ -247,12 +250,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             EmirStatusList?.Clear();
         }
 
-        public Lists Init()
+        public Lists Init(int barCount)
         {
+            CreateLists(barCount);
             return this;
         }
-
-        private void CreateLists(int barCount)
+        public void CreateLists(int barCount)
         {
             BarCount = barCount;
 
@@ -262,10 +265,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 BarIndexList = new List<int>(new int[barCount]);
                 YonList = new List<string>(new string[barCount]);
                 SeviyeList = new List<double>(new double[barCount]);
-                SinyalList = new List<string>(new string[barCount]);
+                SinyalList = new List<double>(new double[barCount]);
 
                 KarZararPuanList = new List<double>(new double[barCount]);
                 KarZararFiyatList = new List<double>(new double[barCount]);
+                KarZararPuanYuzdeList = new List<double>(new double[barCount]);
                 KarZararFiyatYuzdeList = new List<double>(new double[barCount]);
 
                 KarAlList = new List<bool>(new bool[barCount]);
@@ -315,7 +319,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 for (int i = 0; i < barCount; i++)
                 {
                     YonList[i] = "";
-                    SinyalList[i] = "";
+                    SinyalList[i] = 0.0;
                 }
             }
         }
