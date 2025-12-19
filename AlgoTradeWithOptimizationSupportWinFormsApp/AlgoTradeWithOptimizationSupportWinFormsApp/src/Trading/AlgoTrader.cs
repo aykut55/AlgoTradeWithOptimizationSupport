@@ -249,10 +249,13 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             if (Logger != null)
                 singleTrader.SetLogger(Logger);
 
+            // --------------------------------------------------------------
             singleTrader.Reset();                       // Bir kez cagrilir
-                                                        // --------------------------------------------------------------
+
+            // --------------------------------------------------------------
             singleTrader.BuySignalEnabled = true;
             singleTrader.SellSignalEnabled = true;
+            singleTrader.IlkBakiyeFiyat = 100000.0;
             singleTrader.MarketType = MarketTypes.ViopEndex;            
             if (singleTrader.MarketType == MarketTypes.ViopEndex)       // VIP-X030-T
             {
@@ -287,13 +290,12 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.KomisyonCarpan = 0.0;
             }
 
-
             // --------------------------------------------------------------
-
             singleTrader.CreateModules();               // Bir kez cagrilir
             singleTrader.Init();                        // Bir kez cagrilir
             singleTrader.InitModules();                 // Bir kez cagrilir
 
+            // --------------------------------------------------------------
             Log("Single Trader - Initialize");
             for (int i = 0; i < Data.Count; i++)
             {
