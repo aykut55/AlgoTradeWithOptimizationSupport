@@ -417,27 +417,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             }
             else if (this.BuySignal == true)
             {
-                Log($"BuySignal received at {i} bar...");
+                //Log($"BuySignal received at {i} bar...");
             }
             else if (this.SellSignal == true)
             {
-                Log($"SellSignal received at {i} bar...");
+                //Log($"SellSignal received at {i} bar...");
             }
             else if (this.TakeProfitSignal == true)
             {
-                Log($"TakeProfitSignal received at {i} bar...");
+                //Log($"TakeProfitSignal received at {i} bar...");
             }
             else if (this.StopLossSignal == true)
             {
-                Log($"StopLossSignal received at {i} bar...");
+                //Log($"StopLossSignal received at {i} bar...");
             }
             else if (this.FlatSignal == true)
             {
-                Log($"FlatSignal received at {i} bar...");
+                //Log($"FlatSignal received at {i} bar...");
             }
             else if (this.SkipSignal == true)
             {
-                Log($"SkipSignal received at {i} bar...");
+                //Log($"SkipSignal received at {i} bar...");
             }
         }
 

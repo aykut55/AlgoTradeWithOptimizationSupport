@@ -1,6 +1,7 @@
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Backtest;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
@@ -43,6 +44,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
 
+        public TimeManager timeManager { get; private set; }
+        
         #endregion
 
         #region Constructor
@@ -50,6 +53,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public AlgoTrader()
         {
             _isInitialized = false;
+
+            timeManager = TimeManager.GetNewInstance();
         }
 
         #endregion
@@ -296,27 +301,40 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.InitModules();                 // Bir kez cagrilir
 
             // --------------------------------------------------------------
+            this.timeManager.StartTimer("1");
             Log("Single Trader - Initialize");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Initialize(i);
             }
+            this.timeManager.StopTimer("1");
 
+            this.timeManager.StartTimer("2");
             Log("Single Trader - Run");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Run(i);
             }
+            this.timeManager.StopTimer("2");
 
+            this.timeManager.StartTimer("3");
             Log("Single Trader - Finalize");
             for (int i = 0; i < Data.Count; i++)
             {
                 singleTrader.Finalize(i);
             }
+            this.timeManager.StopTimer("3");
+
+            var t1 = this.timeManager.GetElapsedTime("1");
+            var t2 = this.timeManager.GetElapsedTime("2");
+            var t3 = this.timeManager.GetElapsedTime("3");
+
+            Log($"t1 = {t1} msec...");
+            Log($"t2 = {t2} msec...");
+            Log($"t3 = {t3} msec...");
 
             // TODO: Bu method içine gerçek trading logic gelecek
             // Şimdilik sadece demo log yazıyoruz
-
 
             Log("Single Trader demo completed");
         }

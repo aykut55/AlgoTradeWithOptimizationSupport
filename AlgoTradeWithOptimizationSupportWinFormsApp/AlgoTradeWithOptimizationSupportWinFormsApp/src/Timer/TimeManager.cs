@@ -6,6 +6,15 @@ using System.Linq;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Timer
 {
+    // 1. Property olarak singleton
+    // var sharedTimer = TimeManager.Instance;
+
+    // 2. Method olarak singleton
+    // var sharedTimer = TimeManager.GetInstance();
+
+    // 3. Lokal yeni instance
+    // var localTimer = TimeManager.GetNewInstance();
+
     /// <summary>
     /// Thread-safe singleton timer manager for measuring elapsed time across different parts of the application.
     /// </summary>
@@ -19,6 +28,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Timer
         /// Gets the singleton instance of TimeManager.
         /// </summary>
         public static TimeManager Instance => _instance.Value;
+
+        /// <summary>
+        /// Gets the singleton instance of TimeManager.
+        /// </summary>
+        /// <returns>The shared singleton instance</returns>
+        public static TimeManager GetInstance()
+        {
+            return Instance;
+        }
+
+        /// <summary>
+        /// Creates a new instance of TimeManager for local use.
+        /// Use this when you need an isolated timer manager instead of the shared singleton.
+        /// </summary>
+        /// <returns>A new TimeManager instance</returns>
+        public static TimeManager GetNewInstance()
+        {
+            return new TimeManager();
+        }
 
         private TimeManager()
         {
