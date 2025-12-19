@@ -1,10 +1,16 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Backtest;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Backtest;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using Tulip;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
 {
@@ -22,23 +28,28 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
     /// Main AlgoTrader class - orchestrates all trading components
     /// Entry point for algorithmic trading system
     /// </summary>
-    public class AlgoTrader
+    public class AlgoTrader : MarketDataProvider
     {
         #region Properties
 
-        public List<StockData> Data { get; private set; }
-        public bool IsInitialized { get; private set; }
-        private IAlgoTraderLogger? Logger { get; set; }
+        private List<StockData> _data = new List<StockData>();
+        public override List<StockData> Data => _data;
 
+        public override bool IsInitialized { get => _isInitialized; }
+        private bool _isInitialized = false;
+
+        private IAlgoTraderLogger? Logger { get; set; }
         public SingleTrader singleTrader { get; private set; }
-        
+        public IndicatorManager indicators { get; private set; }
+        public BaseStrategy strategy { get; private set; }
+
         #endregion
 
         #region Constructor
 
         public AlgoTrader()
         {
-            IsInitialized = false;
+            _isInitialized = false;
         }
 
         #endregion
@@ -53,8 +64,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty");
 
-            Data = data;
-            IsInitialized = true;
+            _data = data;
+            _isInitialized = true;
         }
 
         /// <summary>
@@ -63,8 +74,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         /// </summary>
         public void Reset()
         {
-            Data = null;
-            IsInitialized = false;
+            _data = new List<StockData>();
+            _isInitialized = false;
         }
 
         /// <summary>
@@ -222,37 +233,87 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("=== Running Single Trader Demo ===");
             Log($"Processing {Data.Count} bars...");
 
-            singleTrader = CreateSingleTrader(this.Data, null);
+            indicators = new IndicatorManager(this.Data);
+            if (indicators == null)
+                return;
 
-            if (singleTrader != null)
-            {  
-                singleTrader.Reset();   // Bir kez cagrilir
+            var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+            if (strategy == null)
+                return;
+            strategy.OnInit();
 
-                singleTrader.Init();   // Bir kez cagrilir
+            singleTrader = new SingleTrader(this.Data, indicators, strategy);
+            if (singleTrader == null)
+                return;
 
-                // Setterlar cagrilacak
+            if (Logger != null)
+                singleTrader.SetLogger(Logger);
 
-                Log("Single Trader - Initialize");
-                for (int i = 0; i < Data.Count; i++)
-                {
-                    singleTrader.Initialize(i);
-                }
-
-                Log("Single Trader - Run");
-                for (int i = 0; i < Data.Count; i++)
-                {
-                    singleTrader.Run(i);
-                }
-
-                Log("Single Trader - Finalize");
-                for (int i = 0; i < Data.Count; i++)
-                {
-                    singleTrader.Finalize(i);
-                }
-
-                // TODO: Bu method içine gerçek trading logic gelecek
-                // Şimdilik sadece demo log yazıyoruz
+            singleTrader.Reset();                       // Bir kez cagrilir
+                                                        // --------------------------------------------------------------
+            singleTrader.BuySignalEnabled = true;
+            singleTrader.SellSignalEnabled = true;
+            singleTrader.MarketType = MarketTypes.ViopEndex;            
+            if (singleTrader.MarketType == MarketTypes.ViopEndex)       // VIP-X030-T
+            {
+                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
+                singleTrader.VarlikAdedCarpani = 10;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
             }
+            if (singleTrader.MarketType == MarketTypes.ViopHisse)       // VIP-THYAO
+            {
+                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
+                singleTrader.VarlikAdedCarpani = 100;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+            if (singleTrader.MarketType == MarketTypes.ViopParite)      // VIP-USDTRY
+            {
+                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
+                singleTrader.VarlikAdedCarpani = 1000;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+            if (singleTrader.MarketType == MarketTypes.BistHisse)       // THYAO
+            {
+                singleTrader.HisseSayisi = 1000;                        // 1000 Hisse 
+                singleTrader.VarlikAdedCarpani = 1;
+                singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+
+
+            // --------------------------------------------------------------
+
+            singleTrader.CreateModules();               // Bir kez cagrilir
+            singleTrader.Init();                        // Bir kez cagrilir
+            singleTrader.InitModules();                 // Bir kez cagrilir
+
+            Log("Single Trader - Initialize");
+            for (int i = 0; i < Data.Count; i++)
+            {
+                singleTrader.Initialize(i);
+            }
+
+            Log("Single Trader - Run");
+            for (int i = 0; i < Data.Count; i++)
+            {
+                singleTrader.Run(i);
+            }
+
+            Log("Single Trader - Finalize");
+            for (int i = 0; i < Data.Count; i++)
+            {
+                singleTrader.Finalize(i);
+            }
+
+            // TODO: Bu method içine gerçek trading logic gelecek
+            // Şimdilik sadece demo log yazıyoruz
 
 
             Log("Single Trader demo completed");

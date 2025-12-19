@@ -8,8 +8,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         None = 0,
         Buy = 1,
         Sell = 2,
-        KarAl = 3,      // Take Profit
-        ZararKes = 4,   // Stop Loss
-        Flat = 5        // Close all positions
+        TakeProfit = 3,     // Take Profit
+        StopLoss = 4,       // Stop Loss
+        Flat = 5,           // Close all positions
+        Skip = 6,           // Skip
     }
 }

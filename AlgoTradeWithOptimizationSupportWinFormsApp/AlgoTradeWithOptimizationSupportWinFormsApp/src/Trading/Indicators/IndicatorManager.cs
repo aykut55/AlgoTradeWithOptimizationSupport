@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
+using AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Base;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.MovingAverages;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend;
@@ -33,7 +34,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
     ///   var rsi = manager.Momentum.RSI(closes, 14);
     ///   var supertrend = manager.Trend.SuperTrend(10, 3.0);
     /// </summary>
-    public class IndicatorManager : IDisposable
+    public class IndicatorManager : MarketDataProvider, IDisposable
     {
         #region Fields
 
@@ -51,10 +52,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         public IndicatorConfig Config => _config;
 
         /// <summary>Market data (initialized via Initialize method)</summary>
-        public List<StockData> Data { get; private set; }
+        private List<StockData> _data = new List<StockData>();
 
-        /// <summary>Is data initialized?</summary>
-        public bool IsInitialized => Data != null && Data.Count > 0;
+        /// <summary>Market data override from base class</summary>
+        public override List<StockData> Data => _data;
 
         /// <summary>Number of bars/candles</summary>
         public int BarCount => Data?.Count ?? 0;
@@ -90,11 +91,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         /// Initialize Indicator Manager
         /// </summary>
         /// <param name="config">Optional configuration</param>
-        public IndicatorManager(IndicatorConfig? config = null)
+        public IndicatorManager(List<StockData> data, IndicatorConfig? config = null)
         {
             _config = config ?? new IndicatorConfig();
             _cache = new Dictionary<string, double[]>();
-            Data = new List<StockData>();
+            _data = new List<StockData>(data);
 
             // Setup logging
             if (_config.EnableDebugLogging)
@@ -135,7 +136,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             if (data == null || data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty", nameof(data));
 
-            Data = data;
+            _data = data;
             _logManager?.WriteLog($"IndicatorManager initialized with {data.Count} bars");
 
             return this;
@@ -228,60 +229,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
 
         #region Helper Methods
 
-        /// <summary>
-        /// Extract close prices from data
-        /// </summary>
-        public double[] GetClosePrices()
-        {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Manager not initialized. Call Initialize() first.");
-
-            return Data.Select(d => d.Close).ToArray();
-        }
-
-        /// <summary>
-        /// Extract open prices from data
-        /// </summary>
-        public double[] GetOpenPrices()
-        {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Manager not initialized. Call Initialize() first.");
-
-            return Data.Select(d => d.Open).ToArray();
-        }
-
-        /// <summary>
-        /// Extract high prices from data
-        /// </summary>
-        public double[] GetHighPrices()
-        {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Manager not initialized. Call Initialize() first.");
-
-            return Data.Select(d => d.High).ToArray();
-        }
-
-        /// <summary>
-        /// Extract low prices from data
-        /// </summary>
-        public double[] GetLowPrices()
-        {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Manager not initialized. Call Initialize() first.");
-
-            return Data.Select(d => d.Low).ToArray();
-        }
-
-        /// <summary>
-        /// Extract volume from data
-        /// </summary>
-        public double[] GetVolume()
-        {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Manager not initialized. Call Initialize() first.");
-
-            return Data.Select(d => (double)d.Volume).ToArray();
-        }
+        // Data extraction methods (GetClosePrices, GetOpenPrices, GetHighPrices, GetLowPrices, GetVolume, etc.)
+        // are inherited from MarketDataProvider base class
 
         #endregion
 

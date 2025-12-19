@@ -4,6 +4,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
 
@@ -40,14 +41,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void DeleteObjects()
         {
-            // Logger'ı temizle
+            // Logger'ı dispose et ve temizle
+            _singleTraderLogger?.Dispose();
             _singleTraderLogger = null;
 
             // AlgoTrader'ı temizle
             algoTrader?.Reset();
             algoTrader = null;
-
-            _singleTraderLogger?.Log("=== AlgoTrader Objects Deleted ===");
         }
 
         /// <summary>
@@ -69,14 +69,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// SingleTrader tab için local logger
         /// Implements IAlgoTraderLogger interface
         /// </summary>
-        private class SingleTraderLogger : IAlgoTraderLogger
+        private class SingleTraderLogger : IAlgoTraderLogger, IDisposable
         {
             private readonly RichTextBox _richTextBox;
+            private readonly FileSink _fileSink;
             private readonly object _lockObject = new object();
+            private bool _isDisposed = false;
 
             public SingleTraderLogger(RichTextBox richTextBox)
             {
                 _richTextBox = richTextBox;
+                _fileSink = new FileSink("logs", "singleTraderLog.txt", appendMode: false);
             }
 
             public void Log(params object[] args)
@@ -104,6 +107,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     _richTextBox.Clear();
                 }
+
+                // Dosyayı da temizle
+                _fileSink?.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    _fileSink?.Dispose();
+                }
             }
 
             private void WriteLog(string level, params object[] args)
@@ -117,6 +132,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     var message = string.Join(" ", args);
                     var logLine = $"[{timestamp}] [{level}] {message}";
 
+                    // RichTextBox'a yaz
                     if (_richTextBox.InvokeRequired)
                     {
                         _richTextBox.Invoke(() =>
@@ -131,6 +147,20 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         _richTextBox.AppendText(logLine + Environment.NewLine);
                         _richTextBox.SelectionStart = _richTextBox.Text.Length;
                         _richTextBox.ScrollToCaret();
+                    }
+
+                    // Dosyaya yaz
+                    if (!_isDisposed && _fileSink != null)
+                    {
+                        var logLevel = level switch
+                        {
+                            "WARNING" => LogLevel.Warning,
+                            "ERROR" => LogLevel.Error,
+                            _ => LogLevel.Info
+                        };
+
+                        var logEntry = new LogEntry(logLevel, message, "SingleTrader");
+                        _fileSink.Write(logEntry);
                     }
                 }
             }
@@ -282,71 +312,5 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
-        // ====================================================================
-        // ALGOTRADER - HELPER CLASSES (ÖRNEK STRATEJİLER)
-        // ====================================================================
-
-        /// <summary>
-        /// Basit Moving Average Crossover Stratejisi
-        /// Hızlı MA yavaş MA'yı yukarı keserse AL, aşağı keserse SAT
-        /// </summary>
-        private class SimpleMAStrategy : BaseStrategy
-        {
-            public override string Name => "Simple MA Crossover";
-
-            private readonly int _fastPeriod;
-            private readonly int _slowPeriod;
-            private double[] _fastMA;
-            private double[] _slowMA;
-
-            public SimpleMAStrategy(int fastPeriod = 10, int slowPeriod = 20)
-            {
-                _fastPeriod = fastPeriod;
-                _slowPeriod = slowPeriod;
-
-                Parameters["FastPeriod"] = fastPeriod;
-                Parameters["SlowPeriod"] = slowPeriod;
-            }
-
-            public override void OnInit()
-            {
-                if (!IsInitialized)
-                    return;
-
-                // Moving average'leri hesapla
-                var closes = Indicators.GetClosePrices();
-                _fastMA = Indicators.MA.SMA(closes, _fastPeriod);
-                _slowMA = Indicators.MA.SMA(closes, _slowPeriod);
-
-                LogManager.Log($"Strategy initialized: Fast={_fastPeriod}, Slow={_slowPeriod}");
-            }
-
-            public override TradeSignals OnStep(int currentIndex)
-            {
-                // İlk barlarda yeterli veri yok
-                if (currentIndex < _slowPeriod)
-                    return TradeSignals.None;
-
-                // Geçerli ve önceki MA değerleri
-                double currentFastMA = _fastMA[currentIndex];
-                double currentSlowMA = _slowMA[currentIndex];
-                double prevFastMA = _fastMA[currentIndex - 1];
-                double prevSlowMA = _slowMA[currentIndex - 1];
-
-                // Golden Cross (Hızlı MA yukarı kesiyor) - AL sinyali
-                if (prevFastMA <= prevSlowMA && currentFastMA > currentSlowMA)
-                {
-                    return TradeSignals.Buy;
-                }
-
-                // Death Cross (Hızlı MA aşağı kesiyor) - SAT sinyali
-                if (prevFastMA >= prevSlowMA && currentFastMA < currentSlowMA)
-                {
-                    return TradeSignals.Sell;
-                }
-
-                return TradeSignals.None;
-            }
-        }
     }
 }
