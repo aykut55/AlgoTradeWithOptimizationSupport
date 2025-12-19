@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics;
-using System.Linq.Expressions;
-
 // Import IAlgoTraderLogger from Trading namespace
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using ScottPlot.TickGenerators.Financial;
+using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 {
@@ -58,7 +58,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         // Logger
         private IAlgoTraderLogger? _logger;
 
-        public TradeSignals Signal { get; private set; }
+        public TradeSignals StrategySignal { get; private set; }
         public bool NoneSignal { get; private set; }
         public bool BuySignal { get; private set; }
         public bool SellSignal { get; private set; }
@@ -85,9 +85,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public double KomisyonVarlikAdedSayisiMicro { get; set; }   // 
         public double KomisyonCarpan { get; set; }   // 
         public double KaymaMiktari { get; set; }   //
-        public double IlkBakiyeFiyat { get; set; }   //  
+        public double IlkBakiyeFiyat { get; set; }   //
 
-
+        public Signals signals { get; private set; }
+        public Status status { get; private set; }
+        public Flags flags { get; private set; }
+        public Lists lists { get; private set; }
+        public TimeUtils timeUtils { get; private set; }
+        public TimeFilter timeFilter { get; private set; }
+        public KarZarar karZarar { get; private set; }
+        public KarAlZararKes karAlZararKes { get; private set; }
+        public Komisyon komisyon { get; private set; }
+        public Bakiye bakiye { get; private set; }
+        public PozisyonBuyuklugu pozisyonBuyuklugu { get; private set; }    
 
         #endregion
 
@@ -289,70 +299,122 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 throw new InvalidOperationException("Trader not initialized");
         }
 
-        public void Run(int i)
+        public void emirleri_resetle(int i)
         {
-            if (!IsInitialized)
-                throw new InvalidOperationException("Trader not initialized");
-
-            if (Strategy == null)
-                throw new InvalidOperationException("Strategy not set");
-
-            if (i >= Data.Count)
-                return;
-
-            // --------------------------------------------------------------------------------------------------------------------------------------------
             this.NoneSignal = this.BuySignal = this.SellSignal = this.TakeProfitSignal = this.StopLossSignal = this.FlatSignal = this.SkipSignal = false;
+        }
+        public void emir_oncesi_dongu_foksiyonlarini_calistir(int i)
+        {
 
-            // --------------------------------------------------------------------------------------------------------------------------------------------
-            this.Signal = this.Strategy.OnStep(i);
+        }
+        public void emirleri_setle(int i, TradeSignals signal)
+        {
 
-            // --------------------------------------------------------------------------------------------------------------------------------------------
-            if (this.Signal == TradeSignals.None) 
+            if (signal == TradeSignals.None)
             {
                 this.NoneSignal = true;
             }
 
-            if (this.Signal == TradeSignals.Buy)
+            if (signal == TradeSignals.Buy)
             {
                 if (this.BuySignalEnabled)
                     this.BuySignal = true;
             }
 
-            if (this.Signal == TradeSignals.Sell)
+            if (signal == TradeSignals.Sell)
             {
                 if (this.SellSignalEnabled)
                     this.SellSignal = true;
             }
 
-            if (this.Signal == TradeSignals.TakeProfit)
+            if (signal == TradeSignals.TakeProfit)
             {
                 if (this.TakeProfitSignalEnabled)
                     this.TakeProfitSignal = true;
             }
 
-            if (this.Signal == TradeSignals.StopLoss)
+            if (signal == TradeSignals.StopLoss)
             {
                 if (this.StopLossSignalEnabled)
                     this.StopLossSignal = true;
             }
 
-            if (this.Signal == TradeSignals.Flat)
+            if (signal == TradeSignals.Flat)
             {
                 if (this.FlatSignalEnabled)
                     this.FlatSignal = true;
             }
 
-            if (this.Signal == TradeSignals.Skip)
+            if (signal == TradeSignals.Skip)
             {
                 if (this.SkipSignalEnabled)
                     this.SkipSignal = true;
             }
+        }
 
-            // --------------------------------------------------------------------------------------------------------------------------------------------
+        public void islem_zaman_filtresi_uygula(int i)
+        {
+
+        }
+        public void sistem_yon_listesini_guncelle(int i)
+        {
+
+        }
+        public void sistem_seviye_listesini_guncelle(int i)
+        {
+
+        }
+        public void sinyal_listesini_guncelle(int i)
+        {
+
+        }
+        public void islem_listesini_guncelle(int i)
+        {
+
+        }
+        public void komisyon_listesini_guncelle(int i)
+        {
+
+        }
+        public void bakiye_listesini_guncelle(int i)
+        {
+
+        }
+        public void dongu_sonu_degiskenleri_setle(int i)
+        {
+
+        }
+
+        public void emir_sonrasi_dongu_foksiyonlarini_calistir(int i)
+        {
+            // self.Signals.GunSonuPozKapatildi = self.gun_sonu_poz_kapat(i, self.Signals.GunSonuPozKapatEnabled)
+
+            emirleri_uygula(i);
+            /*
+                if (self.Signals.KarAlindi == False and self.Signals.KarAl):
+                self.Signals.KarAlindi = True
+
+                if (self.Signals.ZararKesildi == False and self.Signals.ZararKes):
+                    self.Signals.ZararKesildi = True
+
+                if (self.Signals.FlatOlundu == False and self.Signals.FlatOl):
+                    self.Signals.FlatOlundu = True
+            */
+            this.sistem_yon_listesini_guncelle(i);
+            this.sistem_seviye_listesini_guncelle(i);
+            this.sinyal_listesini_guncelle(i);
+            this.islem_listesini_guncelle(i);
+            this.komisyon_listesini_guncelle(i);
+            this.bakiye_listesini_guncelle(i);
+            this.dongu_sonu_degiskenleri_setle(i);
+
+        }
+        public void emirleri_uygula(int i)
+        {
             if (this.NoneSignal == true)
             {
-      
-            }            
+
+            }
             else if (this.BuySignal == true)
             {
                 Log($"BuySignal received at {i} bar...");
@@ -377,7 +439,34 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             {
                 Log($"SkipSignal received at {i} bar...");
             }
+        }
+
+        public void Run(int i)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("Trader not initialized");
+
+            if (Strategy == null)
+                throw new InvalidOperationException("Strategy not set");
+
+            if (i >= Data.Count)
+                return;
+
+            emirleri_resetle(i);
+
+            emir_oncesi_dongu_foksiyonlarini_calistir(i);
+
+            if (i < 1)
+                return;
+
             // --------------------------------------------------------------------------------------------------------------------------------------------
+            this.StrategySignal = this.Strategy.OnStep(i);
+
+            emirleri_setle(i, this.StrategySignal);
+
+            islem_zaman_filtresi_uygula(i);
+
+            emir_sonrasi_dongu_foksiyonlarini_calistir(i);
         }
         public void Finalize(int i)
         {

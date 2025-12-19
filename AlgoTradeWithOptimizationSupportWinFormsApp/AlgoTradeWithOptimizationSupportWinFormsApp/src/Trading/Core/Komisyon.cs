@@ -1,0 +1,189 @@
+namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
+{
+    /// <summary>
+    /// Commission - Manages trading commission calculations
+    /// Komisyon hesaplamaları ve yönetimi
+    /// </summary>
+    public class Komisyon
+    {
+        #region Enable/Disable
+
+        public bool Enabled { get; set; }
+        public bool KomisyonuDahilEt { get; set; }
+
+        #endregion
+
+        #region Commission Rates
+
+        public double KomisyonOrani { get; set; }           // % cinsinden
+        public double MinKomisyon { get; set; }             // Minimum komisyon tutarı
+        public double MaxKomisyon { get; set; }             // Maximum komisyon tutarı
+        public double SabitKomisyon { get; set; }           // Sabit komisyon (işlem başına)
+
+        #endregion
+
+        #region Commission Calculation
+
+        public double IslemBasiKomisyon { get; set; }       // Her işlem için komisyon
+        public double VarlikAdediBasiKomisyon { get; set; } // Kontrat/Lot başına komisyon
+        public double ToplamKomisyon { get; set; }          // Toplam ödenen komisyon
+
+        #endregion
+
+        #region Commission Multipliers
+
+        public double KomisyonCarpani { get; set; }         // Komisyon çarpanı
+        public int KomisyonIslemSayisi { get; set; }        // Komisyon ödenecek işlem sayısı
+        public int KomisyonVarlikAdedi { get; set; }        // Komisyon ödenecek varlık adedi
+
+        #endregion
+
+        #region Market Specific
+
+        public double BorsaTakas { get; set; }              // Borsa & Takas ücreti
+        public double BSMV { get; set; }                    // Banka Sigorta Muamele Vergisi
+        public double DigerMasraflar { get; set; }          // Diğer masraflar
+
+        #endregion
+
+        #region Constructor
+
+        public Komisyon()
+        {
+            Reset();
+        }
+
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Reset all commission values to defaults
+        /// </summary>
+        public Komisyon Reset()
+        {
+            Enabled = false;
+            KomisyonuDahilEt = true;
+
+            KomisyonOrani = 0.0;
+            MinKomisyon = 0.0;
+            MaxKomisyon = 0.0;
+            SabitKomisyon = 0.0;
+
+            IslemBasiKomisyon = 0.0;
+            VarlikAdediBasiKomisyon = 0.0;
+            ToplamKomisyon = 0.0;
+
+            KomisyonCarpani = 1.0;
+            KomisyonIslemSayisi = 0;
+            KomisyonVarlikAdedi = 0;
+
+            BorsaTakas = 0.0;
+            BSMV = 0.0;
+            DigerMasraflar = 0.0;
+
+            return this;
+        }
+
+        /// <summary>
+        /// Initialize - Does nothing currently but returns this for method chaining
+        /// </summary>
+        public Komisyon Init()
+        {
+            return this;
+        }
+
+        /// <summary>
+        /// Calculate commission for a trade
+        /// </summary>
+        public double Hesapla(double islemTutari, int varlikAdedi = 1)
+        {
+            if (!Enabled || !KomisyonuDahilEt)
+                return 0.0;
+
+            double komisyon = 0.0;
+
+            // Sabit komisyon varsa
+            if (SabitKomisyon > 0)
+            {
+                komisyon = SabitKomisyon;
+            }
+            // Oran üzerinden hesaplama
+            else if (KomisyonOrani > 0)
+            {
+                komisyon = islemTutari * (KomisyonOrani / 100.0);
+
+                // Min/Max kontrolleri
+                if (MinKomisyon > 0 && komisyon < MinKomisyon)
+                    komisyon = MinKomisyon;
+
+                if (MaxKomisyon > 0 && komisyon > MaxKomisyon)
+                    komisyon = MaxKomisyon;
+            }
+
+            // Varlık adedi bazlı komisyon
+            if (VarlikAdediBasiKomisyon > 0)
+            {
+                komisyon += VarlikAdediBasiKomisyon * varlikAdedi;
+            }
+
+            // Borsa & Takas ekle
+            komisyon += BorsaTakas;
+
+            // BSMV ekle
+            if (BSMV > 0)
+            {
+                komisyon += komisyon * (BSMV / 100.0);
+            }
+
+            // Diğer masraflar
+            komisyon += DigerMasraflar;
+
+            // Çarpan uygula
+            komisyon *= KomisyonCarpani;
+
+            // Toplama ekle
+            ToplamKomisyon += komisyon;
+            KomisyonIslemSayisi++;
+
+            return komisyon;
+        }
+
+        /// <summary>
+        /// Set standard BIST (Borsa Istanbul) commission rates for stocks
+        /// </summary>
+        public void BISTHisseKomisyonuAyarla()
+        {
+            Enabled = true;
+            KomisyonuDahilEt = true;
+            KomisyonOrani = 0.188;  // %0.188 (typical BIST stock commission)
+            BSMV = 0.1;             // %0.1 BSMV
+            BorsaTakas = 0.0;
+            MinKomisyon = 5.0;      // Minimum 5 TL
+        }
+
+        /// <summary>
+        /// Set standard VIOP (futures) commission rates
+        /// </summary>
+        public void VIOPKomisyonuAyarla(double kontratBasiKomisyon = 2.0)
+        {
+            Enabled = true;
+            KomisyonuDahilEt = true;
+            VarlikAdediBasiKomisyon = kontratBasiKomisyon;  // Kontrat başına komisyon
+            BSMV = 0.1;  // %0.1 BSMV
+        }
+
+        /// <summary>
+        /// Set standard Forex commission rates
+        /// </summary>
+        public void ForexKomisyonuAyarla(double spreadPuan = 0.0)
+        {
+            Enabled = true;
+            KomisyonuDahilEt = true;
+            // Forex typically uses spread, not commission
+            SabitKomisyon = spreadPuan;
+        }
+
+        #endregion
+    }
+}
