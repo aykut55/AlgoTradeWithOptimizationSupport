@@ -264,12 +264,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
             strategy.OnInit();
 
-            singleTrader = new SingleTrader(this.Data, indicators, strategy);
+            singleTrader = new SingleTrader(0, this.Data, indicators, strategy, Logger);
             if (singleTrader == null)
                 return;
-
-            if (Logger != null)
-                singleTrader.SetLogger(Logger);
 
             // Assign callback to receive per-bar notification after emirleri_uygula(i)
             singleTrader.OnBeforeOrdersCallback = OnSingleTraderBeforeOrder; 
@@ -435,54 +432,26 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
             strategy.OnInit();
 
-            singleTrader = new SingleTrader(this.Data, indicators, strategy);
+            // *****************************************************************************
+            // *****************************************************************************
+            // *****************************************************************************
+            singleTrader = new SingleTrader(0, this.Data, indicators, strategy, Logger);
             if (singleTrader == null)
                 return;
 
-            if (Logger != null)
-                singleTrader.SetLogger(Logger);
-
             // Assign callbacks
+            singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress);
 
-            singleTrader.OnReset = OnSingleTraderReset;
-            singleTrader.OnInit = OnSingleTraderInit;
-            singleTrader.OnRun = OnSingleTraderRun;
-            singleTrader.OnFinal = OnSingleTraderFinal;
-            singleTrader.OnBeforeOrdersCallback = OnSingleTraderBeforeOrder;
-            singleTrader.OnNotifyStrategySignal = OnSingleTraderNotifySignal;
-            singleTrader.OnAfterOrdersCallback = OnSingleTraderAfterOrder;
-            singleTrader.OnProgress = OnSingleTraderProgress; 
-
-            // Setup
+            // Setup (order is important)
             singleTrader.CreateModules();
+
+            // Reset
             singleTrader.Reset();
 
-            singleTrader.signals.AlEnabled = false;
-            singleTrader.signals.SatEnabled = false;
-            singleTrader.signals.FlatOlEnabled = false;
-            singleTrader.signals.PasGecEnabled = false;
-            singleTrader.signals.KarAlEnabled = false;
-            singleTrader.signals.ZararKesEnabled = false;
-            singleTrader.signals.Alindi = false;
-            singleTrader.signals.Satildi = false;
-            singleTrader.signals.FlatOlundu = false;
-            singleTrader.signals.PasGecildi = false;
-            singleTrader.signals.KarAlindi = false;
-            singleTrader.signals.ZararKesildi = false;
-            singleTrader.signals.PozAcilabilir = false;
-            singleTrader.signals.PozAcildi = false;
-            singleTrader.signals.PozKapatilabilir = false;
-            singleTrader.signals.PozKapatildi = false;
-            singleTrader.signals.PozAcilabilirAlis = false;
-            singleTrader.signals.PozAcilabilirSatis = false;
-            singleTrader.signals.PozAcildiAlis = false;
-            singleTrader.signals.PozAcildiSatis = false;
-            singleTrader.signals.GunSonuPozKapatEnabled = false;
-            singleTrader.signals.GunSonuPozKapatildi = false;
-            singleTrader.signals.TimeFilteringEnabled = false;
-            singleTrader.signals.IsTradeEnabled = false;
-            singleTrader.signals.IsPozKapatEnabled = false;
+            // InitializeUserControlledFlags
+            singleTrader.ConfigureUserFlagsOnce();
 
+            // Configure position sizing
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsFxParite(lotSayisi: 0.01)
@@ -496,7 +465,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 .SetKaymaParams(kaymaMiktari: 0.5);
 
             singleTrader.Init();
-            singleTrader.InitModules();
+            // *****************************************************************************
+            // *****************************************************************************
+            // *****************************************************************************
 
             // Initialize
             this.timeManager.ResetTimer("1");

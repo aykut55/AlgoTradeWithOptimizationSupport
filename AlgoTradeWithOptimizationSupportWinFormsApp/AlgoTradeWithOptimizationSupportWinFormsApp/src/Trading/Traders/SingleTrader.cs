@@ -104,6 +104,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public string LastResetTime { get; set; }
         public string LastStatisticsCalculationTime { get; set; }
 
+        // Identification
+        public int Id { get; private set; }
+        public void SetId(int id) => Id = id;
+        public int GetId() => Id;
+
         #endregion
 
         #region IDisposable
@@ -152,13 +157,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
 
         // Parametreli constructor (yeni kullanım)
-        public SingleTrader(List<StockData> data, IndicatorManager indicators, BaseStrategy strategy)
+        public SingleTrader(int id, List<StockData> data, IndicatorManager indicators, BaseStrategy strategy, IAlgoTraderLogger? logger)
         {
             // Set data, indicators and strategy
             _data = data;
             Indicators = indicators;
             Strategy = strategy;
             CurrentIndex = 0;
+            Id = id;
+
+            _logger = null;
+            if (logger is not null) 
+                SetLogger(logger);
 
             _isInitialized = true;
         }
@@ -268,7 +278,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             CurrentIndex++;
         }
-        public void CreateModules()
+        public SingleTrader CreateModules()
         {
             signals = new Signals();
             status = new Status();
@@ -287,23 +297,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             pozisyonBuyuklugu = new PozisyonBuyuklugu();
             Position = new Position();
             statistics = new AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics();
+
+            return this;
         }
-        public void InitModules()
+        public SingleTrader ResetModules()
         {
-
-        }
-        public void DeleteModules()
-        {
-
-        }
-
-        public void Reset()
-        {
-            if (_data == null || _data.Count == 0)
-                throw new ArgumentException("Data cannot be null or empty");
-
-            OnReset?.Invoke(this, 0);
-
             signals.Reset();
             status.Reset();
 
@@ -322,28 +320,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             Position.Close();
             statistics.Reset();
 
-            /*this.BuySignalEnabled = false;
-            this.SellSignalEnabled = false;
-            this.TakeProfitSignalEnabled = false;
-            this.StopLossSignalEnabled = false;
-            this.FlatSignalEnabled = false;
-            this.SkipSignalEnabled = false;*/
-
-            CurrentIndex = 0;
-
             //Position.Close();
             //Statistics.Reset();
             //Strategy?.Reset();
 
-            OnReset?.Invoke(this, 1);
+            return this;
         }
-        public void Init()
+        public SingleTrader InitModules()
         {
-            if (_data == null || _data.Count == 0)
-                throw new ArgumentException("Data cannot be null or empty");
-
-            OnInit?.Invoke(this, 0);
-
             signals.Init();
             status.Init();
 
@@ -362,10 +346,135 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             //Position.Init();
             statistics.Init(this);
 
-            OnInit?.Invoke(this, 1);
+            return this;
+        }
+        public SingleTrader DeleteModules()
+        {
+            // Unhook callbacks/events
+            OnReset = null;
+            OnInit = null;
+            OnRun = null;
+            OnFinal = null;
+            OnBeforeOrdersCallback = null;
+            OnAfterOrdersCallback = null;
+            OnNotifyStrategySignal = null;
+            OnProgress = null;
+
+            // Close position if any
+            try { Position?.Close(); } catch { }
+
+            // Reset modules (avoid null assignments to keep non-nullability)
+            try { signals?.Reset(); } catch { }
+            try { status?.Reset(); } catch { }
+            try { flags?.Reset(); } catch { }
+            try { lists?.Reset(); } catch { }
+            try { timeUtils?.Reset(); } catch { }
+            try { karZarar?.Reset(); } catch { }
+            try { karAlZararKes?.Reset(); } catch { }
+            try { komisyon?.Reset(); } catch { }
+            try { Bakiye?.Reset(); } catch { }
+            try { bakiye?.Reset(); } catch { }
+            try { pozisyonBuyuklugu?.Reset(); } catch { }
+            try { statistics?.Reset(); } catch { }
+
+            ExecutionStepNumber = 0;
+            BakiyeInitialized = false;
+
+            return this;
         }
 
-        public void Initialize(int i)
+        public SingleTrader SetCallbacks(
+            Action<SingleTrader, int>? onReset = null,
+            Action<SingleTrader, int>? onInit = null,
+            Action<SingleTrader, int>? onRun = null,
+            Action<SingleTrader, int>? onFinal = null,
+            Action<SingleTrader, int>? onBeforeOrders = null,
+            Action<SingleTrader, string, int>? onNotifySignal = null,
+            Action<SingleTrader, int>? onAfterOrders = null,
+            Action<SingleTrader, int, int>? onProgress = null)
+        {
+            if (onReset != null) OnReset = onReset;
+            if (onInit != null) OnInit = onInit;
+            if (onRun != null) OnRun = onRun;
+            if (onFinal != null) OnFinal = onFinal;
+            if (onBeforeOrders != null) OnBeforeOrdersCallback = onBeforeOrders;
+            if (onAfterOrders != null) OnAfterOrdersCallback = onAfterOrders;
+            if (onNotifySignal != null) OnNotifyStrategySignal = onNotifySignal;
+            if (onProgress != null) OnProgress = onProgress;
+
+            return this;
+        }
+
+        public SingleTrader Reset()
+        {
+            if (_data == null || _data.Count == 0)
+                throw new ArgumentException("Data cannot be null or empty");
+
+            OnReset?.Invoke(this, 0);
+
+            ResetModules();
+
+            /*this.BuySignalEnabled = false;
+            this.SellSignalEnabled = false;
+            this.TakeProfitSignalEnabled = false;
+            this.StopLossSignalEnabled = false;
+            this.FlatSignalEnabled = false;
+            this.SkipSignalEnabled = false;*/
+
+            CurrentIndex = 0;
+
+            OnReset?.Invoke(this, 1);
+
+            return this;
+        }
+        public SingleTrader Init()
+        {
+            if (_data == null || _data.Count == 0)
+                throw new ArgumentException("Data cannot be null or empty");
+
+            OnInit?.Invoke(this, 0);
+
+            InitModules();
+
+            OnInit?.Invoke(this, 1);
+
+            return this;
+        }
+        public SingleTrader ConfigureUserFlagsOnce()
+        {
+            if (_data == null || _data.Count == 0)
+                throw new ArgumentException("Data cannot be null or empty");
+
+            this.signals.AlEnabled = false;
+            this.signals.SatEnabled = false;
+            this.signals.FlatOlEnabled = false;
+            this.signals.PasGecEnabled = false;
+            this.signals.KarAlEnabled = false;
+            this.signals.ZararKesEnabled = false;
+            this.signals.Alindi = false;
+            this.signals.Satildi = false;
+            this.signals.FlatOlundu = false;
+            this.signals.PasGecildi = false;
+            this.signals.KarAlindi = false;
+            this.signals.ZararKesildi = false;
+            this.signals.PozAcilabilir = false;
+            this.signals.PozAcildi = false;
+            this.signals.PozKapatilabilir = false;
+            this.signals.PozKapatildi = false;
+            this.signals.PozAcilabilirAlis = false;
+            this.signals.PozAcilabilirSatis = false;
+            this.signals.PozAcildiAlis = false;
+            this.signals.PozAcildiSatis = false;
+            this.signals.GunSonuPozKapatEnabled = false;
+            this.signals.GunSonuPozKapatildi = false;
+            this.signals.TimeFilteringEnabled = false;
+            this.signals.IsTradeEnabled = false;
+            this.signals.IsPozKapatEnabled = false;
+
+            return this;
+        }
+
+        public SingleTrader Initialize(int i)
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
@@ -379,6 +488,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.ZararKesEnabled = true;
             this.signals.GunSonuPozKapatEnabled = true;
             this.signals.TimeFilteringEnabled = true;
+
+            return this;
         }
 
         public void emirleri_resetle(int i)
