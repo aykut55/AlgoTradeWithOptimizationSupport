@@ -54,7 +54,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public IStrategy Strategy { get; private set; }
         public Position Position { get; private set; }
         public Bakiye Bakiye { get; private set; }
-        public TradeStatistics Statistics { get; private set; }
         public int CurrentIndex { get; private set; }
 
         private bool _isInitialized = false;
@@ -115,6 +114,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public PozisyonBuyuklugu pozisyonBuyuklugu { get; private set; }
         public int ExecutionStepNumber { get; set; }
         public bool BakiyeInitialized { get; set; }
+        public AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics statistics { get; private set; }
+
+        // Execution Time Tracking
+        public string LastExecutionTime { get; set; }
+        public string LastExecutionTimeStart { get; set; }
+        public string LastExecutionTimeStop { get; set; }
+        public int ExecutionTimeInMSec { get; set; }
+        public string LastResetTime { get; set; }
+        public string LastStatisticsCalculationTime { get; set; }
 
         #endregion
 
@@ -261,7 +269,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             bakiye.SetTrader(this);
             pozisyonBuyuklugu = new PozisyonBuyuklugu();
             Position = new Position();
-            Statistics = new TradeStatistics();
+            statistics = new AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics();
         }
         public void InitModules()
         {
@@ -293,7 +301,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             pozisyonBuyuklugu.Reset();
 
             Position.Close();
-            Statistics.Reset();
+            statistics.Reset();
 
             /*this.BuySignalEnabled = false;
             this.SellSignalEnabled = false;
@@ -339,11 +347,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             karAlZararKes.Init();
             komisyon.Init();
 
-            //Bakiye.Init();
+            Bakiye.Init();
             pozisyonBuyuklugu.Init();
 
             //Position.Init();
-            //Statistics.Init();
+            statistics.Init(this);
         }
 
         public void Initialize(int i)
@@ -1171,13 +1179,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             emir_sonrasi_dongu_foksiyonlarini_calistir(i);
         }
+
         public void Finalize(int i)
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
+
+            istatistikleri_hesapla();
         }
 
-#endregion
+        public void istatistikleri_hesapla()
+        {
+            int lastBarIndex = GetLastBarIndex();
+            statistics.Hesapla(lastBarIndex);
+        }
+
+        #endregion
 
         #region Helper Methods
 
@@ -1197,7 +1214,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         /// </summary>
         public string GetStatisticsSummary()
         {
-            return Statistics.GetSummary();
+            return ""; // Statistics.GetSummary();
         }
 
         /// <summary>

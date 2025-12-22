@@ -142,7 +142,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 return null;
 
             // TODO: Find trader with highest net profit
-            return Traders.OrderByDescending(t => t.Statistics.NetProfit).FirstOrDefault();
+            //return Traders.OrderByDescending(t => tsStatistics.NetProfit).FirstOrDefault();
+            return null;
         }
 
         #endregion

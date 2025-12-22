@@ -140,6 +140,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider
         public virtual int GetDataCount() => Data?.Count ?? 0;
 
         /// <summary>
+        /// Get last bar index (0-based index of the last bar)
+        /// Returns -1 if no data available
+        /// </summary>
+        public virtual int GetLastBarIndex()
+        {
+            int count = GetDataCount();
+            return count > 0 ? count - 1 : -1;
+        }
+
+        /// <summary>
+        /// Get last bar index property
+        /// Returns -1 if no data available
+        /// </summary>
+        public virtual int LastBarIndex => GetLastBarIndex();
+
+        /// <summary>
         /// Get data range (first and last DateTime)
         /// </summary>
         public virtual (DateTime Start, DateTime End) GetDataRange()

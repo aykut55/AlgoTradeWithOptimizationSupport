@@ -72,8 +72,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Order Status
 
-        public double EmirKomut { get; set; }
-        public double EmirStatus { get; set; }
+        public int EmirKomut { get; set; }
+        public int EmirStatus { get; set; }
 
         #endregion
 
@@ -200,8 +200,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             PrevFBarNo = 0;
             PrevPBarNo = 0;
 
-            EmirKomut = 0.0;
-            EmirStatus = 0.0;
+            EmirKomut = 0;
+            EmirStatus = 0;
 
             return this;
         }
