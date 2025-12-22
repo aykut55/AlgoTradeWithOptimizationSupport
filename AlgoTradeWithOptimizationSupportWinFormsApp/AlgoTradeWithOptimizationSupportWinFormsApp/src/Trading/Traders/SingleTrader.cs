@@ -94,6 +94,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public double SonBakiyeFiyat { get; set; }   //
         public double NetBakiyeFiyat { get; set; }   //
 
+        // Time Filter Properties
+        public string StartDateTimeStr { get; set; }
+        public string StopDateTimeStr { get; set; }
+        public string StartDateStr { get; set; }
+        public string StopDateStr { get; set; }
+        public string StartTimeStr { get; set; }
+        public string StopTimeStr { get; set; }
+
         public Signals signals { get; private set; }
         public Status status { get; private set; }
         public Flags flags { get; private set; }
@@ -242,10 +250,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             flags = new Flags();
             lists = new Lists();
             timeUtils = new TimeUtils();
+            timeUtils.SetTrader(this);
             karZarar = new KarZarar(this);
             karAlZararKes = new KarAlZararKes();
             komisyon = new Komisyon();
+            komisyon.SetTrader(this);
             Bakiye = new Bakiye();
+            Bakiye.SetTrader(this);
+            bakiye = new Bakiye();
+            bakiye.SetTrader(this);
             pozisyonBuyuklugu = new PozisyonBuyuklugu();
             Position = new Position();
             Statistics = new TradeStatistics();
@@ -321,7 +334,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             lists.Init(_data.Count);
 
             timeUtils.Init();
-            //karZarar.Init();
+            karZarar.Init(this);
 
             karAlZararKes.Init();
             komisyon.Init();
@@ -498,9 +511,171 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             }
         }
 
-        public void islem_zaman_filtresi_uygula(int i)
+        public int islem_zaman_filtresi_uygula(int BarIndex, int FilterMode, ref bool IsTradeEnabled, ref bool IsPozKapatEnabled, ref int CheckResult)
         {
+            int i = BarIndex;
+            DateTime BarDateTime = this.Data[i].DateTime;
+            string startDateTime = this.StartDateTimeStr ?? "";
+            string stopDateTime = this.StopDateTimeStr ?? "";
+            string startDate = this.StartDateStr ?? "";
+            string stopDate = this.StopDateStr ?? "";
+            string startTime = this.StartTimeStr ?? "";
+            string stopTime = this.StopTimeStr ?? "";
 
+            DateTime now = DateTime.Now;
+            string nowDateTime = now.ToString("dd.MM.yyyy HH:mm:ss");
+            string nowDate = now.ToString("dd.MM.yyyy");
+            string nowTime = now.ToString("HH:mm:ss");
+
+            bool useTimeFiltering = this.signals.TimeFilteringEnabled;
+
+            if (useTimeFiltering)
+            {
+                if (i == this.Data.Count - 1)
+                {
+                    string s = "";
+                    s += $"  {startDateTime}\n";
+                    s += $"  {stopDateTime}\n";
+                    s += $"  {startDate}\n";
+                    s += $"  {stopDate}\n";
+                    s += $"  {startTime}\n";
+                    s += $"  {stopTime}\n";
+                    s += $"  {nowDateTime}\n";
+                    s += $"  {nowDate}\n";
+                    s += $"  {nowTime}\n";
+                    s += $"  FilterMode = {FilterMode}\n";
+                    s += "  CTrader::IslemZamanFiltresiUygula\n";
+                    // Log if needed
+                }
+
+                if (FilterMode == 0)
+                {
+                    IsTradeEnabled = true;
+                    CheckResult = 0;
+                }
+                else if (FilterMode == 1)
+                {
+                    if (this.timeUtils.check_bar_time_with(i, startTime) >= 0 && this.timeUtils.check_bar_time_with(i, stopTime) < 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_time_with(i, startTime) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                    else if (this.timeUtils.check_bar_time_with(i, stopTime) >= 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = 1;
+                    }
+                }
+                else if (FilterMode == 2)
+                {
+                    if (this.timeUtils.check_bar_date_with(i, startDate) >= 0 && this.timeUtils.check_bar_date_with(i, stopDate) < 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_date_with(i, startDate) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                    else if (this.timeUtils.check_bar_date_with(i, stopDate) >= 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = 1;
+                    }
+                }
+                else if (FilterMode == 3)
+                {
+                    if (this.timeUtils.check_bar_date_time_with(i, startDateTime) >= 0 && this.timeUtils.check_bar_date_time_with(i, stopDateTime) < 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_date_time_with(i, startDateTime) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                    else if (this.timeUtils.check_bar_date_time_with(i, stopDateTime) >= 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = 1;
+                    }
+                }
+                else if (FilterMode == 4)
+                {
+                    if (this.timeUtils.check_bar_time_with(i, startTime) >= 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_time_with(i, startTime) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                }
+                else if (FilterMode == 5)
+                {
+                    if (this.timeUtils.check_bar_date_with(i, startDate) >= 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_date_with(i, startDate) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                }
+                else if (FilterMode == 6)
+                {
+                    if (this.timeUtils.check_bar_date_time_with(i, startDateTime) >= 0)
+                    {
+                        IsTradeEnabled = true;
+                        CheckResult = 0;
+                    }
+                    else if (this.timeUtils.check_bar_date_time_with(i, startDateTime) < 0)
+                    {
+                        if (!this.is_son_yon_f())
+                        {
+                            IsPozKapatEnabled = true;
+                        }
+                        CheckResult = -1;
+                    }
+                }
+            }
+
+            return 0;
         }
         public void sistem_yon_listesini_guncelle(int i)
         {
@@ -551,7 +726,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public void bakiye_listesini_guncelle(int i)
         {
-            //this.Bakiye.Hesapla(i);
+            this.Bakiye.Hesapla(i);
             if (this.flags.BakiyeGuncelle)
                 this.flags.BakiyeGuncelle = false;
         }
@@ -562,30 +737,38 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public bool gun_sonu_poz_kapat(int i, bool gunSonuPozKapatEnabled = true)
         {
             bool gunSonuPozKapatildi = false;
-            /*
+
+            int barCount = GetDataCount();
+
+            var dates = GetDates();
+
             if (gunSonuPozKapatEnabled)
             {
-                if (i < this.BarCount - 1 && this.Date[i] != this.Date[i + 1])
+                if (i < (barCount-1) && dates[i] != dates[i + 1])
                 {
                     this.signals.FlatOl = true;
                     gunSonuPozKapatildi = true;
                 }
-            }*/
+            }
             return gunSonuPozKapatildi;
         }
 
         public bool gun_sonu_poz_kapat2(int i, bool gunSonuPozKapatEnabled = true, int hour = 18, int minute= 0)
         {
             bool gunSonuPozKapatildi = false;
-            /*
+
+            int barCount = GetDataCount();
+
+            var dates = GetDateTimes();
+
             if (gunSonuPozKapatEnabled)
                 {
-                if (this.Date[i].Hour == hour && this.Date[i].Minute >= minute)
+                if (dates[i].Hour == hour && dates[i].Minute >= minute)
                 {
                     this.signals.FlatOl = true;
                     gunSonuPozKapatildi = true;
                 }
-            }*/
+            }
             return gunSonuPozKapatildi;
         }
         public void emir_sonrasi_dongu_foksiyonlarini_calistir(int i)
@@ -618,36 +801,336 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.dongu_sonu_degiskenleri_setle(i);
 
         }
-        public void emirleri_uygula(int i)
+        public int emirleri_uygula(int BarIndex)
         {
-            if (this.signals.None == true)
+            int result = 0;
+            int i = BarIndex;
+
+            this.flags.AGerceklesti = false;
+            this.flags.SGerceklesti = false;
+            this.flags.FGerceklesti = false;
+            this.flags.PGerceklesti = false;
+
+            double AnlikKapanisFiyati = this.Data[i].Close;
+            double AnlikYuksekFiyati = this.Data[i].High;
+            double AnlikDusukFiyati = this.Data[i].Low;
+
+            // Set EmirKomut based on signals
+            if (this.signals.None)
             {
 
             }
-            else if (this.signals.Al  == true)
+            if (this.signals.Al)
             {
-                //Log($"BuySignal received at {i} bar...");
+                this.signals.Sinyal = "A";
+                this.signals.EmirKomut = 1;
+                this.status.AlKomutSayisi += 1;
             }
-            else if (this.signals.Sat == true)
+            if (this.signals.Sat)
             {
-                //Log($"SellSignal received at {i} bar...");
+                this.signals.Sinyal = "S";
+                this.signals.EmirKomut = 2;
+                this.status.SatKomutSayisi += 1;
             }
-            else if (this.signals.KarAl == true)
+            if (this.signals.PasGec)
             {
-                //Log($"TakeProfitSignal received at {i} bar...");
+                this.signals.Sinyal = "P";
+                this.signals.EmirKomut = 3;
+                this.status.PasGecKomutSayisi += 1;
             }
-            else if (this.signals.ZararKes == true)
+            if (this.signals.KarAl)
             {
-                //Log($"StopLossSignal received at {i} bar...");
+                this.signals.Sinyal = "F";
+                this.signals.EmirKomut = 4;
+                this.status.KarAlKomutSayisi += 1;
             }
-            else if (this.signals.FlatOl == true)
+            if (this.signals.ZararKes)
             {
-                //Log($"FlatSignal received at {i} bar...");
+                this.signals.Sinyal = "F";
+                this.signals.EmirKomut = 5;
+                this.status.ZararKesKomutSayisi += 1;
             }
-            else if (this.signals.PasGec == true)
+            if (this.signals.FlatOl)
             {
-                //Log($"SkipSignal received at {i} bar...");
+                this.signals.Sinyal = "F";
+                this.signals.EmirKomut = 6;
+                this.status.FlatOlKomutSayisi += 1;
             }
+
+            this.status.KarAlSayisi = this.status.KarAlKomutSayisi;
+            this.status.ZararKesSayisi = this.status.ZararKesKomutSayisi;
+
+            // Process "A" (Al/Buy) signal
+            if (this.signals.Sinyal == "A" && this.signals.SonYon != "A")
+            {
+                this.signals.PrevAFiyat = this.signals.SonAFiyat;
+                this.signals.PrevABarNo = this.signals.SonABarNo;
+                this.signals.PrevYon = this.signals.SonYon;
+                this.signals.PrevFiyat = this.signals.SonFiyat;
+                this.signals.PrevBarNo = this.signals.SonBarNo;
+
+                if (this.signals.PrevYon == "F")
+                {
+                    // pass
+                }
+                if (this.signals.PrevYon == "S")
+                {
+                    // pass
+                }
+
+                this.lists.YonList[i] = "A";
+                this.signals.SonYon = this.lists.YonList[i];
+                this.signals.SonFiyat = AnlikKapanisFiyati;
+
+                if (this.flags.KaymayiDahilEt)
+                {
+                    this.signals.SonFiyat = AnlikYuksekFiyati;
+                }
+
+                this.lists.SeviyeList[i] = this.signals.SonFiyat;
+                this.signals.SonBarNo = i;
+                this.signals.SonAFiyat = this.signals.SonFiyat;
+                this.signals.SonABarNo = this.signals.SonBarNo;
+
+                if (this.signals.PrevYon == "F")
+                {
+                    this.status.KomisyonIslemSayisi += 1;
+                    this.signals.EmirStatus = 1;
+                }
+                if (this.signals.PrevYon == "S")
+                {
+                    double fark = this.signals.SonFiyat - this.signals.SonSFiyat;
+                    if (fark < 0)
+                    {
+                        this.status.KazandiranSatisSayisi += 1;
+                    }
+                    else if (fark > 0)
+                    {
+                        this.status.KaybettirenSatisSayisi += 1;
+                    }
+                    else
+                    {
+                        this.status.NotrSatisSayisi += 1;
+                    }
+                    this.status.KomisyonIslemSayisi += 2;
+                    this.signals.EmirStatus = 2;
+                }
+
+                this.flags.BakiyeGuncelle = true;
+                this.flags.KomisyonGuncelle = true;
+                this.flags.DonguSonuIstatistikGuncelle = true;
+                this.status.IslemSayisi += 1;
+                this.status.AlisSayisi += 1;
+                this.flags.AGerceklesti = true;
+            }
+            // Process "S" (Sat/Sell) signal
+            else if (this.signals.Sinyal == "S" && this.signals.SonYon != "S")
+            {
+                this.signals.PrevSFiyat = this.signals.SonSFiyat;
+                this.signals.PrevSBarNo = this.signals.SonSBarNo;
+                this.signals.PrevYon = this.signals.SonYon;
+                this.signals.PrevFiyat = this.signals.SonFiyat;
+                this.signals.PrevBarNo = this.signals.SonBarNo;
+
+                if (this.signals.PrevYon == "F")
+                {
+                    // pass
+                }
+                if (this.signals.PrevYon == "A")
+                {
+                    // pass
+                }
+
+                this.lists.YonList[i] = "S";
+                this.signals.SonYon = this.lists.YonList[i];
+                this.signals.SonFiyat = AnlikKapanisFiyati;
+
+                if (this.flags.KaymayiDahilEt)
+                {
+                    this.signals.SonFiyat = AnlikDusukFiyati;
+                }
+
+                this.lists.SeviyeList[i] = this.signals.SonFiyat;
+                this.signals.SonBarNo = i;
+                this.signals.SonSFiyat = this.signals.SonFiyat;
+                this.signals.SonSBarNo = this.signals.SonSBarNo;
+
+                if (this.signals.PrevYon == "F")
+                {
+                    this.status.KomisyonIslemSayisi += 1;
+                    this.signals.EmirStatus = 3;
+                }
+                if (this.signals.PrevYon == "A")
+                {
+                    double fark = this.signals.SonFiyat - this.signals.SonAFiyat;
+                    if (fark > 0)
+                    {
+                        this.status.KazandiranAlisSayisi += 1;
+                    }
+                    else if (fark < 0)
+                    {
+                        this.status.KaybettirenAlisSayisi += 1;
+                    }
+                    else
+                    {
+                        this.status.NotrAlisSayisi += 1;
+                    }
+                    this.status.KomisyonIslemSayisi += 2;
+                    this.signals.EmirStatus = 4;
+                }
+
+                this.flags.BakiyeGuncelle = true;
+                this.flags.KomisyonGuncelle = true;
+                this.flags.DonguSonuIstatistikGuncelle = true;
+                this.status.IslemSayisi += 1;
+                this.status.SatisSayisi += 1;
+                this.flags.SGerceklesti = true;
+            }
+            // Process "F" (Flat) signal
+            else if (this.signals.Sinyal == "F" && this.signals.SonYon != "F")
+            {
+                this.signals.PrevFFiyat = this.signals.SonFFiyat;
+                this.signals.PrevFBarNo = this.signals.SonFBarNo;
+                this.signals.PrevYon = this.signals.SonYon;
+                this.signals.PrevFiyat = this.signals.SonFiyat;
+                this.signals.PrevBarNo = this.signals.SonBarNo;
+
+                if (this.signals.PrevYon == "A")
+                {
+                    // pass
+                }
+                if (this.signals.PrevYon == "S")
+                {
+                    // pass
+                }
+
+                this.lists.YonList[i] = "F";
+                this.signals.SonYon = this.lists.YonList[i];
+                this.signals.SonFiyat = AnlikKapanisFiyati;
+
+                if (this.flags.KaymayiDahilEt)
+                {
+                    if (this.signals.PrevYon == "A")
+                    {
+                        this.signals.SonFiyat = AnlikDusukFiyati;
+                    }
+                    if (this.signals.PrevYon == "S")
+                    {
+                        this.signals.SonFiyat = AnlikYuksekFiyati;
+                    }
+                }
+
+                this.lists.SeviyeList[i] = this.signals.SonFiyat;
+                this.signals.SonBarNo = i;
+                this.signals.SonFFiyat = this.signals.SonFiyat;
+                this.signals.SonFBarNo = this.signals.SonFBarNo;
+
+                if (this.signals.PrevYon == "A")
+                {
+                    double fark = this.signals.SonFiyat - this.signals.SonAFiyat;
+                    if (fark > 0)
+                    {
+                        this.status.KazandiranAlisSayisi += 1;
+                    }
+                    else if (fark < 0)
+                    {
+                        this.status.KaybettirenAlisSayisi += 1;
+                    }
+                    else
+                    {
+                        this.status.NotrAlisSayisi += 1;
+                    }
+                    this.status.KomisyonIslemSayisi += 1;
+                    this.signals.EmirStatus = 5;
+                }
+                if (this.signals.PrevYon == "S")
+                {
+                    double fark = this.signals.SonFiyat - this.signals.SonSFiyat;
+                    if (fark < 0)
+                    {
+                        this.status.KazandiranSatisSayisi += 1;
+                    }
+                    else if (fark > 0)
+                    {
+                        this.status.KaybettirenSatisSayisi += 1;
+                    }
+                    else
+                    {
+                        this.status.NotrSatisSayisi += 1;
+                    }
+                    this.status.KomisyonIslemSayisi += 1;
+                    this.signals.EmirStatus = 6;
+                }
+
+                this.flags.BakiyeGuncelle = true;
+                this.flags.KomisyonGuncelle = true;
+                this.flags.DonguSonuIstatistikGuncelle = true;
+                this.status.IslemSayisi += 1;
+                this.status.FlatSayisi += 1;
+                this.flags.FGerceklesti = true;
+            }
+            // Process "P" (PasGec/Skip) or empty signal
+            else if (this.signals.Sinyal == "P" || this.signals.Sinyal == "")
+            {
+                this.signals.PrevPFiyat = this.signals.SonPFiyat;
+                this.signals.PrevPBarNo = this.signals.SonPBarNo;
+                this.signals.SonPFiyat = AnlikKapanisFiyati;
+                this.signals.SonPBarNo = i;
+
+                if (this.signals.SonYon == "A")
+                {
+                    this.signals.EmirStatus = 7;
+                }
+                if (this.signals.SonYon == "S")
+                {
+                    this.signals.EmirStatus = 8;
+                }
+                if (this.signals.SonYon == "F")
+                {
+                    this.signals.EmirStatus = 9;
+                }
+
+                this.flags.BakiyeGuncelle = true;
+                this.flags.KomisyonGuncelle = true;
+                this.flags.DonguSonuIstatistikGuncelle = true;
+                this.status.PassSayisi += 1;
+                this.flags.PGerceklesti = true;
+            }
+
+            // Update totals
+            this.status.KazandiranIslemSayisi = this.status.KazandiranAlisSayisi + this.status.KazandiranSatisSayisi;
+            this.status.KaybettirenIslemSayisi = this.status.KaybettirenAlisSayisi + this.status.KaybettirenSatisSayisi;
+            this.status.NotrIslemSayisi = this.status.NotrAlisSayisi + this.status.NotrSatisSayisi;
+
+            // Reset bar counters if trade happened
+            if (this.flags.AGerceklesti || this.flags.SGerceklesti || this.flags.FGerceklesti)
+            {
+                this.status.KardaBarSayisi = 0;
+                this.status.ZarardaBarSayisi = 0;
+            }
+
+            // Enable calculations if trades exist
+            if (this.status.IslemSayisi > 0)
+            {
+                this.flags.AnlikKarZararHesaplaEnabled = true;
+                this.flags.KarAlYuzdeHesaplaEnabled = true;
+                this.flags.IzleyenStopYuzdeHesaplaEnabled = true;
+                this.flags.ZararKesYuzdeHesaplaEnabled = true;
+                this.flags.KarAlSeviyeHesaplaEnabled = true;
+                this.flags.ZararKesSeviyeHesaplaEnabled = true;
+            }
+
+            // Reset flags
+            this.flags.AGerceklesti = false;
+            this.flags.SGerceklesti = false;
+            this.flags.FGerceklesti = false;
+            this.flags.PGerceklesti = false;
+
+            // Update lists
+            this.lists.EmirKomutList[i] = this.signals.EmirKomut;
+            this.lists.EmirStatusList[i] = this.signals.EmirStatus;
+
+            return result;
         }
 
         public void Run(int i)
@@ -671,16 +1154,20 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // --------------------------------------------------------------------------------------------------------------------------------------------
             this.StrategySignal = this.Strategy.OnStep(i);
 
-            //IsSonYonA = trader.is_son_yon_a()
+            var isSonYonA = is_son_yon_a();
 
-            //IsSonYonS = trader.is_son_yon_s()
+            var isSonYonS = is_son_yon_s();
 
-            //IsSonYonF = trader.is_son_yon_f()
+            var isSonYonF = is_son_yon_f();
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
             emirleri_setle(i, this.StrategySignal);
 
-            islem_zaman_filtresi_uygula(i);
+            int filterMode = 3;
+            bool isTradeEnabled = false; 
+            bool isPozKapatEnabled = false;
+            int checkResult = 0;
+            islem_zaman_filtresi_uygula(i, filterMode, ref isTradeEnabled, ref isPozKapatEnabled, ref checkResult);
 
             emir_sonrasi_dongu_foksiyonlarini_calistir(i);
         }
@@ -711,6 +1198,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public string GetStatisticsSummary()
         {
             return Statistics.GetSummary();
+        }
+
+        /// <summary>
+        /// Check if last direction is Flat (F)
+        /// </summary>
+        public bool is_son_yon_f()
+        {
+            return this.signals.SonYon == "F";
+        }
+
+        /// <summary>
+        /// Check if last direction is Buy (A)
+        /// </summary>
+        public bool is_son_yon_a()
+        {
+            return this.signals.SonYon == "A";
+        }
+
+        /// <summary>
+        /// Check if last direction is Sell (S)
+        /// </summary>
+        public bool is_son_yon_s()
+        {
+            return this.signals.SonYon == "S";
         }
 
         #endregion

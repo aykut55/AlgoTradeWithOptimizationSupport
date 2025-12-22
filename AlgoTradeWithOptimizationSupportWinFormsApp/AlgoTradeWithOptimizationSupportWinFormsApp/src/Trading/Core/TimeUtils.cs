@@ -1,4 +1,6 @@
 using System;
+using System.Globalization;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 {
@@ -8,6 +10,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
     /// </summary>
     public class TimeUtils
     {
+        private SingleTrader Trader { get; set; }
+
         #region Time Filtering
 
         public bool TimeFilteringEnabled { get; set; }
@@ -52,6 +56,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #endregion
 
         #region Methods
+
+        public void SetTrader(SingleTrader trader)
+        {
+            Trader = trader;
+        }
 
         /// <summary>
         /// Reset all time utility values to defaults
@@ -138,6 +147,69 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 return false;
 
             return IsAfterCloseTime;
+        }
+
+        /// <summary>
+        /// Compare bar time with given time string
+        /// Returns: -1 if bar time < given time, 0 if equal, 1 if bar time > given time
+        /// </summary>
+        public int check_bar_time_with(int barIndex, string timeStr)
+        {
+            if (Trader == null || barIndex < 0 || barIndex >= Trader.Data.Count)
+                return 0;
+
+            DateTime barDateTime = Trader.Data[barIndex].DateTime;
+            TimeOnly barTime = TimeOnly.FromDateTime(barDateTime);
+
+            // Parse time string (format: "HH:mm:ss" or "HH:mm")
+            if (TimeOnly.TryParseExact(timeStr, new[] { "HH:mm:ss", "HH:mm" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out TimeOnly compareTime))
+            {
+                return barTime.CompareTo(compareTime);
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Compare bar date with given date string
+        /// Returns: -1 if bar date < given date, 0 if equal, 1 if bar date > given date
+        /// </summary>
+        public int check_bar_date_with(int barIndex, string dateStr)
+        {
+            if (Trader == null || barIndex < 0 || barIndex >= Trader.Data.Count)
+                return 0;
+
+            DateTime barDateTime = Trader.Data[barIndex].DateTime;
+            DateOnly barDate = DateOnly.FromDateTime(barDateTime);
+
+            // Parse date string (format: "dd.MM.yyyy" or "dd/MM/yyyy")
+            if (DateOnly.TryParseExact(dateStr, new[] { "dd.MM.yyyy", "dd/MM/yyyy" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly compareDate))
+            {
+                return barDate.CompareTo(compareDate);
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// Compare bar datetime with given datetime string
+        /// Returns: -1 if bar datetime < given datetime, 0 if equal, 1 if bar datetime > given datetime
+        /// </summary>
+        public int check_bar_date_time_with(int barIndex, string dateTimeStr)
+        {
+            if (Trader == null || barIndex < 0 || barIndex >= Trader.Data.Count)
+                return 0;
+
+            DateTime barDateTime = Trader.Data[barIndex].DateTime;
+
+            // Parse datetime string (format: "dd.MM.yyyy HH:mm:ss" or "dd/MM/yyyy HH:mm:ss")
+            if (DateTime.TryParseExact(dateTimeStr, new[] { "dd.MM.yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm", "dd/MM/yyyy HH:mm" },
+                CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime compareDateTime))
+            {
+                return barDateTime.CompareTo(compareDateTime);
+            }
+
+            return 0;
         }
 
         #endregion

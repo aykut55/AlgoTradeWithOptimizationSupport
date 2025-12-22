@@ -195,6 +195,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                     Status.KarZararFiyatYuzde = 0.0;                            // KarZararPuanYuzde
 
                 Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;    // KarZararPuanYuzdeList
+
+                Status.KarZararPuanYuzde = Status.KarZararFiyatYuzde;
+                Lists.KarZararPuanYuzdeList[i] = Status.KarZararPuanYuzde;
             }
             else if (sonYon == "S")  // Short position (Sat - Sell)
             {
@@ -209,6 +212,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                     Status.KarZararFiyatYuzde = 0.0;
 
                 Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;
+
+                Status.KarZararPuanYuzde = Status.KarZararFiyatYuzde;
+                Lists.KarZararPuanYuzdeList[i] = Status.KarZararPuanYuzde;
             }
 
             // Update bar count statistics

@@ -1,3 +1,6 @@
+using static SkiaSharp.HarfBuzz.SKShaper;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 {
     /// <summary>
@@ -6,6 +9,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
     /// </summary>
     public class Komisyon
     {
+        private SingleTrader Trader { get; set; }
+
         #region Enable/Disable
 
         public bool Enabled { get; set; }
@@ -57,6 +62,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Methods
 
+        public void SetTrader(SingleTrader trader)
+        {
+            Trader = trader;
+        }
+
         /// <summary>
         /// Reset all commission values to defaults
         /// </summary>
@@ -93,10 +103,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             return this;
         }
 
+        public void Hesapla(int i)
+        {
+            if (Trader == null)
+                return;
+
+            Trader.status.KomisyonFiyat = Trader.lists.KomisyonIslemSayisiList[i] * Trader.status.KomisyonCarpan * Trader.status.KomisyonVarlikAdedSayisi;
+            Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;
+        }
+
         /// <summary>
         /// Calculate commission for a trade
         /// </summary>
-        public double Hesapla(double islemTutari, int varlikAdedi = 1)
+        public double Hesapla2(double islemTutari, int varlikAdedi = 1)
         {
             if (!Enabled || !KomisyonuDahilEt)
                 return 0.0;
