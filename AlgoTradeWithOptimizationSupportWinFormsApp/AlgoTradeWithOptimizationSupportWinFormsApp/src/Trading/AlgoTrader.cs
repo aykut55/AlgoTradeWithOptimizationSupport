@@ -271,6 +271,10 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             if (Logger != null)
                 singleTrader.SetLogger(Logger);
 
+            // Assign callback to receive per-bar notification after emirleri_uygula(i)
+            singleTrader.OnBeforeOrdersCallback = OnSingleTraderBeforeOrder; 
+            singleTrader.OnAfterOrdersCallback = OnSingleTraderAfterOrder;
+
             // --------------------------------------------------------------
             singleTrader.CreateModules();               // Bir kez cagrilir
             singleTrader.Reset();                       // Bir kez cagrilir
@@ -353,6 +357,58 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("Single Trader demo completed");
         }
 
+        private void OnSingleTraderReset(SingleTrader trader,int mode)
+        {
+
+        }
+
+        private void OnSingleTraderInit(SingleTrader trader, int mode)
+        {
+
+        }
+
+        private void OnSingleTraderRun(SingleTrader trader, int mode)
+        {
+
+        }
+
+        private void OnSingleTraderFinal(SingleTrader trader, int mode)
+        {
+
+        }
+
+        // Callback function to be assigned to SingleTrader.Callback
+        // Runs right after emirleri_uygula(i) for each bar
+        private void OnSingleTraderBeforeOrder(SingleTrader trader, int barIndex)
+        {
+            // Example: you can inspect last signal/direction here
+            // Logger?.Log($"CB | Bar={barIndex} Yon={trader.signals.SonYon} EmirStatus={trader.signals.EmirStatus}");
+            // No-op by default
+        }
+
+        // Notification when a concrete A/S/F sinyali gerçekleştiğinde tetiklenir
+        private void OnSingleTraderNotifySignal(SingleTrader trader, string signal, int barIndex)
+        {
+            // Example: Logger?.Log($"SIG | Yon={trader.signals.SonYon} Sinyal={signal}");
+            // No-op by default
+        }
+
+        // Callback function to be assigned to SingleTrader.Callback
+        // Runs right after emirleri_uygula(i) for each bar
+        private void OnSingleTraderAfterOrder(SingleTrader trader, int barIndex)
+        {
+            // Example: you can inspect last signal/direction here
+            // Logger?.Log($"CB | Bar={barIndex} Yon={trader.signals.SonYon} EmirStatus={trader.signals.EmirStatus}");
+            // No-op by default
+        }
+
+        private void OnSingleTraderProgress(SingleTrader trader, int currentBar, int totalBars)
+        {
+            // Example: you can inspect last signal/direction here
+            // Logger?.Log($"CB | Bar={barIndex} Yon={trader.signals.SonYon} EmirStatus={trader.signals.EmirStatus}");
+            // No-op by default
+        }
+
         /// <summary>
         /// Run single trader with progress reporting (async version)
         /// </summary>
@@ -385,6 +441,17 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             if (Logger != null)
                 singleTrader.SetLogger(Logger);
+
+            // Assign callbacks
+
+            singleTrader.OnReset = OnSingleTraderReset;
+            singleTrader.OnInit = OnSingleTraderInit;
+            singleTrader.OnRun = OnSingleTraderRun;
+            singleTrader.OnFinal = OnSingleTraderFinal;
+            singleTrader.OnBeforeOrdersCallback = OnSingleTraderBeforeOrder;
+            singleTrader.OnNotifyStrategySignal = OnSingleTraderNotifySignal;
+            singleTrader.OnAfterOrdersCallback = OnSingleTraderAfterOrder;
+            singleTrader.OnProgress = OnSingleTraderProgress; 
 
             // Setup
             singleTrader.CreateModules();
@@ -476,8 +543,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                         progress.Report(progressInfo);
                     }
+
+                    if (singleTrader.OnProgress != null && (i % 10 == 0 || i == totalBars - 1))
+                        singleTrader.OnProgress?.Invoke(singleTrader, i, totalBars);
                 }
             });
+
+            if (singleTrader.OnProgress != null)
+                singleTrader.OnProgress?.Invoke(singleTrader, totalBars, totalBars);
 
             Log("");
 
@@ -501,6 +574,10 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log($"t3 = {t3} msec...");
 
             Log("Single Trader demo completed (Async)");
+
+            singleTrader.Dispose(); 
+            singleTrader = null;
+
         }
 
         public void RunMultipleTraderDemoSilinecek()

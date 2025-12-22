@@ -22,7 +22,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
     /// <summary>
     /// Single trader - executes one strategy on market data
     /// </summary>
-    public class SingleTrader : MarketDataProvider
+    public class SingleTrader : MarketDataProvider, IDisposable
     {
         #region Properties
 
@@ -40,6 +40,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
         // Logger
         private IAlgoTraderLogger? _logger;
+
+        public Action<SingleTrader, int>? OnReset;
+        public Action<SingleTrader, int>? OnInit;
+        public Action<SingleTrader, int>? OnRun;
+        public Action<SingleTrader, int>? OnFinal;
+
+        // Generic callback after emirleri_uygula is executed for a bar index
+        public Action<SingleTrader, int>? OnBeforeOrdersCallback; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
+
+        // Callback hooks
+        // New compact notifier: sender + current Sinyal string
+        public Action<SingleTrader, string, int>? OnNotifyStrategySignal;
+
+        // Generic callback after emirleri_uygula is executed for a bar index
+        public Action<SingleTrader, int>? OnAfterOrdersCallback; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
+
+        public Action<SingleTrader, int, int>? OnProgress; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
 
         public TradeSignals StrategySignal { get; private set; }
         //public bool NoneSignal { get; private set; }
@@ -86,6 +103,43 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public int ExecutionTimeInMSec { get; set; }
         public string LastResetTime { get; set; }
         public string LastStatisticsCalculationTime { get; set; }
+
+        #endregion
+
+        #region IDisposable
+
+        private bool _disposed = false;
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed)
+                return;
+
+            if (disposing)
+            {
+                // dispose managed resources
+                try { Indicators?.Dispose(); } catch { /* ignore */ }
+
+                // detach callbacks to avoid leaks
+                OnReset = null;
+                OnInit = null;
+                OnRun = null;
+                OnFinal = null;
+                OnBeforeOrdersCallback = null;
+                OnNotifyStrategySignal = null;
+                OnAfterOrdersCallback = null;
+            }
+
+            // no unmanaged resources
+
+            _disposed = true;
+        }
 
         #endregion
 
@@ -248,6 +302,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (_data == null || _data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty");
 
+            OnReset?.Invoke(this, 0);
+
             signals.Reset();
             status.Reset();
 
@@ -278,11 +334,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             //Position.Close();
             //Statistics.Reset();
             //Strategy?.Reset();
+
+            OnReset?.Invoke(this, 1);
         }
         public void Init()
         {
             if (_data == null || _data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty");
+
+            OnInit?.Invoke(this, 0);
 
             signals.Init();
             status.Init();
@@ -301,6 +361,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             //Position.Init();
             statistics.Init(this);
+
+            OnInit?.Invoke(this, 1);
         }
 
         public void Initialize(int i)
@@ -736,7 +798,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // TODO : Cok yavas calisiyor...
             // this.signals.GunSonuPozKapatildi = this.gun_sonu_poz_kapat(i, this.signals.GunSonuPozKapatEnabled);            
 
+            // User-provided callback before order application for this bar
+            OnBeforeOrdersCallback?.Invoke(this, i);
+            
             emirleri_uygula(i);
+
+            // User-provided callback after order application for this bar
+            OnAfterOrdersCallback?.Invoke(this, i);
 
             if (this.signals.KarAlindi == false && this.signals.KarAl)
                 this.signals.KarAlindi = true;
@@ -883,6 +951,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.status.IslemSayisi += 1;
                 this.status.AlisSayisi += 1;
                 this.flags.AGerceklesti = true;
+
+                OnNotifyStrategySignal?.Invoke(this, this.signals.Sinyal, i);
             }
             // Process "S" (Sat/Sell) signal
             else if (this.signals.Sinyal == "S" && this.signals.SonYon != "S")
@@ -946,6 +1016,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.status.IslemSayisi += 1;
                 this.status.SatisSayisi += 1;
                 this.flags.SGerceklesti = true;
+
+                OnNotifyStrategySignal?.Invoke(this, this.signals.Sinyal, i);
             }
             // Process "F" (Flat) signal
             else if (this.signals.Sinyal == "F" && this.signals.SonYon != "F")
@@ -1029,6 +1101,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.status.IslemSayisi += 1;
                 this.status.FlatSayisi += 1;
                 this.flags.FGerceklesti = true;
+
+                OnNotifyStrategySignal?.Invoke(this, this.signals.Sinyal, i);
             }
             // Process "P" (PasGec/Skip) or empty signal
             else if (this.signals.Sinyal == "P" || this.signals.Sinyal == "")
@@ -1105,6 +1179,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (i >= Data.Count)
                 return;
 
+            OnRun?.Invoke(this, 0);
+
             emirleri_resetle(i);
 
             emir_oncesi_dongu_foksiyonlarini_calistir(i);
@@ -1131,6 +1207,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             islem_zaman_filtresi_uygula(i, filterMode, ref isTradeEnabled, ref isPozKapatEnabled, ref checkResult);
 
             emir_sonrasi_dongu_foksiyonlarini_calistir(i);
+
+            OnRun?.Invoke(this, 1);
         }
 
         public void Finalize(int i)
@@ -1138,7 +1216,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
 
+            OnFinal?.Invoke(this, 0);
+
             istatistikleri_hesapla();
+
+            OnFinal?.Invoke(this, 1);
         }
 
         public void istatistikleri_hesapla()
