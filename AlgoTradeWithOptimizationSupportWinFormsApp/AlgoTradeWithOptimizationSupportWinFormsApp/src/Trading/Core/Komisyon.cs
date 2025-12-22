@@ -112,7 +112,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 return;
 
             // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
-            double komisyonVarlikAdedi = Trader.MicroLotSizeEnabled
+            double komisyonVarlikAdedi = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled
                 ? Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisiMicro
                 : Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisi;
 

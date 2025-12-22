@@ -135,7 +135,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             if (Trader != null)
             {
-                if (Trader.MicroLotSizeEnabled)
+                if (Trader.pozisyonBuyuklugu.MicroLotSizeEnabled)
                 {
                     result = anlikKarZararHesaplaMicro(barIndex, type);
                 }

@@ -173,7 +173,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             }
 
             // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
-            double varlikAdedSayisi = Trader.MicroLotSizeEnabled
+            double varlikAdedSayisi = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled
                 ? Trader.pozisyonBuyuklugu.VarlikAdedSayisiMicro
                 : Trader.pozisyonBuyuklugu.VarlikAdedSayisi;
 

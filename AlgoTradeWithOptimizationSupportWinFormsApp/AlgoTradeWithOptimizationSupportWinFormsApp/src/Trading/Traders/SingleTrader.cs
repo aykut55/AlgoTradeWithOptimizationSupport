@@ -56,22 +56,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         //public bool FlatSignalEnabled { get; set; }
         //public bool SkipSignalEnabled { get; set; }
 
-        public int KontratSayisi { get; set; }      // 1 Lot, 1000 Hisse, 10 Kontrat
-        public int LotSayisi { get; set; }          // 1 Lot, 1000 Hisse, 10 Kontrat
-        public int HisseSayisi { get; set; }        // 1 Lot, 1000 Hisse, 10 Kontra
-        public int VarlikAdedCarpani { get; set; }        // 
-        public int VarlikAdedSayisi { get; set; }   // 1 Lot, 1000 Hisse, 10 Kontrat
-        public int KomisyonVarlikAdedSayisi { get; set; }   // 1 Lot, 1000 Hisse, 10 Kontrat
-        public MarketTypes MarketType { get; set; }
-        public bool MicroLotSizeEnabled { get; set; }
-        public double VarlikAdedSayisiMicro { get; set; }   // 0.01 Lot
-        public double KomisyonVarlikAdedSayisiMicro { get; set; }   // 
-        public double KomisyonCarpan { get; set; }   // 
-        public double KaymaMiktari { get; set; }   //
-        public double IlkBakiyeFiyat { get; set; }   //
-        public double SonBakiyeFiyat { get; set; }   //
-        public double NetBakiyeFiyat { get; set; }   //
-
         // Time Filter Properties
         public string StartDateTimeStr { get; set; }
         public string StopDateTimeStr { get; set; }
@@ -289,20 +273,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.FlatSignalEnabled = false;
             this.SkipSignalEnabled = false;*/
 
-            this.KontratSayisi = 1;
-            this.LotSayisi = 1;
-            this.HisseSayisi = 1000;
-            this.VarlikAdedCarpani = 10;
-            this.VarlikAdedSayisi = 1;
-            this.KomisyonVarlikAdedSayisi = 1;
-            this.MarketType = MarketTypes.ViopEndex;
-            this.MicroLotSizeEnabled = false;
-            this.VarlikAdedSayisiMicro = 0.0;
-            this.KomisyonVarlikAdedSayisiMicro = 0.0;
-            this.KomisyonCarpan = 0.0;
-            this.KaymaMiktari = 0.0;
-            this.IlkBakiyeFiyat = 100000.0;
-
             CurrentIndex = 0;
 
             //Position.Close();
@@ -408,7 +378,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.status.IlkBakiyeFiyat = this.pozisyonBuyuklugu.IlkBakiyeFiyat;
             this.status.IlkBakiyePuan = this.pozisyonBuyuklugu.IlkBakiyePuan;
             this.status.GetiriFiyatTipi = this.pozisyonBuyuklugu.GetiriFiyatTipi;
-            this.MicroLotSizeEnabled = this.pozisyonBuyuklugu.MicroLotSizeEnabled;
+            this.status.MicroLotSizeEnabled = this.pozisyonBuyuklugu.MicroLotSizeEnabled;
             if (this.BakiyeInitialized == false)
             {
                 this.BakiyeInitialized = true;

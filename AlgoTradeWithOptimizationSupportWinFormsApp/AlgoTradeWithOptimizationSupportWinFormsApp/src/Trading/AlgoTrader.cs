@@ -301,43 +301,17 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.signals.IsTradeEnabled = false;
             singleTrader.signals.IsPozKapatEnabled = false;
 
-            singleTrader.IlkBakiyeFiyat = 100000.0;
-            singleTrader.SonBakiyeFiyat = 0.0;
-            singleTrader.NetBakiyeFiyat = 0.0;
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsFxParite(lotSayisi: 0.01)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
 
-            singleTrader.MarketType = MarketTypes.ViopEndex;            
-            if (singleTrader.MarketType == MarketTypes.ViopEndex)       // VIP-X030-T
-            {
-                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
-                singleTrader.VarlikAdedCarpani = 10;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.ViopHisse)       // VIP-THYAO
-            {
-                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
-                singleTrader.VarlikAdedCarpani = 100;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.ViopParite)      // VIP-USDTRY
-            {
-                singleTrader.KontratSayisi = 1;                         // 1 Kontrat 
-                singleTrader.VarlikAdedCarpani = 1000;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.BistHisse)       // THYAO
-            {
-                singleTrader.HisseSayisi = 1000;                        // 1000 Hisse 
-                singleTrader.VarlikAdedCarpani = 1;
-                singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsViopEndex(kontratSayisi: 1)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
 
             // --------------------------------------------------------------
             singleTrader.Init();                        // Bir kez cagrilir
@@ -442,10 +416,6 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.signals.IsTradeEnabled = false;
             singleTrader.signals.IsPozKapatEnabled = false;
 
-            singleTrader.IlkBakiyeFiyat = 100000.0;
-            singleTrader.SonBakiyeFiyat = 0.0;
-            singleTrader.NetBakiyeFiyat = 0.0;
-
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsFxParite(lotSayisi: 0.01)
@@ -458,41 +428,6 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 .SetKomisyonParams(komisyonCarpan: 3.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
 
-            /*
-                        singleTrader.MarketType = MarketTypes.ViopEndex;
-                        if (singleTrader.MarketType == MarketTypes.ViopEndex)
-                        {
-                            singleTrader.KontratSayisi = 1;
-                            singleTrader.VarlikAdedCarpani = 10;
-                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                            singleTrader.KomisyonCarpan = 0.0;
-                        }
-                        if (singleTrader.MarketType == MarketTypes.ViopHisse)
-                        {
-                            singleTrader.KontratSayisi = 1;
-                            singleTrader.VarlikAdedCarpani = 100;
-                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                            singleTrader.KomisyonCarpan = 0.0;
-                        }
-                        if (singleTrader.MarketType == MarketTypes.ViopParite)
-                        {
-                            singleTrader.KontratSayisi = 1;
-                            singleTrader.VarlikAdedCarpani = 1000;
-                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                            singleTrader.KomisyonCarpan = 0.0;
-                        }
-                        if (singleTrader.MarketType == MarketTypes.BistHisse)
-                        {
-                            singleTrader.HisseSayisi = 1000;
-                            singleTrader.VarlikAdedCarpani = 1;
-                            singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
-                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
-                            singleTrader.KomisyonCarpan = 0.0;
-                        }
-            */
             singleTrader.Init();
             singleTrader.InitModules();
 

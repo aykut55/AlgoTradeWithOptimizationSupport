@@ -126,6 +126,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         public string GetiriFiyatTipi { get; set; } = "TL";
 
+        public bool MicroLotSizeEnabled { get; set; }
+        
         #endregion
 
         #region Summary
