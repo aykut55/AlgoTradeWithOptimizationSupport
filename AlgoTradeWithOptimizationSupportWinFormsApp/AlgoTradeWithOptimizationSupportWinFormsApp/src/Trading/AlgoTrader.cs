@@ -8,6 +8,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+using MathNet.Numerics.Distributions;
 using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
@@ -445,40 +446,53 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.SonBakiyeFiyat = 0.0;
             singleTrader.NetBakiyeFiyat = 0.0;
 
-            singleTrader.MarketType = MarketTypes.ViopEndex;
-            if (singleTrader.MarketType == MarketTypes.ViopEndex)
-            {
-                singleTrader.KontratSayisi = 1;
-                singleTrader.VarlikAdedCarpani = 10;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.ViopHisse)
-            {
-                singleTrader.KontratSayisi = 1;
-                singleTrader.VarlikAdedCarpani = 100;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.ViopParite)
-            {
-                singleTrader.KontratSayisi = 1;
-                singleTrader.VarlikAdedCarpani = 1000;
-                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
-            if (singleTrader.MarketType == MarketTypes.BistHisse)
-            {
-                singleTrader.HisseSayisi = 1000;
-                singleTrader.VarlikAdedCarpani = 1;
-                singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
-                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
-                singleTrader.KomisyonCarpan = 0.0;
-            }
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsFxParite(lotSayisi: 0.01)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
 
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsViopEndex(kontratSayisi: 1)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
+
+            /*
+                        singleTrader.MarketType = MarketTypes.ViopEndex;
+                        if (singleTrader.MarketType == MarketTypes.ViopEndex)
+                        {
+                            singleTrader.KontratSayisi = 1;
+                            singleTrader.VarlikAdedCarpani = 10;
+                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                            singleTrader.KomisyonCarpan = 0.0;
+                        }
+                        if (singleTrader.MarketType == MarketTypes.ViopHisse)
+                        {
+                            singleTrader.KontratSayisi = 1;
+                            singleTrader.VarlikAdedCarpani = 100;
+                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                            singleTrader.KomisyonCarpan = 0.0;
+                        }
+                        if (singleTrader.MarketType == MarketTypes.ViopParite)
+                        {
+                            singleTrader.KontratSayisi = 1;
+                            singleTrader.VarlikAdedCarpani = 1000;
+                            singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                            singleTrader.KomisyonCarpan = 0.0;
+                        }
+                        if (singleTrader.MarketType == MarketTypes.BistHisse)
+                        {
+                            singleTrader.HisseSayisi = 1000;
+                            singleTrader.VarlikAdedCarpani = 1;
+                            singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
+                            singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
+                            singleTrader.KomisyonCarpan = 0.0;
+                        }
+            */
             singleTrader.Init();
             singleTrader.InitModules();
 

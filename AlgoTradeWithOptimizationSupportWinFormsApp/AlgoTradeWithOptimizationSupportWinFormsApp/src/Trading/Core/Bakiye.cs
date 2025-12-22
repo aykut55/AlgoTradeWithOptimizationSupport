@@ -172,8 +172,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 Trader.lists.GetiriFiyatYuzdeNetList[i] = 100.0 * Trader.lists.GetiriFiyatNetList[i] / Trader.status.IlkBakiyeFiyat;
             }
 
-            Trader.lists.GetiriKz[i] = Trader.lists.GetiriFiyatList[i] / Trader.status.VarlikAdedSayisi;
-            Trader.lists.GetiriKzNet[i] = Trader.lists.GetiriFiyatNetList[i] / Trader.status.VarlikAdedSayisi;
+            // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
+            double varlikAdedSayisi = Trader.MicroLotSizeEnabled
+                ? Trader.pozisyonBuyuklugu.VarlikAdedSayisiMicro
+                : Trader.pozisyonBuyuklugu.VarlikAdedSayisi;
+
+            // Sıfıra bölme kontrolü
+            if (varlikAdedSayisi != 0)
+            {
+                Trader.lists.GetiriKz[i] = Trader.lists.GetiriFiyatList[i] / varlikAdedSayisi;
+                Trader.lists.GetiriKzNet[i] = Trader.lists.GetiriFiyatNetList[i] / varlikAdedSayisi;
+            }
+            else
+            {
+                Trader.lists.GetiriKz[i] = 0.0;
+                Trader.lists.GetiriKzNet[i] = 0.0;
+            }
 
             // Son bar kontrolü
             int barCount = Trader.Data.Count;

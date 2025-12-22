@@ -103,12 +103,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             return this;
         }
 
+        /// <summary>
+        /// Komisyon hesapla - Normal ve Micro lot desteği ile
+        /// </summary>
         public void Hesapla(int i)
         {
             if (Trader == null)
                 return;
 
-            Trader.status.KomisyonFiyat = Trader.lists.KomisyonIslemSayisiList[i] * Trader.status.KomisyonCarpan * Trader.status.KomisyonVarlikAdedSayisi;
+            // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
+            double komisyonVarlikAdedi = Trader.MicroLotSizeEnabled
+                ? Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisiMicro
+                : Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisi;
+
+            Trader.status.KomisyonFiyat = Trader.lists.KomisyonIslemSayisiList[i] *
+                                          Trader.status.KomisyonCarpan *
+                                          komisyonVarlikAdedi;
+
             Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;
         }
 

@@ -1,67 +1,133 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 {
+    public enum MarketTypes
+    {
+        BistEndex = 0,
+        BistHisse = 1,
+        BistParite = 2,
+        BistMetal = 3,
+
+        ViopEndex = 4,
+        ViopHisse = 5,
+        ViopParite = 6,
+        ViopMetal = 7,
+
+        FxEndex = 8,
+        FxHisse = 9,
+        FxParite = 10,
+        FxMetal = 11,
+
+        FxCrypto = 12,
+        Crypto = 13
+    }
+
     /// <summary>
-    /// Position Size - Manages position sizing for different asset types
+    /// Position Size - Manages position sizing for different market types
     /// Pozisyon büyüklüğü yönetimi (Kontrat, Lot, Hisse)
     /// </summary>
     public class PozisyonBuyuklugu
     {
-        #region Asset Counts
+        #region Properties
 
-        public int KontratSayisi { get; set; }          // Contract count (futures/derivatives)
-        public double LotSayisi { get; set; }           // Lot count (forex)
-        public int HisseSayisi { get; set; }            // Stock count (equities)
-        public int VarlikAdedi { get; set; }            // General asset count
+        /// <summary>
+        /// Kontrat sayısı (Futures/Options için)
+        /// Kesirli değer olabilir (örn: 0.01 kontrat)
+        /// </summary>
+        public double KontratSayisi { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Lot sayısı (Forex için)
+        /// Kesirli değer olabilir (örn: 0.01 lot = micro lot)
+        /// </summary>
+        public double LotSayisi { get; set; }
 
-        #region Micro Lot Support
+        /// <summary>
+        /// Hisse sayısı (Stocks için)
+        /// Kesirli değer olabilir (örn: 0.5 hisse)
+        /// </summary>
+        public double HisseSayisi { get; set; }
 
-        public bool MicroLotEnabled { get; set; }       // Enable fractional lot trading
-        public double MicroLotSayisi { get; set; }      // Micro lot count (0.01, 0.1, etc.)
+        /// <summary>
+        /// Varlık adedi çarpanı (örn: 1 kontrat = 10 adet varlık)
+        /// </summary>
+        public double VarlikAdedCarpani { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Toplam varlık adedi sayısı
+        /// </summary>
+        public double VarlikAdedSayisi { get; set; }
 
-        #region Multipliers
+        /// <summary>
+        /// Komisyon hesaplanırken kullanılacak varlık adedi
+        /// </summary>
+        public double KomisyonVarlikAdedSayisi { get; set; }
 
-        public double VarlikAdedCarpani { get; set; }   // Asset count multiplier
-        public double KontratCarpani { get; set; }      // Contract multiplier
-        public double LotCarpani { get; set; }          // Lot multiplier
+        /// <summary>
+        /// Market tipi
+        /// </summary>
+        public MarketTypes MarketType { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Micro lot desteği (0.01 lot gibi kesirli lotlar için)
+        /// </summary>
+        public bool MicroLotSizeEnabled { get; set; }
 
-        #region Position Limits
+        /// <summary>
+        /// Micro lot ile varlık adedi (kesirli değer)
+        /// </summary>
+        public double VarlikAdedSayisiMicro { get; set; }
 
-        public int MaxKontratSayisi { get; set; }       // Maximum contract count
-        public double MaxLotSayisi { get; set; }        // Maximum lot count
-        public int MaxHisseSayisi { get; set; }         // Maximum stock count
-        public int MinKontratSayisi { get; set; }       // Minimum contract count
-        public double MinLotSayisi { get; set; }        // Minimum lot count
-        public int MinHisseSayisi { get; set; }         // Minimum stock count
+        /// <summary>
+        /// Micro lot ile komisyon varlık adedi (kesirli değer)
+        /// </summary>
+        public double KomisyonVarlikAdedSayisiMicro { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Komisyon çarpanı
+        /// </summary>
+        public double KomisyonCarpan { get; set; }
 
-        #region Position Sizing Rules
+        /// <summary>
+        /// Komisyonu hesaplamaya dahil et
+        /// </summary>
+        public bool KomisyonuDahilEt { get; set; }
 
-        public bool SabitPozisyonBuyuklugu { get; set; }    // Use fixed position size
-        public bool OranliPozisyonBuyuklugu { get; set; }   // Use proportional position size
-        public double PozisyonOrani { get; set; }           // Position size ratio (% of capital)
-        public double RiskOrani { get; set; }               // Risk ratio per trade (%)
+        /// <summary>
+        /// Kayma miktarı (slippage)
+        /// </summary>
+        public double KaymaMiktari { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Kaymayı hesaplamaya dahil et
+        /// </summary>
+        public bool KaymayiDahilEt { get; set; }
 
-        #region Calculation Method
+        /// <summary>
+        /// İlk bakiye (fiyat cinsinden)
+        /// </summary>
+        public double IlkBakiyeFiyat { get; set; }
 
-        public bool BakiyeIleHesapla { get; set; }      // Calculate based on balance
-        public bool RiskIleHesapla { get; set; }        // Calculate based on risk
-        public bool SabitMiktarKullan { get; set; }     // Use fixed amount
+        /// <summary>
+        /// İlk bakiye (puan cinsinden)
+        /// </summary>
+        public double IlkBakiyePuan { get; set; }
 
-        #endregion
+        /// <summary>
+        /// Son bakiye (fiyat cinsinden)
+        /// </summary>
+        public double SonBakiyeFiyat { get; set; }
 
-        #region Status
+        /// <summary>
+        /// Net bakiye (fiyat cinsinden)
+        /// </summary>
+        public double NetBakiyeFiyat { get; set; }
 
-        public int AktifPozisyonSayisi { get; set; }    // Active position count
-        public double ToplamVarlikAdedi { get; set; }   // Total asset count in positions
+        /// <summary>
+        /// Getiri fiyat tipi ("TL", "$", "€", vb.)
+        /// </summary>
+        public string GetiriFiyatTipi { get; set; }
 
         #endregion
 
@@ -77,46 +143,35 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #region Methods
 
         /// <summary>
-        /// Reset all position size values to defaults
+        /// Reset all values to defaults
         /// </summary>
         public PozisyonBuyuklugu Reset()
         {
-            KontratSayisi = 1;
-            LotSayisi = 1.0;
-            HisseSayisi = 100;
-            VarlikAdedi = 1;
-
-            MicroLotEnabled = false;
-            MicroLotSayisi = 0.01;
-
-            VarlikAdedCarpani = 1.0;
-            KontratCarpani = 1.0;
-            LotCarpani = 1.0;
-
-            MaxKontratSayisi = 100;
-            MaxLotSayisi = 100.0;
-            MaxHisseSayisi = 100000;
-            MinKontratSayisi = 1;
-            MinLotSayisi = 0.01;
-            MinHisseSayisi = 1;
-
-            SabitPozisyonBuyuklugu = true;
-            OranliPozisyonBuyuklugu = false;
-            PozisyonOrani = 100.0;      // %100 of capital by default
-            RiskOrani = 2.0;            // 2% risk per trade
-
-            BakiyeIleHesapla = false;
-            RiskIleHesapla = false;
-            SabitMiktarKullan = true;
-
-            AktifPozisyonSayisi = 0;
-            ToplamVarlikAdedi = 0.0;
+            KontratSayisi = 0;
+            LotSayisi = 0;
+            HisseSayisi = 0;
+            VarlikAdedCarpani = 1;
+            VarlikAdedSayisi = 0;
+            KomisyonVarlikAdedSayisi = 0;
+            MarketType = MarketTypes.ViopEndex;
+            MicroLotSizeEnabled = false;
+            VarlikAdedSayisiMicro = 0.0;
+            KomisyonVarlikAdedSayisiMicro = 0.0;
+            KomisyonCarpan = 0.0;
+            KomisyonuDahilEt = false;
+            KaymaMiktari = 0.0;
+            KaymayiDahilEt = false;
+            IlkBakiyeFiyat = 0.0;
+            IlkBakiyePuan = 0.0;
+            SonBakiyeFiyat = 0.0;
+            NetBakiyeFiyat = 0.0;
+            GetiriFiyatTipi = "TL";
 
             return this;
         }
 
         /// <summary>
-        /// Initialize - Does nothing currently but returns this for method chaining
+        /// Initialize - Returns this for method chaining
         /// </summary>
         public PozisyonBuyuklugu Init()
         {
@@ -124,173 +179,392 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         }
 
         /// <summary>
-        /// Calculate position size based on balance and risk
+        /// Set market type and automatically configure position size parameters
         /// </summary>
-        public int HesaplaKontrat(double bakiye, double riskMiktari = 0.0)
+        /// <param name="marketType">Market type to configure</param>
+        /// <param name="kontratSayisi">Contract count (for futures/options) - can be fractional (0.01, 0.1, etc.)</param>
+        /// <param name="lotSayisi">Lot count (for forex) - can be fractional (0.01 = micro lot)</param>
+        /// <param name="hisseSayisi">Stock count (for stocks) - can be fractional</param>
+        public PozisyonBuyuklugu SetMarketType(MarketTypes marketType, double kontratSayisi = 1.0, double lotSayisi = 1.0, double hisseSayisi = 1000.0)
         {
-            if (SabitMiktarKullan)
-                return KontratSayisi;
+            MarketType = marketType;
 
-            if (RiskIleHesapla && riskMiktari > 0)
+            switch (marketType)
             {
-                // Calculate based on risk amount
-                double riskTutari = bakiye * (RiskOrani / 100.0);
-                int kontratSayisi = (int)(riskTutari / riskMiktari);
-                return LimitKontrol(kontratSayisi);
+                case MarketTypes.ViopEndex:
+                    KontratSayisi = kontratSayisi;
+                    VarlikAdedCarpani = 10;
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.ViopHisse:
+                    KontratSayisi = kontratSayisi;
+                    VarlikAdedCarpani = 100;
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.ViopParite:
+                    KontratSayisi = kontratSayisi;
+                    VarlikAdedCarpani = 1000;
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.ViopMetal:
+                    KontratSayisi = kontratSayisi;
+                    VarlikAdedCarpani = 100;
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.BistHisse:
+                    HisseSayisi = hisseSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = HisseSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.BistEndex:
+                    HisseSayisi = hisseSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = HisseSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.BistParite:
+                    HisseSayisi = hisseSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = HisseSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.BistMetal:
+                    HisseSayisi = hisseSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = HisseSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
+
+                case MarketTypes.FxEndex:
+                case MarketTypes.FxHisse:
+                case MarketTypes.FxParite:
+                case MarketTypes.FxMetal:
+                case MarketTypes.FxCrypto:
+                    LotSayisi = lotSayisi;
+                    VarlikAdedCarpani = 100000; // Standard lot = 100,000 units
+                    VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = LotSayisi;
+                    KomisyonCarpan = 0.0;
+                    MicroLotSizeEnabled = true; // Forex supports micro lots
+                    break;
+
+                case MarketTypes.Crypto:
+                    LotSayisi = lotSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = LotSayisi;
+                    KomisyonCarpan = 0.0;
+                    MicroLotSizeEnabled = true; // Crypto supports fractional amounts
+                    break;
+
+                default:
+                    // Default configuration
+                    KontratSayisi = kontratSayisi;
+                    VarlikAdedCarpani = 1;
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
+                    KomisyonCarpan = 0.0;
+                    break;
             }
 
-            if (BakiyeIleHesapla)
-            {
-                // Calculate based on balance ratio
-                double hedefTutar = bakiye * (PozisyonOrani / 100.0);
-                // This would need contract value to calculate properly
-                // For now, return default
-                return LimitKontrol(KontratSayisi);
-            }
-
-            return LimitKontrol(KontratSayisi);
+            return this;
         }
 
         /// <summary>
-        /// Calculate lot size based on balance and risk
+        /// Calculate VarlikAdedSayisi based on current settings
         /// </summary>
-        public double HesaplaLot(double bakiye, double riskMiktari = 0.0)
+        public PozisyonBuyuklugu CalculateVarlikAdedSayisi()
         {
-            if (SabitMiktarKullan)
-                return LotSayisi;
-
-            if (RiskIleHesapla && riskMiktari > 0)
+            if (MicroLotSizeEnabled)
             {
-                double riskTutari = bakiye * (RiskOrani / 100.0);
-                double lotSayisi = riskTutari / riskMiktari;
-                return LimitKontrolLot(lotSayisi);
+                VarlikAdedSayisiMicro = LotSayisi * VarlikAdedCarpani;
             }
-
-            if (BakiyeIleHesapla)
-            {
-                double hedefTutar = bakiye * (PozisyonOrani / 100.0);
-                // This would need lot value to calculate properly
-                return LimitKontrolLot(LotSayisi);
-            }
-
-            return LimitKontrolLot(LotSayisi);
-        }
-
-        /// <summary>
-        /// Calculate stock count based on balance and price
-        /// </summary>
-        public int HesaplaHisse(double bakiye, double hisseFiyati)
-        {
-            if (SabitMiktarKullan)
-                return HisseSayisi;
-
-            if (hisseFiyati <= 0)
-                return HisseSayisi;
-
-            if (BakiyeIleHesapla || OranliPozisyonBuyuklugu)
-            {
-                double hedefTutar = bakiye * (PozisyonOrani / 100.0);
-                int hisseSayisi = (int)(hedefTutar / hisseFiyati);
-                return LimitKontrolHisse(hisseSayisi);
-            }
-
-            return LimitKontrolHisse(HisseSayisi);
-        }
-
-        /// <summary>
-        /// Apply min/max limits to contract count
-        /// </summary>
-        private int LimitKontrol(int kontratSayisi)
-        {
-            if (kontratSayisi < MinKontratSayisi)
-                return MinKontratSayisi;
-            if (kontratSayisi > MaxKontratSayisi)
-                return MaxKontratSayisi;
-            return kontratSayisi;
-        }
-
-        /// <summary>
-        /// Apply min/max limits to lot size
-        /// </summary>
-        private double LimitKontrolLot(double lotSayisi)
-        {
-            if (lotSayisi < MinLotSayisi)
-                return MinLotSayisi;
-            if (lotSayisi > MaxLotSayisi)
-                return MaxLotSayisi;
-
-            // Round to 2 decimal places for standard lots, or more for micro lots
-            if (MicroLotEnabled)
-                return Math.Round(lotSayisi, 3);
             else
-                return Math.Round(lotSayisi, 2);
+            {
+                if (MarketType >= MarketTypes.ViopEndex && MarketType <= MarketTypes.ViopMetal)
+                {
+                    VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                }
+                else if (MarketType >= MarketTypes.BistEndex && MarketType <= MarketTypes.BistMetal)
+                {
+                    VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                }
+                else // Forex, Crypto
+                {
+                    VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+                }
+            }
+            return this;
         }
 
         /// <summary>
-        /// Apply min/max limits to stock count
+        /// Set komisyon parametreleri
         /// </summary>
-        private int LimitKontrolHisse(int hisseSayisi)
+        public PozisyonBuyuklugu SetKomisyonParams(double komisyonCarpan = 3.0)
         {
-            if (hisseSayisi < MinHisseSayisi)
-                return MinHisseSayisi;
-            if (hisseSayisi > MaxHisseSayisi)
-                return MaxHisseSayisi;
-            return hisseSayisi;
+            KomisyonCarpan = komisyonCarpan;
+            KomisyonuDahilEt = komisyonCarpan != 0.0;
+            return this;
         }
 
         /// <summary>
-        /// Set fixed position size for contracts
+        /// Set kayma (slippage) parametreleri
         /// </summary>
-        public void SabitKontratAyarla(int kontratSayisi)
+        public PozisyonBuyuklugu SetKaymaParams(double kaymaMiktari = 0.0)
         {
-            KontratSayisi = kontratSayisi;
-            SabitMiktarKullan = true;
-            BakiyeIleHesapla = false;
-            RiskIleHesapla = false;
+            KaymaMiktari = kaymaMiktari;
+            KaymayiDahilEt = kaymaMiktari != 0.0;
+            return this;
         }
 
         /// <summary>
-        /// Set fixed position size for lots
+        /// Set bakiye parametreleri
         /// </summary>
-        public void SabitLotAyarla(double lotSayisi)
+        public PozisyonBuyuklugu SetBakiyeParams(double ilkBakiye = 100000.0, double ilkBakiyePuan = 0.0)
         {
-            LotSayisi = lotSayisi;
-            SabitMiktarKullan = true;
-            BakiyeIleHesapla = false;
-            RiskIleHesapla = false;
+            IlkBakiyeFiyat = ilkBakiye;
+            IlkBakiyePuan = ilkBakiyePuan;
+            return this;
         }
 
+        // ====================================================================
+        // MarketTypes enum sırasına göre SetKontratParams methodları
+        // ====================================================================
+
         /// <summary>
-        /// Set fixed position size for stocks
+        /// BistEndex (0) için kontrat parametrelerini ayarla
         /// </summary>
-        public void SabitHisseAyarla(int hisseSayisi)
+        public PozisyonBuyuklugu SetKontratParamsBistEndex(double hisseSayisi = 1000.0, double varlikAdedCarpani = 1.0)
         {
+            MarketType = MarketTypes.BistEndex;
             HisseSayisi = hisseSayisi;
-            SabitMiktarKullan = true;
-            BakiyeIleHesapla = false;
-            RiskIleHesapla = false;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = HisseSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
         }
 
         /// <summary>
-        /// Set proportional position sizing based on balance percentage
+        /// BistHisse (1) için kontrat parametrelerini ayarla
         /// </summary>
-        public void OranliPozisyonAyarla(double pozisyonOrani)
+        public PozisyonBuyuklugu SetKontratParamsBistHisse(double hisseSayisi = 1000.0, double varlikAdedCarpani = 1.0)
         {
-            PozisyonOrani = pozisyonOrani;
-            OranliPozisyonBuyuklugu = true;
-            SabitPozisyonBuyuklugu = false;
-            BakiyeIleHesapla = true;
-            SabitMiktarKullan = false;
+            MarketType = MarketTypes.BistHisse;
+            HisseSayisi = hisseSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = HisseSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
         }
 
         /// <summary>
-        /// Set risk-based position sizing
+        /// BistParite (2) için kontrat parametrelerini ayarla
         /// </summary>
-        public void RiskBazliPozisyonAyarla(double riskOrani)
+        public PozisyonBuyuklugu SetKontratParamsBistParite(double hisseSayisi = 1000.0, double varlikAdedCarpani = 1.0)
         {
-            RiskOrani = riskOrani;
-            RiskIleHesapla = true;
-            SabitMiktarKullan = false;
+            MarketType = MarketTypes.BistParite;
+            HisseSayisi = hisseSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = HisseSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// BistMetal (3) için kontrat parametrelerini ayarla
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsBistMetal(double hisseSayisi = 1000.0, double varlikAdedCarpani = 1.0)
+        {
+            MarketType = MarketTypes.BistMetal;
+            HisseSayisi = hisseSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = HisseSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// ViopEndex (4) için kontrat parametrelerini ayarla
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsViopEndex(double kontratSayisi = 1.0, double varlikAdedCarpani = 10.0)
+        {
+            MarketType = MarketTypes.ViopEndex;
+            KontratSayisi = kontratSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = KontratSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// ViopHisse (5) için kontrat parametrelerini ayarla
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsViopHisse(double kontratSayisi = 1.0, double varlikAdedCarpani = 100.0)
+        {
+            MarketType = MarketTypes.ViopHisse;
+            KontratSayisi = kontratSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = KontratSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// ViopParite (6) için kontrat parametrelerini ayarla
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsViopParite(double kontratSayisi = 1.0, double varlikAdedCarpani = 1000.0)
+        {
+            MarketType = MarketTypes.ViopParite;
+            KontratSayisi = kontratSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = KontratSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// ViopMetal (7) için kontrat parametrelerini ayarla
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsViopMetal(double kontratSayisi = 1.0, double varlikAdedCarpani = 1.0)
+        {
+            MarketType = MarketTypes.ViopMetal;
+            KontratSayisi = kontratSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = KontratSayisi;
+            GetiriFiyatTipi = "TL";
+            MicroLotSizeEnabled = false;
+            return this;
+        }
+
+        /// <summary>
+        /// FxEndex (8) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsFxEndex(double lotSayisi = 1.0, double varlikAdedCarpani = 100000.0)
+        {
+            MarketType = MarketTypes.FxEndex;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// FxHisse (9) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsFxHisse(double lotSayisi = 1.0, double varlikAdedCarpani = 100000.0)
+        {
+            MarketType = MarketTypes.FxHisse;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// FxParite (10) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsFxParite(double lotSayisi = 1.0, double varlikAdedCarpani = 100000.0)
+        {
+            MarketType = MarketTypes.FxParite;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// FxMetal (11) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsFxMetal(double lotSayisi = 1.0, double varlikAdedCarpani = 100000.0)
+        {
+            MarketType = MarketTypes.FxMetal;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// FxCrypto (12) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsFxCrypto(double lotSayisi = 1.0, double varlikAdedCarpani = 1.0)
+        {
+            MarketType = MarketTypes.FxCrypto;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
+        }
+
+        /// <summary>
+        /// Crypto (13) için kontrat parametrelerini ayarla
+        /// Micro lot desteği aktif (0.01, 0.1 gibi kesirli lotlar)
+        /// </summary>
+        public PozisyonBuyuklugu SetKontratParamsCrypto(double lotSayisi = 1.0, double varlikAdedCarpani = 1.0)
+        {
+            MarketType = MarketTypes.Crypto;
+            LotSayisi = lotSayisi;
+            VarlikAdedCarpani = varlikAdedCarpani;
+            VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+            KomisyonVarlikAdedSayisi = LotSayisi;
+            GetiriFiyatTipi = "$";
+            MicroLotSizeEnabled = true;
+            return this;
         }
 
         #endregion

@@ -51,14 +51,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Position Size
 
-        public List<int> KontratSayisiList { get; set; }
-        public List<int> VarlikAdedSayisiList { get; set; }
+        public List<double> KontratSayisiList { get; set; }
+        public List<double> VarlikAdedSayisiList { get; set; }
 
         #endregion
 
         #region Commission
 
-        public List<int> KomisyonVarlikAdedSayisiList { get; set; }
+        public List<double> KomisyonVarlikAdedSayisiList { get; set; }
         public List<int> KomisyonIslemSayisiList { get; set; }
         public List<double> KomisyonFiyatList { get; set; }
 
@@ -145,10 +145,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             FlatSayisiList = new List<int>();
             PassSayisiList = new List<int>();
 
-            KontratSayisiList = new List<int>();
-            VarlikAdedSayisiList = new List<int>();
+            KontratSayisiList = new List<double>();
+            VarlikAdedSayisiList = new List<double>();
 
-            KomisyonVarlikAdedSayisiList = new List<int>();
+            KomisyonVarlikAdedSayisiList = new List<double>();
             KomisyonIslemSayisiList = new List<int>();
             KomisyonFiyatList = new List<double>();
 
@@ -281,10 +281,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 FlatSayisiList = new List<int>(new int[barCount]);
                 PassSayisiList = new List<int>(new int[barCount]);
 
-                KontratSayisiList = new List<int>(new int[barCount]);
-                VarlikAdedSayisiList = new List<int>(new int[barCount]);
+                KontratSayisiList = new List<double>(new double[barCount]);
+                VarlikAdedSayisiList = new List<double>(new double[barCount]);
 
-                KomisyonVarlikAdedSayisiList = new List<int>(new int[barCount]);
+                KomisyonVarlikAdedSayisiList = new List<double>(new double[barCount]);
                 KomisyonIslemSayisiList = new List<int>(new int[barCount]);
                 KomisyonFiyatList = new List<double>(new double[barCount]);
 

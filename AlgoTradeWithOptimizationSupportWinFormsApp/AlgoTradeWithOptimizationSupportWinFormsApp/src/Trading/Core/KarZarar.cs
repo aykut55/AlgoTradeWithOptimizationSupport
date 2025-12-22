@@ -147,6 +147,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             return result;
         }
+        /// <summary>
+        /// Anlık kar/zarar hesaplama - Normal version (BIST, VIOP için)
+        /// Integer varlık adedi kullanır
+        /// </summary>
         private double anlikKarZararHesapla(int barIndex, string type = "C")
         {
             // Validate dependencies
@@ -165,7 +169,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             bool anlikKarZararHesaplaEnabled = Flags.AnlikKarZararHesaplaEnabled;
             string sonYon = Signals.SonYon;
             double sonFiyat = Signals.SonFiyat;
-            int varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedi;
+            double varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedSayisi; // Normal version - integer based
 
             if (!anlikKarZararHesaplaEnabled)
                 return result;
@@ -192,9 +196,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 if (sonFiyat != 0)
                     Status.KarZararFiyatYuzde = 100.0 * Status.KarZararPuan / sonFiyat;
                 else
-                    Status.KarZararFiyatYuzde = 0.0;                            // KarZararPuanYuzde
+                    Status.KarZararFiyatYuzde = 0.0;
 
-                Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;    // KarZararPuanYuzdeList
+                Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;
 
                 Status.KarZararPuanYuzde = Status.KarZararFiyatYuzde;
                 Lists.KarZararPuanYuzdeList[i] = Status.KarZararPuanYuzde;
@@ -236,6 +240,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             return result;
         }
+        /// <summary>
+        /// Anlık kar/zarar hesaplama - Micro version (FX, Crypto için)
+        /// Kesirli varlık adedi (0.01 lot, 0.1 lot, vb.) kullanır
+        /// </summary>
         private double anlikKarZararHesaplaMicro(int barIndex, string type = "C")
         {
             // Validate dependencies
@@ -254,7 +262,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             bool anlikKarZararHesaplaEnabled = Flags.AnlikKarZararHesaplaEnabled;
             string sonYon = Signals.SonYon;
             double sonFiyat = Signals.SonFiyat;
-            int varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedi;
+            double varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedSayisiMicro; // Micro version - fractional based
 
             if (!anlikKarZararHesaplaEnabled)
                 return result;
@@ -284,6 +292,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                     Status.KarZararFiyatYuzde = 0.0;
 
                 Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;
+
+                Status.KarZararPuanYuzde = Status.KarZararFiyatYuzde;
+                Lists.KarZararPuanYuzdeList[i] = Status.KarZararPuanYuzde;
             }
             else if (sonYon == "S")  // Short position (Sat - Sell)
             {
@@ -298,6 +309,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                     Status.KarZararFiyatYuzde = 0.0;
 
                 Lists.KarZararFiyatYuzdeList[i] = Status.KarZararFiyatYuzde;
+
+                Status.KarZararPuanYuzde = Status.KarZararFiyatYuzde;
+                Lists.KarZararPuanYuzdeList[i] = Status.KarZararPuanYuzde;
             }
 
             // Update bar count statistics

@@ -61,7 +61,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #region Commission
 
         public int KomisyonIslemSayisi { get; set; }
-        public int KomisyonVarlikAdedSayisi { get; set; }
+        public double KomisyonVarlikAdedSayisi { get; set; }  // double for micro lot support
         public double KomisyonCarpan { get; set; }
         public double KomisyonFiyat { get; set; }
 
@@ -75,10 +75,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Position Size
 
-        public int VarlikAdedSayisi { get; set; }
-        public int VarlikAdedCarpani { get; set; }
-        public int KontratSayisi { get; set; }
-        public int HisseSayisi { get; set; }
+        public double VarlikAdedSayisi { get; set; }     // double for micro lot support (0.01 lot, etc.)
+        public double VarlikAdedCarpani { get; set; }    // double for fractional multipliers
+        public double KontratSayisi { get; set; }        // double for fractional contracts
+        public double HisseSayisi { get; set; }          // double for fractional shares
 
         #endregion
 

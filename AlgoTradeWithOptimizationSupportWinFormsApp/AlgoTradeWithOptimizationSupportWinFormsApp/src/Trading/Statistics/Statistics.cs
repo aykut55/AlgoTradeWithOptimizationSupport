@@ -134,7 +134,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         #region Commission
 
         public int KomisyonIslemSayisi { get; set; }
-        public int KomisyonVarlikAdedSayisi { get; set; }
+        public double KomisyonVarlikAdedSayisi { get; set; }
         public double KomisyonCarpan { get; set; }
         public double KomisyonFiyat { get; set; }
         public double KomisyonFiyatYuzde { get; set; }
@@ -207,10 +207,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Asset Info
 
-        public int HisseSayisi { get; set; }
-        public int KontratSayisi { get; set; }
-        public int VarlikAdedCarpani { get; set; }
-        public int VarlikAdedSayisi { get; set; }
+        public double HisseSayisi { get; set; }
+        public double KontratSayisi { get; set; }
+        public double VarlikAdedCarpani { get; set; }
+        public double VarlikAdedSayisi { get; set; }
         public double KaymaMiktari { get; set; }
         public bool KaymayiDahilEt { get; set; }
 

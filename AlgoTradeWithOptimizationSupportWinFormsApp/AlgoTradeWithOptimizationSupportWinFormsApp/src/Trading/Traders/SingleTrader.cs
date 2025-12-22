@@ -19,27 +19,6 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 {
-    public enum MarketTypes
-    {
-        BistEndex = 0,
-        BistHisse = 1,
-        BistParite = 2,
-        BistMetal = 3,
-
-        ViopEndex = 4,
-        ViopHisse = 5,
-        ViopParite = 6,
-        ViopMetal = 7,
-
-        FxEndex = 8,
-        FxHisse = 9,
-        FxParite = 10,
-        FxMetal = 11,
-
-        FxCrypto = 12,
-        Crypto = 13
-    }
-
     /// <summary>
     /// Single trader - executes one strategy on market data
     /// </summary>
