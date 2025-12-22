@@ -11,11 +11,25 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tulip;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
 {
+    /// <summary>
+    /// Progress information for backtest execution
+    /// </summary>
+    public class BacktestProgressInfo
+    {
+        public int CurrentBar { get; set; }
+        public int TotalBars { get; set; }
+        public double PercentComplete { get; set; }
+        public string StatusMessage { get; set; }
+        public TimeSpan ElapsedTime { get; set; }
+        public TimeSpan EstimatedTimeRemaining { get; set; }
+    }
+
     /// <summary>
     /// Simple logger interface for AlgoTrader
     /// </summary>
@@ -361,6 +375,178 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Şimdilik sadece demo log yazıyoruz
 
             Log("Single Trader demo completed");
+        }
+
+        /// <summary>
+        /// Run single trader with progress reporting (async version)
+        /// </summary>
+        public async Task RunSingleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
+        {
+            if (!IsInitialized)
+            {
+                LogError("AlgoTrader not initialized!");
+                throw new InvalidOperationException("AlgoTrader not initialized");
+            }
+
+            Log("=== Running Single Trader Demo (Async) ===");
+            Log($"Processing {Data.Count} bars...");
+
+            indicators = new IndicatorManager(this.Data);
+            if (indicators == null)
+                return;
+
+            var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+            if (strategy == null)
+                return;
+            strategy.OnInit();
+
+            singleTrader = new SingleTrader(this.Data, indicators, strategy);
+            if (singleTrader == null)
+                return;
+
+            if (Logger != null)
+                singleTrader.SetLogger(Logger);
+
+            // Setup
+            singleTrader.CreateModules();
+            singleTrader.Reset();
+
+            singleTrader.signals.AlEnabled = false;
+            singleTrader.signals.SatEnabled = false;
+            singleTrader.signals.FlatOlEnabled = false;
+            singleTrader.signals.PasGecEnabled = false;
+            singleTrader.signals.KarAlEnabled = false;
+            singleTrader.signals.ZararKesEnabled = false;
+            singleTrader.signals.Alindi = false;
+            singleTrader.signals.Satildi = false;
+            singleTrader.signals.FlatOlundu = false;
+            singleTrader.signals.PasGecildi = false;
+            singleTrader.signals.KarAlindi = false;
+            singleTrader.signals.ZararKesildi = false;
+            singleTrader.signals.PozAcilabilir = false;
+            singleTrader.signals.PozAcildi = false;
+            singleTrader.signals.PozKapatilabilir = false;
+            singleTrader.signals.PozKapatildi = false;
+            singleTrader.signals.PozAcilabilirAlis = false;
+            singleTrader.signals.PozAcilabilirSatis = false;
+            singleTrader.signals.PozAcildiAlis = false;
+            singleTrader.signals.PozAcildiSatis = false;
+            singleTrader.signals.GunSonuPozKapatEnabled = false;
+            singleTrader.signals.GunSonuPozKapatildi = false;
+            singleTrader.signals.TimeFilteringEnabled = false;
+            singleTrader.signals.IsTradeEnabled = false;
+            singleTrader.signals.IsPozKapatEnabled = false;
+
+            singleTrader.IlkBakiyeFiyat = 100000.0;
+            singleTrader.SonBakiyeFiyat = 0.0;
+            singleTrader.NetBakiyeFiyat = 0.0;
+
+            singleTrader.MarketType = MarketTypes.ViopEndex;
+            if (singleTrader.MarketType == MarketTypes.ViopEndex)
+            {
+                singleTrader.KontratSayisi = 1;
+                singleTrader.VarlikAdedCarpani = 10;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+            if (singleTrader.MarketType == MarketTypes.ViopHisse)
+            {
+                singleTrader.KontratSayisi = 1;
+                singleTrader.VarlikAdedCarpani = 100;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+            if (singleTrader.MarketType == MarketTypes.ViopParite)
+            {
+                singleTrader.KontratSayisi = 1;
+                singleTrader.VarlikAdedCarpani = 1000;
+                singleTrader.VarlikAdedSayisi = singleTrader.KontratSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.KontratSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+            if (singleTrader.MarketType == MarketTypes.BistHisse)
+            {
+                singleTrader.HisseSayisi = 1000;
+                singleTrader.VarlikAdedCarpani = 1;
+                singleTrader.VarlikAdedSayisi = singleTrader.HisseSayisi * singleTrader.VarlikAdedCarpani;
+                singleTrader.KomisyonVarlikAdedSayisi = singleTrader.HisseSayisi;
+                singleTrader.KomisyonCarpan = 0.0;
+            }
+
+            singleTrader.Init();
+            singleTrader.InitModules();
+
+            // Initialize
+            this.timeManager.ResetTimer("1");
+            this.timeManager.StartTimer("1");
+            Log("Single Trader - Initialize (~10 ms)");
+            singleTrader.Initialize(0);
+            this.timeManager.StopTimer("1");
+
+            // Run with progress reporting
+            this.timeManager.ResetTimer("2");
+            this.timeManager.StartTimer("2");
+            Log("Single Trader - Run (~100 ms)");
+
+            int totalBars = Data.Count;
+            var startTime = DateTime.Now;
+
+            Log($"Starting async backtest: {totalBars} bars total");
+
+            await Task.Run(() =>
+            {
+                for (int i = 0; i < totalBars; i++)
+                {
+                    singleTrader.Run(i);
+
+                    // Report progress every 10 bars or on last bar (more frequent updates)
+                    if (progress != null && (i % 10 == 0 || i == totalBars - 1))
+                    {
+                        var elapsed = DateTime.Now - startTime;
+                        double percentComplete = (double)(i + 1) / totalBars * 100.0;
+                        double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
+                        int remainingBars = totalBars - (i + 1);
+                        TimeSpan estimatedRemaining = barsPerSecond > 0
+                            ? TimeSpan.FromSeconds(remainingBars / barsPerSecond)
+                            : TimeSpan.Zero;
+
+                        var progressInfo = new BacktestProgressInfo
+                        {
+                            CurrentBar = i + 1,
+                            TotalBars = totalBars,
+                            PercentComplete = percentComplete,
+                            StatusMessage = $"Processing bar {i + 1}/{totalBars}",
+                            ElapsedTime = elapsed,
+                            EstimatedTimeRemaining = estimatedRemaining
+                        };
+
+                        progress.Report(progressInfo);
+                    }
+                }
+            });
+
+            Log("Async backtest Task.Run completed");
+
+            this.timeManager.StopTimer("2");
+
+            // Finalize
+            this.timeManager.ResetTimer("3");
+            this.timeManager.StartTimer("3");
+            Log("Single Trader - Finalize (~10 ms)");
+            singleTrader.Finalize(0);
+            this.timeManager.StopTimer("3");
+
+            var t1 = this.timeManager.GetElapsedTime("1");
+            var t2 = this.timeManager.GetElapsedTime("2");
+            var t3 = this.timeManager.GetElapsedTime("3");
+
+            Log($"t1 = {t1} msec...");
+            Log($"t2 = {t2} msec...");
+            Log($"t3 = {t3} msec...");
+
+            Log("Single Trader demo completed (Async)");
         }
 
         public void RunMultipleTraderDemoSilinecek()

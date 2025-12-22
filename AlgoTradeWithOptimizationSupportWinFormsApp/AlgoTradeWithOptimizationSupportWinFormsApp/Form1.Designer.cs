@@ -148,6 +148,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
+            progressBarSingleTrader = new ProgressBar();
+            lblSingleTraderProgress = new Label();
+            button1 = new Button();
             richTextBoxSingleTrader = new RichTextBox();
             btnTestAlgoTrader = new Button();
             tabPageMultipleTraders = new TabPage();
@@ -156,7 +159,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
-            button1 = new Button();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -1144,6 +1146,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel4
             // 
+            panel4.Controls.Add(progressBarSingleTrader);
+            panel4.Controls.Add(lblSingleTraderProgress);
             panel4.Controls.Add(button1);
             panel4.Controls.Add(richTextBoxSingleTrader);
             panel4.Controls.Add(btnTestAlgoTrader);
@@ -1151,6 +1155,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Name = "panel4";
             panel4.Size = new Size(1222, 717);
             panel4.TabIndex = 0;
+            // 
+            // progressBarSingleTrader
+            // 
+            progressBarSingleTrader.Location = new Point(917, 45);
+            progressBarSingleTrader.Name = "progressBarSingleTrader";
+            progressBarSingleTrader.Size = new Size(48, 23);
+            progressBarSingleTrader.TabIndex = 4;
+            // 
+            // lblSingleTraderProgress
+            // 
+            lblSingleTraderProgress.AutoSize = true;
+            lblSingleTraderProgress.Location = new Point(971, 53);
+            lblSingleTraderProgress.Name = "lblSingleTraderProgress";
+            lblSingleTraderProgress.Size = new Size(48, 15);
+            lblSingleTraderProgress.TabIndex = 3;
+            lblSingleTraderProgress.Text = "Ready...";
+            // 
+            // button1
+            // 
+            button1.Location = new Point(780, 16);
+            button1.Name = "button1";
+            button1.Size = new Size(131, 23);
+            button1.TabIndex = 2;
+            button1.Text = "Read StockData";
+            button1.UseVisualStyleBackColor = true;
+            button1.Click += BtnReadStockData_Click;
             // 
             // richTextBoxSingleTrader
             // 
@@ -1168,7 +1198,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnTestAlgoTrader.TabIndex = 0;
             btnTestAlgoTrader.Text = "Test AlgoTrader";
             btnTestAlgoTrader.UseVisualStyleBackColor = true;
-            btnTestAlgoTrader.Click += btnTestAlgoTrader_Click;
+            btnTestAlgoTrader.Click += this.btnTestAlgoTrader_Click;
             // 
             // tabPageMultipleTraders
             // 
@@ -1197,16 +1227,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // openFileDialog2
             // 
             openFileDialog2.FileName = "openFileDialog1";
-            // 
-            // button1
-            // 
-            button1.Location = new Point(780, 16);
-            button1.Name = "button1";
-            button1.Size = new Size(131, 23);
-            button1.TabIndex = 2;
-            button1.Text = "Read StockData";
-            button1.UseVisualStyleBackColor = true;
-            button1.Click += BtnReadStockData_Click;
             // 
             // Form1
             // 
@@ -1246,6 +1266,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.PerformLayout();
             tabPageSingleTrader.ResumeLayout(false);
             panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1385,5 +1406,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button btnTestAlgoTrader;
         private RichTextBox richTextBoxSingleTrader;
         private Button button1;
+        private Label lblSingleTraderProgress;
+        private ProgressBar progressBarSingleTrader;
     }
 }
