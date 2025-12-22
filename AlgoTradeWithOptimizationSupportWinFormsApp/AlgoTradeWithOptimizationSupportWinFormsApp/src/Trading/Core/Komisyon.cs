@@ -103,6 +103,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             return this;
         }
 
+        public Komisyon InitOrReuse()
+        {
+            // No internal buffers to allocate; reuse
+            return this;
+        }
+
         /// <summary>
         /// Komisyon hesapla - Normal ve Micro lot desteği ile
         /// </summary>

@@ -108,6 +108,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             return this;
         }
 
+        public KarZarar InitOrReuse(SingleTrader trader)
+        {
+            // Rebind dependencies if needed; no allocations here
+            return Init(trader);
+        }
+
         /// <summary>
         /// Initialize with individual dependencies (for advanced use)
         /// </summary>

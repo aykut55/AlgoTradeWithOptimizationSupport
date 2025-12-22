@@ -79,9 +79,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             Margin = 0;
         }
 
-        public void Init()
-        {
+        public void Init() { }
 
+        public Bakiye InitOrReuse()
+        {
+            // Nothing to allocate; reuse current state
+            return this;
         }
 
         public int Hesapla(int BarIndex)

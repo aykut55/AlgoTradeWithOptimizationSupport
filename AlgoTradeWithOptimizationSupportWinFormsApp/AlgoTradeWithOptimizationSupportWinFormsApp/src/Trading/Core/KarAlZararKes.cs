@@ -110,8 +110,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// <summary>
         /// Initialize - Does nothing currently but returns this for method chaining
         /// </summary>
-        public KarAlZararKes Init()
+        public KarAlZararKes Init() { return this; }
+
+        public KarAlZararKes InitOrReuse()
         {
+            // No buffers; reuse
             return this;
         }
 

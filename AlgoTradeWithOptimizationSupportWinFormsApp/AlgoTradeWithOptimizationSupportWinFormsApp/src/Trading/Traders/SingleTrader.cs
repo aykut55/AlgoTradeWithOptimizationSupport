@@ -332,7 +332,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             status.Init();
 
             flags.Init();
-            lists.Init(_data.Count);
+            lists.InitOrReuse(_data.Count);
 
             timeUtils.Init();
             karZarar.Init(this);

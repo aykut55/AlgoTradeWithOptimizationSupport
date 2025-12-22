@@ -255,6 +255,90 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             CreateLists(barCount);
             return this;
         }
+
+        // Initialize lists with given size, but reuse existing buffers if size matches.
+        // When sizes match, only zero/fill defaults without reallocating.
+        public Lists InitOrReuse(int barCount)
+        {
+            if (barCount <= 0)
+            {
+                ClearAllLists();
+                return this;
+            }
+
+            if (BarCount == barCount &&
+                BarIndexList != null && BarIndexList.Count == BarCount)
+            {
+                ZeroFillValues();
+                return this;
+            }
+
+            CreateLists(barCount);
+            return this;
+        }
+
+        private void ZeroFillValues()
+        {
+            int n = BarCount;
+            // Guard in case lists are not created yet
+            if (n <= 0) return;
+
+            for (int i = 0; i < n; i++)
+            {
+                if (BarIndexList != null && BarIndexList.Count == n) BarIndexList[i] = 0;
+                if (YonList != null && YonList.Count == n) YonList[i] = "";
+                if (SeviyeList != null && SeviyeList.Count == n) SeviyeList[i] = 0.0;
+                if (SinyalList != null && SinyalList.Count == n) SinyalList[i] = 0.0;
+
+                if (KarZararPuanList != null && KarZararPuanList.Count == n) KarZararPuanList[i] = 0.0;
+                if (KarZararFiyatList != null && KarZararFiyatList.Count == n) KarZararFiyatList[i] = 0.0;
+                if (KarZararPuanYuzdeList != null && KarZararPuanYuzdeList.Count == n) KarZararPuanYuzdeList[i] = 0.0;
+                if (KarZararFiyatYuzdeList != null && KarZararFiyatYuzdeList.Count == n) KarZararFiyatYuzdeList[i] = 0.0;
+
+                if (KarAlList != null && KarAlList.Count == n) KarAlList[i] = false;
+                if (IzleyenStopList != null && IzleyenStopList.Count == n) IzleyenStopList[i] = 0.0;
+
+                if (IslemSayisiList != null && IslemSayisiList.Count == n) IslemSayisiList[i] = 0;
+                if (AlisSayisiList != null && AlisSayisiList.Count == n) AlisSayisiList[i] = 0;
+                if (SatisSayisiList != null && SatisSayisiList.Count == n) SatisSayisiList[i] = 0;
+                if (FlatSayisiList != null && FlatSayisiList.Count == n) FlatSayisiList[i] = 0;
+                if (PassSayisiList != null && PassSayisiList.Count == n) PassSayisiList[i] = 0;
+
+                if (KontratSayisiList != null && KontratSayisiList.Count == n) KontratSayisiList[i] = 0.0;
+                if (VarlikAdedSayisiList != null && VarlikAdedSayisiList.Count == n) VarlikAdedSayisiList[i] = 0.0;
+
+                if (KomisyonVarlikAdedSayisiList != null && KomisyonVarlikAdedSayisiList.Count == n) KomisyonVarlikAdedSayisiList[i] = 0.0;
+                if (KomisyonIslemSayisiList != null && KomisyonIslemSayisiList.Count == n) KomisyonIslemSayisiList[i] = 0;
+                if (KomisyonFiyatList != null && KomisyonFiyatList.Count == n) KomisyonFiyatList[i] = 0.0;
+
+                if (KardaBarSayisiList != null && KardaBarSayisiList.Count == n) KardaBarSayisiList[i] = 0;
+                if (ZarardaBarSayisiList != null && ZarardaBarSayisiList.Count == n) ZarardaBarSayisiList[i] = 0;
+
+                if (BakiyePuanList != null && BakiyePuanList.Count == n) BakiyePuanList[i] = 0.0;
+                if (BakiyeFiyatList != null && BakiyeFiyatList.Count == n) BakiyeFiyatList[i] = 0.0;
+
+                if (GetiriPuanList != null && GetiriPuanList.Count == n) GetiriPuanList[i] = 0.0;
+                if (GetiriFiyatList != null && GetiriFiyatList.Count == n) GetiriFiyatList[i] = 0.0;
+                if (GetiriPuanYuzdeList != null && GetiriPuanYuzdeList.Count == n) GetiriPuanYuzdeList[i] = 0.0;
+                if (GetiriFiyatYuzdeList != null && GetiriFiyatYuzdeList.Count == n) GetiriFiyatYuzdeList[i] = 0.0;
+
+                if (BakiyePuanNetList != null && BakiyePuanNetList.Count == n) BakiyePuanNetList[i] = 0.0;
+                if (BakiyeFiyatNetList != null && BakiyeFiyatNetList.Count == n) BakiyeFiyatNetList[i] = 0.0;
+
+                if (GetiriPuanNetList != null && GetiriPuanNetList.Count == n) GetiriPuanNetList[i] = 0.0;
+                if (GetiriFiyatNetList != null && GetiriFiyatNetList.Count == n) GetiriFiyatNetList[i] = 0.0;
+                if (GetiriPuanYuzdeNetList != null && GetiriPuanYuzdeNetList.Count == n) GetiriPuanYuzdeNetList[i] = 0.0;
+                if (GetiriFiyatYuzdeNetList != null && GetiriFiyatYuzdeNetList.Count == n) GetiriFiyatYuzdeNetList[i] = 0.0;
+
+                if (GetiriKz != null && GetiriKz.Count == n) GetiriKz[i] = 0.0;
+                if (GetiriKzNet != null && GetiriKzNet.Count == n) GetiriKzNet[i] = 0.0;
+                if (GetiriKzSistem != null && GetiriKzSistem.Count == n) GetiriKzSistem[i] = 0.0;
+                if (GetiriKzNetSistem != null && GetiriKzNetSistem.Count == n) GetiriKzNetSistem[i] = 0.0;
+
+                if (EmirKomutList != null && EmirKomutList.Count == n) EmirKomutList[i] = 0.0;
+                if (EmirStatusList != null && EmirStatusList.Count == n) EmirStatusList[i] = 0.0;
+            }
+        }
         public void CreateLists(int barCount)
         {
             BarCount = barCount;

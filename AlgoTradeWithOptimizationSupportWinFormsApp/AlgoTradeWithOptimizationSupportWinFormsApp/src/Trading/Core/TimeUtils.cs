@@ -91,8 +91,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// <summary>
         /// Initialize time utils - Does nothing currently but returns this for method chaining
         /// </summary>
-        public TimeUtils Init()
+        public TimeUtils Init() { return this; }
+
+        public TimeUtils InitOrReuse()
         {
+            // Stateless; nothing to allocate
             return this;
         }
 

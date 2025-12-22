@@ -178,6 +178,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             return this;
         }
 
+        public PozisyonBuyuklugu InitOrReuse()
+        {
+            // No internal buffers; reuse
+            return this;
+        }
+
         /// <summary>
         /// Set market type and automatically configure position size parameters
         /// </summary>
