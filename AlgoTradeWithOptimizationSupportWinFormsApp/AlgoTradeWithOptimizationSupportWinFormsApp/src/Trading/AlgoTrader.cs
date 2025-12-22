@@ -331,10 +331,7 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("1");
             this.timeManager.StartTimer("1");
             Log("Single Trader - Initialize (~10 ms)");
-            for (int i = 0; i < Data.Count; i++)
-            {
-                singleTrader.Initialize(i);
-            }
+            singleTrader.Initialize(0);
             this.timeManager.StopTimer("1");
 
             this.timeManager.ResetTimer("2");
@@ -349,10 +346,7 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
             Log("Single Trader - Finalize (~10 ms)");
-            for (int i = 0; i < Data.Count; i++)
-            {
-                singleTrader.Finalize(i);
-            }
+            singleTrader.Finalize(0);
             this.timeManager.StopTimer("3");
 
             var t1 = this.timeManager.GetElapsedTime("1");

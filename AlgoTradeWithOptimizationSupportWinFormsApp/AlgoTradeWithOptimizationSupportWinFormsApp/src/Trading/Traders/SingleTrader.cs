@@ -781,7 +781,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public void emir_sonrasi_dongu_foksiyonlarini_calistir(int i)
         {
-            this.signals.GunSonuPozKapatildi = this.gun_sonu_poz_kapat(i, this.signals.GunSonuPozKapatEnabled);            
+            // TODO : Cok yavas calisiyor...
+            // this.signals.GunSonuPozKapatildi = this.gun_sonu_poz_kapat(i, this.signals.GunSonuPozKapatEnabled);            
 
             emirleri_uygula(i);
 

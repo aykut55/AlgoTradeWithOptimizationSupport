@@ -197,6 +197,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     {
                         if (_metrics.TotalIterations % 10 == 0)
                         {
+                            /*
                             LogManager.LogInfo($"MainLoop: Iteration {_metrics.TotalIterations} completed - " +
                                 $"Runtime: {_metrics.TotalRuntime.TotalSeconds:F1}s, " +
                                 $"Last iteration: {_metrics.LastIterationTime.TotalMilliseconds:F2}ms");
@@ -213,6 +214,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                                 $"WriteDataToFiles: {TimeManager.Instance.GetElapsedTime("WriteDataToFiles")}ms | " +
                                 $"UpdateGui: {TimeManager.Instance.GetElapsedTime("UpdateGui")}ms";
                             LogManager.LogDebug(timings);
+                            */
                         }
 
                         // Her 100 iterasyonda bir LogManager buffer'ını temizle
