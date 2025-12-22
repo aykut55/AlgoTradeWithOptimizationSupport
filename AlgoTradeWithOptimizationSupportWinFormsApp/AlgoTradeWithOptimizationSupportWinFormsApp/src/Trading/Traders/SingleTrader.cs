@@ -30,7 +30,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public override List<StockData> Data => _data;
 
         public IndicatorManager Indicators { get; private set; }
-        public IStrategy Strategy { get; private set; }
+        public IStrategy? Strategy { get; private set; }
         public Position Position { get; private set; }
         public Bakiye Bakiye { get; private set; }
         public int CurrentIndex { get; private set; }
@@ -160,12 +160,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
 
         // Parametreli constructor (yeni kullanım)
-        public SingleTrader(int id, List<StockData> data, IndicatorManager indicators, BaseStrategy strategy, IAlgoTraderLogger? logger)
+        public SingleTrader(int id, List<StockData> data, IndicatorManager indicators, IAlgoTraderLogger? logger, BaseStrategy? strategy = null)
         {
             // Set data, indicators and strategy
             _data = data;
             Indicators = indicators;
-            Strategy = strategy;
+
+            Strategy = null;
+            if (strategy is not null)
+                SetStrategy(strategy);
+
             CurrentIndex = 0;
             Id = id;
 

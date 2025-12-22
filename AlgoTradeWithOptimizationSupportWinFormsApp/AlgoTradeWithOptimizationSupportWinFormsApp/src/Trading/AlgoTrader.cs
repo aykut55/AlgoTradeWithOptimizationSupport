@@ -12,6 +12,7 @@ using MathNet.Numerics.Distributions;
 using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Tulip;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -264,7 +265,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
             strategy.OnInit();
 
-            singleTrader = new SingleTrader(0, this.Data, indicators, strategy, Logger);
+            singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
             if (singleTrader == null)
                 return;
 
@@ -433,15 +434,10 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             if (indicators == null)
                 return;
 
-            var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
-            if (strategy == null)
-                return;
-            strategy.OnInit();
-
             // *****************************************************************************
             // *****************************************************************************
             // *****************************************************************************
-            singleTrader = new SingleTrader(0, this.Data, indicators, strategy, Logger);
+            singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
             if (singleTrader == null)
                 return;
 
@@ -450,6 +446,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             // Setup (order is important)
             singleTrader.CreateModules();
+
+            // Tekrar Turlar(Optimizasyon için her parametre setinde)
+
+            // Strategy Setup
+            var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+            if (strategy == null)
+                return;
+            strategy.OnInit();
+            singleTrader.SetStrategy(strategy);
 
             // Reset
             singleTrader.Reset();
@@ -548,6 +553,8 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log($"t3 = {t3} msec...");
 
             Log("Single Trader demo completed (Async)");
+
+            // Tekrar Turlar(Optimizasyon için her parametre setinde)
 
             singleTrader.Dispose(); 
             singleTrader = null;
