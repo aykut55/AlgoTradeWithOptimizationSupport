@@ -49,6 +49,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         // Generic callback after emirleri_uygula is executed for a bar index
         public Action<SingleTrader, int>? OnBeforeOrdersCallback; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
 
+        // User flags configurator: assign once; invoked after Reset to re-apply user-controlled flags
+        public Action<SingleTrader>? OnApplyUserFlags;
+
         // Callback hooks
         // New compact notifier: sender + current Sinyal string
         public Action<SingleTrader, string, int>? OnNotifyStrategySignal;
@@ -391,7 +394,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             Action<SingleTrader, int>? onBeforeOrders = null,
             Action<SingleTrader, string, int>? onNotifySignal = null,
             Action<SingleTrader, int>? onAfterOrders = null,
-            Action<SingleTrader, int, int>? onProgress = null)
+            Action<SingleTrader, int, int>? onProgress = null,
+            Action<SingleTrader>? onApplyUserFlags = null)
         {
             if (onReset != null) OnReset = onReset;
             if (onInit != null) OnInit = onInit;
@@ -401,6 +405,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (onAfterOrders != null) OnAfterOrdersCallback = onAfterOrders;
             if (onNotifySignal != null) OnNotifyStrategySignal = onNotifySignal;
             if (onProgress != null) OnProgress = onProgress;
+            if (onApplyUserFlags != null) OnApplyUserFlags = onApplyUserFlags;
 
             return this;
         }
@@ -410,19 +415,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (_data == null || _data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty");
 
+            // Notify external reset subscribers after state is clean and user flags applied
             OnReset?.Invoke(this, 0);
 
+            // Reset internal modules (state only)
             ResetModules();
 
-            /*this.BuySignalEnabled = false;
-            this.SellSignalEnabled = false;
-            this.TakeProfitSignalEnabled = false;
-            this.StopLossSignalEnabled = false;
-            this.FlatSignalEnabled = false;
-            this.SkipSignalEnabled = false;*/
+            // Re-apply user-defined flags after internal resets
+            OnApplyUserFlags?.Invoke(this);
 
             CurrentIndex = 0;
 
+            // Notify external reset subscribers after state is clean and user flags applied
             OnReset?.Invoke(this, 1);
 
             return this;
@@ -445,6 +449,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (_data == null || _data.Count == 0)
                 throw new ArgumentException("Data cannot be null or empty");
 
+            // First All Reset
             this.signals.AlEnabled = false;
             this.signals.SatEnabled = false;
             this.signals.FlatOlEnabled = false;
@@ -471,14 +476,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.IsTradeEnabled = false;
             this.signals.IsPozKapatEnabled = false;
 
+            // Then Needed Set
+            this.signals.AlEnabled = true;
+            this.signals.SatEnabled = true;
+            this.signals.FlatOlEnabled = true;
+            this.signals.PasGecEnabled = true;
+            this.signals.KarAlEnabled = true;
+            this.signals.ZararKesEnabled = true;
+            this.signals.GunSonuPozKapatEnabled = true;
+            this.signals.TimeFilteringEnabled = true;
+
             return this;
         }
 
-        public SingleTrader Initialize(int i)
+        public SingleTrader Initialize()
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
-
+/*
             // Busekilde setlenmesi/resetlenmesi gerekiyor
             this.signals.AlEnabled = true;
             this.signals.SatEnabled = true;
@@ -488,6 +503,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.ZararKesEnabled = true;
             this.signals.GunSonuPozKapatEnabled = true;
             this.signals.TimeFilteringEnabled = true;
+
+            // Re-apply user flags if user wants to override defaults set in Initialize
+            OnApplyUserFlags?.Invoke(this);
+*/
 
             return this;
         }
@@ -1322,7 +1341,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             OnRun?.Invoke(this, 1);
         }
 
-        public void Finalize(int i)
+        public void Finalize()
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");

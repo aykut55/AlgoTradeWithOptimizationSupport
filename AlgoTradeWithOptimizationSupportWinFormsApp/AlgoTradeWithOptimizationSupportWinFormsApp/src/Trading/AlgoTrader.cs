@@ -322,7 +322,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("1");
             this.timeManager.StartTimer("1");
             Log("Single Trader - Initialize (~10 ms)");
-            singleTrader.Initialize(0);
+            singleTrader.Initialize();
             this.timeManager.StopTimer("1");
 
             this.timeManager.ResetTimer("2");
@@ -337,7 +337,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
             Log("Single Trader - Finalize (~10 ms)");
-            singleTrader.Finalize(0);
+            singleTrader.Finalize();
             this.timeManager.StopTimer("3");
 
             var t1 = this.timeManager.GetElapsedTime("1");
@@ -406,6 +406,12 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // No-op by default
         }
 
+        private void OnApplyUserFlags(SingleTrader trader)
+        {
+            // InitializeUserControlledFlags
+            trader.ConfigureUserFlagsOnce();
+        }
+
         /// <summary>
         /// Run single trader with progress reporting (async version)
         /// </summary>
@@ -440,16 +446,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
 
             // Assign callbacks
-            singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress);
+            singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
 
             // Setup (order is important)
             singleTrader.CreateModules();
 
             // Reset
             singleTrader.Reset();
-
-            // InitializeUserControlledFlags
-            singleTrader.ConfigureUserFlagsOnce();
 
             // Configure position sizing
             singleTrader.pozisyonBuyuklugu.Reset()
@@ -473,7 +476,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("1");
             this.timeManager.StartTimer("1");
             Log("Single Trader - Initialize (~10 ms)");
-            singleTrader.Initialize(0);
+            singleTrader.Initialize();
             this.timeManager.StopTimer("1");
 
             Log("");
@@ -531,7 +534,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
             Log("Single Trader - Finalize (~10 ms)");
-            singleTrader.Finalize(0);
+            singleTrader.Finalize();
             this.timeManager.StopTimer("3");
 
             Log("");
