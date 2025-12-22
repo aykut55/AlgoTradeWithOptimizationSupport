@@ -298,20 +298,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             if (MicroLotSizeEnabled)
             {
                 VarlikAdedSayisiMicro = LotSayisi * VarlikAdedCarpani;
+                KomisyonVarlikAdedSayisiMicro = LotSayisi * VarlikAdedCarpani;
             }
             else
             {
                 if (MarketType >= MarketTypes.ViopEndex && MarketType <= MarketTypes.ViopMetal)
                 {
                     VarlikAdedSayisi = KontratSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = KontratSayisi;
                 }
                 else if (MarketType >= MarketTypes.BistEndex && MarketType <= MarketTypes.BistMetal)
                 {
                     VarlikAdedSayisi = HisseSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = HisseSayisi;
                 }
                 else // Forex, Crypto
                 {
                     VarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
+                    KomisyonVarlikAdedSayisi = LotSayisi * VarlikAdedCarpani;
                 }
             }
             return this;

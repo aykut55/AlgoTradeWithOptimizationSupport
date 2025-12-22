@@ -394,18 +394,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public void dongu_basi_degiskenleri_guncelle(int i)
         {
-            /*this.status.KomisyonVarlikAdedSayisi = this.VarlikManager.KomisyonVarlikAdedSayisi;
-            this.status.KomisyonCarpan = this.VarlikManager.KomisyonCarpan;
-            this.flags.KomisyonuDahilEt = this.VarlikManager.KomisyonuDahilEt;
-            this.status.KaymaMiktari = this.VarlikManager.KaymaMiktari;
-            this.flags.KaymayiDahilEt = this.VarlikManager.KaymayiDahilEt;
-            this.status.VarlikAdedSayisi = this.VarlikManager.VarlikAdedSayisi;
-            this.status.VarlikAdedCarpani = this.VarlikManager.VarlikAdedCarpani;
-            this.status.KontratSayisi = this.VarlikManager.KontratSayisi;
-            this.status.HisseSayisi = this.VarlikManager.HisseSayisi;
-            this.status.IlkBakiyeFiyat = this.VarlikManager.IlkBakiyeFiyat;
-            this.status.IlkBakiyePuan = sethislf.VarlikManager.IlkBakiyePuan;
-            this.status.GetiriFiyatTipi = this.VarlikManager.GetiriFiyatTipi;*/
+            this.status.KomisyonVarlikAdedSayisi = this.pozisyonBuyuklugu.KomisyonVarlikAdedSayisi;
+            this.status.KomisyonVarlikAdedSayisiMicro = this.pozisyonBuyuklugu.KomisyonVarlikAdedSayisiMicro;
+            this.status.KomisyonCarpan = this.pozisyonBuyuklugu.KomisyonCarpan;
+            this.flags.KomisyonuDahilEt = this.pozisyonBuyuklugu.KomisyonuDahilEt;
+            this.status.KaymaMiktari = this.pozisyonBuyuklugu.KaymaMiktari;
+            this.flags.KaymayiDahilEt = this.pozisyonBuyuklugu.KaymayiDahilEt;
+            this.status.VarlikAdedSayisi = this.pozisyonBuyuklugu.VarlikAdedSayisi;
+            this.status.VarlikAdedSayisiMicro = this.pozisyonBuyuklugu.VarlikAdedSayisiMicro;
+            this.status.VarlikAdedCarpani = this.pozisyonBuyuklugu.VarlikAdedCarpani;
+            this.status.KontratSayisi = this.pozisyonBuyuklugu.KontratSayisi;
+            this.status.HisseSayisi = this.pozisyonBuyuklugu.HisseSayisi;
+            this.status.IlkBakiyeFiyat = this.pozisyonBuyuklugu.IlkBakiyeFiyat;
+            this.status.IlkBakiyePuan = this.pozisyonBuyuklugu.IlkBakiyePuan;
+            this.status.GetiriFiyatTipi = this.pozisyonBuyuklugu.GetiriFiyatTipi;
+            this.MicroLotSizeEnabled = this.pozisyonBuyuklugu.MicroLotSizeEnabled;
             if (this.BakiyeInitialized == false)
             {
                 this.BakiyeInitialized = true;
