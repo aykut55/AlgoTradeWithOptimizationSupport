@@ -1161,6 +1161,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             progressBarSingleTrader.Location = new Point(917, 45);
             progressBarSingleTrader.Name = "progressBarSingleTrader";
             progressBarSingleTrader.Size = new Size(48, 23);
+            progressBarSingleTrader.Style = ProgressBarStyle.Continuous;
             progressBarSingleTrader.TabIndex = 4;
             // 
             // lblSingleTraderProgress
@@ -1198,7 +1199,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnTestAlgoTrader.TabIndex = 0;
             btnTestAlgoTrader.Text = "Test AlgoTrader";
             btnTestAlgoTrader.UseVisualStyleBackColor = true;
-            btnTestAlgoTrader.Click += this.btnTestAlgoTrader_Click;
+            btnTestAlgoTrader.Click += btnTestAlgoTrader_Click;
             // 
             // tabPageMultipleTraders
             // 

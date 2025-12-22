@@ -235,10 +235,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                 return "Not initialized";
 
             return $@"
+
 === Data Info ===
 Total Bars:   {Data.Count}
 Start Date:   {Data[0].DateTime:yyyy-MM-dd HH:mm:ss}
-End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
+End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 ";
         }
 
@@ -388,8 +389,11 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 throw new InvalidOperationException("AlgoTrader not initialized");
             }
 
+            int totalBars = Data.Count;
+
+            Log("");
             Log("=== Running Single Trader Demo (Async) ===");
-            Log($"Processing {Data.Count} bars...");
+            Log($"Processing {totalBars} bars total...");
 
             indicators = new IndicatorManager(this.Data);
             if (indicators == null)
@@ -485,15 +489,14 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.Initialize(0);
             this.timeManager.StopTimer("1");
 
+            Log("");
+
             // Run with progress reporting
             this.timeManager.ResetTimer("2");
             this.timeManager.StartTimer("2");
             Log("Single Trader - Run (~100 ms)");
 
-            int totalBars = Data.Count;
             var startTime = DateTime.Now;
-
-            Log($"Starting async backtest: {totalBars} bars total");
 
             await Task.Run(() =>
             {
@@ -527,7 +530,7 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 }
             });
 
-            Log("Async backtest Task.Run completed");
+            Log("");
 
             this.timeManager.StopTimer("2");
 
@@ -537,6 +540,8 @@ End Date:     {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("Single Trader - Finalize (~10 ms)");
             singleTrader.Finalize(0);
             this.timeManager.StopTimer("3");
+
+            Log("");
 
             var t1 = this.timeManager.GetElapsedTime("1");
             var t2 = this.timeManager.GetElapsedTime("2");

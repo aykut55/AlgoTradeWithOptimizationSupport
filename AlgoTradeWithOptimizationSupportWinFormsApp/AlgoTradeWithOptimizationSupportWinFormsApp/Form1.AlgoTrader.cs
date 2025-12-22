@@ -269,7 +269,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     // UI thread'de otomatik çalışır
                     //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = "{progressInfo.CurrentBar}/{ progressInfo.TotalBars}";
+                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
 
                     // ProgressBar varsa güncelle
                     try
@@ -304,7 +304,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     }
                 });
 
-                // Run SingleTrader with progress (ASYNC)
+                // Run SingleTrader with progress (ASYNC)                
                 await algoTrader.RunSingleTraderWithProgressAsync(progress);
 
                 if (lblSingleTraderProgress != null)
