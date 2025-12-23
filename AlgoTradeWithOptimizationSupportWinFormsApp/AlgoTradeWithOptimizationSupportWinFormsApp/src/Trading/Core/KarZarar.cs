@@ -175,7 +175,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             bool anlikKarZararHesaplaEnabled = Flags.AnlikKarZararHesaplaEnabled;
             string sonYon = Signals.SonYon;
             double sonFiyat = Signals.SonFiyat;
-            double varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedSayisi; // Normal version - integer based
+            // Dinamik lot desteği: Son açılan pozisyonun büyüklüğünü kullan
+            double varlikAdedSayisi = Signals.SonVarlikAdedSayisi;
 
             if (!anlikKarZararHesaplaEnabled)
                 return result;
@@ -268,7 +269,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             bool anlikKarZararHesaplaEnabled = Flags.AnlikKarZararHesaplaEnabled;
             string sonYon = Signals.SonYon;
             double sonFiyat = Signals.SonFiyat;
-            double varlikAdedSayisi = PozisyonBuyuklugu.VarlikAdedSayisiMicro; // Micro version - fractional based
+            // Dinamik lot desteği: Son açılan pozisyonun büyüklüğünü kullan (MICRO)
+            double varlikAdedSayisi = Signals.SonVarlikAdedSayisiMicro;
 
             if (!anlikKarZararHesaplaEnabled)
                 return result;

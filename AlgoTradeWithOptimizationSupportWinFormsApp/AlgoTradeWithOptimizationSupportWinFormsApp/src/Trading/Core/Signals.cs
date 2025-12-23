@@ -70,6 +70,34 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #endregion
 
+        #region Position Size (Pozisyon Büyüklüğü)
+
+        /// <summary>
+        /// Son açılan pozisyonun büyüklüğü - Normal lot (integer based)
+        /// Her pozisyon açıldığında güncellenir
+        /// </summary>
+        public double SonVarlikAdedSayisi { get; set; }
+
+        /// <summary>
+        /// Son açılan pozisyonun büyüklüğü - Micro lot (fractional based)
+        /// Her pozisyon açıldığında güncellenir
+        /// </summary>
+        public double SonVarlikAdedSayisiMicro { get; set; }
+
+        /// <summary>
+        /// Önceki pozisyonun büyüklüğü - Normal lot
+        /// Pozisyon değişiminde önceki değer burada saklanır
+        /// </summary>
+        public double PrevVarlikAdedSayisi { get; set; }
+
+        /// <summary>
+        /// Önceki pozisyonun büyüklüğü - Micro lot
+        /// Pozisyon değişiminde önceki değer burada saklanır
+        /// </summary>
+        public double PrevVarlikAdedSayisiMicro { get; set; }
+
+        #endregion
+
         #region Order Status
 
         public int EmirKomut { get; set; }

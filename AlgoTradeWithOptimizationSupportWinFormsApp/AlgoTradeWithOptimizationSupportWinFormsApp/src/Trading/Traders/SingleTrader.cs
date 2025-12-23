@@ -1032,6 +1032,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.PrevFiyat = this.signals.SonFiyat;
                 this.signals.PrevBarNo = this.signals.SonBarNo;
 
+                // Pozisyon büyüklüğünü kaydet (dinamik lot desteği için)
+                this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
+                this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
+
                 if (this.signals.PrevYon == "F")
                 {
                     // pass
@@ -1054,6 +1058,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.SonBarNo = i;
                 this.signals.SonAFiyat = this.signals.SonFiyat;
                 this.signals.SonABarNo = this.signals.SonBarNo;
+
+                // Yeni pozisyon büyüklüğünü kaydet (hem normal hem micro)
+                this.signals.SonVarlikAdedSayisi = this.pozisyonBuyuklugu.VarlikAdedSayisi;
+                this.signals.SonVarlikAdedSayisiMicro = this.pozisyonBuyuklugu.VarlikAdedSayisiMicro;
 
                 if (this.signals.PrevYon == "F")
                 {
@@ -1097,6 +1105,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.PrevFiyat = this.signals.SonFiyat;
                 this.signals.PrevBarNo = this.signals.SonBarNo;
 
+                // Pozisyon büyüklüğünü kaydet (dinamik lot desteği için)
+                this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
+                this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
+
                 if (this.signals.PrevYon == "F")
                 {
                     // pass
@@ -1119,6 +1131,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.SonBarNo = i;
                 this.signals.SonSFiyat = this.signals.SonFiyat;
                 this.signals.SonSBarNo = this.signals.SonSBarNo;
+
+                // Yeni pozisyon büyüklüğünü kaydet (hem normal hem micro)
+                this.signals.SonVarlikAdedSayisi = this.pozisyonBuyuklugu.VarlikAdedSayisi;
+                this.signals.SonVarlikAdedSayisiMicro = this.pozisyonBuyuklugu.VarlikAdedSayisiMicro;
 
                 if (this.signals.PrevYon == "F")
                 {
@@ -1162,6 +1178,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.PrevFiyat = this.signals.SonFiyat;
                 this.signals.PrevBarNo = this.signals.SonBarNo;
 
+                // Pozisyon büyüklüğünü kaydet (dinamik lot desteği için)
+                this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
+                this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
+
                 if (this.signals.PrevYon == "A")
                 {
                     // pass
@@ -1191,6 +1211,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.SonBarNo = i;
                 this.signals.SonFFiyat = this.signals.SonFiyat;
                 this.signals.SonFBarNo = this.signals.SonFBarNo;
+
+                // Flat durumunda pozisyon yok (hem normal hem micro)
+                this.signals.SonVarlikAdedSayisi = 0.0;
+                this.signals.SonVarlikAdedSayisiMicro = 0.0;
 
                 if (this.signals.PrevYon == "A")
                 {
