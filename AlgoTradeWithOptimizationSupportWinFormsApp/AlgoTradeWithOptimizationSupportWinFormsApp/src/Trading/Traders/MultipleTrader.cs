@@ -11,6 +11,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
     /// <summary>
     /// Multiple trader - manages and runs multiple SingleTraders in parallel
     /// Collects signals from all traders and creates a consensus signal for mainTrader
+    /// MultipleTrader must be run with fixed position/lot size
+    /// Dynamic lot size currently unavailable
     /// </summary>
     public class MultipleTrader
     {

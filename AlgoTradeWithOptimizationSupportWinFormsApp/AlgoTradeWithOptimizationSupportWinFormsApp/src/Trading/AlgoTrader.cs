@@ -594,7 +594,16 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             mainTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
             mainTrader.CreateModules();
             mainTrader.Reset();
-            mainTrader.pozisyonBuyuklugu.Reset();
+            mainTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsFxParite(lotSayisi: 0.01)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
+            mainTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsViopEndex(kontratSayisi: 1)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
             mainTrader.Init();
 
             {
