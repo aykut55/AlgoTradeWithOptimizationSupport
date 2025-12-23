@@ -148,6 +148,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
+            btnTestMultipleTrader = new Button();
+            btnTestSingleTrader = new Button();
             progressBarSingleTrader = new ProgressBar();
             lblSingleTraderProgress = new Label();
             button1 = new Button();
@@ -1146,6 +1148,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel4
             // 
+            panel4.Controls.Add(btnTestMultipleTrader);
+            panel4.Controls.Add(btnTestSingleTrader);
             panel4.Controls.Add(progressBarSingleTrader);
             panel4.Controls.Add(lblSingleTraderProgress);
             panel4.Controls.Add(button1);
@@ -1156,18 +1160,38 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Size = new Size(1222, 717);
             panel4.TabIndex = 0;
             // 
+            // btnTestMultipleTrader
+            // 
+            btnTestMultipleTrader.Location = new Point(917, 103);
+            btnTestMultipleTrader.Name = "btnTestMultipleTrader";
+            btnTestMultipleTrader.Size = new Size(131, 23);
+            btnTestMultipleTrader.TabIndex = 6;
+            btnTestMultipleTrader.Text = "Test Multiple Trader";
+            btnTestMultipleTrader.UseVisualStyleBackColor = true;
+            btnTestMultipleTrader.Click += this.btnTestMultipleTrader_Click;
+            // 
+            // btnTestSingleTrader
+            // 
+            btnTestSingleTrader.Location = new Point(780, 103);
+            btnTestSingleTrader.Name = "btnTestSingleTrader";
+            btnTestSingleTrader.Size = new Size(131, 23);
+            btnTestSingleTrader.TabIndex = 5;
+            btnTestSingleTrader.Text = "Test Single Trader";
+            btnTestSingleTrader.UseVisualStyleBackColor = true;
+            btnTestSingleTrader.Click += btnTestSingleTrader_Click;
+            // 
             // progressBarSingleTrader
             // 
-            progressBarSingleTrader.Location = new Point(917, 45);
+            progressBarSingleTrader.Location = new Point(780, 74);
             progressBarSingleTrader.Name = "progressBarSingleTrader";
-            progressBarSingleTrader.Size = new Size(48, 23);
+            progressBarSingleTrader.Size = new Size(268, 23);
             progressBarSingleTrader.Style = ProgressBarStyle.Continuous;
             progressBarSingleTrader.TabIndex = 4;
             // 
             // lblSingleTraderProgress
             // 
             lblSingleTraderProgress.AutoSize = true;
-            lblSingleTraderProgress.Location = new Point(971, 53);
+            lblSingleTraderProgress.Location = new Point(1047, 82);
             lblSingleTraderProgress.Name = "lblSingleTraderProgress";
             lblSingleTraderProgress.Size = new Size(48, 15);
             lblSingleTraderProgress.TabIndex = 3;
@@ -1409,5 +1433,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button button1;
         private Label lblSingleTraderProgress;
         private ProgressBar progressBarSingleTrader;
+        private Button btnTestMultipleTrader;
+        private Button btnTestSingleTrader;
     }
 }

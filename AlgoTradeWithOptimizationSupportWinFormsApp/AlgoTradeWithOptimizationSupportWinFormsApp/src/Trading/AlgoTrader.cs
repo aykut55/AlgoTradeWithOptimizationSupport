@@ -58,6 +58,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
 
         private IAlgoTraderLogger? Logger { get; set; }
         public SingleTrader singleTrader { get; private set; }
+        public MultipleTrader multipleTrader { get; private set; }
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
 
@@ -560,6 +561,193 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader = null;
 
         }
+
+
+        public async Task RunMultipleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
+        {
+            if (!IsInitialized)
+            {
+                LogError("AlgoTrader not initialized!");
+                throw new InvalidOperationException("AlgoTrader not initialized");
+            }
+
+            int totalBars = Data.Count;
+
+            Log("");
+            Log("=== Running Multiple Trader Demo (Async) ===");
+            Log($"Processing {totalBars} bars total...");
+
+            indicators = new IndicatorManager(this.Data);
+            if (indicators == null)
+                return;
+
+
+            // *****************************************************************************
+            // *****************************************************************************
+            // *****************************************************************************
+            multipleTrader = new MultipleTrader(0, this.Data, indicators, Logger);
+
+            multipleTrader.Reset();
+
+            var mainTrader = multipleTrader.GetMainTrader();
+            // Assign callbacks
+            mainTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+            mainTrader.CreateModules();
+            mainTrader.Reset();
+            mainTrader.pozisyonBuyuklugu.Reset();
+            mainTrader.Init();
+
+            {
+                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                strategy.OnInit();
+
+                var singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+
+                // Assign callbacks
+                singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+
+                singleTrader.CreateModules();
+
+                singleTrader.SetStrategy(strategy);
+
+                singleTrader.Reset();
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsFxParite(lotSayisi: 0.01)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsViopEndex(kontratSayisi: 1)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.Init();
+
+                multipleTrader.AddTrader(singleTrader);
+            }
+            {
+                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                strategy.OnInit();
+
+                var singleTrader = new SingleTrader(1, this.Data, indicators, Logger);
+
+                // Assign callbacks
+                singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+
+                singleTrader.CreateModules();
+
+                singleTrader.SetStrategy(strategy);
+
+                singleTrader.Reset();
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsFxParite(lotSayisi: 0.01)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsViopEndex(kontratSayisi: 1)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.Init();
+
+                multipleTrader.AddTrader(singleTrader);
+            }
+            {
+                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                strategy.OnInit();
+
+                var singleTrader = new SingleTrader(2, this.Data, indicators, Logger);
+
+                // Assign callbacks
+                singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+
+                singleTrader.CreateModules();
+
+                singleTrader.SetStrategy(strategy);
+
+                singleTrader.Reset();
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsFxParite(lotSayisi: 0.01)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsViopEndex(kontratSayisi: 1)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.Init();
+
+                multipleTrader.AddTrader(singleTrader);
+            }
+
+            multipleTrader.Init();
+            // *****************************************************************************
+            // *****************************************************************************
+            // *****************************************************************************
+
+            // Initialize
+            multipleTrader.Initialize();
+
+            var startTime = DateTime.Now;
+
+            await Task.Run(() =>
+            {
+                for (int i = 0; i < totalBars; i++)
+                {
+                    multipleTrader.Run(i);
+
+                    // Report progress every 10 bars or on last bar (more frequent updates)
+                    if (progress != null && (i % 10 == 0 || i == totalBars - 1))
+                    {
+                        var elapsed = DateTime.Now - startTime;
+                        double percentComplete = (double)(i + 1) / totalBars * 100.0;
+                        double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
+                        int remainingBars = totalBars - (i + 1);
+                        TimeSpan estimatedRemaining = barsPerSecond > 0
+                            ? TimeSpan.FromSeconds(remainingBars / barsPerSecond)
+                            : TimeSpan.Zero;
+
+                        var progressInfo = new BacktestProgressInfo
+                        {
+                            CurrentBar = i + 1,
+                            TotalBars = totalBars,
+                            PercentComplete = percentComplete,
+                            StatusMessage = $"Processing bar {i + 1}/{totalBars}",
+                            ElapsedTime = elapsed,
+                            EstimatedTimeRemaining = estimatedRemaining
+                        };
+
+                        progress.Report(progressInfo);
+                    }
+
+                    if (multipleTrader.OnProgress != null && (i % 10 == 0 || i == totalBars - 1))
+                        multipleTrader.OnProgress?.Invoke(multipleTrader, i, totalBars);
+                }
+            });
+
+            if (multipleTrader.OnProgress != null)
+                multipleTrader.OnProgress?.Invoke(multipleTrader, totalBars, totalBars);
+
+
+            multipleTrader.Finalize();
+
+            Log("Multiple Trader demo completed (Async)");
+
+            //multipleTrader.Dispose();
+            multipleTrader = null;
+        }
+
 
         public void RunMultipleTraderDemoSilinecek()
         {

@@ -61,7 +61,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
         public Action<SingleTrader, int, int>? OnProgress; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
 
-        public TradeSignals StrategySignal { get; private set; }
+        public TradeSignals StrategySignal { get; set; }
         //public bool NoneSignal { get; private set; }
         //public bool BuySignal { get; private set; }
         //public bool SellSignal { get; private set; }
