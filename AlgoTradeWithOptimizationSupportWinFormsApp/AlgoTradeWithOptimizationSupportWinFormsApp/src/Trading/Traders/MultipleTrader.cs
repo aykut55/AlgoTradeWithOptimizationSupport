@@ -11,8 +11,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
     /// <summary>
     /// Multiple trader - manages and runs multiple SingleTraders in parallel
     /// Collects signals from all traders and creates a consensus signal for mainTrader
-    /// MultipleTrader must be run with fixed position/lot size
-    /// Dynamic lot size currently unavailable
+    ///
+    /// Pozisyon Büyüklüğü Modları:
+    /// - Sabit Lot (DynamicPositionSizeEnabled=false): mainTrader sabit pozisyon büyüklüğü kullanır (varsayılan)
+    /// - Dinamik Lot (DynamicPositionSizeEnabled=true): Consensus sinyalinden gelen lot büyüklüğü kullanılır
     /// </summary>
     public class MultipleTrader
     {
@@ -28,6 +30,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public int CurrentIndex { get; private set; }
 
         private SingleTrader _mainTrader;
+
+        /// <summary>
+        /// Dinamik pozisyon büyüklüğü desteği
+        /// true: Consensus sinyalinden gelen lot büyüklüğü kullanılır (her pozisyon farklı büyüklükte olabilir)
+        /// false: mainTrader'ın sabit pozisyon büyüklüğü kullanılır (varsayılan)
+        /// </summary>
+        public bool DynamicPositionSizeEnabled { get; set; } = false;
 
         public Action<MultipleTrader, int, int>? OnProgress { get; set; }
 
@@ -236,12 +245,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // varlikAdedSayisiFinal: Bilgi amaçlı (net exposure)
             // İsterseniz loglayabilirsiniz: Logger?.Log($"Net Exposure: {varlikAdedSayisiFinal:F2} lot")
 
-            // İsterseniz mainTrader'ın pozisyon büyüklüğünü dinamik ayarlayabilirsiniz:
-            if (_mainTrader.pozisyonBuyuklugu.MicroLotSizeEnabled)
-                _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisiMicro = varlikAdedSayisiFinal;
+            if (this.DynamicPositionSizeEnabled)
+            {
+                // DİNAMİK POZİSYON BÜYÜKLÜĞÜ MODU
+                // Consensus sinyalinden gelen lot büyüklüğü kullanılır
+                // Her pozisyon farklı büyüklükte olabilir (örn: Bar 1: 8 lot, Bar 2: 4 lot, Bar 3: 7 lot)
+                if (_mainTrader.pozisyonBuyuklugu.MicroLotSizeEnabled)
+                    _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisiMicro = varlikAdedSayisiFinal;
+                else
+                    _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisi = varlikAdedSayisiFinal;
+            }
             else
-                _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisi = varlikAdedSayisiFinal;
-            // Ama sabit kullanmak isterseniz yukarıdaki satırı kapatın (default değer kullanılır)
+            {
+                // SABİT POZİSYON BÜYÜKLÜĞÜ MODU (Varsayılan)
+                // mainTrader'ın başlangıçta ayarlanan sabit pozisyon büyüklüğü kullanılır
+                // varlikAdedSayisiFinal sadece bilgi amaçlı hesaplanır (net exposure göstergesi)
+                // Hiçbir güncelleme yapılmaz, pozisyon büyüklüğü sabittir
+            }
 
             // -----------------------------------------------------------
             _mainTrader.OnRun?.Invoke(_mainTrader, 0);

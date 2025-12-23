@@ -586,6 +586,8 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
             // *****************************************************************************
             multipleTrader = new MultipleTrader(0, this.Data, indicators, Logger);
+            multipleTrader.DynamicPositionSizeEnabled = true;   // (default false) : mainTrader her pozisyonda aynı lot büyüklüğünü kullanır
+                                                                //          true   : mainTrader consensus'ten gelen lot büyüklüğünü kullanır (her pozisyon farklı olabilir)
 
             multipleTrader.Reset();
 
