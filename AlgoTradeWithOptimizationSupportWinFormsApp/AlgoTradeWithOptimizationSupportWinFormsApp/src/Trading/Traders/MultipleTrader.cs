@@ -119,57 +119,97 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             }
         }
 
-        public TradeSignals buildConsensusSignal(int noneSignalCount, int alSignalCount, int satSignalCount, int flatOlSignalCount, int passGecSignalCount, int karAlSignalCount, int zararKesSignalCount)
+        /// <summary>
+        /// Build consensus signal based on position status and trader signals
+        /// Gruplar:
+        /// - Pozisyon AÇIK ise: (StopLoss, TakeProfit, Flat) sinyallerine bak
+        /// - Pozisyon KAPALI ise: (Buy, Sell) sinyallerine bak
+        /// </summary>
+        public TradeSignals buildConsensusSignal(
+            bool isPozisyonAcik,
+            int noneSignalCount,
+            int alSignalCount,
+            int satSignalCount,
+            int flatOlSignalCount,
+            int passGecSignalCount,
+            int karAlSignalCount,
+            int zararKesSignalCount)
         {
             TradeSignals consensusSignal = TradeSignals.None;
 
-            // Priority 1: StopLoss - herhangi bir trader StopLoss verirse hemen uygula
-            if (zararKesSignalCount > 0)
+            // =========================================================
+            // GRUP 1: POZİSYON AÇIK - Kapatma sinyallerini değerlendir
+            // =========================================================
+            if (isPozisyonAcik)
             {
-                consensusSignal = TradeSignals.StopLoss;
-            }
-            // Priority 2: TakeProfit - herhangi bir trader TakeProfit verirse uygula
-            else if (karAlSignalCount > 0)
-            {
-                consensusSignal = TradeSignals.TakeProfit;
-            }
-            // Majority: Geri kalan sinyaller için çoğunluk oylaması
-            else
-            {
-                // En yüksek oy alan sinyali bul
-                int maxVotes = Math.Max(Math.Max(Math.Max(alSignalCount, satSignalCount), flatOlSignalCount), passGecSignalCount);
-
-                // Eğer tüm oylar 0 ise None
-                if (maxVotes == 0)
+                // Priority 1: StopLoss - risk yönetimi mutlak öncelik
+                if (zararKesSignalCount > 0)
                 {
-                    consensusSignal = TradeSignals.None;
+                    consensusSignal = TradeSignals.StopLoss;
                 }
-                // Buy çoğunlukta mı?
-                else if (alSignalCount == maxVotes && alSignalCount > satSignalCount && alSignalCount > flatOlSignalCount && alSignalCount > passGecSignalCount)
+                // Priority 2: TakeProfit - kar koruma
+                else if (karAlSignalCount > 0)
                 {
-                    consensusSignal = TradeSignals.Buy;
+                    consensusSignal = TradeSignals.TakeProfit;
                 }
-                // Sell çoğunlukta mı?
-                else if (satSignalCount == maxVotes && satSignalCount > alSignalCount && satSignalCount > flatOlSignalCount && satSignalCount > passGecSignalCount)
+                // Majority: Flat (pozisyonu kapat ama kar/zarar değil)
+                else if (flatOlSignalCount > 0)
                 {
-                    consensusSignal = TradeSignals.Sell;
+                    // Eğer Flat çoğunluktaysa uygula
+                    // Aksi halde pozisyonu koru (None döndür)
+                    int totalVotes = flatOlSignalCount + alSignalCount + satSignalCount + passGecSignalCount;
+                    if (flatOlSignalCount > totalVotes / 2)
+                    {
+                        consensusSignal = TradeSignals.Flat;
+                    }
+                    else
+                    {
+                        // Çoğunluk yok, pozisyonu koru
+                        consensusSignal = TradeSignals.None;
+                    }
                 }
-                // Flat çoğunlukta mı?
-                else if (flatOlSignalCount == maxVotes && flatOlSignalCount > alSignalCount && flatOlSignalCount > satSignalCount && flatOlSignalCount > passGecSignalCount)
-                {
-                    consensusSignal = TradeSignals.Flat;
-                }
-                // Skip çoğunlukta mı?
-                else if (passGecSignalCount == maxVotes && passGecSignalCount > alSignalCount && passGecSignalCount > satSignalCount && passGecSignalCount > flatOlSignalCount)
-                {
-                    consensusSignal = TradeSignals.Skip;
-                }
-                // Eşitlik durumu: None (karar verilemedi)
                 else
                 {
+                    // Hiç kapatma sinyali yok, pozisyonu koru
                     consensusSignal = TradeSignals.None;
                 }
             }
+            // =========================================================
+            // GRUP 2: POZİSYON KAPALI - Açma sinyallerini değerlendir
+            // =========================================================
+            else
+            {
+                // Buy vs Sell çoğunluk oylaması
+                if (alSignalCount > satSignalCount && alSignalCount > 0)
+                {
+                    // Buy çoğunlukta
+                    consensusSignal = TradeSignals.Buy;
+                }
+                else if (satSignalCount > alSignalCount && satSignalCount > 0)
+                {
+                    // Sell çoğunlukta
+                    consensusSignal = TradeSignals.Sell;
+                }
+                else if (alSignalCount == satSignalCount && alSignalCount > 0)
+                {
+                    // Eşitlik - karar verilemedi
+                    consensusSignal = TradeSignals.None;
+                }
+                else
+                {
+                    // Hiç açma sinyali yok
+                    // Skip çoğunluktaysa Skip, yoksa None
+                    if (passGecSignalCount > 0)
+                    {
+                        consensusSignal = TradeSignals.Skip;
+                    }
+                    else
+                    {
+                        consensusSignal = TradeSignals.None;
+                    }
+                }
+            }
+
             return consensusSignal;
         }
 
@@ -226,14 +266,26 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 }
             }
 
-            // -----------------------------------------------------------
-            // Consensus Logic: Priority + Majority
-            // Al - Sat Sinyalleri
-            // KarAl - ZararKes Sinyalleri
-            // FlatOl sinyalleri
-            // PassGec Sinyalleri
-            // -----------------------------------------------------------
-            TradeSignals consensusSignal = buildConsensusSignal(noneSignalCount, alSignalCount, satSignalCount, flatOlSignalCount, passGecSignalCount, karAlSignalCount, zararKesSignalCount);
+            // -------------- Consensus Logic ---------------
+            var isSonYonA = _mainTrader.is_son_yon_a();
+
+            var isSonYonS = _mainTrader.is_son_yon_s();
+
+            var isSonYonF = _mainTrader.is_son_yon_f();
+
+            // MainTrader'ın pozisyon durumunu kontrol et            
+            bool isPozisyonAcik = isSonYonA || isSonYonS;   //bool isPozisyonAcik = _mainTrader.signals.PozAcildiAlis || _mainTrader.signals.PozAcildiSatis;
+
+            // Pozisyon durumuna göre consensus sinyal oluştur
+            TradeSignals consensusSignal = buildConsensusSignal(
+                isPozisyonAcik,
+                noneSignalCount,
+                alSignalCount,
+                satSignalCount,
+                flatOlSignalCount,
+                passGecSignalCount,
+                karAlSignalCount,
+                zararKesSignalCount);
 
             // -----------------------------------------------------------
             _mainTrader.OnRun?.Invoke(_mainTrader, 0);
