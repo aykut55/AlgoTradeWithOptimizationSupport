@@ -1065,11 +1065,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
                 if (this.signals.PrevYon == "F")
                 {
+                    // F → A: Yeni pozisyon açma (1 işlem)
+                    // İşlem hacmi: SonVarlikAdedSayisi
                     this.status.KomisyonIslemSayisi += 1;
                     this.signals.EmirStatus = 1;
                 }
                 if (this.signals.PrevYon == "S")
                 {
+                    // S → A: Ters yön değişimi (2 ayrı işlem)
+                    // İşlem 1: Short pozisyonu KAPAT (PrevVarlikAdedSayisi lot)
+                    // İşlem 2: Long pozisyon AÇ (SonVarlikAdedSayisi lot)
+                    // Toplam işlem hacmi: PrevVarlikAdedSayisi + SonVarlikAdedSayisi
+
                     double fark = this.signals.SonFiyat - this.signals.SonSFiyat;
                     if (fark < 0)
                     {
@@ -1083,6 +1090,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     {
                         this.status.NotrSatisSayisi += 1;
                     }
+
+                    // 2 işlem: Kapatma + Açma
                     this.status.KomisyonIslemSayisi += 2;
                     this.signals.EmirStatus = 2;
                 }
@@ -1138,11 +1147,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
                 if (this.signals.PrevYon == "F")
                 {
+                    // F → S: Yeni pozisyon açma (1 işlem)
+                    // İşlem hacmi: SonVarlikAdedSayisi
                     this.status.KomisyonIslemSayisi += 1;
                     this.signals.EmirStatus = 3;
                 }
                 if (this.signals.PrevYon == "A")
                 {
+                    // A → S: Ters yön değişimi (2 ayrı işlem)
+                    // İşlem 1: Long pozisyonu KAPAT (PrevVarlikAdedSayisi lot)
+                    // İşlem 2: Short pozisyon AÇ (SonVarlikAdedSayisi lot)
+                    // Toplam işlem hacmi: PrevVarlikAdedSayisi + SonVarlikAdedSayisi
+
                     double fark = this.signals.SonFiyat - this.signals.SonAFiyat;
                     if (fark > 0)
                     {
@@ -1156,6 +1172,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     {
                         this.status.NotrAlisSayisi += 1;
                     }
+
+                    // 2 işlem: Kapatma + Açma
                     this.status.KomisyonIslemSayisi += 2;
                     this.signals.EmirStatus = 4;
                 }
@@ -1218,6 +1236,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
                 if (this.signals.PrevYon == "A")
                 {
+                    // A → F: Long pozisyonu KAPAT (1 işlem)
+                    // İşlem hacmi: PrevVarlikAdedSayisi
+
                     double fark = this.signals.SonFiyat - this.signals.SonAFiyat;
                     if (fark > 0)
                     {
@@ -1231,11 +1252,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     {
                         this.status.NotrAlisSayisi += 1;
                     }
+
+                    // 1 işlem: Kapatma
                     this.status.KomisyonIslemSayisi += 1;
                     this.signals.EmirStatus = 5;
                 }
                 if (this.signals.PrevYon == "S")
                 {
+                    // S → F: Short pozisyonu KAPAT (1 işlem)
+                    // İşlem hacmi: PrevVarlikAdedSayisi
+
                     double fark = this.signals.SonFiyat - this.signals.SonSFiyat;
                     if (fark < 0)
                     {
@@ -1249,6 +1275,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     {
                         this.status.NotrSatisSayisi += 1;
                     }
+
+                    // 1 işlem: Kapatma
                     this.status.KomisyonIslemSayisi += 1;
                     this.signals.EmirStatus = 6;
                 }
