@@ -175,10 +175,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 Trader.lists.GetiriFiyatYuzdeNetList[i] = 100.0 * Trader.lists.GetiriFiyatNetList[i] / Trader.status.IlkBakiyeFiyat;
             }
 
-            // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
-            double varlikAdedSayisi = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled
-                ? Trader.pozisyonBuyuklugu.VarlikAdedSayisiMicro
-                : Trader.pozisyonBuyuklugu.VarlikAdedSayisi;
+            // Dinamik lot büyüklüğünü kullan
+            bool isMicroLot = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled;
+            double varlikAdedSayisi = isMicroLot
+                ? Trader.signals.SonVarlikAdedSayisiMicro
+                : Trader.signals.SonVarlikAdedSayisi;
 
             // Sıfıra bölme kontrolü
             if (varlikAdedSayisi != 0)
@@ -188,8 +189,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             }
             else
             {
-                Trader.lists.GetiriKz[i] = 0.0;
-                Trader.lists.GetiriKzNet[i] = 0.0;
+                // Pozisyon yoksa (Flat), getiri var ama lot yok
+                // Bir önceki lot büyüklüğünü kullan (eğer varsa)
+                double prevVolume = isMicroLot
+                    ? Trader.signals.PrevVarlikAdedSayisiMicro
+                    : Trader.signals.PrevVarlikAdedSayisi;
+
+                if (prevVolume != 0)
+                {
+                    Trader.lists.GetiriKz[i] = Trader.lists.GetiriFiyatList[i] / prevVolume;
+                    Trader.lists.GetiriKzNet[i] = Trader.lists.GetiriFiyatNetList[i] / prevVolume;
+                }
+                else
+                {
+                    Trader.lists.GetiriKz[i] = 0.0;
+                    Trader.lists.GetiriKzNet[i] = 0.0;
+                }
             }
 
             // Son bar kontrolü

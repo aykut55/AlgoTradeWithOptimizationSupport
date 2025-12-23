@@ -110,23 +110,80 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         }
 
         /// <summary>
-        /// Komisyon hesapla - Normal ve Micro lot desteği ile
+        /// Komisyon hesapla - Dinamik lot desteği ile
+        /// Ters yön değişimlerinde 2 ayrı işlem için komisyon hesaplar
         /// </summary>
         public void Hesapla(int i)
         {
             if (Trader == null)
                 return;
 
-            // MicroLotSizeEnabled flag'ine göre doğru varlık adedini kullan
-            double komisyonVarlikAdedi = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled
-                ? Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisiMicro
-                : Trader.pozisyonBuyuklugu.KomisyonVarlikAdedSayisi;
+            double totalCommission = 0.0;
+            double komisyonCarpan = Trader.status.KomisyonCarpan;
+            int komisyonIslemSayisi = (int)Trader.lists.KomisyonIslemSayisiList[i];
 
-            Trader.status.KomisyonFiyat = Trader.lists.KomisyonIslemSayisiList[i] *
-                                          Trader.status.KomisyonCarpan *
-                                          komisyonVarlikAdedi;
+            // EmirStatus kontrol et
+            int emirStatus = Trader.signals.EmirStatus;
+            bool isMicroLot = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled;
 
-            Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;
+            // Ters yön değişimi kontrolü (2 ayrı işlem)
+            if (emirStatus == 2 || emirStatus == 4)
+            {
+                // DURUM 1: Ters Yön Değişimi (S→A veya A→S)
+                // İşlem 1: Eski pozisyonu KAPAT (Prev lot büyüklüğü)
+                double closeVolume = isMicroLot
+                    ? Trader.signals.PrevVarlikAdedSayisiMicro
+                    : Trader.signals.PrevVarlikAdedSayisi;
+
+                // İşlem 2: Yeni pozisyon AÇ (Son lot büyüklüğü)
+                double openVolume = isMicroLot
+                    ? Trader.signals.SonVarlikAdedSayisiMicro
+                    : Trader.signals.SonVarlikAdedSayisi;
+
+                // Her iki işlem için de ayrı komisyon hesapla
+                double closeCommission = komisyonCarpan * closeVolume;
+                double openCommission = komisyonCarpan * openVolume;
+
+                totalCommission = closeCommission + openCommission;
+
+                // Log (opsiyonel)
+                // Console.WriteLine($"Reverse Position: Close={closeVolume} lot, Open={openVolume} lot, Total Commission={totalCommission}");
+            }
+            else if (komisyonIslemSayisi > 0)
+            {
+                // DURUM 2: Normal işlem (Tek işlem - açma veya kapatma)
+                // EmirStatus = 1, 3, 5, 6
+
+                double volume = 0.0;
+
+                if (emirStatus == 1 || emirStatus == 3)
+                {
+                    // Yeni pozisyon açma (F→A veya F→S)
+                    volume = isMicroLot
+                        ? Trader.signals.SonVarlikAdedSayisiMicro
+                        : Trader.signals.SonVarlikAdedSayisi;
+                }
+                else if (emirStatus == 5 || emirStatus == 6)
+                {
+                    // Pozisyon kapatma (A→F veya S→F)
+                    volume = isMicroLot
+                        ? Trader.signals.PrevVarlikAdedSayisiMicro
+                        : Trader.signals.PrevVarlikAdedSayisi;
+                }
+                else
+                {
+                    // EmirStatus belirtilmemişse, güvenli tarafta kalıp Son değeri kullan
+                    volume = isMicroLot
+                        ? Trader.signals.SonVarlikAdedSayisiMicro
+                        : Trader.signals.SonVarlikAdedSayisi;
+                }
+
+                totalCommission = komisyonIslemSayisi * komisyonCarpan * volume;
+            }
+
+            // Sonucu kaydet
+            Trader.status.KomisyonFiyat = totalCommission;
+            Trader.lists.KomisyonFiyatList[i] = totalCommission;
         }
 
         /// <summary>
