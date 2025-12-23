@@ -237,7 +237,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // İsterseniz loglayabilirsiniz: Logger?.Log($"Net Exposure: {varlikAdedSayisiFinal:F2} lot")
 
             // İsterseniz mainTrader'ın pozisyon büyüklüğünü dinamik ayarlayabilirsiniz:
-            // _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisi = varlikAdedSayisiFinal;
+            if (_mainTrader.pozisyonBuyuklugu.MicroLotSizeEnabled)
+                _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisiMicro = varlikAdedSayisiFinal;
+            else
+                _mainTrader.pozisyonBuyuklugu.VarlikAdedSayisi = varlikAdedSayisiFinal;
             // Ama sabit kullanmak isterseniz yukarıdaki satırı kapatın (default değer kullanılır)
 
             // -----------------------------------------------------------
