@@ -586,11 +586,8 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
             // *****************************************************************************
             multipleTrader = new MultipleTrader(0, this.Data, indicators, Logger);
-            multipleTrader.DynamicPositionSizeEnabled = true;   // (default false) : mainTrader her pozisyonda aynı lot büyüklüğünü kullanır
-                                                                //          true   : mainTrader consensus'ten gelen lot büyüklüğünü kullanır (her pozisyon farklı olabilir)
 
             multipleTrader.Reset();
-
             var mainTrader = multipleTrader.GetMainTrader();
             // Assign callbacks
             mainTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
@@ -606,6 +603,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 .SetKontratParamsViopEndex(kontratSayisi: 1)
                 .SetKomisyonParams(komisyonCarpan: 3.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
+            multipleTrader.DynamicPositionSizeEnabled = true;                   // (default false) : mainTrader her pozisyonda aynı lot büyüklüğünü kullanır
+                                                                                //          true   : mainTrader consensus'ten gelen lot büyüklüğünü kullanır (her pozisyon farklı olabilir)
+            mainTrader.pozisyonBuyuklugu.PyramidingEnabled = true;              // false -> Varsayılan
+            if (mainTrader.pozisyonBuyuklugu.PyramidingEnabled) { 
+                mainTrader.pozisyonBuyuklugu.MaxPositionSizeEnabled = true;     // false -> Sınırsız
+                mainTrader.pozisyonBuyuklugu.MaxPositionSize = 10.0;            // Max 10 lot
+            }
+
             mainTrader.Init();
 
             {

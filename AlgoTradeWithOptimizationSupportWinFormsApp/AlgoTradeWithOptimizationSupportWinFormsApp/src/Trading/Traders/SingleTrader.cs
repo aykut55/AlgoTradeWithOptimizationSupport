@@ -1317,6 +1317,154 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.status.PassSayisi += 1;
                 this.flags.PGerceklesti = true;
             }
+            // Process "A" (Al/Buy) signal - Pyramiding (Long pozisyon artırma)
+            else if (this.signals.Sinyal == "A" && this.signals.SonYon == "A")
+            {
+                // Pyramiding etkin mi kontrol et
+                if (!this.pozisyonBuyuklugu.PyramidingEnabled)
+                {
+                    // Pyramiding kapalı - işlem yapma, sinyali göz ardı et
+                    return result;
+                }
+
+                bool isMicroLot = this.pozisyonBuyuklugu.MicroLotSizeEnabled;
+
+                // Mevcut pozisyon büyüklüğü
+                double mevcutLot = isMicroLot
+                    ? this.signals.SonVarlikAdedSayisiMicro
+                    : this.signals.SonVarlikAdedSayisi;
+
+                // Eklenecek lot büyüklüğü
+                double yeniLot = isMicroLot
+                    ? this.pozisyonBuyuklugu.VarlikAdedSayisiMicro
+                    : this.pozisyonBuyuklugu.VarlikAdedSayisi;
+
+                // Maksimum pozisyon kontrolü
+                if (this.pozisyonBuyuklugu.MaxPositionSizeEnabled)
+                {
+                    double maxLot = isMicroLot
+                        ? this.pozisyonBuyuklugu.MaxPositionSizeMicro
+                        : this.pozisyonBuyuklugu.MaxPositionSize;
+
+                    if (mevcutLot + yeniLot > maxLot)
+                    {
+                        // Limit aşıldı - işlem yapma
+                        return result;
+                    }
+                }
+
+                // Prev değerlerini kaydet (komisyon hesabı için)
+                this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
+                this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
+                this.signals.PrevAFiyat = this.signals.SonAFiyat;
+                this.signals.PrevABarNo = this.signals.SonABarNo;
+
+                // Ağırlıklı ortalama giriş fiyatı hesapla
+                double eskiFiyat = this.signals.SonAFiyat;
+                double yeniFiyat = AnlikKapanisFiyati;
+                double toplamLot = mevcutLot + yeniLot;
+                double agirlikliOrtalamaFiyat = (mevcutLot * eskiFiyat + yeniLot * yeniFiyat) / toplamLot;
+
+                // Pozisyon büyüklüğünü güncelle (toplama)
+                if (isMicroLot)
+                    this.signals.SonVarlikAdedSayisiMicro = toplamLot;
+                else
+                    this.signals.SonVarlikAdedSayisi = toplamLot;
+
+                // Giriş fiyatını ağırlıklı ortalama ile güncelle
+                this.signals.SonAFiyat = agirlikliOrtalamaFiyat;
+                this.signals.SonABarNo = i;
+                this.signals.SonFiyat = agirlikliOrtalamaFiyat;
+                this.signals.SonBarNo = i;
+
+                // Komisyon işlem sayısı (sadece 1 işlem - ekleme)
+                this.status.KomisyonIslemSayisi += 1;
+
+                // EmirStatus = 10 (A→A: Long pozisyon artırma)
+                this.signals.EmirStatus = 10;
+
+                // Flags
+                this.flags.AGerceklesti = true;
+                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, bakiye güncelleme yok
+            }
+            // Process "S" (Sat/Sell) signal - Pyramiding (Short pozisyon artırma)
+            else if (this.signals.Sinyal == "S" && this.signals.SonYon == "S")
+            {
+                // Pyramiding etkin mi kontrol et
+                if (!this.pozisyonBuyuklugu.PyramidingEnabled)
+                {
+                    // Pyramiding kapalı - işlem yapma, sinyali göz ardı et
+                    return result;
+                }
+
+                bool isMicroLot = this.pozisyonBuyuklugu.MicroLotSizeEnabled;
+
+                // Mevcut pozisyon büyüklüğü
+                double mevcutLot = isMicroLot
+                    ? this.signals.SonVarlikAdedSayisiMicro
+                    : this.signals.SonVarlikAdedSayisi;
+
+                // Eklenecek lot büyüklüğü
+                double yeniLot = isMicroLot
+                    ? this.pozisyonBuyuklugu.VarlikAdedSayisiMicro
+                    : this.pozisyonBuyuklugu.VarlikAdedSayisi;
+
+                // Maksimum pozisyon kontrolü
+                if (this.pozisyonBuyuklugu.MaxPositionSizeEnabled)
+                {
+                    double maxLot = isMicroLot
+                        ? this.pozisyonBuyuklugu.MaxPositionSizeMicro
+                        : this.pozisyonBuyuklugu.MaxPositionSize;
+
+                    if (mevcutLot + yeniLot > maxLot)
+                    {
+                        // Limit aşıldı - işlem yapma
+                        return result;
+                    }
+                }
+
+                // Prev değerlerini kaydet (komisyon hesabı için)
+                this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
+                this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
+                this.signals.PrevSFiyat = this.signals.SonSFiyat;
+                this.signals.PrevSBarNo = this.signals.SonSBarNo;
+
+                // Ağırlıklı ortalama giriş fiyatı hesapla
+                double eskiFiyat = this.signals.SonSFiyat;
+                double yeniFiyat = AnlikKapanisFiyati;
+                double toplamLot = mevcutLot + yeniLot;
+                double agirlikliOrtalamaFiyat = (mevcutLot * eskiFiyat + yeniLot * yeniFiyat) / toplamLot;
+
+                // Pozisyon büyüklüğünü güncelle (toplama)
+                if (isMicroLot)
+                    this.signals.SonVarlikAdedSayisiMicro = toplamLot;
+                else
+                    this.signals.SonVarlikAdedSayisi = toplamLot;
+
+                // Giriş fiyatını ağırlıklı ortalama ile güncelle
+                this.signals.SonSFiyat = agirlikliOrtalamaFiyat;
+                this.signals.SonSBarNo = i;
+                this.signals.SonFiyat = agirlikliOrtalamaFiyat;
+                this.signals.SonBarNo = i;
+
+                // Komisyon işlem sayısı (sadece 1 işlem - ekleme)
+                this.status.KomisyonIslemSayisi += 1;
+
+                // EmirStatus = 11 (S→S: Short pozisyon artırma)
+                this.signals.EmirStatus = 11;
+
+                // Flags
+                this.flags.SGerceklesti = true;
+                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, bakiye güncelleme yok
+            }
+            // Process "F" (Flat) signal - Zaten Flat
+            else if (this.signals.Sinyal == "F" && this.signals.SonYon == "F")
+            {
+                // Zaten Flat durumdayız ve yeni sinyal de Flat
+                // Hiçbir işlem yapılmaz, EmirStatus güncellenmez
+                // Bu durum normal akış içinde yer alır
+            }
+
 
             // Update totals
             this.status.KazandiranIslemSayisi = this.status.KazandiranAlisSayisi + this.status.KazandiranSatisSayisi;

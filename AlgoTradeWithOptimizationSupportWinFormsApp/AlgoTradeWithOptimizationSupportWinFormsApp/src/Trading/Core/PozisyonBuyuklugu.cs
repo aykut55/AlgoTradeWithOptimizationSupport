@@ -131,6 +131,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #endregion
 
+        #region Pyramiding (Pozisyon Artırma)
+
+        /// <summary>
+        /// Pyramiding (pozisyon artırma) desteği
+        /// true: A→A veya S→S durumlarında mevcut pozisyona ekleme yapılır
+        /// false: A→A ve S→S sinyalleri göz ardı edilir (varsayılan)
+        /// </summary>
+        public bool PyramidingEnabled { get; set; }
+
+        /// <summary>
+        /// Maksimum pozisyon büyüklüğü kontrolü
+        /// true: MaxPositionSize limiti uygulanır
+        /// false: Sınırsız pozisyon artırma (varsayılan)
+        /// </summary>
+        public bool MaxPositionSizeEnabled { get; set; }
+
+        /// <summary>
+        /// Maksimum pozisyon büyüklüğü (normal lot için)
+        /// Pyramiding ile toplam pozisyon bu değeri geçemez
+        /// </summary>
+        public double MaxPositionSize { get; set; }
+
+        /// <summary>
+        /// Maksimum pozisyon büyüklüğü (micro lot için)
+        /// Pyramiding ile toplam pozisyon bu değeri geçemez
+        /// </summary>
+        public double MaxPositionSizeMicro { get; set; }
+
+        #endregion
+
         #region Constructor
 
         public PozisyonBuyuklugu()
@@ -166,6 +196,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             SonBakiyeFiyat = 0.0;
             NetBakiyeFiyat = 0.0;
             GetiriFiyatTipi = "TL";
+
+            // Pyramiding defaults
+            PyramidingEnabled = false;
+            MaxPositionSizeEnabled = false;
+            MaxPositionSize = 0.0;
+            MaxPositionSizeMicro = 0.0;
 
             return this;
         }

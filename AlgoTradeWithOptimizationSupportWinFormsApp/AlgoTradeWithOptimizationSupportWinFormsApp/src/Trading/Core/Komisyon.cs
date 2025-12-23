@@ -112,6 +112,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// <summary>
         /// Komisyon hesapla - Dinamik lot desteği ile
         /// Ters yön değişimlerinde 2 ayrı işlem için komisyon hesaplar
+        /// Pyramiding (pozisyon artırma) durumlarında sadece eklenen lot için komisyon hesaplar
+        ///
+        /// EmirStatus Değerleri:
+        /// 1: F → A (Flat'ten Long) - 1 işlem
+        /// 2: S → A (Short kapat + Long aç) - 2 işlem ⚠️ ÖZEL DURUM
+        /// 3: F → S (Flat'ten Short) - 1 işlem
+        /// 4: A → S (Long kapat + Short aç) - 2 işlem ⚠️ ÖZEL DURUM
+        /// 5: A → F (Long kapat) - 1 işlem
+        /// 6: S → F (Short kapat) - 1 işlem
+        /// 10: A → A (Long pozisyon artırma) - 1 işlem (pyramiding)
+        /// 11: S → S (Short pozisyon artırma) - 1 işlem (pyramiding)
         /// </summary>
         public void Hesapla(int i)
         {
@@ -169,6 +180,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                     volume = isMicroLot
                         ? Trader.signals.PrevVarlikAdedSayisiMicro
                         : Trader.signals.PrevVarlikAdedSayisi;
+                }
+                else if (emirStatus == 10 || emirStatus == 11)
+                {
+                    // DURUM 3: Pyramiding (A→A veya S→S: Pozisyon artırma)
+                    // Sadece eklenen lot için komisyon hesapla
+                    // Eklenen lot = Toplam lot - Önceki lot
+                    double sonLot = isMicroLot
+                        ? Trader.signals.SonVarlikAdedSayisiMicro
+                        : Trader.signals.SonVarlikAdedSayisi;
+
+                    double prevLot = isMicroLot
+                        ? Trader.signals.PrevVarlikAdedSayisiMicro
+                        : Trader.signals.PrevVarlikAdedSayisi;
+
+                    volume = sonLot - prevLot;  // Eklenen lot miktarı
                 }
                 else
                 {
