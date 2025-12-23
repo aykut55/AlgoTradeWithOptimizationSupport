@@ -1353,15 +1353,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     }
                 }
 
+                this.signals.PrevAFiyat = this.signals.SonAFiyat;
+                this.signals.PrevABarNo = this.signals.SonABarNo;
+                this.signals.PrevYon = this.signals.SonYon;
+                this.signals.PrevFiyat = this.signals.SonFiyat;
+                this.signals.PrevBarNo = this.signals.SonBarNo;
+
+                // Yön ve sinyal bilgilerini güncelle
+                this.lists.YonList[i] = "A";
+                this.signals.SonYon = this.lists.YonList[i];
+
                 // Prev değerlerini kaydet (komisyon hesabı için)
                 this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
                 this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
-                this.signals.PrevAFiyat = this.signals.SonAFiyat;
-                this.signals.PrevABarNo = this.signals.SonABarNo;
 
                 // Ağırlıklı ortalama giriş fiyatı hesapla
                 double eskiFiyat = this.signals.SonAFiyat;
                 double yeniFiyat = AnlikKapanisFiyati;
+
+                // Kayma (slippage) kontrolü - Long için yüksek fiyat (daha kötü)
+                if (this.flags.KaymayiDahilEt)
+                {
+                    yeniFiyat = AnlikYuksekFiyati;
+                }
+
                 double toplamLot = mevcutLot + yeniLot;
                 double agirlikliOrtalamaFiyat = (mevcutLot * eskiFiyat + yeniLot * yeniFiyat) / toplamLot;
 
@@ -1377,15 +1392,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.SonFiyat = agirlikliOrtalamaFiyat;
                 this.signals.SonBarNo = i;
 
+                // Seviye listesini güncelle
+                this.lists.SeviyeList[i] = this.signals.SonFiyat;
+
                 // Komisyon işlem sayısı (sadece 1 işlem - ekleme)
                 this.status.KomisyonIslemSayisi += 1;
 
                 // EmirStatus = 10 (A→A: Long pozisyon artırma)
                 this.signals.EmirStatus = 10;
 
-                // Flags
+                // Flags ve Status güncellemeleri
+                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, kar/zarar gerçekleşmedi
+                this.flags.KomisyonGuncelle = true;  // Komisyon ödendi
+                this.flags.DonguSonuIstatistikGuncelle = true;  // İstatistik güncelle
+                this.status.IslemSayisi += 1;  // Yeni işlem yapıldı
+                this.status.AlisSayisi += 1;  // Alış işlemi
                 this.flags.AGerceklesti = true;
-                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, bakiye güncelleme yok
+
+                OnNotifyStrategySignal?.Invoke(this, this.signals.Sinyal, i);
             }
             // Process "S" (Sat/Sell) signal - Pyramiding (Short pozisyon artırma)
             else if (this.signals.Sinyal == "S" && this.signals.SonYon == "S")
@@ -1423,15 +1447,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     }
                 }
 
+                this.signals.PrevSFiyat = this.signals.SonSFiyat;
+                this.signals.PrevSBarNo = this.signals.SonSBarNo;
+                this.signals.PrevYon = this.signals.SonYon;
+                this.signals.PrevFiyat = this.signals.SonFiyat;
+                this.signals.PrevBarNo = this.signals.SonBarNo;
+
+                // Yön ve sinyal bilgilerini güncelle
+                this.lists.YonList[i] = "S";
+                this.signals.SonYon = this.lists.YonList[i];
+
                 // Prev değerlerini kaydet (komisyon hesabı için)
                 this.signals.PrevVarlikAdedSayisi = this.signals.SonVarlikAdedSayisi;
                 this.signals.PrevVarlikAdedSayisiMicro = this.signals.SonVarlikAdedSayisiMicro;
-                this.signals.PrevSFiyat = this.signals.SonSFiyat;
-                this.signals.PrevSBarNo = this.signals.SonSBarNo;
 
                 // Ağırlıklı ortalama giriş fiyatı hesapla
                 double eskiFiyat = this.signals.SonSFiyat;
                 double yeniFiyat = AnlikKapanisFiyati;
+
+                // Kayma (slippage) kontrolü - Short için düşük fiyat (daha kötü)
+                if (this.flags.KaymayiDahilEt)
+                {
+                    yeniFiyat = AnlikDusukFiyati;
+                }
+
                 double toplamLot = mevcutLot + yeniLot;
                 double agirlikliOrtalamaFiyat = (mevcutLot * eskiFiyat + yeniLot * yeniFiyat) / toplamLot;
 
@@ -1447,15 +1486,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.SonFiyat = agirlikliOrtalamaFiyat;
                 this.signals.SonBarNo = i;
 
+                // Seviye listesini güncelle
+                this.lists.SeviyeList[i] = this.signals.SonFiyat;
+
                 // Komisyon işlem sayısı (sadece 1 işlem - ekleme)
                 this.status.KomisyonIslemSayisi += 1;
 
                 // EmirStatus = 11 (S→S: Short pozisyon artırma)
                 this.signals.EmirStatus = 11;
 
-                // Flags
+                // Flags ve Status güncellemeleri
+                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, kar/zarar gerçekleşmedi
+                this.flags.KomisyonGuncelle = true;  // Komisyon ödendi
+                this.flags.DonguSonuIstatistikGuncelle = true;  // İstatistik güncelle
+                this.status.IslemSayisi += 1;  // Yeni işlem yapıldı
+                this.status.SatisSayisi += 1;  // Satış işlemi
                 this.flags.SGerceklesti = true;
-                this.flags.BakiyeGuncelle = false;  // Pozisyon kapatılmadı, bakiye güncelleme yok
+
+                OnNotifyStrategySignal?.Invoke(this, this.signals.Sinyal, i);
             }
             // Process "F" (Flat) signal - Zaten Flat
             else if (this.signals.Sinyal == "F" && this.signals.SonYon == "F")
