@@ -36,7 +36,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public string LastExecutionTime => Trader?.LastExecutionTime ?? "";
         public string LastExecutionTimeStart => Trader?.LastExecutionTimeStart ?? "";
         public string LastExecutionTimeStop => Trader?.LastExecutionTimeStop ?? "";
-        public int ExecutionTimeInMSec => int.TryParse(Trader?.LastExecutionTimeInMSec, out int ms) ? ms : 0;
+        public string LastExecutionTimeInMSec => Trader?.LastExecutionTimeInMSec ?? "";
         public string LastResetTime => Trader?.LastResetTime ?? "";
         public string LastStatisticsCalculationTime => Trader?.LastStatisticsCalculationTime ?? "";
 
@@ -569,7 +569,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("LastExecutionTime", LastExecutionTime);
             Add("LastExecutionTimeStart", LastExecutionTimeStart);
             Add("LastExecutionTimeStop", LastExecutionTimeStop);
-            Add("LastExecutionTimeInMSec", ExecutionTimeInMSec);
+            Add("LastExecutionTimeInMSec", LastExecutionTimeInMSec);
             Add("LastResetTime", LastResetTime);
             Add("LastStatisticsCalculationTime", LastStatisticsCalculationTime);
 
