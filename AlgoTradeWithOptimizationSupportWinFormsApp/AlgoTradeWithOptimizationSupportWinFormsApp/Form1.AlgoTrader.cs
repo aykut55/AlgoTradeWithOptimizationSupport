@@ -208,116 +208,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private async void btnTestAlgoTrader_Click(object sender, EventArgs e)
         {
-            // Disable button during execution
-            btnTestAlgoTrader.Enabled = false;
 
-            try
-            {
-                // Null check - objeler oluşturulmuş mu?
-                if (_singleTraderLogger == null || algoTrader == null)
-                {
-                    MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Logger'ı temizle veya oluştur
-                InitializeSingleTraderLogger();
-
-                // AlgoTrader zaten initialize edilmişse reset et
-                if (algoTrader.IsInitialized)
-                {
-                    _singleTraderLogger.Log("Resetting existing AlgoTrader...");
-                    algoTrader.Reset();
-                }
-
-                // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
-                algoTrader.RegisterLogger(_singleTraderLogger);
-
-                _singleTraderLogger.Log("=== AlgoTrader Test Started ===");
-
-                // Stock data kontrolü
-                if (stockDataList == null || stockDataList.Count == 0)
-                {
-                    _singleTraderLogger.LogWarning("Stock data yüklü değil!");
-                    MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
-                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-
-                _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
-
-                // Initialize with stock data
-                algoTrader.Initialize(stockDataList);
-
-                if (algoTrader.IsInitialized)
-                {
-                    _singleTraderLogger.Log("AlgoTrader initialized with stock data.");
-                    _singleTraderLogger.Log(algoTrader.GetDataInfo());
-                    _singleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
-                }
-                else
-                {
-                    _singleTraderLogger.LogError("AlgoTrader initialization failed!");
-                    MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
-                }
-
-                // Progress reporter oluştur
-                var progress = new Progress<BacktestProgressInfo>(progressInfo =>
-                {
-                    // UI kontrollerini güvenli şekilde güncelle
-                    try
-                    {
-                        UpdateUIControl(() =>
-                        {
-                            if (progressBarSingleTrader != null)
-                            {
-                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
-                            }
-
-                            if (lblSingleTraderProgress != null)
-                            {
-                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                            }
-                        });
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
-                    }
-                });
-
-                // Run SingleTrader with progress (ASYNC)                
-                await algoTrader.RunSingleTraderWithProgressAsync(progress);
-
-                // Run SingleTrader with progress (ASYNC)                
-                await algoTrader.RunMultipleTraderWithProgressAsync(progress);
-                
-                if (lblSingleTraderProgress != null)
-                {
-                    //lblSingleTraderProgress.Text = "Backtest completed!";
-                }
-
-                //MessageBox.Show("Backtest tamamlandı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
-            catch (Exception ex)
-            {
-                _singleTraderLogger?.LogError("AlgoTrader test hatası:", ex.Message, ex.StackTrace);
-                MessageBox.Show($"Hata: {ex.Message}", "Hata",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                if (lblSingleTraderProgress != null)
-                {
-                    lblSingleTraderProgress.Text = "Error occurred";
-                }
-            }
-            finally
-            {
-                // Re-enable button
-                btnTestAlgoTrader.Enabled = true;
-            }
         }
 
         private async void btnTestSingleTrader_Click(object sender, EventArgs e)
@@ -395,6 +286,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                             if (lblSingleTraderProgress != null)
                             {
                                 lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                                lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
                             }
                         });
                     }
@@ -404,7 +296,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     }
                 });
 
-                // Run SingleTrader with progress (ASYNC)                
+                // Run SingleTrader with progress (ASYNC)
                 await algoTrader.RunSingleTraderWithProgressAsync(progress);
 
                 if (lblSingleTraderProgress != null)
@@ -505,6 +397,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                             if (lblSingleTraderProgress != null)
                             {
                                 lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                                lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
                             }
                         });
                     }
