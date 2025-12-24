@@ -267,40 +267,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 // Progress reporter oluştur
                 var progress = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
-                    // UI thread'de otomatik çalışır
-                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
-
-                    // ProgressBar varsa güncelle
+                    // UI kontrollerini güvenli şekilde güncelle
                     try
                     {
-                        if (progressBarSingleTrader != null)
+                        UpdateUIControl(() =>
                         {
-                            progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
-                        }
+                            if (progressBarSingleTrader != null)
+                            {
+                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblSingleTraderProgress != null)
+                            {
+                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
-                    }
-
-                    // Label varsa güncelle
-                    try
-                    {
-                        /*
-                        if (lblSingleTraderProgress != null)
-                        {
-                            lblSingleTraderProgress.Text =
-                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
-                                $"({progressInfo.PercentComplete:F1}%) - " +
-                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
-                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
-                        }
-                        */
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
                     }
                 });
 
@@ -393,44 +378,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     return;
                 }
 
+
                 // Progress reporter oluştur
                 var progress = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
-                    // UI thread'de otomatik çalışır
-                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
-
-                    // ProgressBar varsa güncelle
+                    // UI kontrollerini güvenli şekilde güncelle
                     try
                     {
-                        if (progressBarSingleTrader != null)
+                        UpdateUIControl(() =>
                         {
-                            progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
-                            lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                        }
+                            if (progressBarSingleTrader != null)
+                            {
+                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblSingleTraderProgress != null)
+                            {
+                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
-                    }
-
-                    // Label varsa güncelle
-                    try
-                    {
-                        /*
-                        if (lblSingleTraderProgress != null)
-                        {
-                            lblSingleTraderProgress.Text =
-                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
-                                $"({progressInfo.PercentComplete:F1}%) - " +
-                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
-                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
-                        }
-                        */
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
                     }
                 });
 
@@ -522,45 +492,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 // Progress reporter oluştur
                 var progress = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
-                    // UI thread'de otomatik çalışır
-                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
-
-                    // ProgressBar varsa güncelle
+                    // UI kontrollerini güvenli şekilde güncelle
                     try
                     {
-                        if (progressBarSingleTrader != null)
+                        UpdateUIControl(() =>
                         {
-                            progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
-                            lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                        }
+                            if (progressBarSingleTrader != null)
+                            {
+                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblSingleTraderProgress != null)
+                            {
+                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
-                    }
-
-                    // Label varsa güncelle
-                    try
-                    {
-                        /*
-                        if (lblSingleTraderProgress != null)
-                        {
-                            lblSingleTraderProgress.Text =
-                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
-                                $"({progressInfo.PercentComplete:F1}%) - " +
-                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
-                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
-                        }
-                        */
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
                     }
                 });
 
-                // Run SingleTrader with progress (ASYNC)                
+                // Run MultipleTrader with progress (ASYNC)
                 await algoTrader.RunMultipleTraderWithProgressAsync(progress);
 
                 if (lblSingleTraderProgress != null)
@@ -646,84 +600,53 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     return;
                 }
 
-                // Progress reporter oluştur
+                // Progress reporter oluştur - Optimization (kombinasyon ilerlemesi)
                 var progressOptimization = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
-                    // UI thread'de otomatik çalışır
-                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
-
-                    // ProgressBar varsa güncelle
+                    // UI kontrollerini güvenli şekilde güncelle
                     try
                     {
-                        if (progressBarOptimizationProgress != null)
+                        UpdateUIControl(() =>
                         {
-                            progressBarOptimizationProgress.Value = (int)progressInfo.PercentComplete;
-                            lblOptimizationProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                        }
+                            if (progressBarOptimizationProgress != null)
+                            {
+                                progressBarOptimizationProgress.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblOptimizationProgress != null)
+                            {
+                                lblOptimizationProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
-                    }
-
-                    // Label varsa güncelle
-                    try
-                    {
-                        /*
-                        if (lblSingleTraderProgress != null)
-                        {
-                            lblSingleTraderProgress.Text =
-                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
-                                $"({progressInfo.PercentComplete:F1}%) - " +
-                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
-                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
-                        }
-                        */
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                        _singleTraderLogger?.LogWarning($"Optimization progress update failed: {ex.Message}");
                     }
                 });
 
+                // Progress reporter oluştur - SingleTrader (bar ilerlemesi)
                 var progressSingleTrader = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
-                    // UI thread'de otomatik çalışır
-                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
-                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
-
-                    // ProgressBar varsa güncelle
+                    // UI kontrollerini güvenli şekilde güncelle
                     try
                     {
-                        if (progressBarSingleTraderProgress != null)
+                        UpdateUIControl(() =>
                         {
-                            progressBarSingleTraderProgress.Value = (int)progressInfo.PercentComplete;
-                            lblSingleTraderProgress2.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                        }
+                            if (progressBarSingleTraderProgress != null)
+                            {
+                                progressBarSingleTraderProgress.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblSingleTraderProgress2 != null)
+                            {
+                                lblSingleTraderProgress2.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
-                    }
-
-                    // Label varsa güncelle
-                    try
-                    {
-                        /*
-                        if (lblSingleTraderProgress != null)
-                        {
-                            lblSingleTraderProgress.Text =
-                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
-                                $"({progressInfo.PercentComplete:F1}%) - " +
-                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
-                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
-                        }
-                        */
-                    }
-                    catch (Exception ex)
-                    {
-                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                        _singleTraderLogger?.LogWarning($"SingleTrader progress update failed: {ex.Message}");
                     }
                 });
 
@@ -801,6 +724,26 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             MessageBox.Show(summary, "Backtest Sonuçları",
                 MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        // ====================================================================
+        // UI THREAD HELPER
+        // ====================================================================
+
+        /// <summary>
+        /// UI kontrollerini güvenli bir şekilde güncellemek için helper method
+        /// Progress callback'leri farklı thread'den geldiği için Invoke gerekiyor
+        /// </summary>
+        private void UpdateUIControl(Action action)
+        {
+            if (InvokeRequired)
+            {
+                Invoke(action);
+            }
+            else
+            {
+                action();
+            }
         }
 
     }
