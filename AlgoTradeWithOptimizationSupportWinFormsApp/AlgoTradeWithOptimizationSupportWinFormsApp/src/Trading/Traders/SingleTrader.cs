@@ -26,6 +26,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
     {
         #region Properties
 
+        // Identification
+        public int Id { get; private set; }
+        public void SetId(int id) => Id = id;
+        public int GetId() => Id;
+
+        public string Name { get; private set; }
+        public void SetName(string name) => Name = name;
+        public string GetName() => Name;
+
+        // Symbol and System Id
+        public string SymbolName { get; set; }
+        public int SymbolPeriod { get; set; }
+        public string SystemName { get; set; }
+        public int SystemId { get; set; }
+
+        // Execution Time Tracking
+        public string LastExecutionId { get; set; }
+        public string LastExecutionTime { get; set; }
+        public string LastExecutionTimeStart { get; set; }
+        public string LastExecutionTimeStop { get; set; }
+        public string LastExecutionTimeInMSec { get; set; }
+        public string LastResetTime { get; set; }
+        public string LastStatisticsCalculationTime { get; set; }
+
         private List<StockData> _data = new List<StockData>();
         public override List<StockData> Data => _data;
 
@@ -98,20 +122,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public int ExecutionStepNumber { get; set; }
         public bool BakiyeInitialized { get; set; }
         public AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics statistics { get; private set; }
-
-        // Execution Time Tracking
-        public string LastExecutionTime { get; set; }
-        public string LastExecutionTimeStart { get; set; }
-        public string LastExecutionTimeStop { get; set; }
-        public int ExecutionTimeInMSec { get; set; }
-        public string LastResetTime { get; set; }
-        public string LastStatisticsCalculationTime { get; set; }
-
-        // Identification
-        public int Id { get; private set; }
-        public void SetId(int id) => Id = id;
-        public int GetId() => Id;
-
         #endregion
 
         #region IDisposable
@@ -1602,6 +1612,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             istatistikleri_hesapla();
 
+            istatistikleri_dosyaya_yaz();
+
             OnFinal?.Invoke(this, 1);
         }
 
@@ -1609,6 +1621,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         {
             int lastBarIndex = GetLastBarIndex();
             statistics.Hesapla(lastBarIndex);
+        }
+
+        public void istatistikleri_dosyaya_yaz()
+        {
+            statistics.SaveToTxt("SingleTraderStatistics.txt");
         }
 
         #endregion

@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
@@ -16,24 +18,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #endregion
 
+        #region Identification
+        public int Id => Trader?.Id ?? 0;
+        public string Name => Trader?.Name ?? "...";
+        #endregion
+
         #region System Info
-
-        public int SistemId { get; set; }
-        public string SistemName { get; set; }
-        public string GrafikSembol { get; set; }
-        public string GrafikPeriyot { get; set; }
-
+        public int SistemId => Trader?.SystemId ?? 0;
+        public string SistemName => Trader?.SystemName ?? "...";
+        public string GrafikSembol => Trader?.SymbolName ?? "...";
+        public string GrafikPeriyot => Trader?.SymbolPeriod.ToString() ?? "...";
         #endregion
 
         #region Execution Info
 
-        public int LastExecutionId { get; set; }
-        public string LastExecutionTime { get; set; }
-        public string LastExecutionTimeStart { get; set; }
-        public string LastExecutionTimeStop { get; set; }
-        public int ExecutionTimeInMSec { get; set; }
-        public string LastResetTime { get; set; }
-        public string LastStatisticsCalculationTime { get; set; }
+        public string LastExecutionId => Trader?.LastExecutionId ?? "...";
+        public string LastExecutionTime => Trader?.LastExecutionTime ?? "";
+        public string LastExecutionTimeStart => Trader?.LastExecutionTimeStart ?? "";
+        public string LastExecutionTimeStop => Trader?.LastExecutionTimeStop ?? "";
+        public int ExecutionTimeInMSec => int.TryParse(Trader?.LastExecutionTimeInMSec, out int ms) ? ms : 0;
+        public string LastResetTime => Trader?.LastResetTime ?? "";
+        public string LastStatisticsCalculationTime => Trader?.LastStatisticsCalculationTime ?? "";
 
         #endregion
 
@@ -72,54 +77,54 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Trade Counts
 
-        public int IslemSayisi { get; set; }
-        public int AlisSayisi { get; set; }
-        public int SatisSayisi { get; set; }
-        public int FlatSayisi { get; set; }
-        public int PassSayisi { get; set; }
-        public int KarAlSayisi { get; set; }
-        public int ZararKesSayisi { get; set; }
-        public int KazandiranIslemSayisi { get; set; }
-        public int KaybettirenIslemSayisi { get; set; }
-        public int NotrIslemSayisi { get; set; }
-        public int KazandiranAlisSayisi { get; set; }
-        public int KaybettirenAlisSayisi { get; set; }
-        public int NotrAlisSayisi { get; set; }
-        public int KazandiranSatisSayisi { get; set; }
-        public int KaybettirenSatisSayisi { get; set; }
-        public int NotrSatisSayisi { get; set; }
+        public int IslemSayisi => Trader?.status?.IslemSayisi ?? 0;
+        public int AlisSayisi => Trader?.status?.AlisSayisi ?? 0;
+        public int SatisSayisi => Trader?.status?.SatisSayisi ?? 0;
+        public int FlatSayisi => Trader?.status?.FlatSayisi ?? 0;
+        public int PassSayisi => Trader?.status?.PassSayisi ?? 0;
+        public int KarAlSayisi => Trader?.status?.KarAlSayisi ?? 0;
+        public int ZararKesSayisi => Trader?.status?.ZararKesSayisi ?? 0;
+        public int KazandiranIslemSayisi => Trader?.status?.KazandiranIslemSayisi ?? 0;
+        public int KaybettirenIslemSayisi => Trader?.status?.KaybettirenIslemSayisi ?? 0;
+        public int NotrIslemSayisi => Trader?.status?.NotrIslemSayisi ?? 0;
+        public int KazandiranAlisSayisi => Trader?.status?.KazandiranAlisSayisi ?? 0;
+        public int KaybettirenAlisSayisi => Trader?.status?.KaybettirenAlisSayisi ?? 0;
+        public int NotrAlisSayisi => Trader?.status?.NotrAlisSayisi ?? 0;
+        public int KazandiranSatisSayisi => Trader?.status?.KazandiranSatisSayisi ?? 0;
+        public int KaybettirenSatisSayisi => Trader?.status?.KaybettirenSatisSayisi ?? 0;
+        public int NotrSatisSayisi => Trader?.status?.NotrSatisSayisi ?? 0;
 
         #endregion
 
         #region Command Counts
 
-        public int AlKomutSayisi { get; set; }
-        public int SatKomutSayisi { get; set; }
-        public int PasGecKomutSayisi { get; set; }
-        public int KarAlKomutSayisi { get; set; }
-        public int ZararKesKomutSayisi { get; set; }
-        public int FlatOlKomutSayisi { get; set; }
+        public int AlKomutSayisi => Trader?.status?.AlKomutSayisi ?? 0;
+        public int SatKomutSayisi => Trader?.status?.SatKomutSayisi ?? 0;
+        public int PasGecKomutSayisi => Trader?.status?.PasGecKomutSayisi ?? 0;
+        public int KarAlKomutSayisi => Trader?.status?.KarAlKomutSayisi ?? 0;
+        public int ZararKesKomutSayisi => Trader?.status?.ZararKesKomutSayisi ?? 0;
+        public int FlatOlKomutSayisi => Trader?.status?.FlatOlKomutSayisi ?? 0;
 
         #endregion
 
         #region Bar Status
 
-        public int KardaBarSayisi { get; set; }
-        public int ZarardaBarSayisi { get; set; }
+        public int KardaBarSayisi => Trader?.status?.KardaBarSayisi ?? 0;
+        public int ZarardaBarSayisi => Trader?.status?.ZarardaBarSayisi ?? 0;
 
         #endregion
 
         #region PnL
 
-        public double KarZararFiyat { get; set; }
-        public double KarZararPuan { get; set; }
-        public double KarZararFiyatYuzde { get; set; }
-        public double ToplamKarFiyat { get; set; }
-        public double ToplamZararFiyat { get; set; }
-        public double NetKarFiyat { get; set; }
-        public double ToplamKarPuan { get; set; }
-        public double ToplamZararPuan { get; set; }
-        public double NetKarPuan { get; set; }
+        public double KarZararFiyat => Trader?.status?.KarZararFiyat ?? 0;
+        public double KarZararPuan => Trader?.status?.KarZararPuan ?? 0;
+        public double KarZararFiyatYuzde => Trader?.status?.KarZararFiyatYuzde ?? 0;
+        public double ToplamKarFiyat => Trader?.status?.ToplamKarFiyat ?? 0;
+        public double ToplamZararFiyat => Trader?.status?.ToplamZararFiyat ?? 0;
+        public double NetKarFiyat => Trader?.status?.NetKarFiyat ?? 0;
+        public double ToplamKarPuan => Trader?.status?.ToplamKarPuan ?? 0;
+        public double ToplamZararPuan => Trader?.status?.ToplamZararPuan ?? 0;
+        public double NetKarPuan => Trader?.status?.NetKarPuan ?? 0;
         public double MaxKarFiyat { get; set; }
         public double MaxZararFiyat { get; set; }
         public double MaxKarPuan { get; set; }
@@ -133,35 +138,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Commission
 
-        public int KomisyonIslemSayisi { get; set; }
-        public double KomisyonVarlikAdedSayisi { get; set; }
-        public double KomisyonCarpan { get; set; }
-        public double KomisyonFiyat { get; set; }
+        public int KomisyonIslemSayisi => Trader?.status?.KomisyonIslemSayisi ?? 0;
+        public double KomisyonVarlikAdedSayisi => Trader?.status?.KomisyonVarlikAdedSayisi ?? 0;
+        public double KomisyonVarlikAdedSayisiMicro => Trader?.status?.KomisyonVarlikAdedSayisiMicro ?? 0;
+        public double KomisyonCarpan => Trader?.status?.KomisyonCarpan ?? 0;
+        public double KomisyonFiyat => Trader?.status?.KomisyonFiyat ?? 0;
         public double KomisyonFiyatYuzde { get; set; }
-        public bool KomisyonuDahilEt { get; set; }
+        public bool KomisyonuDahilEt => Trader?.flags?.KomisyonuDahilEt ?? false;
 
         #endregion
 
         #region Balance
 
-        public double IlkBakiyeFiyat { get; set; }
-        public double IlkBakiyePuan { get; set; }
-        public double BakiyeFiyat { get; set; }
-        public double BakiyePuan { get; set; }
-        public double GetiriFiyat { get; set; }
-        public double GetiriPuan { get; set; }
-        public double GetiriFiyatYuzde { get; set; }
-        public double GetiriPuanYuzde { get; set; }
-        public double BakiyeFiyatNet { get; set; }
-        public double BakiyePuanNet { get; set; }
-        public double GetiriFiyatNet { get; set; }
-        public double GetiriPuanNet { get; set; }
-        public double GetiriFiyatYuzdeNet { get; set; }
-        public double GetiriPuanYuzdeNet { get; set; }
-        public double GetiriKz { get; set; }
-        public double GetiriKzNet { get; set; }
-        public double GetiriKzSistem { get; set; }
-        public double GetiriKzNetSistem { get; set; }
+        public double IlkBakiyeFiyat => Trader?.status?.IlkBakiyeFiyat ?? 0;
+        public double IlkBakiyePuan => Trader?.status?.IlkBakiyePuan ?? 0;
+        public double BakiyeFiyat => Trader?.status?.BakiyeFiyat ?? 0;
+        public double BakiyePuan => Trader?.status?.BakiyePuan ?? 0;
+        public double GetiriFiyat => Trader?.status?.GetiriFiyat ?? 0;
+        public double GetiriPuan => Trader?.status?.GetiriPuan ?? 0;
+        public double GetiriFiyatYuzde => Trader?.status?.GetiriFiyatYuzde ?? 0;
+        public double GetiriPuanYuzde => Trader?.status?.GetiriPuanYuzde ?? 0;
+        public double BakiyeFiyatNet => Trader?.status?.BakiyeFiyatNet ?? 0;
+        public double BakiyePuanNet => Trader?.status?.BakiyePuanNet ?? 0;
+        public double GetiriFiyatNet => Trader?.status?.GetiriFiyatNet ?? 0;
+        public double GetiriPuanNet => Trader?.status?.GetiriPuanNet ?? 0;
+        public double GetiriFiyatYuzdeNet => Trader?.status?.GetiriFiyatYuzdeNet ?? 0;
+        public double GetiriPuanYuzdeNet => Trader?.status?.GetiriPuanYuzdeNet ?? 0;
+        public double GetiriKz => Trader?.status?.GetiriKz ?? 0;
+        public double GetiriKzNet => Trader?.status?.GetiriKzNet ?? 0;
+        public double GetiriKzSistem => Trader?.status?.GetiriKzSistem ?? 0;
+        public double GetiriKzNetSistem => Trader?.status?.GetiriKzNetSistem ?? 0;
         public double GetiriKzSistemYuzde { get; set; }
         public double GetiriKzNetSistemYuzde { get; set; }
         public int GetiriFiyatTipi { get; set; }
@@ -207,43 +213,53 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Asset Info
 
-        public double HisseSayisi { get; set; }
-        public double KontratSayisi { get; set; }
-        public double VarlikAdedCarpani { get; set; }
-        public double VarlikAdedSayisi { get; set; }
-        public double KaymaMiktari { get; set; }
-        public bool KaymayiDahilEt { get; set; }
+        public double HisseSayisi => Trader?.status?.HisseSayisi ?? 0;
+        public double KontratSayisi => Trader?.status?.KontratSayisi ?? 0;
+        public double VarlikAdedCarpani => Trader?.status?.VarlikAdedCarpani ?? 0;
+        public double VarlikAdedSayisi => Trader?.status?.VarlikAdedSayisi ?? 0;
+        public double VarlikAdedSayisiMicro => Trader?.status?.VarlikAdedSayisiMicro ?? 0;
+        public double KaymaMiktari => Trader?.status?.KaymaMiktari ?? 0;
+        public bool KaymayiDahilEt => Trader?.flags?.KaymayiDahilEt ?? false;
 
+        // New Pyramiding fields
+        public bool PyramidingEnabled => Trader?.pozisyonBuyuklugu?.PyramidingEnabled ?? false;
+        public bool MaxPositionSizeEnabled => Trader?.pozisyonBuyuklugu?.MaxPositionSizeEnabled ?? false;
+        public double MaxPositionSize => Trader?.pozisyonBuyuklugu?.MaxPositionSize ?? 0;
+        public double MaxPositionSizeMicro => Trader?.pozisyonBuyuklugu?.MaxPositionSizeMicro ?? 0;
+        public bool MicroLotSizeEnabled => Trader?.pozisyonBuyuklugu?.MicroLotSizeEnabled ?? false;
         #endregion
 
         #region Signals
 
-        public string Sinyal { get; set; }
-        public string SonYon { get; set; }
-        public string PrevYon { get; set; }
-        public double SonFiyat { get; set; }
-        public double SonAFiyat { get; set; }
-        public double SonSFiyat { get; set; }
-        public double SonFFiyat { get; set; }
-        public double SonPFiyat { get; set; }
-        public double PrevFiyat { get; set; }
-        public double PrevAFiyat { get; set; }
-        public double PrevSFiyat { get; set; }
-        public double PrevFFiyat { get; set; }
-        public double PrevPFiyat { get; set; }
-        public int SonBarNo { get; set; }
-        public int SonABarNo { get; set; }
-        public int SonSBarNo { get; set; }
-        public int SonFBarNo { get; set; }
-        public int SonPBarNo { get; set; }
-        public int PrevBarNo { get; set; }
-        public int PrevABarNo { get; set; }
-        public int PrevSBarNo { get; set; }
-        public int PrevFBarNo { get; set; }
-        public int PrevPBarNo { get; set; }
-        public int EmirKomut { get; set; }
-        public int EmirStatus { get; set; }
+        public string Sinyal => Trader?.signals?.Sinyal ?? "";
+        public string SonYon => Trader?.signals?.SonYon ?? "";
+        public string PrevYon => Trader?.signals?.PrevYon ?? "";
+        public double SonFiyat => Trader?.signals?.SonFiyat ?? 0;
+        public double SonAFiyat => Trader?.signals?.SonAFiyat ?? 0;
+        public double SonSFiyat => Trader?.signals?.SonSFiyat ?? 0;
+        public double SonFFiyat => Trader?.signals?.SonFFiyat ?? 0;
+        public double SonPFiyat => Trader?.signals?.SonPFiyat ?? 0;
+        public double PrevFiyat => Trader?.signals?.PrevFiyat ?? 0;
+        public double PrevAFiyat => Trader?.signals?.PrevAFiyat ?? 0;
+        public double PrevSFiyat => Trader?.signals?.PrevSFiyat ?? 0;
+        public double PrevFFiyat => Trader?.signals?.PrevFFiyat ?? 0;
+        public double PrevPFiyat => Trader?.signals?.PrevPFiyat ?? 0;
+        public int SonBarNo => Trader?.signals?.SonBarNo ?? 0;
+        public int SonABarNo => Trader?.signals?.SonABarNo ?? 0;
+        public int SonSBarNo => Trader?.signals?.SonSBarNo ?? 0;
+        public int SonFBarNo => Trader?.signals?.SonFBarNo ?? 0;
+        public int SonPBarNo => Trader?.signals?.SonPBarNo ?? 0;
+        public int PrevBarNo => Trader?.signals?.PrevBarNo ?? 0;
+        public int PrevABarNo => Trader?.signals?.PrevABarNo ?? 0;
+        public int PrevSBarNo => Trader?.signals?.PrevSBarNo ?? 0;
+        public int PrevFBarNo => Trader?.signals?.PrevFBarNo ?? 0;
+        public int PrevPBarNo => Trader?.signals?.PrevPBarNo ?? 0;
+        public int EmirKomut => Trader?.signals?.EmirKomut ?? 0;
+        public int EmirStatus => Trader?.signals?.EmirStatus ?? 0;
 
+        // New Micro Signal fields
+        public double SonVarlikAdedSayisiMicro => Trader?.signals?.SonVarlikAdedSayisiMicro ?? 0;
+        public double PrevVarlikAdedSayisiMicro => Trader?.signals?.PrevVarlikAdedSayisiMicro ?? 0;
         #endregion
 
         #region Periodic Returns - Month
@@ -316,7 +332,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Statistics Map
 
-        public Dictionary<string, string> IstatistiklerNew { get; set; }
+        public Dictionary<string, string> StatisticsMap { get; set; }
 
         #endregion
 
@@ -324,7 +340,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         public Statistics()
         {
-            IstatistiklerNew = new Dictionary<string, string>();
+            StatisticsMap = new Dictionary<string, string>();
             IlkBarIndex = 0;
         }
 
@@ -346,83 +362,78 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         public Statistics Reset()
         {
-            IstatistiklerNew.Clear();
+            StatisticsMap.Clear();
             return this;
         }
 
-        public int Hesapla(int SecilenBarNumarasi)
+        public int Hesapla(int secilenBarNumarasi)
         {
             int result = 0;
 
             if (Trader == null)
                 return result;
 
-            Trader.LastStatisticsCalculationTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-
             ReadValues();
 
-            ToplamBarSayisi = Trader.Data.Count;
-            IlkBarTarihi = Trader.Data[0].Date.ToString("yyyy.MM.dd");
-            SonBarTarihi = Trader.Data[Trader.Data.Count - 1].Date.ToString("yyyy.MM.dd");
+            Trader.LastStatisticsCalculationTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
-            int lastBar = Trader.Data.Count - 1;
+            int firstBarIndex = 0;
+            int lastBarIndex  = Trader.Data.Count - 1;
+            ToplamBarSayisi   = Trader.Data.Count;
 
-            this.SecilenBarNumarasi = SecilenBarNumarasi;
-            if (this.SecilenBarNumarasi > lastBar)
-            {
-                this.SecilenBarNumarasi = lastBar;
+            this.SecilenBarNumarasi = secilenBarNumarasi;
+            if (this.SecilenBarNumarasi < firstBarIndex) {
+                this.SecilenBarNumarasi = firstBarIndex;
+            }
+            else if (this.SecilenBarNumarasi > lastBarIndex) {
+                this.SecilenBarNumarasi = lastBarIndex;
             }
 
-            SecilenBarTarihi = Trader.Data[this.SecilenBarNumarasi].Date.ToString("yyyy.MM.dd");
-
-            if (this.SecilenBarNumarasi <= lastBar)
-            {
-                SecilenBarAcilisFiyati = Trader.Data[this.SecilenBarNumarasi].Open;
-                SecilenBarYuksekFiyati = Trader.Data[this.SecilenBarNumarasi].High;
-                SecilenBarDusukFiyati = Trader.Data[this.SecilenBarNumarasi].Low;
-                SecilenBarKapanisFiyati = Trader.Data[this.SecilenBarNumarasi].Close;
-            }
-
-            SonBarTarihi = Trader.Data[lastBar].Date.ToString("yyyy.MM.dd");
-            SonBarAcilisFiyati = Trader.Data[lastBar].Open;
-            SonBarYuksekFiyati = Trader.Data[lastBar].High;
-            SonBarDusukFiyati = Trader.Data[lastBar].Low;
-            SonBarKapanisFiyati = Trader.Data[lastBar].Close;
-            SonBarIndex = lastBar;
+            IlkBarTarihi            = Trader.Data[firstBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
+            SonBarTarihi            = Trader.Data[lastBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
+            SecilenBarTarihi        = Trader.Data[this.SecilenBarNumarasi].Date.ToString("yyyy.MM.dd HH:mm:ss");
+            SecilenBarAcilisFiyati  = Trader.Data[this.SecilenBarNumarasi].Open;
+            SecilenBarYuksekFiyati  = Trader.Data[this.SecilenBarNumarasi].High;
+            SecilenBarDusukFiyati   = Trader.Data[this.SecilenBarNumarasi].Low;
+            SecilenBarKapanisFiyati = Trader.Data[this.SecilenBarNumarasi].Close;
+            SonBarTarihi            = Trader.Data[lastBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
+            SonBarAcilisFiyati      = Trader.Data[lastBarIndex].Open;
+            SonBarYuksekFiyati      = Trader.Data[lastBarIndex].High;
+            SonBarDusukFiyati       = Trader.Data[lastBarIndex].Low;
+            SonBarKapanisFiyati     = Trader.Data[lastBarIndex].Close;
+            SonBarIndex             = lastBarIndex;
 
             // Calculate time elapsed
             DateTime firstDate = Trader.Data[0].Date;
             TimeSpan elapsed = DateTime.Now - firstDate;
-
             double sureDakika = elapsed.TotalMinutes;
             double sureSaat = elapsed.TotalHours;
             int sureGun = elapsed.Days;
             double sureAy = sureGun / 30.4;
 
-            ToplamGecenSureAy = sureAy;
-            ToplamGecenSureGun = sureGun;
-            ToplamGecenSureSaat = (int)sureSaat;
-            ToplamGecenSureDakika = (int)sureDakika;
-
-            OrtAylikIslemSayisi = ToplamGecenSureAy > 0 ? 1.0 * IslemSayisi / ToplamGecenSureAy : 0;
+            ToplamGecenSureAy      = sureAy;
+            ToplamGecenSureGun     = sureGun;
+            ToplamGecenSureSaat    = (int)sureSaat;
+            ToplamGecenSureDakika  = (int)sureDakika;
+            OrtAylikIslemSayisi    = ToplamGecenSureAy > 0 ? 1.0 * IslemSayisi / ToplamGecenSureAy : 0;
             OrtHaftalikIslemSayisi = 0.0;
-            OrtGunlukIslemSayisi = ToplamGecenSureGun > 0 ? 1.0 * IslemSayisi / ToplamGecenSureGun : 0;
-            OrtSaatlikIslemSayisi = ToplamGecenSureSaat > 0 ? 1.0 * IslemSayisi / ToplamGecenSureSaat : 0;
+            OrtGunlukIslemSayisi   = ToplamGecenSureGun > 0 ? 1.0 * IslemSayisi / ToplamGecenSureGun : 0;
+            OrtSaatlikIslemSayisi  = ToplamGecenSureSaat > 0 ? 1.0 * IslemSayisi / ToplamGecenSureSaat : 0;
 
-            GetiriMaxDD = 0.0;
+            GetiriMaxDD      = 0.0;
             GetiriMaxDDTarih = "";
-            GetiriMaxKayip = VarlikAdedSayisi * -1 * GetiriMaxDD;
+            GetiriMaxKayip   = VarlikAdedSayisi * -1 * GetiriMaxDD;
 
-            MaxKarFiyat = 0.0;
-            MaxZararFiyat = 0.0;
-            MaxKarPuan = 0.0;
-            MaxZararPuan = 0.0;
-            MinBakiyeFiyat = IlkBakiyeFiyat;
-            MaxBakiyeFiyat = IlkBakiyeFiyat;
+            MaxKarFiyat       = 0.0;
+            MaxZararFiyat     = 0.0;
+            MaxKarPuan        = 0.0;
+            MaxZararPuan      = 0.0;
+            MinBakiyeFiyat    = IlkBakiyeFiyat;
+            MaxBakiyeFiyat    = IlkBakiyeFiyat;
             MinBakiyeFiyatNet = IlkBakiyeFiyat;
             MaxBakiyeFiyatNet = IlkBakiyeFiyat;
-            MinBakiyePuan = IlkBakiyePuan;
-            MaxBakiyePuan = IlkBakiyePuan;
+            MinBakiyePuan     = IlkBakiyePuan;
+            MaxBakiyePuan     = IlkBakiyePuan;
 
             // Find min/max values
             for (int i = 1; i < Trader.Data.Count; i++)
@@ -484,16 +495,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             ProfitFactorSistem = 0.0;
             KarliIslemOrani = IslemSayisi > 0 ? (1.0 * KazandiranIslemSayisi) / (1.0 * IslemSayisi) * 100.0 : 0;
 
-            MinBakiyeFiyatYuzde = IlkBakiyeFiyat != 0 ? (MinBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
-            MaxBakiyeFiyatYuzde = IlkBakiyeFiyat != 0 ? (MaxBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
+            MinBakiyeFiyatYuzde    = IlkBakiyeFiyat != 0 ? (MinBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
+            MaxBakiyeFiyatYuzde    = IlkBakiyeFiyat != 0 ? (MaxBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
             MinBakiyeFiyatNetYuzde = IlkBakiyeFiyat != 0 ? (MinBakiyeFiyatNet - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
             MaxBakiyeFiyatNetYuzde = IlkBakiyeFiyat != 0 ? (MaxBakiyeFiyatNet - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
-            KomisyonFiyatYuzde = GetiriFiyatYuzde - GetiriFiyatYuzdeNet;
-
-            GetiriKzSistemYuzde = 0.0;
+            KomisyonFiyatYuzde     = GetiriFiyatYuzde - GetiriFiyatYuzdeNet;
+            GetiriKzSistemYuzde    = 0.0;
             GetiriKzNetSistemYuzde = 0.0;
 
             GetiriIstatistikleriHesapla();
+
             AssignToMap();
 
             return result;
@@ -501,112 +512,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         private void ReadValues()
         {
-            SistemId = 0;
-            SistemName = "";
-            GrafikSembol = "";
-            GrafikPeriyot = "";
-
-            LastExecutionId = 0;
-            LastExecutionTime = Trader.LastExecutionTime;
-            LastExecutionTimeStart = Trader.LastExecutionTimeStart;
-            LastExecutionTimeStop = Trader.LastExecutionTimeStop;
-            ExecutionTimeInMSec = Trader.ExecutionTimeInMSec;
-            LastResetTime = Trader.LastResetTime;
-            LastStatisticsCalculationTime = Trader.LastStatisticsCalculationTime;
-
-            IslemSayisi = Trader.status.IslemSayisi;
-            KazandiranIslemSayisi = Trader.status.KazandiranIslemSayisi;
-            KaybettirenIslemSayisi = Trader.status.KaybettirenIslemSayisi;
-            NotrIslemSayisi = Trader.status.NotrIslemSayisi;
-            KazandiranAlisSayisi = Trader.status.KazandiranAlisSayisi;
-            KaybettirenAlisSayisi = Trader.status.KaybettirenAlisSayisi;
-            NotrAlisSayisi = Trader.status.NotrAlisSayisi;
-            KazandiranSatisSayisi = Trader.status.KazandiranSatisSayisi;
-            KaybettirenSatisSayisi = Trader.status.KaybettirenSatisSayisi;
-            NotrSatisSayisi = Trader.status.NotrSatisSayisi;
-            AlisSayisi = Trader.status.AlisSayisi;
-            SatisSayisi = Trader.status.SatisSayisi;
-            FlatSayisi = Trader.status.FlatSayisi;
-            PassSayisi = Trader.status.PassSayisi;
-            KarAlSayisi = Trader.status.KarAlSayisi;
-            ZararKesSayisi = Trader.status.ZararKesSayisi;
-            AlKomutSayisi = Trader.status.AlKomutSayisi;
-            SatKomutSayisi = Trader.status.SatKomutSayisi;
-            PasGecKomutSayisi = Trader.status.PasGecKomutSayisi;
-            KarAlKomutSayisi = Trader.status.KarAlKomutSayisi;
-            ZararKesKomutSayisi = Trader.status.ZararKesKomutSayisi;
-            FlatOlKomutSayisi = Trader.status.FlatOlKomutSayisi;
-            KardaBarSayisi = Trader.status.KardaBarSayisi;
-            ZarardaBarSayisi = Trader.status.ZarardaBarSayisi;
-            KarZararFiyat = Trader.status.KarZararFiyat;
-            KarZararPuan = Trader.status.KarZararPuan;
-            KarZararFiyatYuzde = Trader.status.KarZararFiyatYuzde;
-            KomisyonIslemSayisi = Trader.status.KomisyonIslemSayisi;
-            KomisyonVarlikAdedSayisi = Trader.status.KomisyonVarlikAdedSayisi;
-            KomisyonCarpan = Trader.status.KomisyonCarpan;
-            KomisyonFiyat = Trader.status.KomisyonFiyat;
-            KomisyonuDahilEt = Trader.flags.KomisyonuDahilEt;
-            HisseSayisi = Trader.status.HisseSayisi;
-            KontratSayisi = Trader.status.KontratSayisi;
-            VarlikAdedCarpani = Trader.status.VarlikAdedCarpani;
-            VarlikAdedSayisi = Trader.status.VarlikAdedSayisi;
-            KaymaMiktari = Trader.status.KaymaMiktari;
-            KaymayiDahilEt = Trader.flags.KaymayiDahilEt;
-            IlkBakiyeFiyat = Trader.status.IlkBakiyeFiyat;
-            IlkBakiyePuan = Trader.status.IlkBakiyePuan;
-            BakiyeFiyat = Trader.status.BakiyeFiyat;
-            BakiyePuan = Trader.status.BakiyePuan;
-            GetiriFiyat = Trader.status.GetiriFiyat;
-            GetiriPuan = Trader.status.GetiriPuan;
-            GetiriFiyatYuzde = Trader.status.GetiriFiyatYuzde;
-            GetiriPuanYuzde = Trader.status.GetiriPuanYuzde;
-            BakiyeFiyatNet = Trader.status.BakiyeFiyatNet;
-            BakiyePuanNet = Trader.status.BakiyePuanNet;
-            GetiriFiyatNet = Trader.status.GetiriFiyatNet;
-            GetiriPuanNet = Trader.status.GetiriPuanNet;
-            GetiriFiyatYuzdeNet = Trader.status.GetiriFiyatYuzdeNet;
-            GetiriPuanYuzdeNet = Trader.status.GetiriPuanYuzdeNet;
-            GetiriKz = Trader.status.GetiriKz;
-            GetiriKzNet = Trader.status.GetiriKzNet;
-            GetiriKzSistem = Trader.status.GetiriKzSistem;
-            GetiriKzNetSistem = Trader.status.GetiriKzNetSistem;
-            //GetiriFiyatTipi = Trader.status.GetiriFiyatTipi;
-            NetKarPuan = Trader.status.NetKarPuan;
-            ToplamKarPuan = Trader.status.ToplamKarPuan;
-            ToplamZararPuan = Trader.status.ToplamZararPuan;
-            NetKarFiyat = Trader.status.NetKarFiyat;
-            ToplamKarFiyat = Trader.status.ToplamKarFiyat;
-            ToplamZararFiyat = Trader.status.ToplamZararFiyat;
-
-            // Prevent division by zero
-            if (ToplamZararPuan == 0)
-                ToplamZararPuan = 1e-12;
-
-            Sinyal = Trader.signals.Sinyal;
-            SonYon = Trader.signals.SonYon;
-            PrevYon = Trader.signals.PrevYon;
-            SonFiyat = Trader.signals.SonFiyat;
-            SonAFiyat = Trader.signals.SonAFiyat;
-            SonSFiyat = Trader.signals.SonSFiyat;
-            SonFFiyat = Trader.signals.SonFFiyat;
-            SonPFiyat = Trader.signals.SonPFiyat;
-            PrevFiyat = Trader.signals.PrevFiyat;
-            PrevAFiyat = Trader.signals.PrevAFiyat;
-            PrevSFiyat = Trader.signals.PrevSFiyat;
-            PrevFFiyat = Trader.signals.PrevFFiyat;
-            PrevPFiyat = Trader.signals.PrevPFiyat;
-            SonBarNo = Trader.signals.SonBarNo;
-            SonABarNo = Trader.signals.SonABarNo;
-            SonSBarNo = Trader.signals.SonSBarNo;
-            SonFBarNo = Trader.signals.SonFBarNo;
-            SonPBarNo = Trader.signals.SonPBarNo;
-            PrevBarNo = Trader.signals.PrevBarNo;
-            PrevABarNo = Trader.signals.PrevABarNo;
-            PrevSBarNo = Trader.signals.PrevSBarNo;
-            PrevFBarNo = Trader.signals.PrevFBarNo;
-            PrevPBarNo = Trader.signals.PrevPBarNo;
-            EmirKomut = Trader.signals.EmirKomut;
-            EmirStatus = Trader.signals.EmirStatus;
+            // All identification, system, and execution properties are now proxies.
+            // No manual assignments needed here.
         }
 
         private void GetiriIstatistikleriHesapla()
@@ -617,208 +524,234 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         private void AssignToMap()
         {
-            IstatistiklerNew.Clear();
+            StatisticsMap.Clear();
 
-            IstatistiklerNew["GrafikSembol"] = GrafikSembol;
-            IstatistiklerNew["GrafikPeriyot"] = GrafikPeriyot;
-            IstatistiklerNew["SistemId"] = SistemId.ToString();
-            IstatistiklerNew["SistemName"] = SistemName;
-            IstatistiklerNew["LastExecutionTime"] = LastExecutionTime;
-            IstatistiklerNew["LastExecutionTimeStart"] = LastExecutionTimeStart;
-            IstatistiklerNew["LastExecutionTimeStop"] = LastExecutionTimeStop;
-            IstatistiklerNew["ExecutionTimeInMSec"] = ExecutionTimeInMSec.ToString();
-            IstatistiklerNew["LastExecutionId"] = LastExecutionId.ToString();
-            IstatistiklerNew["LastResetTime"] = LastResetTime;
-            IstatistiklerNew["LastStatisticsCalculationTime"] = LastStatisticsCalculationTime;
-            IstatistiklerNew["ToplamGecenSureAy"] = $"{ToplamGecenSureAy:F1}";
-            IstatistiklerNew["ToplamGecenSureGun"] = ToplamGecenSureGun.ToString();
-            IstatistiklerNew["ToplamGecenSureSaat"] = ToplamGecenSureSaat.ToString();
-            IstatistiklerNew["ToplamGecenSureDakika"] = ToplamGecenSureDakika.ToString();
-            IstatistiklerNew["ToplamBarSayisi"] = ToplamBarSayisi.ToString();
-            IstatistiklerNew["SecilenBarNumarasi"] = SecilenBarNumarasi.ToString();
-            IstatistiklerNew["SecilenBarTarihi"] = SecilenBarTarihi;
-            IstatistiklerNew["IlkBarTarihi"] = IlkBarTarihi;
-            IstatistiklerNew["SonBarTarihi"] = SonBarTarihi;
-            IstatistiklerNew["IlkBarIndex"] = IlkBarIndex.ToString();
-            IstatistiklerNew["SonBarIndex"] = SonBarIndex.ToString();
-            IstatistiklerNew["SonBarAcilisFiyati"] = SonBarAcilisFiyati.ToString();
-            IstatistiklerNew["SonBarYuksekFiyati"] = SonBarYuksekFiyati.ToString();
-            IstatistiklerNew["SonBarDusukFiyati"] = SonBarDusukFiyati.ToString();
-            IstatistiklerNew["SonBarKapanisFiyati"] = SonBarKapanisFiyati.ToString();
-            IstatistiklerNew["IlkBakiyeFiyat"] = IlkBakiyeFiyat.ToString();
-            IstatistiklerNew["IlkBakiyePuan"] = IlkBakiyePuan.ToString();
-            IstatistiklerNew["BakiyeFiyat"] = BakiyeFiyat.ToString();
-            IstatistiklerNew["BakiyePuan"] = BakiyePuan.ToString();
-            IstatistiklerNew["GetiriFiyat"] = GetiriFiyat.ToString();
-            IstatistiklerNew["GetiriPuan"] = GetiriPuan.ToString();
-            IstatistiklerNew["GetiriFiyatYuzde"] = GetiriFiyatYuzde.ToString();
-            IstatistiklerNew["GetiriPuanYuzde"] = GetiriPuanYuzde.ToString();
-            IstatistiklerNew["BakiyeFiyatNet"] = BakiyeFiyatNet.ToString();
-            IstatistiklerNew["BakiyePuanNet"] = BakiyePuanNet.ToString();
-            IstatistiklerNew["GetiriFiyatNet"] = GetiriFiyatNet.ToString();
-            IstatistiklerNew["GetiriPuanNet"] = GetiriPuanNet.ToString();
-            IstatistiklerNew["GetiriFiyatYuzdeNet"] = GetiriFiyatYuzdeNet.ToString();
-            IstatistiklerNew["GetiriPuanYuzdeNet"] = GetiriPuanYuzdeNet.ToString();
-            IstatistiklerNew["GetiriKz"] = GetiriKz.ToString();
-            IstatistiklerNew["GetiriKzNet"] = GetiriKzNet.ToString();
-            IstatistiklerNew["MinBakiyeFiyat"] = MinBakiyeFiyat.ToString();
-            IstatistiklerNew["MaxBakiyeFiyat"] = MaxBakiyeFiyat.ToString();
-            IstatistiklerNew["MinBakiyePuan"] = MinBakiyePuan.ToString();
-            IstatistiklerNew["MaxBakiyePuan"] = MaxBakiyePuan.ToString();
-            IstatistiklerNew["MinBakiyeFiyatYuzde"] = MinBakiyeFiyatYuzde.ToString();
-            IstatistiklerNew["MaxBakiyeFiyatYuzde"] = MaxBakiyeFiyatYuzde.ToString();
-            IstatistiklerNew["MinBakiyeFiyatIndex"] = MinBakiyeFiyatIndex.ToString();
-            IstatistiklerNew["MaxBakiyeFiyatIndex"] = MaxBakiyeFiyatIndex.ToString();
-            IstatistiklerNew["MinBakiyePuanIndex"] = MinBakiyePuanIndex.ToString();
-            IstatistiklerNew["MaxBakiyePuanIndex"] = MaxBakiyePuanIndex.ToString();
-            IstatistiklerNew["MinBakiyeFiyatNet"] = MinBakiyeFiyatNet.ToString();
-            IstatistiklerNew["MaxBakiyeFiyatNet"] = MaxBakiyeFiyatNet.ToString();
-            IstatistiklerNew["MinBakiyeFiyatNetIndex"] = MinBakiyeFiyatNetIndex.ToString();
-            IstatistiklerNew["MaxBakiyeFiyatNetIndex"] = MaxBakiyeFiyatNetIndex.ToString();
-            IstatistiklerNew["MinBakiyeFiyatNetYuzde"] = MinBakiyeFiyatNetYuzde.ToString();
-            IstatistiklerNew["MaxBakiyeFiyatNetYuzde"] = MaxBakiyeFiyatNetYuzde.ToString();
-            IstatistiklerNew["GetiriKzSistem"] = $"{GetiriKzSistem:F2}";
-            IstatistiklerNew["GetiriKzSistemYuzde"] = $"{GetiriKzSistemYuzde:F2}";
-            IstatistiklerNew["GetiriKzNetSistem"] = $"{GetiriKzNetSistem:F2}";
-            IstatistiklerNew["GetiriKzNetSistemYuzde"] = $"{GetiriKzNetSistemYuzde:F2}";
-            IstatistiklerNew["IslemSayisi"] = IslemSayisi.ToString();
-            IstatistiklerNew["AlisSayisi"] = AlisSayisi.ToString();
-            IstatistiklerNew["SatisSayisi"] = SatisSayisi.ToString();
-            IstatistiklerNew["FlatSayisi"] = FlatSayisi.ToString();
-            IstatistiklerNew["PassSayisi"] = PassSayisi.ToString();
-            IstatistiklerNew["KarAlSayisi"] = KarAlSayisi.ToString();
-            IstatistiklerNew["ZararKesSayisi"] = ZararKesSayisi.ToString();
-            IstatistiklerNew["KazandiranIslemSayisi"] = KazandiranIslemSayisi.ToString();
-            IstatistiklerNew["KaybettirenIslemSayisi"] = KaybettirenIslemSayisi.ToString();
-            IstatistiklerNew["NotrIslemSayisi"] = NotrIslemSayisi.ToString();
-            IstatistiklerNew["KazandiranAlisSayisi"] = KazandiranAlisSayisi.ToString();
-            IstatistiklerNew["KaybettirenAlisSayisi"] = KaybettirenAlisSayisi.ToString();
-            IstatistiklerNew["NotrAlisSayisi"] = NotrAlisSayisi.ToString();
-            IstatistiklerNew["KazandiranSatisSayisi"] = KazandiranSatisSayisi.ToString();
-            IstatistiklerNew["KaybettirenSatisSayisi"] = KaybettirenSatisSayisi.ToString();
-            IstatistiklerNew["NotrSatisSayisi"] = NotrSatisSayisi.ToString();
-            IstatistiklerNew["AlKomutSayisi"] = AlKomutSayisi.ToString();
-            IstatistiklerNew["SatKomutSayisi"] = SatKomutSayisi.ToString();
-            IstatistiklerNew["PasGecKomutSayisi"] = PasGecKomutSayisi.ToString();
-            IstatistiklerNew["KarAlKomutSayisi"] = KarAlKomutSayisi.ToString();
-            IstatistiklerNew["ZararKesKomutSayisi"] = ZararKesKomutSayisi.ToString();
-            IstatistiklerNew["FlatOlKomutSayisi"] = FlatOlKomutSayisi.ToString();
-            IstatistiklerNew["KomisyonIslemSayisi"] = KomisyonIslemSayisi.ToString();
-            IstatistiklerNew["KomisyonVarlikAdedSayisi"] = KomisyonVarlikAdedSayisi.ToString();
-            IstatistiklerNew["KomisyonCarpan"] = KomisyonCarpan.ToString();
-            IstatistiklerNew["KomisyonFiyat"] = KomisyonFiyat.ToString();
-            IstatistiklerNew["KomisyonFiyatYuzde"] = KomisyonFiyatYuzde.ToString();
-            IstatistiklerNew["KomisyonuDahilEt"] = KomisyonuDahilEt.ToString();
-            IstatistiklerNew["KarZararFiyat"] = KarZararFiyat.ToString();
-            IstatistiklerNew["KarZararFiyatYuzde"] = KarZararFiyatYuzde.ToString();
-            IstatistiklerNew["KarZararPuan"] = KarZararPuan.ToString();
-            IstatistiklerNew["ToplamKarFiyat"] = ToplamKarFiyat.ToString();
-            IstatistiklerNew["ToplamZararFiyat"] = ToplamZararFiyat.ToString();
-            IstatistiklerNew["NetKarFiyat"] = NetKarFiyat.ToString();
-            IstatistiklerNew["ToplamKarPuan"] = ToplamKarPuan.ToString();
-            IstatistiklerNew["ToplamZararPuan"] = ToplamZararPuan.ToString();
-            IstatistiklerNew["NetKarPuan"] = NetKarPuan.ToString();
-            IstatistiklerNew["MaxKarFiyat"] = MaxKarFiyat.ToString();
-            IstatistiklerNew["MaxZararFiyat"] = MaxZararFiyat.ToString();
-            IstatistiklerNew["MaxKarPuan"] = MaxKarPuan.ToString();
-            IstatistiklerNew["MaxZararPuan"] = MaxZararPuan.ToString();
-            IstatistiklerNew["MaxZararFiyatIndex"] = MaxZararFiyatIndex.ToString();
-            IstatistiklerNew["MaxKarFiyatIndex"] = MaxKarFiyatIndex.ToString();
-            IstatistiklerNew["MaxZararPuanIndex"] = MaxZararPuanIndex.ToString();
-            IstatistiklerNew["MaxKarPuanIndex"] = MaxKarPuanIndex.ToString();
-            IstatistiklerNew["KardaBarSayisi"] = KardaBarSayisi.ToString();
-            IstatistiklerNew["ZarardaBarSayisi"] = ZarardaBarSayisi.ToString();
-            IstatistiklerNew["KarliIslemOrani"] = $"{KarliIslemOrani:F2}";
-            IstatistiklerNew["GetiriMaxDD"] = GetiriMaxDD.ToString();
-            IstatistiklerNew["GetiriMaxDDTarih"] = GetiriMaxDDTarih;
-            IstatistiklerNew["GetiriMaxKayip"] = GetiriMaxKayip.ToString();
-            IstatistiklerNew["ProfitFactor"] = $"{ProfitFactor:F2}";
-            IstatistiklerNew["ProfitFactorSistem"] = $"{ProfitFactorSistem:F2}";
-            IstatistiklerNew["OrtAylikIslemSayisi"] = $"{OrtAylikIslemSayisi:F2}";
-            IstatistiklerNew["OrtHaftalikIslemSayisi"] = $"{OrtHaftalikIslemSayisi:F2}";
-            IstatistiklerNew["OrtGunlukIslemSayisi"] = $"{OrtGunlukIslemSayisi:F2}";
-            IstatistiklerNew["OrtSaatlikIslemSayisi"] = $"{OrtSaatlikIslemSayisi:F2}";
-            IstatistiklerNew["Sinyal"] = Sinyal;
-            IstatistiklerNew["SonYon"] = SonYon;
-            IstatistiklerNew["PrevYon"] = PrevYon;
-            IstatistiklerNew["SonFiyat"] = SonFiyat.ToString();
-            IstatistiklerNew["SonAFiyat"] = SonAFiyat.ToString();
-            IstatistiklerNew["SonSFiyat"] = SonSFiyat.ToString();
-            IstatistiklerNew["SonFFiyat"] = SonFFiyat.ToString();
-            IstatistiklerNew["SonPFiyat"] = SonPFiyat.ToString();
-            IstatistiklerNew["PrevFiyat"] = PrevFiyat.ToString();
-            IstatistiklerNew["PrevAFiyat"] = PrevAFiyat.ToString();
-            IstatistiklerNew["PrevSFiyat"] = PrevSFiyat.ToString();
-            IstatistiklerNew["PrevFFiyat"] = PrevFFiyat.ToString();
-            IstatistiklerNew["PrevPFiyat"] = PrevPFiyat.ToString();
-            IstatistiklerNew["SonBarNo"] = SonBarNo.ToString();
-            IstatistiklerNew["SonABarNo"] = SonABarNo.ToString();
-            IstatistiklerNew["SonSBarNo"] = SonSBarNo.ToString();
-            IstatistiklerNew["SonFBarNo"] = SonFBarNo.ToString();
-            IstatistiklerNew["SonPBarNo"] = SonPBarNo.ToString();
-            IstatistiklerNew["PrevBarNo"] = PrevBarNo.ToString();
-            IstatistiklerNew["PrevABarNo"] = PrevABarNo.ToString();
-            IstatistiklerNew["PrevSBarNo"] = PrevSBarNo.ToString();
-            IstatistiklerNew["PrevFBarNo"] = PrevFBarNo.ToString();
-            IstatistiklerNew["PrevPBarNo"] = PrevPBarNo.ToString();
-            IstatistiklerNew["EmirKomut"] = EmirKomut.ToString();
-            IstatistiklerNew["EmirStatus"] = EmirStatus.ToString();
-            IstatistiklerNew["HisseSayisi"] = HisseSayisi.ToString();
-            IstatistiklerNew["KontratSayisi"] = KontratSayisi.ToString();
-            IstatistiklerNew["VarlikAdedCarpani"] = VarlikAdedCarpani.ToString();
-            IstatistiklerNew["VarlikAdedSayisi"] = VarlikAdedSayisi.ToString();
-            IstatistiklerNew["KaymaMiktari"] = KaymaMiktari.ToString();
-            IstatistiklerNew["KaymayiDahilEt"] = KaymayiDahilEt.ToString();
+            // Helper to add null-safe and formatted values
+            void Add(string key, object value, string format = "")
+            {
+                if (value == null || (value is string s && string.IsNullOrEmpty(s))) 
+                {
+                    StatisticsMap[key] = "...";
+                    return;
+                }
+                StatisticsMap[key] = string.IsNullOrEmpty(format) ? value.ToString() : string.Format("{0:" + format + "}", value);
+            }
 
-            // Periodic returns
-            IstatistiklerNew["GetiriFiyatBuAy"] = $"{GetiriFiyatBuAy:F2}";
-            IstatistiklerNew["GetiriFiyatAy1"] = $"{GetiriFiyatAy1:F2}";
-            IstatistiklerNew["GetiriFiyatAy2"] = $"{GetiriFiyatAy2:F2}";
-            IstatistiklerNew["GetiriFiyatAy3"] = $"{GetiriFiyatAy3:F2}";
-            IstatistiklerNew["GetiriFiyatAy4"] = $"{GetiriFiyatAy4:F2}";
-            IstatistiklerNew["GetiriFiyatAy5"] = $"{GetiriFiyatAy5:F2}";
-            IstatistiklerNew["GetiriFiyatBuHafta"] = $"{GetiriFiyatBuHafta:F2}";
-            IstatistiklerNew["GetiriFiyatHafta1"] = $"{GetiriFiyatHafta1:F2}";
-            IstatistiklerNew["GetiriFiyatHafta2"] = $"{GetiriFiyatHafta2:F2}";
-            IstatistiklerNew["GetiriFiyatHafta3"] = $"{GetiriFiyatHafta3:F2}";
-            IstatistiklerNew["GetiriFiyatHafta4"] = $"{GetiriFiyatHafta4:F2}";
-            IstatistiklerNew["GetiriFiyatHafta5"] = $"{GetiriFiyatHafta5:F2}";
-            IstatistiklerNew["GetiriFiyatBuGun"] = $"{GetiriFiyatBuGun:F2}";
-            IstatistiklerNew["GetiriFiyatGun1"] = $"{GetiriFiyatGun1:F2}";
-            IstatistiklerNew["GetiriFiyatGun2"] = $"{GetiriFiyatGun2:F2}";
-            IstatistiklerNew["GetiriFiyatGun3"] = $"{GetiriFiyatGun3:F2}";
-            IstatistiklerNew["GetiriFiyatGun4"] = $"{GetiriFiyatGun4:F2}";
-            IstatistiklerNew["GetiriFiyatGun5"] = $"{GetiriFiyatGun5:F2}";
-            IstatistiklerNew["GetiriFiyatBuSaat"] = $"{GetiriFiyatBuSaat:F2}";
-            IstatistiklerNew["GetiriFiyatSaat1"] = $"{GetiriFiyatSaat1:F2}";
-            IstatistiklerNew["GetiriFiyatSaat2"] = $"{GetiriFiyatSaat2:F2}";
-            IstatistiklerNew["GetiriFiyatSaat3"] = $"{GetiriFiyatSaat3:F2}";
-            IstatistiklerNew["GetiriFiyatSaat4"] = $"{GetiriFiyatSaat4:F2}";
-            IstatistiklerNew["GetiriFiyatSaat5"] = $"{GetiriFiyatSaat5:F2}";
-            IstatistiklerNew["GetiriPuanBuAy"] = $"{GetiriPuanBuAy:F2}";
-            IstatistiklerNew["GetiriPuanAy1"] = $"{GetiriPuanAy1:F2}";
-            IstatistiklerNew["GetiriPuanAy2"] = $"{GetiriPuanAy2:F2}";
-            IstatistiklerNew["GetiriPuanAy3"] = $"{GetiriPuanAy3:F2}";
-            IstatistiklerNew["GetiriPuanAy4"] = $"{GetiriPuanAy4:F2}";
-            IstatistiklerNew["GetiriPuanAy5"] = $"{GetiriPuanAy5:F2}";
-            IstatistiklerNew["GetiriPuanBuHafta"] = $"{GetiriPuanBuHafta:F2}";
-            IstatistiklerNew["GetiriPuanHafta1"] = $"{GetiriPuanHafta1:F2}";
-            IstatistiklerNew["GetiriPuanHafta2"] = $"{GetiriPuanHafta2:F2}";
-            IstatistiklerNew["GetiriPuanHafta3"] = $"{GetiriPuanHafta3:F2}";
-            IstatistiklerNew["GetiriPuanHafta4"] = $"{GetiriPuanHafta4:F2}";
-            IstatistiklerNew["GetiriPuanHafta5"] = $"{GetiriPuanHafta5:F2}";
-            IstatistiklerNew["GetiriPuanBuGun"] = $"{GetiriPuanBuGun:F2}";
-            IstatistiklerNew["GetiriPuanGun1"] = $"{GetiriPuanGun1:F2}";
-            IstatistiklerNew["GetiriPuanGun2"] = $"{GetiriPuanGun2:F2}";
-            IstatistiklerNew["GetiriPuanGun3"] = $"{GetiriPuanGun3:F2}";
-            IstatistiklerNew["GetiriPuanGun4"] = $"{GetiriPuanGun4:F2}";
-            IstatistiklerNew["GetiriPuanGun5"] = $"{GetiriPuanGun5:F2}";
-            IstatistiklerNew["GetiriPuanBuSaat"] = $"{GetiriPuanBuSaat:F2}";
-            IstatistiklerNew["GetiriPuanSaat1"] = $"{GetiriPuanSaat1:F2}";
-            IstatistiklerNew["GetiriPuanSaat2"] = $"{GetiriPuanSaat2:F2}";
-            IstatistiklerNew["GetiriPuanSaat3"] = $"{GetiriPuanSaat3:F2}";
-            IstatistiklerNew["GetiriPuanSaat4"] = $"{GetiriPuanSaat4:F2}";
-            IstatistiklerNew["GetiriPuanSaat5"] = $"{GetiriPuanSaat5:F2}";
+            // --- Identification ---
+            Add("TraderId", Id);
+            Add("TraderName", Name);
+
+            // --- System & Execution Info ---
+            Add("SystemId", SistemId);
+            Add("SystemName", SistemName);
+            Add("SymbolName", GrafikSembol);
+            Add("SymbolPeriod", GrafikPeriyot);
+            Add("LastExecutionId", LastExecutionId);
+            Add("LastExecutionTime", LastExecutionTime);
+            Add("LastExecutionTimeStart", LastExecutionTimeStart);
+            Add("LastExecutionTimeStop", LastExecutionTimeStop);
+            Add("LastExecutionTimeInMSec", ExecutionTimeInMSec);
+            Add("LastResetTime", LastResetTime);
+            Add("LastStatisticsCalculationTime", LastStatisticsCalculationTime);
+
+            // --- Bar Info ---
+            Add("ToplamBarSayisi", ToplamBarSayisi);
+            Add("SecilenBarNumarasi", SecilenBarNumarasi);
+            Add("SecilenBarTarihi", SecilenBarTarihi);
+            Add("IlkBarTarihi", IlkBarTarihi);
+            Add("SonBarTarihi", SonBarTarihi);
+            Add("IlkBarIndex", IlkBarIndex);
+            Add("SonBarIndex", SonBarIndex);
+            Add("SonBarAcilisFiyati", SonBarAcilisFiyati, "F4");
+            Add("SonBarYuksekFiyati", SonBarYuksekFiyati, "F4");
+            Add("SonBarDusukFiyati", SonBarDusukFiyati, "F4");
+            Add("SonBarKapanisFiyati", SonBarKapanisFiyati, "F4");
+
+            // --- Time Statistics ---
+            Add("ToplamGecenSureAy", ToplamGecenSureAy, "F1");
+            Add("ToplamGecenSureGun", ToplamGecenSureGun);
+            Add("ToplamGecenSureSaat", ToplamGecenSureSaat);
+            Add("ToplamGecenSureDakika", ToplamGecenSureDakika);
+            Add("OrtAylikIslemSayisi", OrtAylikIslemSayisi, "F2");
+            Add("OrtHaftalikIslemSayisi", OrtHaftalikIslemSayisi, "F2");
+            Add("OrtGunlukIslemSayisi", OrtGunlukIslemSayisi, "F2");
+            Add("OrtSaatlikIslemSayisi", OrtSaatlikIslemSayisi, "F2");
+
+            // --- Balance & Returns ---
+            Add("IlkBakiyeFiyat", IlkBakiyeFiyat, "F2");
+            Add("IlkBakiyePuan", IlkBakiyePuan, "F2");
+            Add("BakiyeFiyat", BakiyeFiyat, "F2");
+            Add("BakiyePuan", BakiyePuan, "F2");
+            Add("GetiriFiyat", GetiriFiyat, "F2");
+            Add("GetiriPuan", GetiriPuan, "F2");
+            Add("GetiriFiyatYuzde", GetiriFiyatYuzde, "F2");
+            Add("GetiriPuanYuzde", GetiriPuanYuzde, "F2");
+            Add("BakiyeFiyatNet", BakiyeFiyatNet, "F2");
+            Add("BakiyePuanNet", BakiyePuanNet, "F2");
+            Add("GetiriFiyatNet", GetiriFiyatNet, "F2");
+            Add("GetiriPuanNet", GetiriPuanNet, "F2");
+            Add("GetiriFiyatYuzdeNet", GetiriFiyatYuzdeNet, "F2");
+            Add("GetiriPuanYuzdeNet", GetiriPuanYuzdeNet, "F2");
+            Add("GetiriKz", GetiriKz, "F4");
+            Add("GetiriKzNet", GetiriKzNet, "F4");
+            Add("GetiriKzSistem", GetiriKzSistem, "F4");
+            Add("GetiriKzSistemYuzde", GetiriKzSistemYuzde, "F2");
+            Add("GetiriKzNetSistem", GetiriKzNetSistem, "F4");
+            Add("GetiriKzNetSistemYuzde", GetiriKzNetSistemYuzde, "F2");
+
+            // --- Min/Max Balance ---
+            Add("MinBakiyeFiyat", MinBakiyeFiyat, "F2");
+            Add("MaxBakiyeFiyat", MaxBakiyeFiyat, "F2");
+            Add("MinBakiyePuan", MinBakiyePuan, "F2");
+            Add("MaxBakiyePuan", MaxBakiyePuan, "F2");
+            Add("MinBakiyeFiyatYuzde", MinBakiyeFiyatYuzde, "F2");
+            Add("MaxBakiyeFiyatYuzde", MaxBakiyeFiyatYuzde, "F2");
+            Add("MinBakiyeFiyatIndex", MinBakiyeFiyatIndex);
+            Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
+            Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
+            Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+
+            // --- Trade Counts ---
+            Add("IslemSayisi", IslemSayisi);
+            Add("AlisSayisi", AlisSayisi);
+            Add("SatisSayisi", SatisSayisi);
+            Add("FlatSayisi", FlatSayisi);
+            Add("PassSayisi", PassSayisi);
+            Add("KarAlSayisi", KarAlSayisi);
+            Add("ZararKesSayisi", ZararKesSayisi);
+            Add("KazandiranIslemSayisi", KazandiranIslemSayisi);
+            Add("KaybettirenIslemSayisi", KaybettirenIslemSayisi);
+            Add("NotrIslemSayisi", NotrIslemSayisi);
+            Add("KazandiranAlisSayisi", KazandiranAlisSayisi);
+            Add("KaybettirenAlisSayisi", KaybettirenAlisSayisi);
+            Add("NotrAlisSayisi", NotrAlisSayisi);
+            Add("KazandiranSatisSayisi", KazandiranSatisSayisi);
+            Add("KaybettirenSatisSayisi", KaybettirenSatisSayisi);
+            Add("NotrSatisSayisi", NotrSatisSayisi);
+
+            // --- Command Counts ---
+            Add("AlKomutSayisi", AlKomutSayisi);
+            Add("SatKomutSayisi", SatKomutSayisi);
+            Add("PasGecKomutSayisi", PasGecKomutSayisi);
+            Add("KarAlKomutSayisi", KarAlKomutSayisi);
+            Add("ZararKesKomutSayisi", ZararKesKomutSayisi);
+            Add("FlatOlKomutSayisi", FlatOlKomutSayisi);
+
+            // --- Commission ---
+            Add("KomisyonIslemSayisi", KomisyonIslemSayisi);
+            Add("KomisyonVarlikAdedSayisi", KomisyonVarlikAdedSayisi, "F2");
+            Add("KomisyonVarlikAdedSayisiMicro", KomisyonVarlikAdedSayisiMicro, "F4");
+            Add("KomisyonCarpan", KomisyonCarpan, "F4");
+            Add("KomisyonFiyat", KomisyonFiyat, "F2");
+            Add("KomisyonFiyatYuzde", KomisyonFiyatYuzde, "F4");
+            Add("KomisyonuDahilEt", KomisyonuDahilEt);
+
+            // --- PnL Aggregates ---
+            Add("KarZararFiyat", KarZararFiyat, "F2");
+            Add("KarZararFiyatYuzde", KarZararFiyatYuzde, "F2");
+            Add("KarZararPuan", KarZararPuan, "F4");
+            Add("ToplamKarFiyat", ToplamKarFiyat, "F2");
+            Add("ToplamZararFiyat", ToplamZararFiyat, "F2");
+            Add("NetKarFiyat", NetKarFiyat, "F2");
+            Add("ToplamKarPuan", ToplamKarPuan, "F4");
+            Add("ToplamZararPuan", ToplamZararPuan, "F4");
+            Add("NetKarPuan", NetKarPuan, "F4");
+            Add("MaxKarFiyat", MaxKarFiyat, "F2");
+            Add("MaxZararFiyat", MaxZararFiyat, "F2");
+            Add("MaxKarPuan", MaxKarPuan, "F4");
+            Add("MaxZararPuan", MaxZararPuan, "F4");
+            Add("KardaBarSayisi", KardaBarSayisi);
+            Add("ZarardaBarSayisi", ZarardaBarSayisi);
+            Add("KarliIslemOrani", KarliIslemOrani, "F2");
+
+            // --- Risk Metrics ---
+            Add("GetiriMaxDD", GetiriMaxDD, "F2");
+            Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
+            Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
+            Add("ProfitFactor", ProfitFactor, "F2");
+            Add("ProfitFactorSistem", ProfitFactorSistem, "F2");
+
+            // --- Signals & Execution ---
+            Add("Sinyal", Sinyal);
+            Add("SonYon", SonYon);
+            Add("PrevYon", PrevYon);
+            Add("SonFiyat", SonFiyat, "F4");
+            Add("SonAFiyat", SonAFiyat, "F4");
+            Add("SonSFiyat", SonSFiyat, "F4");
+            Add("SonFFiyat", SonFFiyat, "F4");
+            Add("SonPFiyat", SonPFiyat, "F4");
+            Add("PrevFiyat", PrevFiyat, "F4");
+            Add("SonBarNo", SonBarNo);
+            Add("SonABarNo", SonABarNo);
+            Add("SonSBarNo", SonSBarNo);
+            Add("EmirKomut", EmirKomut);
+            Add("EmirStatus", EmirStatus);
+
+            // --- Asset & Position Info ---
+            Add("HisseSayisi", HisseSayisi, "F2");
+            Add("KontratSayisi", KontratSayisi, "F2");
+            Add("VarlikAdedCarpani", VarlikAdedCarpani, "F2");
+            Add("VarlikAdedSayisi", VarlikAdedSayisi, "F2");
+            Add("VarlikAdedSayisiMicro", VarlikAdedSayisiMicro, "F4");
+            Add("KaymaMiktari", KaymaMiktari, "F4");
+            Add("KaymayiDahilEt", KaymayiDahilEt);
+            Add("MicroLotSizeEnabled", MicroLotSizeEnabled);
+            Add("PyramidingEnabled", PyramidingEnabled);
+            Add("MaxPositionSizeEnabled", MaxPositionSizeEnabled);
+            Add("MaxPositionSize", MaxPositionSize, "F4");
+            Add("MaxPositionSizeMicro", MaxPositionSizeMicro, "F4");
+
+            // --- Periodic Returns ---
+            Add("GetiriFiyatBuAy", GetiriFiyatBuAy, "F2");
+            Add("GetiriFiyatAy1", GetiriFiyatAy1, "F2");
+            Add("GetiriFiyatBuHafta", GetiriFiyatBuHafta, "F2");
+            Add("GetiriFiyatHafta1", GetiriFiyatHafta1, "F2");
+            Add("GetiriFiyatBuGun", GetiriFiyatBuGun, "F2");
+            Add("GetiriFiyatGun1", GetiriFiyatGun1, "F2");
+            Add("GetiriFiyatBuSaat", GetiriFiyatBuSaat, "F2");
+            Add("GetiriFiyatSaat1", GetiriFiyatSaat1, "F2");
+
+            Add("GetiriPuanBuAy", GetiriPuanBuAy, "F4");
+            Add("GetiriPuanAy1", GetiriPuanAy1, "F4");
+            Add("GetiriPuanBuHafta", GetiriPuanBuHafta, "F4");
+            Add("GetiriPuanHafta1", GetiriPuanHafta1, "F4");
+            Add("GetiriPuanBuGun", GetiriPuanBuGun, "F4");
+            Add("GetiriPuanGun1", GetiriPuanGun1, "F4");
+            Add("GetiriPuanBuSaat", GetiriPuanBuSaat, "F4");
+            Add("GetiriPuanSaat1", GetiriPuanSaat1, "F4");
+        }
+
+        public void SaveToTxt(string filePath)
+        {
+            AssignToMap();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"TRADING STATISTICS REPORT - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("================================================================================");
+            sb.AppendLine($"{"Property Name".PadRight(40)} : Value");
+            sb.AppendLine("--------------------------------------------------------------------------------");
+
+            foreach (var kvp in StatisticsMap)
+            {
+                sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
+            }
+
+            sb.AppendLine("================================================================================");
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        public void SaveToCsv(string filePath)
+        {
+            AssignToMap();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Key;Value");
+
+            foreach (var kvp in StatisticsMap)
+            {
+                sb.AppendLine($"{kvp.Key};{kvp.Value}");
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
         #endregion
