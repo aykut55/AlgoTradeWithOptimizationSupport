@@ -285,8 +285,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                             if (lblSingleTraderProgress != null)
                             {
-                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                                lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
+                                // Programı kilitledigi icin simdilik kapalı
+                                //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                                //lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
                             }
                         });
                     }
@@ -396,8 +397,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                             if (lblSingleTraderProgress != null)
                             {
-                                lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                                lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
+                                // Programı kilitledigi icin simdilik kapalı
+                                //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                                //lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
                             }
                         });
                     }
