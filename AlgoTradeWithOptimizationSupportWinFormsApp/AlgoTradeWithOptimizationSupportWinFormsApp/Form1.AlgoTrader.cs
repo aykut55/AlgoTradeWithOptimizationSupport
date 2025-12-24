@@ -406,6 +406,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (progressBarSingleTrader != null)
                         {
                             progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
                         }
                     }
                     catch (Exception ex)
@@ -531,6 +532,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (progressBarSingleTrader != null)
                         {
                             progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
                         }
                     }
                     catch (Exception ex)
@@ -585,17 +587,187 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 btnTestMultipleTrader.Enabled = true;
             }
         }
+        private async void btnStartSingleTraderOpt_Click(object sender, EventArgs e)
+        {
+            // Disable button during execution
+            btnStartSingleTraderOpt.Enabled = false;
+            btnStopSingleTraderOpt.Enabled = true;
 
+            try
+            {
+                // Null check - objeler oluşturulmuş mu?
+                if (_singleTraderLogger == null || algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
+                // Logger'ı temizle veya oluştur
+                InitializeSingleTraderLogger();
 
+                // AlgoTrader zaten initialize edilmişse reset et
+                if (algoTrader.IsInitialized)
+                {
+                    _singleTraderLogger.Log("Resetting existing AlgoTrader...");
+                    algoTrader.Reset();
+                }
+
+                // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
+                algoTrader.RegisterLogger(_singleTraderLogger);
+
+                _singleTraderLogger.Log("=== AlgoTrader Test Started ===");
+
+                // Stock data kontrolü
+                if (stockDataList == null || stockDataList.Count == 0)
+                {
+                    _singleTraderLogger.LogWarning("Stock data yüklü değil!");
+                    MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
+
+                // Initialize with stock data
+                algoTrader.Initialize(stockDataList);
+
+                if (algoTrader.IsInitialized)
+                {
+                    _singleTraderLogger.Log("AlgoTrader initialized with stock data.");
+                    _singleTraderLogger.Log(algoTrader.GetDataInfo());
+                    _singleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
+                }
+                else
+                {
+                    _singleTraderLogger.LogError("AlgoTrader initialization failed!");
+                    MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Progress reporter oluştur
+                var progressOptimization = new Progress<BacktestProgressInfo>(progressInfo =>
+                {
+                    // UI thread'de otomatik çalışır
+                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
+                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
+
+                    // ProgressBar varsa güncelle
+                    try
+                    {
+                        if (progressBarOptimizationProgress != null)
+                        {
+                            progressBarOptimizationProgress.Value = (int)progressInfo.PercentComplete;
+                            lblOptimizationProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
+                    }
+
+                    // Label varsa güncelle
+                    try
+                    {
+                        /*
+                        if (lblSingleTraderProgress != null)
+                        {
+                            lblSingleTraderProgress.Text =
+                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
+                                $"({progressInfo.PercentComplete:F1}%) - " +
+                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
+                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
+                        }
+                        */
+                    }
+                    catch (Exception ex)
+                    {
+                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                    }
+                });
+
+                var progressSingleTrader = new Progress<BacktestProgressInfo>(progressInfo =>
+                {
+                    // UI thread'de otomatik çalışır
+                    //_singleTraderLogger?.Log($"Progress: {progressInfo.PercentComplete:F1}% - Bar {progressInfo.CurrentBar}/{progressInfo.TotalBars}");
+                    //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} ({progressInfo.PercentComplete:F1}%)";
+
+                    // ProgressBar varsa güncelle
+                    try
+                    {
+                        if (progressBarSingleTraderProgress != null)
+                        {
+                            progressBarSingleTraderProgress.Value = (int)progressInfo.PercentComplete;
+                            lblSingleTraderProgress2.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        _singleTraderLogger?.LogWarning($"ProgressBar update failed: {ex.Message}");
+                    }
+
+                    // Label varsa güncelle
+                    try
+                    {
+                        /*
+                        if (lblSingleTraderProgress != null)
+                        {
+                            lblSingleTraderProgress.Text =
+                                $"Bar: {progressInfo.CurrentBar}/{progressInfo.TotalBars} " +
+                                $"({progressInfo.PercentComplete:F1}%) - " +
+                                $"Elapsed: {progressInfo.ElapsedTime:mm\\:ss} - " +
+                                $"ETA: {progressInfo.EstimatedTimeRemaining:mm\\:ss}";
+                        }
+                        */
+                    }
+                    catch (Exception ex)
+                    {
+                        _singleTraderLogger?.LogWarning($"Label update failed: {ex.Message}");
+                    }
+                });
+
+                // Run SingleTrader with progress (ASYNC)                
+                await algoTrader.RunSingleTraderOptWithProgressAsync(progressOptimization, progressSingleTrader);
+
+                if (lblSingleTraderProgress != null)
+                {
+                    //lblSingleTraderProgress.Text = "Backtest completed!";
+                }
+
+                //MessageBox.Show("Backtest tamamlandı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                _singleTraderLogger?.LogError("AlgoTrader test hatası:", ex.Message, ex.StackTrace);
+                MessageBox.Show($"Hata: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (lblSingleTraderProgress != null)
+                {
+                    lblSingleTraderProgress.Text = "Error occurred";
+                }
+            }
+            finally
+            {
+                // Re-enable button
+                btnStartSingleTraderOpt.Enabled = true;
+            }
+        }
+        private async void btnStopSingleTraderOpt_Click(object sender, EventArgs e)
+        {
+            btnStopSingleTraderOpt.Enabled = true;
+
+            btnStartSingleTraderOpt.Enabled = true;
+        }
 
         // ====================================================================
         // ALGOTRADER - TEST METODLARI
         // ====================================================================
 
-        /// <summary>
-        /// Basit bir strateji ile test
-        /// </summary>
+            /// <summary>
+            /// Basit bir strateji ile test
+            /// </summary>
         private void TestSimpleStrategy(AlgoTrader algoTrader)
         {
             LogManager.Log("=== Testing Simple MA Strategy ===");

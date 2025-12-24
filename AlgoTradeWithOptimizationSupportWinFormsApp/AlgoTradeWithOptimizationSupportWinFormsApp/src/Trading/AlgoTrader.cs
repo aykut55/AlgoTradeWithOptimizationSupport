@@ -61,7 +61,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public MultipleTrader multipleTrader { get; private set; }
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
-
+        public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
+        
         public TimeManager timeManager { get; private set; }
 
         #endregion
@@ -222,7 +223,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                 optimizer.AddParameterRange(range.Name, range.Min, range.Max, range.Step);
             }
 
-            return optimizer.Optimize();
+            return optimizer.Run();
         }
 
         #endregion
@@ -562,7 +563,6 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
         }
 
-
         public async Task RunMultipleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
         {
             if (!IsInitialized)
@@ -784,6 +784,232 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             multipleTrader = null;
         }
 
+        public async Task RunSingleTraderOptWithProgressAsync(IProgress<BacktestProgressInfo> progressOpt = null, IProgress<BacktestProgressInfo> progressTrader = null)
+        {
+            if (!IsInitialized)
+            {
+                LogError("AlgoTrader not initialized!");
+                throw new InvalidOperationException("AlgoTrader not initialized");
+            }
+
+            int totalBars = Data.Count;
+
+            Log("");
+            Log("=== Running Single Trader Optimization (Async) ===");
+            Log($"Processing {totalBars} bars total...");
+
+            // Indicators oluştur
+            if (indicators == null)
+            {
+                indicators = new IndicatorManager(Data);
+                Log("IndicatorManager created");
+            }
+
+            // Optimizer oluştur
+            singleTraderOptimizer = new SingleTraderOptimizer(0, this.Data, indicators, Logger);
+            if (singleTraderOptimizer == null)
+                return;
+
+            // ============================================================
+            // OPTİMİZASYON AYARLARI
+            // ============================================================
+
+            // --- Skip Iteration Ayarları ---
+            // İlk N kombinasyonu atlayarak devam etmek için kullanılır
+
+            // Örnek 1: İlk 500 kombinasyonu atla (501'den başla)
+            // singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: 500);
+
+            // Örnek 2: Skip kullanma (baştan başla)
+            singleTraderOptimizer.SetSkipIterationSettings(enabled: false, skipCount: 0);
+            // veya
+            // singleTraderOptimizer.DisableSkipIteration();
+
+            // --- Max Iterations Ayarları ---
+            // Kaç kombinasyon çalıştırıp duracağını belirler (skip hariç effective sayı)
+
+            // Örnek 1: 3000 kombinasyon çalıştır ve dur
+            // singleTraderOptimizer.SetMaxIterationsSettings(enabled: true, maxCount: 3000);
+
+            // Örnek 2: Max iteration kullanma (sonuna kadar çalıştır)
+            singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
+            // veya
+            // singleTraderOptimizer.DisableMaxIterations();
+
+            // --- Parça Parça Optimizasyon Örneği ---
+            // Toplam 10,000 kombinasyonu 3 parçada çalıştır:
+
+            // 1. Çalıştırma (1-3000):
+            // singleTraderOptimizer.SetSkipIterationSettings(enabled: false, skipCount: 0);
+            // singleTraderOptimizer.SetMaxIterationsSettings(enabled: true, maxCount: 3000);
+
+            // 2. Çalıştırma (3001-6000):
+            // singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: 3000);
+            // singleTraderOptimizer.SetMaxIterationsSettings(enabled: true, maxCount: 3000);
+
+            // 3. Çalıştırma (6001-sonuna kadar):
+            // singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: 6000);
+            // singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
+
+            // --- Ara Sonuç Kaydetme Ayarları ---
+            // Her N kombinasyonda bir ara sonuçları kaydetmek için
+
+            // Örnek: Her 500 kombinasyonda bir kaydet
+            // singleTraderOptimizer.SetIntermediateSaveSettings(saveEveryN: 500);
+
+            // Ara sonuç kaydetme callback'i (kullanıcı kendi kayıt methodunu bağlayabilir)
+            // singleTraderOptimizer.OnSaveResults = (results, currentCombination) =>
+            // {
+            //     // Kendi kayıt logiğinizi buraya yazın
+            //     // Örneğin: CSV, JSON, Database vb.
+            //     var filename = $"optimization_results_{currentCombination}.json";
+            //     var json = System.Text.Json.JsonSerializer.Serialize(results, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            //     System.IO.File.WriteAllText(filename, json);
+            //     Log($"Results saved to {filename}");
+            // };
+
+            // Progress callbacks'leri bağla
+            // progressOpt: Kombinasyon ilerlemesi (kaç kombinasyon test edildi)
+            // progressTrader: Her kombinasyon için bar ilerlemesi
+
+            var startTime = DateTime.Now;
+
+            if (progressOpt != null)
+            {
+                singleTraderOptimizer.OnOptimizationProgress = (currentCombination, totalCombinations) =>
+                {
+                    var elapsed = DateTime.Now - startTime;
+                    var percentComplete = (double)currentCombination / totalCombinations * 100.0;
+
+                    // Estimated time remaining
+                    var estimatedTotal = elapsed.TotalSeconds / percentComplete * 100.0;
+                    var estimatedRemaining = TimeSpan.FromSeconds(estimatedTotal - elapsed.TotalSeconds);
+
+                    var progressInfo = new BacktestProgressInfo
+                    {
+                        CurrentBar = currentCombination,
+                        TotalBars = totalCombinations,
+                        PercentComplete = percentComplete,
+                        StatusMessage = $"Testing combination {currentCombination}/{totalCombinations}",
+                        ElapsedTime = elapsed,
+                        EstimatedTimeRemaining = estimatedRemaining
+                    };
+
+                    progressOpt.Report(progressInfo);
+                };
+            }
+
+            if (progressTrader != null)
+            {
+                singleTraderOptimizer.OnSingleTraderProgressCallback = (currentBar, totalBarsInner) =>
+                {
+                    var percentComplete = (double)currentBar / totalBarsInner * 100.0;
+
+                    var progressInfo = new BacktestProgressInfo
+                    {
+                        CurrentBar = currentBar,
+                        TotalBars = totalBarsInner,
+                        PercentComplete = percentComplete,
+                        StatusMessage = $"Processing bar {currentBar}/{totalBarsInner}",
+                        ElapsedTime = TimeSpan.Zero,
+                        EstimatedTimeRemaining = TimeSpan.Zero
+                    };
+
+                    progressTrader.Report(progressInfo);
+                };
+            }
+
+            // Run optimization in background task
+            await Task.Run(() =>
+            {
+                singleTraderOptimizer.Reset();
+                singleTraderOptimizer.Init();
+                singleTraderOptimizer.Run();
+            });
+
+            Log("Optimization completed!");
+            Log($"Total combinations tested: {singleTraderOptimizer.Results.Count}");
+
+            singleTraderOptimizer.Dispose();
+            singleTraderOptimizer = null;
+        }
+
+        /// <summary>
+        /// Set optimization skip iteration settings
+        /// Optimizasyonu parça parça yapmak için kullanılır
+        /// </summary>
+        /// <param name="enabled">Skip özelliği aktif mi?</param>
+        /// <param name="skipCount">İlk kaç kombinasyon atlanacak?</param>
+        public void SetOptimizationSkipSettings(bool enabled, int skipCount)
+        {
+            if (singleTraderOptimizer != null)
+            {
+                singleTraderOptimizer.SetSkipIterationSettings(enabled, skipCount);
+            }
+            else
+            {
+                LogWarning("Optimizer not initialized. Call RunSingleTraderOptWithProgressAsync first.");
+            }
+        }
+
+        /// <summary>
+        /// Disable optimization skip iteration
+        /// Optimizasyonu baştan başlatmak için kullanılır
+        /// </summary>
+        public void DisableOptimizationSkip()
+        {
+            if (singleTraderOptimizer != null)
+            {
+                singleTraderOptimizer.DisableSkipIteration();
+            }
+        }
+
+        /// <summary>
+        /// Set optimization max iterations settings
+        /// Optimizasyonu parçalara bölmek için kullanılır
+        /// </summary>
+        /// <param name="enabled">Max iterations özelliği aktif mi?</param>
+        /// <param name="maxCount">Kaç kombinasyon çalıştırılacak? (effective - skip hariç)</param>
+        public void SetOptimizationMaxIterations(bool enabled, int maxCount)
+        {
+            if (singleTraderOptimizer != null)
+            {
+                singleTraderOptimizer.SetMaxIterationsSettings(enabled, maxCount);
+            }
+            else
+            {
+                LogWarning("Optimizer not initialized. Call RunSingleTraderOptWithProgressAsync first.");
+            }
+        }
+
+        /// <summary>
+        /// Disable optimization max iterations
+        /// Optimizasyonu sonuna kadar çalıştırmak için kullanılır
+        /// </summary>
+        public void DisableOptimizationMaxIterations()
+        {
+            if (singleTraderOptimizer != null)
+            {
+                singleTraderOptimizer.DisableMaxIterations();
+            }
+        }
+
+        /// <summary>
+        /// Set optimization intermediate save settings
+        /// Ara sonuçları kaydetmek için kullanılır
+        /// </summary>
+        /// <param name="saveEveryN">Her kaç kombinasyonda bir kaydet (0 = disable)</param>
+        public void SetOptimizationIntermediateSave(int saveEveryN)
+        {
+            if (singleTraderOptimizer != null)
+            {
+                singleTraderOptimizer.SetIntermediateSaveSettings(saveEveryN);
+            }
+            else
+            {
+                LogWarning("Optimizer not initialized. Call RunSingleTraderOptWithProgressAsync first.");
+            }
+        }
 
         public void RunMultipleTraderDemoSilinecek()
         {

@@ -1,9 +1,16 @@
+﻿using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+using Serilog.Core;
+using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
-using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+using System.Text.Json;
+using System.Xml.Linq;
+using Tulip;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 {
@@ -61,11 +68,31 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
     {
         #region Properties
 
+        public int Id { get; private set; }
         public List<StockData> Data { get; private set; }
+        public IndicatorManager Indicators { get; private set; }
         public Type StrategyType { get; private set; }
         public List<ParameterRange> ParameterRanges { get; private set; }
         public List<OptimizationResult> Results { get; private set; }
         public bool IsInitialized { get; private set; }
+
+        private IAlgoTraderLogger? Logger { get; set; }
+
+        // Progress callbacks
+        public Action<int, int>? OnOptimizationProgress { get; set; }  // (currentCombination, totalCombinations)
+        public Action<int, int>? OnSingleTraderProgressCallback { get; set; }  // (currentBar, totalBars)
+
+        // Skip iteration support for resuming optimization
+        public bool SkipIterationEnabled { get; set; }
+        public int SkipIteration { get; set; }
+
+        // Max iterations support for chunked optimization
+        public bool MaxIterationsEnabled { get; set; }
+        public int MaxIterations { get; set; }  // Kaç kombinasyon çalıştır (effective - skip hariç)
+
+        // Save intermediate results
+        public int SaveEveryN { get; set; }  // Her kaç kombinasyonda bir ara sonuç kaydet (0 = disable)
+        public Action<List<OptimizationResult>, int>? OnSaveResults { get; set; }  // (results, currentCombination)
 
         #endregion
 
@@ -76,6 +103,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             ParameterRanges = new List<ParameterRange>();
             Results = new List<OptimizationResult>();
             IsInitialized = false;
+        }
+
+        public SingleTraderOptimizer(int id, List<StockData> data, IndicatorManager indicators, IAlgoTraderLogger? logger)
+        {
+            Id = id;
+            Data = data;
+            Indicators = indicators;
+            Logger = logger;
+            ParameterRanges = new List<ParameterRange>();
+            Results = new List<OptimizationResult>();
+            IsInitialized = true;
         }
 
         #endregion
@@ -113,33 +151,289 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             ParameterRanges.Add(new ParameterRange(name, min, max, step));
         }
 
+        /// <summary>
+        /// Set skip iteration settings for resuming optimization
+        /// Uzun optimizasyonları parça parça yapmak için kullanılır
+        /// </summary>
+        /// <param name="enabled">Skip özelliği aktif mi?</param>
+        /// <param name="skipCount">İlk kaç kombinasyon atlanacak?</param>
+        public void SetSkipIterationSettings(bool enabled, int skipCount)
+        {
+            SkipIterationEnabled = enabled;
+            SkipIteration = skipCount;
+
+            if (enabled && skipCount > 0)
+            {
+                Logger?.Log($"Skip iteration settings: Enabled=true, SkipCount={skipCount}");
+            }
+            else
+            {
+                Logger?.Log($"Skip iteration settings: Disabled");
+            }
+        }
+
+        /// <summary>
+        /// Disable skip iteration (baştan başla)
+        /// </summary>
+        public void DisableSkipIteration()
+        {
+            SetSkipIterationSettings(false, 0);
+        }
+
+        /// <summary>
+        /// Set max iterations settings for chunked optimization
+        /// Optimizasyonu parçalara bölmek için kullanılır
+        /// </summary>
+        /// <param name="enabled">Max iterations özelliği aktif mi?</param>
+        /// <param name="maxCount">Kaç kombinasyon çalıştırılacak? (effective - skip hariç)</param>
+        public void SetMaxIterationsSettings(bool enabled, int maxCount)
+        {
+            MaxIterationsEnabled = enabled;
+            MaxIterations = maxCount;
+
+            if (enabled && maxCount > 0)
+            {
+                Logger?.Log($"Max iterations settings: Enabled=true, MaxCount={maxCount}");
+            }
+            else
+            {
+                Logger?.Log($"Max iterations settings: Disabled (run to completion)");
+            }
+        }
+
+        /// <summary>
+        /// Disable max iterations (sonuna kadar çalıştır)
+        /// </summary>
+        public void DisableMaxIterations()
+        {
+            SetMaxIterationsSettings(false, 0);
+        }
+
+        /// <summary>
+        /// Set intermediate save settings
+        /// Ara sonuçları kaydetmek için kullanılır
+        /// </summary>
+        /// <param name="saveEveryN">Her kaç kombinasyonda bir kaydet (0 = disable)</param>
+        public void SetIntermediateSaveSettings(int saveEveryN)
+        {
+            SaveEveryN = saveEveryN;
+
+            if (saveEveryN > 0)
+            {
+                Logger?.Log($"Intermediate save settings: SaveEveryN={saveEveryN}");
+            }
+            else
+            {
+                Logger?.Log($"Intermediate save settings: Disabled");
+            }
+        }
+
         #endregion
 
         #region Optimization Methods
 
+        public void Reset()
+        {
+        }
+        public void Init()
+        {
+        }
+
         /// <summary>
         /// Run optimization
         /// </summary>
-        public OptimizationResult Optimize()
+        public OptimizationResult Run()
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Optimizer not initialized");
 
-            if (StrategyType == null)
-                throw new InvalidOperationException("Strategy type not set");
+            int totalBars = Data.Count;
+
+            // Indicators zaten constructor'dan geldi
+            var indicators = this.Indicators ?? new IndicatorManager(this.Data);
+
+            var singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+
+            // Assign callbacks
+            singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgressInternal, OnApplyUserFlags);
+
+            // Setup (order is important)
+            singleTrader.CreateModules();
 
             Results.Clear();
 
-            // TODO: Implement optimization logic
-            // 1. Generate all parameter combinations
-            // 2. For each combination:
-            //    - Create strategy instance
-            //    - Set parameters
-            //    - Run SingleTrader
-            //    - Collect statistics
-            // 3. Find best result
+            GenerateParameterCombinations();
 
-            return GetBestResult();
+            // Calculate total combinations
+            int totalCombinations = 0;
+            int currentCombination = 0;
+
+            foreach (var range in ParameterRanges)
+            {
+                var values = range.GetValues();
+                if (totalCombinations == 0)
+                    totalCombinations = values.Count;
+                else
+                    totalCombinations *= values.Count;
+            }
+
+            Logger?.Log($"Starting optimization: {totalCombinations} combinations to test");
+            if (SkipIterationEnabled && SkipIteration > 0)
+            {
+                Logger?.Log($"Skip iteration enabled: Skipping first {SkipIteration} combinations");
+            }
+            if (MaxIterationsEnabled && MaxIterations > 0)
+            {
+                Logger?.Log($"Max iterations enabled: Will run {MaxIterations} combinations (effective)");
+                int estimatedEnd = SkipIteration + MaxIterations;
+                Logger?.Log($"Estimated range: {SkipIteration + 1} to {estimatedEnd}");
+            }
+            if (SaveEveryN > 0)
+            {
+                Logger?.Log($"Intermediate save enabled: Saving every {SaveEveryN} combinations");
+            }
+            Logger?.Log($"Parameter ranges:");
+            foreach (var range in ParameterRanges)
+            {
+                Logger?.Log($"  - {range.Name}: {range.Min} to {range.Max} (step: {range.Step})");
+            }
+
+            // Get parameter values
+            var fastPeriodValues = ParameterRanges[0].GetValues();
+            var slowPeriodValues = ParameterRanges[1].GetValues();
+
+            // Break flag for nested loops
+            bool shouldBreak = false;
+            int effectiveCombinationCount = 0;  // Skip sonrası çalıştırılan kombinasyon sayısı
+
+            // Test all combinations
+            foreach (var fastPeriod in fastPeriodValues)
+            {
+                foreach (var slowPeriod in slowPeriodValues)
+                {
+                    currentCombination++;
+
+                    // Calculate progress percentage
+                    double progressPercent = (currentCombination / (double)totalCombinations) * 100.0;
+
+                    // Report optimization progress (her zaman raporla, atlanmış iterasyonlar için de)
+                    OnOptimizationProgress?.Invoke(currentCombination, totalCombinations);
+
+                    // Skip iteration check (Python mantığı)
+                    if (SkipIterationEnabled)
+                    {
+                        if (currentCombination <= SkipIteration)
+                        {
+                            Logger?.Log($"Skipping combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%): fastPeriod={fastPeriod}, slowPeriod={slowPeriod}");
+                            continue;
+                        }
+                    }
+
+                    // Effective combination count (skip sonrası çalıştırılan)
+                    effectiveCombinationCount++;
+
+                    // Max iterations check
+                    if (MaxIterationsEnabled && MaxIterations > 0)
+                    {
+                        if (effectiveCombinationCount > MaxIterations)
+                        {
+                            Logger?.Log($"Max iterations reached ({MaxIterations}). Stopping at combination {currentCombination}/{totalCombinations}");
+                            shouldBreak = true;
+                            break;  // İç döngüden çık
+                        }
+                    }
+
+                    Logger?.Log($"Testing combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%) [Effective: {effectiveCombinationCount}]: fastPeriod={fastPeriod}, slowPeriod={slowPeriod}");
+
+                    // Create strategy instance
+                    var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: (int)fastPeriod, slowPeriod: (int)slowPeriod);
+                    strategy.OnInit();
+                    singleTrader.SetStrategy(strategy);
+
+                    // Reset
+                    singleTrader.Reset();
+
+                    // Configure position sizing
+                    singleTrader.pozisyonBuyuklugu.Reset()
+                        .SetBakiyeParams(ilkBakiye: 100000.0)
+                        .SetKontratParamsViopEndex(kontratSayisi: 1)
+                        .SetKomisyonParams(komisyonCarpan: 3.0)
+                        .SetKaymaParams(kaymaMiktari: 0.5);
+
+                    singleTrader.Init();
+
+                    // Initialize
+                    singleTrader.Initialize();
+
+                    // Run SingleTrader
+                    for (int i = 0; i < totalBars; i++)
+                    {
+                        if (i % 1000 == 0)
+                            OnSingleTraderProgressCallback?.Invoke(i, totalBars);
+                        singleTrader.Run(i);
+                    }
+                    OnSingleTraderProgressCallback?.Invoke(totalBars, totalBars);
+
+                    // Collect statistics
+                    singleTrader.Finalize();
+
+                    // Store result
+                    var result = new OptimizationResult
+                    {
+                        NetProfit = singleTrader.status.GetiriFiyatNet,
+                        WinRate = singleTrader.statistics.KazandiranIslemSayisi > 0
+                            ? (double)singleTrader.statistics.KazandiranIslemSayisi / (singleTrader.statistics.KazandiranIslemSayisi + singleTrader.statistics.KaybettirenIslemSayisi) * 100.0
+                            : 0.0,
+                        ProfitFactor = singleTrader.status.ToplamZararFiyat != 0
+                            ? Math.Abs(singleTrader.status.ToplamKarFiyat / singleTrader.status.ToplamZararFiyat)
+                            : 0.0,
+                        MaxDrawdown = singleTrader.statistics.GetiriMaxDD
+                    };
+
+                    result.Parameters["fastPeriod"] = fastPeriod;
+                    result.Parameters["slowPeriod"] = slowPeriod;
+
+                    Results.Add(result);
+
+                    Logger?.Log($"  → NetProfit: {result.NetProfit:F2}, WinRate: {result.WinRate:F2}%, PF: {result.ProfitFactor:F2}");
+
+                    // strategy.Dispose();
+                    strategy = null;
+
+                    // Intermediate save check
+                    if (SaveEveryN > 0 && effectiveCombinationCount % SaveEveryN == 0)
+                    {
+                        Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
+                        OnSaveResults?.Invoke(Results, currentCombination);
+                    }
+                }
+
+                // Break from outer loop if max iterations reached
+                if (shouldBreak)
+                    break;
+            }
+
+            singleTrader.Dispose();
+            singleTrader = null;
+
+            Logger?.Log("");
+            Logger?.Log($"Optimization completed! Tested {effectiveCombinationCount} combinations (Total: {currentCombination}/{totalCombinations})");
+
+            OptimizationResult bestResult = GetBestResult();
+
+            if (bestResult != null)
+            {
+                Logger?.Log("");
+                Logger?.Log("=== BEST RESULT ===");
+                Logger?.Log($"FastPeriod: {bestResult.Parameters["fastPeriod"]}");
+                Logger?.Log($"SlowPeriod: {bestResult.Parameters["slowPeriod"]}");
+                Logger?.Log($"NetProfit: {bestResult.NetProfit:F2}");
+                Logger?.Log($"WinRate: {bestResult.WinRate:F2}%");
+                Logger?.Log($"ProfitFactor: {bestResult.ProfitFactor:F2}");
+                Logger?.Log($"MaxDrawdown: {bestResult.MaxDrawdown:F2}");
+            }
+
+            return bestResult;
         }
 
         /// <summary>
@@ -176,8 +470,96 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// </summary>
         private List<Dictionary<string, object>> GenerateParameterCombinations()
         {
+            ParameterRanges.Clear();
+
+            var parameterRange1 = new ParameterRange("fastPeriod", 10.0, 100.0, 5.0);
+            var parameterRange2 = new ParameterRange("slowPeriod", 10.0, 100.0, 5.0);
+
+            ParameterRanges.Add(parameterRange1);
+            ParameterRanges.Add(parameterRange2);
+
             // TODO: Implement recursive parameter combination generator
             return new List<Dictionary<string, object>>();
+        }
+
+        private void OnSingleTraderReset(SingleTrader trader, int mode)
+        {
+
+        }
+
+        private void OnSingleTraderInit(SingleTrader trader, int mode)
+        {
+
+        }
+
+        private void OnSingleTraderRun(SingleTrader trader, int mode)
+        {
+
+        }
+
+        private void OnSingleTraderFinal(SingleTrader trader, int mode)
+        {
+
+        }
+
+        // Callback function to be assigned to SingleTrader.Callback
+        // Runs right after emirleri_uygula(i) for each bar
+        private void OnSingleTraderBeforeOrder(SingleTrader trader, int barIndex)
+        {
+            // Example: you can inspect last signal/direction here
+            // Logger?.Log($"CB | Bar={barIndex} Yon={trader.signals.SonYon} EmirStatus={trader.signals.EmirStatus}");
+            // No-op by default
+        }
+
+        // Notification when a concrete A/S/F sinyali gerçekleştiğinde tetiklenir
+        private void OnSingleTraderNotifySignal(SingleTrader trader, string signal, int barIndex)
+        {
+            // Example: Logger?.Log($"SIG | Yon={trader.signals.SonYon} Sinyal={signal}");
+            // No-op by default
+        }
+
+        // Callback function to be assigned to SingleTrader.Callback
+        // Runs right after emirleri_uygula(i) for each bar
+        private void OnSingleTraderAfterOrder(SingleTrader trader, int barIndex)
+        {
+            // Example: you can inspect last signal/direction here
+            // Logger?.Log($"CB | Bar={barIndex} Yon={trader.signals.SonYon} EmirStatus={trader.signals.EmirStatus}");
+            // No-op by default
+        }
+
+        private void OnSingleTraderProgressInternal(SingleTrader trader, int currentBar, int totalBars)
+        {
+            // Forward to external callback
+            OnSingleTraderProgressCallback?.Invoke(currentBar, totalBars);
+        }
+
+        private void OnApplyUserFlags(SingleTrader trader)
+        {
+            // InitializeUserControlledFlags
+            trader.ConfigureUserFlagsOnce();
+        }
+
+        private void SaveResultsToFile(List<OptimizationResult> results, string filename)
+        {
+            // JSON olarak kaydet
+            var json = JsonSerializer.Serialize(results, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            });
+            File.WriteAllText(filename, json);
+
+            //_singleTraderLogger?.Log($"Results saved to {filename}");
+        }
+
+        #endregion
+
+        #region Dispose
+
+        public void Dispose()
+        {
+            // Cleanup
+            Results?.Clear();
+            ParameterRanges?.Clear();
         }
 
         #endregion
