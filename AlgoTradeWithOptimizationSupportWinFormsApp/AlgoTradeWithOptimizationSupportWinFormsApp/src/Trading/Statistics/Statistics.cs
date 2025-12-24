@@ -48,9 +48,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public int IlkBarIndex { get; set; }
         public int SonBarIndex { get; set; }
         public int SecilenBarNumarasi { get; set; }
+
+        public string IlkBarTarihSaati { get; set; }
         public string IlkBarTarihi { get; set; }
+        public string IlkBarSaati { get; set; }
+
+        public string SonBarTarihSaati { get; set; }
         public string SonBarTarihi { get; set; }
+        public string SonBarSaati { get; set; }
+
+        public string SecilenBarTarihSaati { get; set; }
         public string SecilenBarTarihi { get; set; }
+        public string SecilenBarSaati { get; set; }
+
         public double SecilenBarAcilisFiyati { get; set; }
         public double SecilenBarYuksekFiyati { get; set; }
         public double SecilenBarDusukFiyati { get; set; }
@@ -389,14 +399,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 this.SecilenBarNumarasi = lastBarIndex;
             }
 
-            IlkBarTarihi            = Trader.Data[firstBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
-            SonBarTarihi            = Trader.Data[lastBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
-            SecilenBarTarihi        = Trader.Data[this.SecilenBarNumarasi].Date.ToString("yyyy.MM.dd HH:mm:ss");
+            IlkBarTarihSaati        = Trader.Data[firstBarIndex].DateTime.ToString("yyyy.MM.dd HH:mm:ss");
+            IlkBarTarihi            = Trader.Data[firstBarIndex].DateTime.ToString("yyyy.MM.dd");
+            IlkBarSaati             = Trader.Data[firstBarIndex].DateTime.ToString("HH:mm:ss");
+
+            SonBarTarihSaati        = Trader.Data[lastBarIndex].DateTime.ToString("yyyy.MM.dd HH:mm:ss");
+            SonBarTarihi            = Trader.Data[lastBarIndex].DateTime.ToString("yyyy.MM.dd");
+            SonBarSaati             = Trader.Data[lastBarIndex].DateTime.ToString("HH:mm:ss");
+
+            SecilenBarTarihSaati    = Trader.Data[this.SecilenBarNumarasi].DateTime.ToString("yyyy.MM.dd HH:mm:ss");
+            SecilenBarTarihi        = Trader.Data[this.SecilenBarNumarasi].DateTime.ToString("yyyy.MM.dd");
+            SecilenBarSaati         = Trader.Data[this.SecilenBarNumarasi].DateTime.ToString("HH:mm:ss");
+
             SecilenBarAcilisFiyati  = Trader.Data[this.SecilenBarNumarasi].Open;
             SecilenBarYuksekFiyati  = Trader.Data[this.SecilenBarNumarasi].High;
             SecilenBarDusukFiyati   = Trader.Data[this.SecilenBarNumarasi].Low;
             SecilenBarKapanisFiyati = Trader.Data[this.SecilenBarNumarasi].Close;
-            SonBarTarihi            = Trader.Data[lastBarIndex].Date.ToString("yyyy.MM.dd HH:mm:ss");
+
             SonBarAcilisFiyati      = Trader.Data[lastBarIndex].Open;
             SonBarYuksekFiyati      = Trader.Data[lastBarIndex].High;
             SonBarDusukFiyati       = Trader.Data[lastBarIndex].Low;
@@ -557,9 +576,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             // --- Bar Info ---
             Add("ToplamBarSayisi", ToplamBarSayisi);
             Add("SecilenBarNumarasi", SecilenBarNumarasi);
+            Add("SecilenBarTarihSaati", SecilenBarTarihSaati);
             Add("SecilenBarTarihi", SecilenBarTarihi);
+            Add("SecilenBarSaati", SecilenBarSaati);
+
+            Add("IlkBarTarihSaati", IlkBarTarihSaati);
             Add("IlkBarTarihi", IlkBarTarihi);
+            Add("IlkBarSaati", IlkBarSaati);
+
+            Add("SonBarTarihSaati", SonBarTarihSaati);
             Add("SonBarTarihi", SonBarTarihi);
+            Add("SonBarSaati", SonBarSaati);
+
             Add("IlkBarIndex", IlkBarIndex);
             Add("SonBarIndex", SonBarIndex);
             Add("SonBarAcilisFiyati", SonBarAcilisFiyati, "F4");
