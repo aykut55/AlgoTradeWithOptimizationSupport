@@ -440,8 +440,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
             // *****************************************************************************
             singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
-            if (singleTrader == null)
-                return;
+            if (singleTrader == null) return;
+
+            singleTrader.SetName("singleTrader_0");
+            singleTrader.SystemId = 0;
+            singleTrader.SystemName = "SystemName";
+            singleTrader.SymbolName = "SymbolName";
+            singleTrader.SymbolPeriod = 1;
 
             // Assign callbacks
             singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);

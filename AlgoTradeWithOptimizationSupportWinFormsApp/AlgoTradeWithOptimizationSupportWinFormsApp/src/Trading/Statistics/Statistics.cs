@@ -439,20 +439,20 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             OrtGunlukIslemSayisi   = ToplamGecenSureGun > 0 ? 1.0 * IslemSayisi / ToplamGecenSureGun : 0;
             OrtSaatlikIslemSayisi  = ToplamGecenSureSaat > 0 ? 1.0 * IslemSayisi / ToplamGecenSureSaat : 0;
 
-            GetiriMaxDD      = 0.0;
-            GetiriMaxDDTarih = "";
-            GetiriMaxKayip   = VarlikAdedSayisi * -1 * GetiriMaxDD;
+            GetiriMaxDD            = 0.0;
+            GetiriMaxDDTarih       = "";
+            GetiriMaxKayip         = VarlikAdedSayisi * -1 * GetiriMaxDD;
 
-            MaxKarFiyat       = 0.0;
-            MaxZararFiyat     = 0.0;
-            MaxKarPuan        = 0.0;
-            MaxZararPuan      = 0.0;
-            MinBakiyeFiyat    = IlkBakiyeFiyat;
-            MaxBakiyeFiyat    = IlkBakiyeFiyat;
-            MinBakiyeFiyatNet = IlkBakiyeFiyat;
-            MaxBakiyeFiyatNet = IlkBakiyeFiyat;
-            MinBakiyePuan     = IlkBakiyePuan;
-            MaxBakiyePuan     = IlkBakiyePuan;
+            MaxKarFiyat            = 0.0;
+            MaxZararFiyat          = 0.0;
+            MaxKarPuan             = 0.0;
+            MaxZararPuan           = 0.0;
+            MinBakiyeFiyat         = IlkBakiyeFiyat;
+            MaxBakiyeFiyat         = IlkBakiyeFiyat;
+            MinBakiyeFiyatNet      = IlkBakiyeFiyat;
+            MaxBakiyeFiyatNet      = IlkBakiyeFiyat;
+            MinBakiyePuan          = IlkBakiyePuan;
+            MaxBakiyePuan          = IlkBakiyePuan;
 
             // Find min/max values
             for (int i = 1; i < Trader.Data.Count; i++)
@@ -510,9 +510,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             }
 
             // Calculate performance metrics
-            ProfitFactor = Math.Abs(ToplamZararPuan) > 0 ? ToplamKarPuan / Math.Abs(ToplamZararPuan) : 0;
-            ProfitFactorSistem = 0.0;
-            KarliIslemOrani = IslemSayisi > 0 ? (1.0 * KazandiranIslemSayisi) / (1.0 * IslemSayisi) * 100.0 : 0;
+            ProfitFactor           = Math.Abs(ToplamZararPuan) > 0 ? ToplamKarPuan / Math.Abs(ToplamZararPuan) : 0;
+            ProfitFactorSistem     = 0.0;
+            KarliIslemOrani        = IslemSayisi > 0 ? (1.0 * KazandiranIslemSayisi) / (1.0 * IslemSayisi) * 100.0 : 0;
 
             MinBakiyeFiyatYuzde    = IlkBakiyeFiyat != 0 ? (MinBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
             MaxBakiyeFiyatYuzde    = IlkBakiyeFiyat != 0 ? (MaxBakiyeFiyat - IlkBakiyeFiyat) * 100.0 / IlkBakiyeFiyat : 0;
