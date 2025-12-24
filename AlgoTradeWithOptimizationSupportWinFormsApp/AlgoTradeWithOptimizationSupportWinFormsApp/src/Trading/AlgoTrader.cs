@@ -713,10 +713,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
 
             // Initialize
+            this.timeManager.ResetTimer("1");
+            this.timeManager.StartTimer("1");
             multipleTrader.Initialize();
+            this.timeManager.StopTimer("1");
 
             var startTime = DateTime.Now;
 
+            this.timeManager.ResetTimer("2");
+            this.timeManager.StartTimer("2");
             await Task.Run(() =>
             {
                 for (int i = 0; i < totalBars; i++)
@@ -751,12 +756,27 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                         multipleTrader.OnProgress?.Invoke(multipleTrader, i, totalBars);
                 }
             });
+            this.timeManager.StopTimer("2");
 
             if (multipleTrader.OnProgress != null)
                 multipleTrader.OnProgress?.Invoke(multipleTrader, totalBars, totalBars);
 
-
+            this.timeManager.ResetTimer("3");
+            this.timeManager.StartTimer("3");
             multipleTrader.Finalize();
+            this.timeManager.StopTimer("3");
+
+            Log("");
+
+            var t1 = this.timeManager.GetElapsedTime("1");
+            var t2 = this.timeManager.GetElapsedTime("2");
+            var t3 = this.timeManager.GetElapsedTime("3");
+
+            Log($"t1 = {t1} msec...");
+            Log($"t2 = {t2} msec...");
+            Log($"t3 = {t3} msec...");
+
+            Log("");
 
             Log("Multiple Trader demo completed (Async)");
 
