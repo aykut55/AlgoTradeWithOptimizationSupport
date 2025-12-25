@@ -753,6 +753,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriPuanSaat1", GetiriPuanSaat1, "F4");
         }
 
+        private void AssignToMapMinimal()
+        {
+
+        }
+        
         public void SaveToTxt(string filePath)
         {
             AssignToMap();
