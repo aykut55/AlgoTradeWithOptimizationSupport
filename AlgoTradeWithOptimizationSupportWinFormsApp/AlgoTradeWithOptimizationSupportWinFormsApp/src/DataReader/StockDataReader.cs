@@ -51,11 +51,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
         private bool _useLogManager = false;
         private bool _useTimeManager = false;
         private bool _useConfigManager = false;
+        private bool _isMetaDataRead = false;
 
         // ====================================================================
         // PROPERTIES
         // ====================================================================
         public int ReadCount => _readCount;
+        public bool IsMetaDataRead => _isMetaDataRead;
 
         public void StartTimer()
         {
@@ -81,6 +83,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
         {
             _stopwatch.Reset();
             _readCount = 0;
+            _isMetaDataRead = false;
+            _metaData.Clear();
+            _metaDataLines.Clear();
         }
 
         public List<StockData> ReadData(string filePath)
@@ -435,15 +440,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
         // ====================================================================
 
         /// <summary>
-        /// Metadata dictionary'si (# ile başlayan satırlardan okunan bilgiler)
-        /// </summary>
-        public ConcurrentDictionary<string, string> Metadata => _metaData;
-
-        /// <summary>
         /// Metadata satırları (# ile başlayan tüm satırlar, orijinal haliyle)
         /// Loop ile iterate etmek için kullanılabilir
         /// </summary>
-        public List<string> MetadataLines => _metaDataLines;
+        public List<string> MetaDataLines => _metaDataLines;
+
+        /// <summary>
+        /// Daha önce okunmuş olan metadata bilgilerini döner.
+        /// </summary>
+        /// <returns>Metadata dictionary</returns>
+        public List<string> GetMetaDataLines() => _metaDataLines;
+
+        /// <summary>
+        /// Metadata dictionary'si (# ile başlayan satırlardan okunan bilgiler)
+        /// </summary>
+        public ConcurrentDictionary<string, string> MetaData => _metaData;
+
+        /// <summary>
+        /// Daha önce okunmuş olan metadata bilgilerini döner.
+        /// </summary>
+        /// <returns>Metadata dictionary</returns>
+        public ConcurrentDictionary<string, string> GetMetaData() => _metaData;
 
         /// <summary>
         /// Metadata satırını parse et
@@ -526,6 +543,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
                     LogManager.LogInfo($"StockDataReader: Metadata read completed - {_metaData.Count} entries, {_metaDataLines.Count} lines");
                 }
 
+                _isMetaDataRead = true;
                 return _metaData;
             }
             catch (Exception ex)
