@@ -24,10 +24,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         #endregion
 
         #region System Info
-        public int SistemId => Trader?.SystemId ?? 0;
-        public string SistemName => Trader?.SystemName ?? "...";
         public string GrafikSembol => Trader?.SymbolName ?? "...";
         public string GrafikPeriyot => Trader?.SymbolPeriod.ToString() ?? "...";
+        public string SistemId => Trader?.SystemId ?? "...";
+        public string SistemName => Trader?.SystemName ?? "...";
+        public string StrategyId => Trader?.StrategyId ?? "...";
+        public string StrategyName => Trader?.StrategyName ?? "...";
         #endregion
 
         #region Execution Info
@@ -561,10 +563,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("TraderName", Name);
 
             // --- System & Execution Info ---
-            Add("SystemId", SistemId);
-            Add("SystemName", SistemName);
             Add("SymbolName", GrafikSembol);
             Add("SymbolPeriod", GrafikPeriyot);
+            Add("SystemId", SistemId);
+            Add("SystemName", SistemName);
+            Add("StrategyId", StrategyId);
+            Add("StrategyName", StrategyName);
             Add("LastExecutionId", LastExecutionId);
             Add("LastExecutionTime", LastExecutionTime);
             Add("LastExecutionTimeStart", LastExecutionTimeStart);

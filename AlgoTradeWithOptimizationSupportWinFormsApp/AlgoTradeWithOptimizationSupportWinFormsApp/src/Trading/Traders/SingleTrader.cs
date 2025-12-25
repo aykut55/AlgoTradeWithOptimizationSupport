@@ -8,6 +8,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
 using ScottPlot.TickGenerators.Financial;
 using ScottPlot.TickGenerators.TimeUnits;
+using SkiaSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,9 +38,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
         // Symbol and System Id
         public string SymbolName { get; set; }
-        public int SymbolPeriod { get; set; }
+        public string SymbolPeriod { get; set; }
+        public string SystemId { get; set; }
         public string SystemName { get; set; }
-        public int SystemId { get; set; }
+        public string StrategyId { get; set; }
+        public string StrategyName { get; set; }
 
         // Execution Time Tracking
         public string LastExecutionId { get; set; }
@@ -170,22 +173,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
 
         // Parametreli constructor (yeni kullanım)
-        public SingleTrader(int id, List<StockData> data, IndicatorManager indicators, IAlgoTraderLogger? logger, BaseStrategy? strategy = null)
+        public SingleTrader(int id, string name, List<StockData> data, IndicatorManager indicators, IAlgoTraderLogger? logger, BaseStrategy? strategy = null)
         {
-            // Set data, indicators and strategy
-            _data = data;
-            Indicators = indicators;
+            SetId(id);
+            SetName(name);
+            SetData(data);
+            SetIndicators(indicators);
+
+            _logger = null;
+            if (logger is not null)
+                SetLogger(logger);
 
             Strategy = null;
             if (strategy is not null)
                 SetStrategy(strategy);
 
             CurrentIndex = 0;
-            Id = id;
-
-            _logger = null;
-            if (logger is not null) 
-                SetLogger(logger);
 
             _isInitialized = true;
         }
@@ -203,12 +206,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 throw new ArgumentException("Data cannot be null or empty");
 
             _data = data;
-            CurrentIndex = 0;
-
-            // Initialize indicators
-            Indicators = new IndicatorManager(data);
-
-            _isInitialized = true;
         }
 
         /// <summary>
@@ -237,6 +234,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public void SetLogger(IAlgoTraderLogger logger)
         {
             _logger = logger;
+        }
+
+        /// <summary>
+        /// Set logger for SingleTrader
+        /// </summary>
+        public void SetIndicators(IndicatorManager indicators)
+        {
+            Indicators = indicators;
         }
 
         #endregion
@@ -432,16 +437,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // Notify external reset subscribers after state is clean and user flags applied
             OnReset?.Invoke(this, 0);
 
+            CurrentIndex = 0;
+            SymbolName = "...";
+            SymbolPeriod = "...";
+            SystemId = "...";
+            SystemName = "...";
+            StrategyId = "...";
+            StrategyName = "...";
+            LastResetTime = "...";
+            LastExecutionId = "...";
+            LastExecutionTime = "...";
+            LastExecutionTimeStart = "...";
+            LastExecutionTimeStop = "...";
+            LastExecutionTimeInMSec = "...";
+
             // Reset internal modules (state only)
             ResetModules();
 
             // Re-apply user-defined flags after internal resets
             OnApplyUserFlags?.Invoke(this);
 
-            CurrentIndex = 0;
-
             // Notify external reset subscribers after state is clean and user flags applied
             OnReset?.Invoke(this, 1);
+
+            this.LastResetTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
             return this;
         }

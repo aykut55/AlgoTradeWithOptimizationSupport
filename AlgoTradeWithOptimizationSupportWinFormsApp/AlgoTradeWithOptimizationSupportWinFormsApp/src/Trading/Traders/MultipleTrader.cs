@@ -63,7 +63,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             Traders = new List<SingleTrader>();
 
             // Create mainTrader with ID = -1 to distinguish from other traders
-            _mainTrader = new SingleTrader(-1, data, indicators, logger);
+            _mainTrader = new SingleTrader(-1, "mainTrader", data, indicators, logger);
 
             IsInitialized = true;
         }

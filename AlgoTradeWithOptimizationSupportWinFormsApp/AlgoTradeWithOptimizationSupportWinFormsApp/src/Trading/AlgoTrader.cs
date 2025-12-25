@@ -65,6 +65,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         
         public TimeManager timeManager { get; private set; }
 
+        public string SymbolName { get; set; }
+        public string SymbolPeriod { get; set; }
+        public string SystemId { get; set; }
+        public string SystemName { get; set; }
+        public string StrategyId { get; set; }
+        public string StrategyName { get; set; }
+
         #endregion
 
         #region Constructor
@@ -267,7 +274,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
             strategy.OnInit();
 
-            singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+            singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
             if (singleTrader == null)
                 return;
 
@@ -439,14 +446,8 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
             // *****************************************************************************
             // *****************************************************************************
-            singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+            singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
             if (singleTrader == null) return;
-
-            singleTrader.SetName("singleTrader_0");
-            singleTrader.SystemId = 0;
-            singleTrader.SystemName = "SystemName";
-            singleTrader.SymbolName = "SymbolName";
-            singleTrader.SymbolPeriod = 1;
 
             // Assign callbacks
             singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
@@ -466,6 +467,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Reset
             singleTrader.Reset();
 
+            singleTrader.SymbolName        = this.SymbolName;
+            singleTrader.SymbolPeriod      = this.SymbolPeriod;
+            singleTrader.SystemId          = this.SystemId     = "0";
+            singleTrader.SystemName        = this.SystemName   = "SystemName";
+            singleTrader.StrategyId        = this.StrategyId   = "0";
+            singleTrader.StrategyName      = this.StrategyName = "StrategyName";
+            singleTrader.LastExecutionTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.LastExecutionTimeStart = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+
             // Configure position sizing
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
@@ -484,6 +494,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // *****************************************************************************
             // *****************************************************************************
 
+            this.timeManager.ResetTimer("0");
+            this.timeManager.StartTimer("0");
+
             // Initialize
             this.timeManager.ResetTimer("1");
             this.timeManager.StartTimer("1");
@@ -499,7 +512,6 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("Single Trader - Run (~100 ms)");
 
             var startTime = DateTime.Now;
-
             await Task.Run(() =>
             {
                 for (int i = 0; i < totalBars; i++)
@@ -542,6 +554,11 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             this.timeManager.StopTimer("2");
 
+            this.timeManager.StopTimer("0");
+            var t0 = this.timeManager.GetElapsedTime("0");
+            singleTrader.LastExecutionTimeStop = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.LastExecutionTimeInMSec = t0.ToString();
+
             // Finalize
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
@@ -555,6 +572,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             var t2 = this.timeManager.GetElapsedTime("2");
             var t3 = this.timeManager.GetElapsedTime("3");
 
+            Log($"t0 = {t0} msec...");
             Log($"t1 = {t1} msec...");
             Log($"t2 = {t2} msec...");
             Log($"t3 = {t3} msec...");
@@ -622,7 +640,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
                 strategy.OnInit();
 
-                var singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+                var singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
 
                 // Assign callbacks
                 singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
@@ -653,7 +671,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
                 strategy.OnInit();
 
-                var singleTrader = new SingleTrader(1, this.Data, indicators, Logger);
+                var singleTrader = new SingleTrader(1, "singleTrader", this.Data, indicators, Logger);
 
                 // Assign callbacks
                 singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
@@ -684,7 +702,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
                 strategy.OnInit();
 
-                var singleTrader = new SingleTrader(2, this.Data, indicators, Logger);
+                var singleTrader = new SingleTrader(2, "singleTrader", this.Data, indicators, Logger);
 
                 // Assign callbacks
                 singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);

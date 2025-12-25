@@ -252,7 +252,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             // Indicators zaten constructor'dan geldi
             var indicators = this.Indicators ?? new IndicatorManager(this.Data);
 
-            var singleTrader = new SingleTrader(0, this.Data, indicators, Logger);
+            var singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
 
             // Assign callbacks
             singleTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgressInternal, OnApplyUserFlags);

@@ -17,6 +17,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
     {
         private MainControlLoop? _mainLoop;
         private LogManager _logManager;
+
         private StockDataReader stockDataReader;
         private ConcurrentDictionary<string, string> stockMetaData;
 
@@ -1144,6 +1145,8 @@ Format           : ";
                 }
                 else
                 {
+                    BtnReadMetaData_Click(sender, e);
+
                     // ComboBox'tan seçili modu al
                     if (cmbFilterMode.SelectedItem == null)
                         return;
@@ -1173,6 +1176,8 @@ Format           : ";
                     // Async okuma - UI thread'i bloklamaz
                     await Task.Run(() =>
                     {
+                        stockMetaData = stockDataReader.ReadMetaData(filePath);
+
                         if (mode == StockDataReader.FilterMode.All)
                         {
                             stockDataList = stockDataReader.ReadDataFast(filePath);
@@ -1225,6 +1230,24 @@ Format           : ";
 
                     string currentTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss", CultureInfo.InvariantCulture);
                     lblReadStockDataTime.Text = $"Last StockData Read Time : {currentTime}";
+
+                    var grafikSembol = "";
+                    var grafikPeriyot = "0";                    
+                    if (!stockMetaData.IsEmpty)
+                    {
+                        grafikSembol = stockMetaData.GetValueOrDefault("GrafikSembol", "N/A");
+                        grafikPeriyot = stockMetaData.GetValueOrDefault("GrafikPeriyot", "N/A");                        
+                    }
+                    if (algoTrader != null)
+                    {
+                        algoTrader.SymbolName = grafikSembol;
+                        algoTrader.SymbolPeriod = grafikPeriyot;
+                        algoTrader.SystemId = "...";
+                        algoTrader.SystemName = "...";
+                        algoTrader.StrategyId = "...";
+                        algoTrader.StrategyName = "...";
+
+                    }
                 }
             }
             catch (Exception ex)
