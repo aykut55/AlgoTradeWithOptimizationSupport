@@ -141,7 +141,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             int emirStatus = Trader.signals.EmirStatus;
 
             if (Trader.flags.KomisyonGuncelle == false)
+            {
+                // Komisyon güncellenmese bile listeyi son durumla güncelle
+                Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;
                 return;
+            }
 
             bool isMicroLot = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled;
 
