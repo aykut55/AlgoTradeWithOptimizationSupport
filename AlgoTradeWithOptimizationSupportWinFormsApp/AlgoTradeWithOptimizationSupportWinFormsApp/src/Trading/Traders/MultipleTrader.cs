@@ -290,13 +290,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
 
         }
-        public void Finalize()
+        public void Finalize(bool saveStatisticsToFile = true)
         {
             CurrentIndex = 0;
             foreach (var trader in Traders)
             {
-                trader.Finalize();
+                trader.Finalize(false);
             }
+
+            // TODO : Bu kısım kontrol edilecek...
+
+            if (!IsInitialized)
+                throw new InvalidOperationException("Trader not initialized");
+
+            _mainTrader.OnFinal?.Invoke(_mainTrader, 0);
+
+            _mainTrader.istatistikleri_hesapla();
+
+            if (saveStatisticsToFile)
+                _mainTrader.istatistikleri_dosyaya_yaz();
+
+            _mainTrader.OnFinal?.Invoke(_mainTrader, 1);
         }
 
         #endregion
