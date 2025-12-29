@@ -344,6 +344,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         #region Statistics Map
 
+        private const string SEPARATOR = "#SEPARATOR#";
+
         public Dictionary<string, string> StatisticsMap { get; set; }
         public Dictionary<string, string> StatisticsMapMinimal { get; set; }
 
@@ -582,6 +584,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         private void AssignToMap()
         {
+            int keyId = 0;
+
             StatisticsMap.Clear();
 
             // Helper to add null-safe and formatted values
@@ -599,6 +603,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("TraderId", Id);
             Add("TraderName", Name);
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- System & Execution Info ---
             Add("SymbolName", GrafikSembol);
             Add("SymbolPeriod", GrafikPeriyot);
@@ -606,6 +612,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("SystemName", SistemName);
             Add("StrategyId", StrategyId);
             Add("StrategyName", StrategyName);
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             Add("LastExecutionId", LastExecutionId);
             Add("LastExecutionTime", LastExecutionTime);
             Add("LastExecutionTimeStart", LastExecutionTimeStart);
@@ -613,6 +622,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("LastExecutionTimeInMSec", LastExecutionTimeInMSec);
             Add("LastResetTime", LastResetTime);
             Add("LastStatisticsCalculationTime", LastStatisticsCalculationTime);
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Bar Info ---
             Add("ToplamBarSayisi", ToplamBarSayisi);
@@ -636,6 +647,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("SonBarDusukFiyati", SonBarDusukFiyati, "F4");
             Add("SonBarKapanisFiyati", SonBarKapanisFiyati, "F4");
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Time Statistics ---
             Add("ToplamGecenSureAy", ToplamGecenSureAy, "F1");
             Add("ToplamGecenSureGun", ToplamGecenSureGun);
@@ -645,6 +658,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("OrtHaftalikIslemSayisi", OrtHaftalikIslemSayisi, "F2");
             Add("OrtGunlukIslemSayisi", OrtGunlukIslemSayisi, "F2");
             Add("OrtSaatlikIslemSayisi", OrtSaatlikIslemSayisi, "F2");
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Balance & Returns ---
             Add("IlkBakiyeFiyat", IlkBakiyeFiyat, "F2");
@@ -668,6 +683,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriKzNetSistem", GetiriKzNetSistem, "F4");
             Add("GetiriKzNetSistemYuzde", GetiriKzNetSistemYuzde, "F2");
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Min/Max Balance ---
             Add("MinBakiyeFiyat", MinBakiyeFiyat, "F2");
             Add("MaxBakiyeFiyat", MaxBakiyeFiyat, "F2");
@@ -679,6 +696,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
             Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
             Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Trade Counts ---
             Add("IslemSayisi", IslemSayisi);
@@ -698,6 +717,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KaybettirenSatisSayisi", KaybettirenSatisSayisi);
             Add("NotrSatisSayisi", NotrSatisSayisi);
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Command Counts ---
             Add("AlKomutSayisi", AlKomutSayisi);
             Add("SatKomutSayisi", SatKomutSayisi);
@@ -705,6 +726,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KarAlKomutSayisi", KarAlKomutSayisi);
             Add("ZararKesKomutSayisi", ZararKesKomutSayisi);
             Add("FlatOlKomutSayisi", FlatOlKomutSayisi);
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Commission ---
             Add("KomisyonIslemSayisi", KomisyonIslemSayisi);
@@ -714,6 +737,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KomisyonFiyat", KomisyonFiyat, "F2");
             Add("KomisyonFiyatYuzde", KomisyonFiyatYuzde, "F4");
             Add("KomisyonuDahilEt", KomisyonuDahilEt);
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- PnL Aggregates ---
             Add("KarZararFiyat", KarZararFiyat, "F2");
@@ -733,12 +758,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("ZarardaBarSayisi", ZarardaBarSayisi);
             Add("KarliIslemOrani", KarliIslemOrani, "F2");
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Risk Metrics ---
             Add("GetiriMaxDD", GetiriMaxDD, "F2");
             Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
             Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
             Add("ProfitFactor", ProfitFactor, "F2");
             Add("ProfitFactorSistem", ProfitFactorSistem, "F2");
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Signals & Execution ---
             Add("Sinyal", Sinyal);
@@ -756,6 +785,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("EmirKomut", EmirKomut);
             Add("EmirStatus", EmirStatus);
 
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Asset & Position Info ---
             Add("HisseSayisi", HisseSayisi, "F2");
             Add("KontratSayisi", KontratSayisi, "F2");
@@ -764,11 +795,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("VarlikAdedSayisiMicro", VarlikAdedSayisiMicro, "F4");
             Add("KaymaMiktari", KaymaMiktari, "F4");
             Add("KaymayiDahilEt", KaymayiDahilEt);
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
+
             Add("MicroLotSizeEnabled", MicroLotSizeEnabled);
             Add("PyramidingEnabled", PyramidingEnabled);
             Add("MaxPositionSizeEnabled", MaxPositionSizeEnabled);
             Add("MaxPositionSize", MaxPositionSize, "F4");
             Add("MaxPositionSizeMicro", MaxPositionSizeMicro, "F4");
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Periodic Returns ---
             Add("GetiriFiyatBuAy", GetiriFiyatBuAy, "F2");
@@ -779,6 +815,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriFiyatGun1", GetiriFiyatGun1, "F2");
             Add("GetiriFiyatBuSaat", GetiriFiyatBuSaat, "F2");
             Add("GetiriFiyatSaat1", GetiriFiyatSaat1, "F2");
+
+            StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
             Add("GetiriPuanBuAy", GetiriPuanBuAy, "F4");
             Add("GetiriPuanAy1", GetiriPuanAy1, "F4");
@@ -796,6 +834,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         /// </summary>
         private void AssignToMapMinimal()
         {
+            int keyId = 0;
+
             StatisticsMapMinimal.Clear();
 
             // Helper to add null-safe and formatted values
@@ -813,6 +853,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("TraderId", Id);
             Add("TraderName", Name);
 
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             // --- System & Execution Info ---
             Add("SymbolName", GrafikSembol);
             Add("SymbolPeriod", GrafikPeriyot);
@@ -820,6 +862,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("SystemName", SistemName);
             Add("StrategyId", StrategyId);
             Add("StrategyName", StrategyName);
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             Add("LastExecutionId", LastExecutionId);
             Add("LastExecutionTime", LastExecutionTime);
             Add("LastExecutionTimeStart", LastExecutionTimeStart);
@@ -827,6 +872,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("LastExecutionTimeInMSec", LastExecutionTimeInMSec);
             Add("LastResetTime", LastResetTime);
             Add("LastStatisticsCalculationTime", LastStatisticsCalculationTime);
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Bar Info ---
             Add("ToplamBarSayisi", ToplamBarSayisi);
@@ -839,6 +886,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("IlkBarIndex", IlkBarIndex);
             Add("SonBarIndex", SonBarIndex);
 
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Time Statistics ---
             Add("ToplamGecenSureAy", ToplamGecenSureAy, "F1");
             Add("ToplamGecenSureGun", ToplamGecenSureGun);
@@ -849,9 +898,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("OrtGunlukIslemSayisi", OrtGunlukIslemSayisi, "F2");
             Add("OrtSaatlikIslemSayisi", OrtSaatlikIslemSayisi, "F2");
 
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Balance (Initial) ---
             Add("IlkBakiyeFiyat", IlkBakiyeFiyat, "F2");
-
             // --- Balance (Current) ---
             Add("BakiyeFiyat", BakiyeFiyat, "F2");
             Add("GetiriFiyat", GetiriFiyat, "F2");
@@ -859,6 +909,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("BakiyeFiyatNet", BakiyeFiyatNet, "F2");
             Add("GetiriFiyatNet", GetiriFiyatNet, "F2");
             Add("GetiriFiyatYuzdeNet", GetiriFiyatYuzdeNet, "F2");
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Balance (Min/Max) ---
             Add("MinBakiyeFiyat", MinBakiyeFiyat, "F2");
@@ -869,6 +921,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
             Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
             Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Trade Counts ---
             Add("IslemSayisi", IslemSayisi);
@@ -882,6 +936,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KaybettirenIslemSayisi", KaybettirenIslemSayisi);
             Add("NotrIslemSayisi", NotrIslemSayisi);
 
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Commission ---
             Add("KomisyonIslemSayisi", KomisyonIslemSayisi);
             Add("KomisyonVarlikAdedSayisi", KomisyonVarlikAdedSayisi, "F2");
@@ -891,12 +947,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KomisyonFiyatYuzde", KomisyonFiyatYuzde, "F4");
             Add("KomisyonuDahilEt", KomisyonuDahilEt);
 
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
+
             // --- Performance Metrics ---
             Add("KarliIslemOrani", KarliIslemOrani, "F2");
             Add("GetiriMaxDD", GetiriMaxDD, "F2");
             Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
             Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
             Add("ProfitFactor", ProfitFactor, "F2");
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
             // --- Asset & Position Info ---
             Add("HisseSayisi", HisseSayisi, "F2");
@@ -906,6 +966,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("VarlikAdedSayisiMicro", VarlikAdedSayisiMicro, "F4");
             Add("KaymaMiktari", KaymaMiktari, "F4");
             Add("KaymayiDahilEt", KaymayiDahilEt);
+
+            StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
             Add("MicroLotSizeEnabled", MicroLotSizeEnabled);
             Add("PyramidingEnabled", PyramidingEnabled);
             Add("MaxPositionSizeEnabled", MaxPositionSizeEnabled);
@@ -925,7 +987,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             foreach (var kvp in StatisticsMap)
             {
-                sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
+                if (kvp.Key.StartsWith(SEPARATOR))
+                    sb.AppendLine();  // Boş satır
+                else
+                    sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
             }
 
             sb.AppendLine("================================================================================");
@@ -940,7 +1005,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             foreach (var kvp in StatisticsMap)
             {
-                sb.AppendLine($"{kvp.Key};{kvp.Value}");
+                if (!kvp.Key.StartsWith(SEPARATOR))  // SEPARATOR satırlarını CSV'ye ekleme
+                    sb.AppendLine($"{kvp.Key};{kvp.Value}");
             }
 
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
@@ -962,7 +1028,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             foreach (var kvp in StatisticsMapMinimal)
             {
-                sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
+                if (kvp.Key.StartsWith(SEPARATOR))
+                    sb.AppendLine();  // Boş satır
+                else
+                    sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
             }
 
             sb.AppendLine("================================================================================");
@@ -981,7 +1050,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             foreach (var kvp in StatisticsMapMinimal)
             {
-                sb.AppendLine($"{kvp.Key};{kvp.Value}");
+                if (!kvp.Key.StartsWith(SEPARATOR))  // SEPARATOR satırlarını CSV'ye ekleme
+                    sb.AppendLine($"{kvp.Key};{kvp.Value}");
             }
 
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
