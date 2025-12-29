@@ -1645,7 +1645,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public void istatistikleri_dosyaya_yaz()
         {
             statistics.SaveToTxt("logs\\SingleTraderStatistics.txt");
+            statistics.SaveToCsv("logs\\SingleTraderStatistics.csv");
+
             statistics.SaveToTxtMinimal("logs\\SingleTraderStatisticsMinimal.txt");
+            statistics.SaveToCsvMinimal("logs\\SingleTraderStatisticsMinimal.csv");
+
+            statistics.SaveListsToTxt("logs\\SingleTraderLists.txt");
+            statistics.SaveListsToCsv("logs\\SingleTraderLists.csv");
+
+            statistics.SaveListsToTxtMinimal("logs\\SingleTraderListsMinimal.txt");
+            statistics.SaveListsToCsvMinimal("logs\\SingleTraderListsMinimal.csv");
         }
 
         #endregion

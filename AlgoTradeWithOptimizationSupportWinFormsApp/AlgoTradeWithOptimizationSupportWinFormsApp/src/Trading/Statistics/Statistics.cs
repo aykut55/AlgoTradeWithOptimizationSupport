@@ -1057,6 +1057,344 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
+        /// <summary>
+        /// Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
+        /// </summary>
+        public void SaveListsToTxt(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Title
+            sb.AppendLine($"BAR-BY-BAR TRADING DATA (ALL) - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("".PadRight(500, '='));
+
+            // Header
+            sb.AppendLine(
+                $"{"BarNo",7} | " +
+                $"{"Date",10} | " +
+                $"{"Time",8} | " +
+                $"{"Open",10} | " +
+                $"{"High",10} | " +
+                $"{"Low",10} | " +
+                $"{"Close",10} | " +
+                $"{"Volume",10} | " +
+                $"{"Yon",3} | " +
+                $"{"Seviye",10} | " +
+                $"{"Sinyal",6} | " +
+                $"{"KzPuan",10} | " +
+                $"{"KzFiyat",10} | " +
+                $"{"KzPuan%",10} | " +
+                $"{"KzFiyat%",10} | " +
+                $"{"KarAl",5} | " +
+                $"{"IzStop",10} | " +
+                $"{"Islem",6} | " +
+                $"{"Alis",6} | " +
+                $"{"Satis",6} | " +
+                $"{"Flat",6} | " +
+                $"{"Pass",6} | " +
+                $"{"Kontrat",8} | " +
+                $"{"VarAded",8} | " +
+                $"{"KomVAded",9} | " +
+                $"{"KomIslem",9} | " +
+                $"{"KomFiyat",10} | " +
+                $"{"KarBar",7} | " +
+                $"{"ZarBar",7} | " +
+                $"{"BakPuan",12} | " +
+                $"{"BakFiyat",12} | " +
+                $"{"GetPuan",12} | " +
+                $"{"GetFiyat",12} | " +
+                $"{"GetPuan%",10} | " +
+                $"{"GetFiyat%",10} | " +
+                $"{"BakPuanN",12} | " +
+                $"{"BakFiyatN",12} | " +
+                $"{"GetPuanN",12} | " +
+                $"{"GetFiyatN",12} | " +
+                $"{"GetPuan%N",10} | " +
+                $"{"GetFiyat%N",10} | " +
+                $"{"GetKz",10} | " +
+                $"{"GetKzNet",10} | " +
+                $"{"GetKzSis",10} | " +
+                $"{"GetKzSisN",10} | " +
+                $"{"EmirKmt",7} | " +
+                $"{"EmirSts",7}"
+            );
+            sb.AppendLine("".PadRight(500, '-'));
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i,7} | " +
+                    $"{bar.Date:yyyy.MM.dd} | " +
+                    $"{bar.DateTime:HH:mm:ss} | " +
+                    $"{bar.Open,10:F2} | " +
+                    $"{bar.High,10:F2} | " +
+                    $"{bar.Low,10:F2} | " +
+                    $"{bar.Close,10:F2} | " +
+                    $"{bar.Volume,10:F0} | " +
+                    $"{Trader.lists.YonList[i],3} | " +
+                    $"{Trader.lists.SeviyeList[i],10:F2} | " +
+                    $"{Trader.lists.SinyalList[i],6:F1} | " +
+                    $"{Trader.lists.KarZararPuanList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararPuanYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararFiyatYuzdeList[i],10:F2} | " +
+                    $"{(Trader.lists.KarAlList[i] ? "True" : ""),5} | " +
+                    $"{Trader.lists.IzleyenStopList[i],10:F2} | " +
+                    $"{Trader.lists.IslemSayisiList[i],6} | " +
+                    $"{Trader.lists.AlisSayisiList[i],6} | " +
+                    $"{Trader.lists.SatisSayisiList[i],6} | " +
+                    $"{Trader.lists.FlatSayisiList[i],6} | " +
+                    $"{Trader.lists.PassSayisiList[i],6} | " +
+                    $"{Trader.lists.KontratSayisiList[i],8:F2} | " +
+                    $"{Trader.lists.VarlikAdedSayisiList[i],8:F2} | " +
+                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i],9:F2} | " +
+                    $"{Trader.lists.KomisyonIslemSayisiList[i],9} | " +
+                    $"{Trader.lists.KomisyonFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.KardaBarSayisiList[i],7} | " +
+                    $"{Trader.lists.ZarardaBarSayisiList[i],7} | " +
+                    $"{Trader.lists.BakiyePuanList[i],12:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriFiyatYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.BakiyePuanNetList[i],12:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanYuzdeNetList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKz[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzNet[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzSistem[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzNetSistem[i],10:F2} | " +
+                    $"{Trader.lists.EmirKomutList[i],7:F0} | " +
+                    $"{Trader.lists.EmirStatusList[i],7:F0}"
+                );
+            }
+
+            sb.AppendLine("".PadRight(500, '='));
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Save bar-by-bar lists to CSV file (semicolon separated) - ALL COLUMNS
+        /// </summary>
+        public void SaveListsToCsv(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Header
+            sb.AppendLine(
+                "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
+                "Yon;Seviye;Sinyal;" +
+                "KarZararPuan;KarZararFiyat;KarZararPuanYuzde;KarZararFiyatYuzde;" +
+                "KarAl;IzleyenStop;" +
+                "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;" +
+                "KontratSayisi;VarlikAdedSayisi;KomisyonVarlikAdedSayisi;KomisyonIslemSayisi;KomisyonFiyat;" +
+                "KardaBarSayisi;ZarardaBarSayisi;" +
+                "BakiyePuan;BakiyeFiyat;GetiriPuan;GetiriFiyat;GetiriPuanYuzde;GetiriFiyatYuzde;" +
+                "BakiyePuanNet;BakiyeFiyatNet;GetiriPuanNet;GetiriFiyatNet;GetiriPuanYuzdeNet;GetiriFiyatYuzdeNet;" +
+                "GetiriKz;GetiriKzNet;GetiriKzSistem;GetiriKzNetSistem;" +
+                "EmirKomut;EmirStatus"
+            );
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i};" +
+                    $"{bar.Date:yyyy.MM.dd};" +
+                    $"{bar.DateTime:HH:mm:ss};" +
+                    $"{bar.Open:F2};" +
+                    $"{bar.High:F2};" +
+                    $"{bar.Low:F2};" +
+                    $"{bar.Close:F2};" +
+                    $"{bar.Volume:F0};" +
+                    $"{Trader.lists.YonList[i]};" +
+                    $"{Trader.lists.SeviyeList[i]:F2};" +
+                    $"{Trader.lists.SinyalList[i]:F1};" +
+                    $"{Trader.lists.KarZararPuanList[i]:F2};" +
+                    $"{Trader.lists.KarZararFiyatList[i]:F2};" +
+                    $"{Trader.lists.KarZararPuanYuzdeList[i]:F2};" +
+                    $"{Trader.lists.KarZararFiyatYuzdeList[i]:F2};" +
+                    $"{Trader.lists.KarAlList[i]};" +
+                    $"{Trader.lists.IzleyenStopList[i]:F2};" +
+                    $"{Trader.lists.IslemSayisiList[i]};" +
+                    $"{Trader.lists.AlisSayisiList[i]};" +
+                    $"{Trader.lists.SatisSayisiList[i]};" +
+                    $"{Trader.lists.FlatSayisiList[i]};" +
+                    $"{Trader.lists.PassSayisiList[i]};" +
+                    $"{Trader.lists.KontratSayisiList[i]:F2};" +
+                    $"{Trader.lists.VarlikAdedSayisiList[i]:F2};" +
+                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i]:F2};" +
+                    $"{Trader.lists.KomisyonIslemSayisiList[i]};" +
+                    $"{Trader.lists.KomisyonFiyatList[i]:F2};" +
+                    $"{Trader.lists.KardaBarSayisiList[i]};" +
+                    $"{Trader.lists.ZarardaBarSayisiList[i]};" +
+                    $"{Trader.lists.BakiyePuanList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanYuzdeList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatYuzdeList[i]:F2};" +
+                    $"{Trader.lists.BakiyePuanNetList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanYuzdeNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriKz[i]:F2};" +
+                    $"{Trader.lists.GetiriKzNet[i]:F2};" +
+                    $"{Trader.lists.GetiriKzSistem[i]:F2};" +
+                    $"{Trader.lists.GetiriKzNetSistem[i]:F2};" +
+                    $"{Trader.lists.EmirKomutList[i]:F0};" +
+                    $"{Trader.lists.EmirStatusList[i]:F0}"
+                );
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+
+        /// <summary>
+        /// Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
+        /// </summary>
+        public void SaveListsToTxtMinimal(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Title
+            sb.AppendLine($"BAR-BY-BAR TRADING DATA - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("".PadRight(200, '='));
+
+            // Header
+            sb.AppendLine(
+                $"{"BarNo",7} | " +
+                $"{"Date",10} | " +
+                $"{"Time",8} | " +
+                $"{"Open",10} | " +
+                $"{"High",10} | " +
+                $"{"Low",10} | " +
+                $"{"Close",10} | " +
+                $"{"Volume",10} | " +
+                $"{"Yon",3} | " +
+                $"{"Seviye",10} | " +
+                $"{"Sinyal",6} | " +
+                $"{"KarZarar",10} | " +
+                $"{"Bakiye",12} | " +
+                $"{"Getiri",12} | " +
+                $"{"Komisyon",10} | " +
+                $"{"BakiyeNet",12} | " +
+                $"{"GetiriNet",12} | " +
+                $"{"IslemSay",8} | " +
+                $"{"EmirKmt",7} | " +
+                $"{"EmirSts",7}"
+            );
+            sb.AppendLine("".PadRight(200, '-'));
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i,7} | " +
+                    $"{bar.Date:yyyy.MM.dd} | " +
+                    $"{bar.DateTime:HH:mm:ss} | " +
+                    $"{bar.Open,10:F2} | " +
+                    $"{bar.High,10:F2} | " +
+                    $"{bar.Low,10:F2} | " +
+                    $"{bar.Close,10:F2} | " +
+                    $"{bar.Volume,10:F0} | " +
+                    $"{Trader.lists.YonList[i],3} | " +
+                    $"{Trader.lists.SeviyeList[i],10:F2} | " +
+                    $"{Trader.lists.SinyalList[i],6:F1} | " +
+                    $"{Trader.lists.KarZararFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.KomisyonFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.IslemSayisiList[i],8} | " +
+                    $"{Trader.lists.EmirKomutList[i],7} | " +
+                    $"{Trader.lists.EmirStatusList[i],7}"
+                );
+            }
+
+            sb.AppendLine("".PadRight(200, '='));
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Save bar-by-bar lists to CSV file (semicolon separated) - MINIMAL
+        /// </summary>
+        public void SaveListsToCsvMinimal(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Header
+            sb.AppendLine(
+                "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
+                "Yon;Seviye;Sinyal;" +
+                "KarZarar;Bakiye;Getiri;Komisyon;BakiyeNet;GetiriNet;" +
+                "IslemSayisi;EmirKomut;EmirStatus"
+            );
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i};" +
+                    $"{bar.Date:yyyy.MM.dd};" +
+                    $"{bar.DateTime:HH:mm:ss};" +
+                    $"{bar.Open:F2};" +
+                    $"{bar.High:F2};" +
+                    $"{bar.Low:F2};" +
+                    $"{bar.Close:F2};" +
+                    $"{bar.Volume:F0};" +
+                    $"{Trader.lists.YonList[i]};" +
+                    $"{Trader.lists.SeviyeList[i]:F2};" +
+                    $"{Trader.lists.SinyalList[i]:F1};" +
+                    $"{Trader.lists.KarZararFiyatList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.KomisyonFiyatList[i]:F2};" +
+                    $"{Trader.lists.IslemSayisiList[i]};" +
+                    $"{Trader.lists.AlisSayisiList[i]};" +
+                    $"{Trader.lists.SatisSayisiList[i]};" +
+                    $"{Trader.lists.FlatSayisiList[i]};" +
+                    $"{Trader.lists.PassSayisiList[i]};" +
+                    $"{Trader.lists.EmirKomutList[i]};" +
+                    $"{Trader.lists.EmirStatusList[i]}"
+                );
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+
         #endregion
     }
 }

@@ -499,7 +499,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsViopEndex(kontratSayisi: 1)
-                .SetKomisyonParams(komisyonCarpan: 0.0)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
 
             singleTrader.Init();
