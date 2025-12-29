@@ -906,6 +906,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("BakiyeFiyat", BakiyeFiyat, "F2");
             Add("GetiriFiyat", GetiriFiyat, "F2");
             Add("GetiriFiyatYuzde", GetiriFiyatYuzde, "F2");
+            Add("KomisyonFiyat", KomisyonFiyat, "F2");
             Add("BakiyeFiyatNet", BakiyeFiyatNet, "F2");
             Add("GetiriFiyatNet", GetiriFiyatNet, "F2");
             Add("GetiriFiyatYuzdeNet", GetiriFiyatYuzdeNet, "F2");
@@ -943,7 +944,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("KomisyonVarlikAdedSayisi", KomisyonVarlikAdedSayisi, "F2");
             Add("KomisyonVarlikAdedSayisiMicro", KomisyonVarlikAdedSayisiMicro, "F4");
             Add("KomisyonCarpan", KomisyonCarpan, "F4");
-            Add("KomisyonFiyat", KomisyonFiyat, "F2");
+            Add("KomisyonFiyat2", KomisyonFiyat, "F2");
             Add("KomisyonFiyatYuzde", KomisyonFiyatYuzde, "F4");
             Add("KomisyonuDahilEt", KomisyonuDahilEt);
 
