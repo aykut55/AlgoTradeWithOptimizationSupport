@@ -1341,7 +1341,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                     this.signals.EmirStatus = 9;
                 }
 
-                this.flags.BakiyeGuncelle = true;
+                this.flags.BakiyeGuncelle = false; // "P" sinyali bakiye güncellemez, aksi halde yüzeysel kâr mükerrer eklenir (double-counting)
                 this.flags.KomisyonGuncelle = true;
                 this.flags.DonguSonuIstatistikGuncelle = true;
                 this.status.PassSayisi += 1;
