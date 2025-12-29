@@ -1379,15 +1379,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.SinyalList[i]:F1};" +
                     $"{Trader.lists.KarZararFiyatList[i]:F2};" +
                     $"{Trader.lists.BakiyeFiyatList[i]:F2};" +
-                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatList[i]:F2};" +
                     $"{Trader.lists.KomisyonFiyatList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatNetList[i]:F2};" +
                     $"{Trader.lists.IslemSayisiList[i]};" +
-                    $"{Trader.lists.AlisSayisiList[i]};" +
-                    $"{Trader.lists.SatisSayisiList[i]};" +
-                    $"{Trader.lists.FlatSayisiList[i]};" +
-                    $"{Trader.lists.PassSayisiList[i]};" +
-                    $"{Trader.lists.EmirKomutList[i]};" +
-                    $"{Trader.lists.EmirStatusList[i]}"
+                    $"{Trader.lists.EmirKomutList[i]:F0};" +
+                    $"{Trader.lists.EmirStatusList[i]:F0}"
                 );
             }
 
