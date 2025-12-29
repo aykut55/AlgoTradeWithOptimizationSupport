@@ -1623,7 +1623,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             OnRun?.Invoke(this, 1);
         }
 
-        public void Finalize()
+        public void Finalize(bool saveStatisticsToFile = true)
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
@@ -1632,7 +1632,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             istatistikleri_hesapla();
 
-            istatistikleri_dosyaya_yaz();
+            if (saveStatisticsToFile)
+                istatistikleri_dosyaya_yaz();
 
             OnFinal?.Invoke(this, 1);
         }
@@ -1643,19 +1644,39 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             statistics.Hesapla(lastBarIndex);
         }
 
-        public void istatistikleri_dosyaya_yaz()
+        public void istatistikleri_dosyaya_yaz(
+            bool saveFullStatsTxt = true,
+            bool saveFullStatsCsv = true,
+            bool saveMinimalStatsTxt = true,
+            bool saveMinimalStatsCsv = true,
+            bool saveFullListsTxt = true,
+            bool saveFullListsCsv = true,
+            bool saveMinimalListsTxt = true,
+            bool saveMinimalListsCsv = true)
         {
-            statistics.SaveToTxt("logs\\SingleTraderStatistics.txt");
-            statistics.SaveToCsv("logs\\SingleTraderStatistics.csv");
+            if (saveFullStatsTxt)
+                statistics.SaveToTxt("logs\\SingleTraderStatistics.txt");
 
-            statistics.SaveToTxtMinimal("logs\\SingleTraderStatisticsMinimal.txt");
-            statistics.SaveToCsvMinimal("logs\\SingleTraderStatisticsMinimal.csv");
+            if (saveFullStatsCsv)
+                statistics.SaveToCsv("logs\\SingleTraderStatistics.csv");
 
-            statistics.SaveListsToTxt("logs\\SingleTraderLists.txt");
-            statistics.SaveListsToCsv("logs\\SingleTraderLists.csv");
+            if (saveMinimalStatsTxt)
+                statistics.SaveToTxtMinimal("logs\\SingleTraderStatisticsMinimal.txt");
 
-            statistics.SaveListsToTxtMinimal("logs\\SingleTraderListsMinimal.txt");
-            statistics.SaveListsToCsvMinimal("logs\\SingleTraderListsMinimal.csv");
+            if (saveMinimalStatsCsv)
+                statistics.SaveToCsvMinimal("logs\\SingleTraderStatisticsMinimal.csv");
+
+            if (saveFullListsTxt)
+                statistics.SaveListsToTxt("logs\\SingleTraderLists.txt");
+
+            if (saveFullListsCsv)
+                statistics.SaveListsToCsv("logs\\SingleTraderLists.csv");
+
+            if (saveMinimalListsTxt)
+                statistics.SaveListsToTxtMinimal("logs\\SingleTraderListsMinimal.txt");
+
+            if (saveMinimalListsCsv)
+                statistics.SaveListsToCsvMinimal("logs\\SingleTraderListsMinimal.csv");
         }
 
         #endregion

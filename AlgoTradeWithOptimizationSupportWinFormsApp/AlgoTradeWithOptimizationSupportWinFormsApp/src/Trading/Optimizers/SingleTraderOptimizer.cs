@@ -11,9 +11,15 @@ using System.Linq;
 using System.Text.Json;
 using System.Xml.Linq;
 using Tulip;
+using static AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 {
+    /// <summary>
+    /// Strategy factory delegate - creates strategy instances with given parameters
+    /// </summary>
+    public delegate IStrategy StrategyFactory(List<StockData> data, IndicatorManager indicators, Dictionary<string, object> parameters);
+
     /// <summary>
     /// Parameter range for optimization
     /// </summary>
@@ -72,6 +78,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public List<StockData> Data { get; private set; }
         public IndicatorManager Indicators { get; private set; }
         public Type StrategyType { get; private set; }
+        public StrategyFactory StrategyFactoryMethod { get; private set; }
         public List<ParameterRange> ParameterRanges { get; private set; }
         public List<OptimizationResult> Results { get; private set; }
         public bool IsInitialized { get; private set; }
@@ -149,6 +156,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public void AddParameterRange(string name, double min, double max, double step)
         {
             ParameterRanges.Add(new ParameterRange(name, min, max, step));
+        }
+
+        /// <summary>
+        /// Set strategy factory method for creating strategy instances with parameters
+        /// </summary>
+        public void SetStrategyFactory(StrategyFactory factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            StrategyFactoryMethod = factory;
         }
 
         /// <summary>
@@ -252,6 +270,61 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             // Indicators zaten constructor'dan geldi
             var indicators = this.Indicators ?? new IndicatorManager(this.Data);
 
+            // ============================================================
+            // STRATEGY CONFIGURATION - Change this section for different strategies
+            // ============================================================
+
+            StrategyFactoryMethod = null;
+
+            // Clear previous settings
+            ParameterRanges.Clear();
+            this.AddParameterRange("period", 10, 50, 5);
+
+            this.SetStrategyFactory((data, indicators, parameters) =>
+            {
+                int period = Convert.ToInt32(parameters["period"]);
+                return new SimpleMostStrategy(data, indicators, period, percent: 1.0);
+            });
+            // Kombinasyon sayısı: 9 (10, 15, 20, 25, 30, 35, 40, 45, 50)
+
+
+            // Clear previous settings
+            ParameterRanges.Clear();
+
+            // Setup parameters and strategy
+            this.AddParameterRange("fastPeriod", 5, 20, 5);
+            this.AddParameterRange("slowPeriod", 20, 100, 10);
+
+            this.SetStrategyFactory((data, indicators, parameters) =>
+            {
+                int fast = Convert.ToInt32(parameters["fastPeriod"]);
+                int slow = Convert.ToInt32(parameters["slowPeriod"]);
+                return new SimpleMAStrategy(data, indicators, fast, slow);
+            });
+            // Kombinasyon sayısı: 4 × 9 = 36
+            // (5,20), (5,30), ..., (20,100)
+
+
+            // Clear previous settings
+            ParameterRanges.Clear();
+
+            // Setup parameters and strategy
+            this.AddParameterRange("period", 10, 30, 10);      // 3 değer: 10, 20, 30
+            this.AddParameterRange("percent", 0.5, 2.0, 0.5);  // 4 değer: 0.5, 1.0, 1.5, 2.0
+            //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0); // 3 değer: 1.0, 2.0, 3.0
+
+            this.SetStrategyFactory((data, indicators, parameters) =>
+            {
+                int period = Convert.ToInt32(parameters["period"]);
+                double percent = Convert.ToDouble(parameters["percent"]);
+                return new SimpleMostStrategy(data, indicators, period, percent);
+            });
+            // Kombinasyon sayısı: 3 × 4 × 3 = 36
+
+            // ============================================================
+            // END STRATEGY CONFIGURATION
+            // ============================================================
+
             var singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
 
             // Assign callbacks
@@ -260,22 +333,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             // Setup (order is important)
             singleTrader.CreateModules();
 
+            // Validate StrategyFactory is set
+            if (StrategyFactoryMethod == null)
+                throw new InvalidOperationException("StrategyFactory must be set before running optimization. Use SetStrategyFactory().");
+
             Results.Clear();
 
-            GenerateParameterCombinations();
-
-            // Calculate total combinations
-            int totalCombinations = 0;
+            // Generate all parameter combinations (generic)
+            var allCombinations = GenerateParameterCombinations();
+            int totalCombinations = allCombinations.Count;
             int currentCombination = 0;
-
-            foreach (var range in ParameterRanges)
-            {
-                var values = range.GetValues();
-                if (totalCombinations == 0)
-                    totalCombinations = values.Count;
-                else
-                    totalCombinations *= values.Count;
-            }
 
             Logger?.Log($"Starting optimization: {totalCombinations} combinations to test");
             if (SkipIterationEnabled && SkipIteration > 0)
@@ -298,119 +365,131 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 Logger?.Log($"  - {range.Name}: {range.Min} to {range.Max} (step: {range.Step})");
             }
 
-            // Get parameter values
-            var fastPeriodValues = ParameterRanges[0].GetValues();
-            var slowPeriodValues = ParameterRanges[1].GetValues();
+            // Effective combination count (skip sonrası çalıştırılan)
+            int effectiveCombinationCount = 0;
 
-            // Break flag for nested loops
-            bool shouldBreak = false;
-            int effectiveCombinationCount = 0;  // Skip sonrası çalıştırılan kombinasyon sayısı
-
-            // Test all combinations
-            foreach (var fastPeriod in fastPeriodValues)
+            // Test all combinations (generic - no more nested loops!)
+            foreach (var paramCombo in allCombinations)
             {
-                foreach (var slowPeriod in slowPeriodValues)
+                currentCombination++;
+
+                // Calculate progress percentage
+                double progressPercent = (currentCombination / (double)totalCombinations) * 100.0;
+
+                // Report optimization progress (her zaman raporla, atlanmış iterasyonlar için de)
+                OnOptimizationProgress?.Invoke(currentCombination, totalCombinations);
+
+                // Build parameter string for logging (generic)
+                string paramsStr = string.Join(", ", paramCombo.Select(kvp => $"{kvp.Key}={kvp.Value}"));
+
+                // Skip iteration check
+                if (SkipIterationEnabled)
                 {
-                    currentCombination++;
-
-                    // Calculate progress percentage
-                    double progressPercent = (currentCombination / (double)totalCombinations) * 100.0;
-
-                    // Report optimization progress (her zaman raporla, atlanmış iterasyonlar için de)
-                    OnOptimizationProgress?.Invoke(currentCombination, totalCombinations);
-
-                    // Skip iteration check (Python mantığı)
-                    if (SkipIterationEnabled)
+                    if (currentCombination <= SkipIteration)
                     {
-                        if (currentCombination <= SkipIteration)
-                        {
-                            Logger?.Log($"Skipping combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%): fastPeriod={fastPeriod}, slowPeriod={slowPeriod}");
-                            continue;
-                        }
-                    }
-
-                    // Effective combination count (skip sonrası çalıştırılan)
-                    effectiveCombinationCount++;
-
-                    // Max iterations check
-                    if (MaxIterationsEnabled && MaxIterations > 0)
-                    {
-                        if (effectiveCombinationCount > MaxIterations)
-                        {
-                            Logger?.Log($"Max iterations reached ({MaxIterations}). Stopping at combination {currentCombination}/{totalCombinations}");
-                            shouldBreak = true;
-                            break;  // İç döngüden çık
-                        }
-                    }
-
-                    Logger?.Log($"Testing combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%) [Effective: {effectiveCombinationCount}]: fastPeriod={fastPeriod}, slowPeriod={slowPeriod}");
-
-                    // Create strategy instance
-                    var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: (int)fastPeriod, slowPeriod: (int)slowPeriod);
-                    strategy.OnInit();
-                    singleTrader.SetStrategy(strategy);
-
-                    // Reset
-                    singleTrader.Reset();
-
-                    // Configure position sizing
-                    singleTrader.pozisyonBuyuklugu.Reset()
-                        .SetBakiyeParams(ilkBakiye: 100000.0)
-                        .SetKontratParamsViopEndex(kontratSayisi: 1)
-                        .SetKomisyonParams(komisyonCarpan: 3.0)
-                        .SetKaymaParams(kaymaMiktari: 0.5);
-
-                    singleTrader.Init();
-
-                    // Initialize
-                    singleTrader.Initialize();
-
-                    // Run SingleTrader
-                    for (int i = 0; i < totalBars; i++)
-                    {
-                        if (i % 1000 == 0)
-                            OnSingleTraderProgressCallback?.Invoke(i, totalBars);
-                        singleTrader.Run(i);
-                    }
-                    OnSingleTraderProgressCallback?.Invoke(totalBars, totalBars);
-
-                    // Collect statistics
-                    singleTrader.Finalize();
-
-                    // Store result
-                    var result = new OptimizationResult
-                    {
-                        NetProfit = singleTrader.status.GetiriFiyatNet,
-                        WinRate = singleTrader.statistics.KazandiranIslemSayisi > 0
-                            ? (double)singleTrader.statistics.KazandiranIslemSayisi / (singleTrader.statistics.KazandiranIslemSayisi + singleTrader.statistics.KaybettirenIslemSayisi) * 100.0
-                            : 0.0,
-                        ProfitFactor = singleTrader.status.ToplamZararFiyat != 0
-                            ? Math.Abs(singleTrader.status.ToplamKarFiyat / singleTrader.status.ToplamZararFiyat)
-                            : 0.0,
-                        MaxDrawdown = singleTrader.statistics.GetiriMaxDD
-                    };
-
-                    result.Parameters["fastPeriod"] = fastPeriod;
-                    result.Parameters["slowPeriod"] = slowPeriod;
-
-                    Results.Add(result);
-
-                    Logger?.Log($"  → NetProfit: {result.NetProfit:F2}, WinRate: {result.WinRate:F2}%, PF: {result.ProfitFactor:F2}");
-
-                    // strategy.Dispose();
-                    strategy = null;
-
-                    // Intermediate save check
-                    if (SaveEveryN > 0 && effectiveCombinationCount % SaveEveryN == 0)
-                    {
-                        Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
-                        OnSaveResults?.Invoke(Results, currentCombination);
+                        Logger?.Log($"Skipping combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%): {paramsStr}");
+                        continue;
                     }
                 }
 
-                // Break from outer loop if max iterations reached
-                if (shouldBreak)
-                    break;
+                // Effective combination count (skip sonrası çalıştırılan)
+                effectiveCombinationCount++;
+
+                // Max iterations check
+                if (MaxIterationsEnabled && MaxIterations > 0)
+                {
+                    if (effectiveCombinationCount > MaxIterations)
+                    {
+                        Logger?.Log($"Max iterations reached ({MaxIterations}). Stopping at combination {currentCombination}/{totalCombinations}");
+                        break;  // Exit loop
+                    }
+                }
+
+                Logger?.Log($"Testing combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%) [Effective: {effectiveCombinationCount}]: {paramsStr}");
+
+                // Create strategy instance using factory (generic!)
+                var strategy = StrategyFactoryMethod(this.Data, indicators, paramCombo);
+                strategy.OnInit();
+                singleTrader.SetStrategy(strategy);
+
+                // Reset
+                singleTrader.Reset();
+
+                // Configure position sizing
+                singleTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsViopEndex(kontratSayisi: 1)
+                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                singleTrader.Init();
+
+                // Initialize
+                singleTrader.Initialize();
+
+                // Run SingleTrader
+                for (int i = 0; i < totalBars; i++)
+                {
+                    if (i % 1000 == 0)
+                        OnSingleTraderProgressCallback?.Invoke(i, totalBars);
+                    singleTrader.Run(i);
+                }
+                OnSingleTraderProgressCallback?.Invoke(totalBars, totalBars);
+
+                // Collect statistics
+                singleTrader.Finalize(false);
+
+                OptimizationSummary optSummary = singleTrader.statistics.GetOptimizationSummary();
+
+
+
+
+
+
+
+
+                // Store result
+                var result = new OptimizationResult
+                {
+                    NetProfit = singleTrader.status.GetiriFiyatNet,
+                    WinRate = singleTrader.statistics.KazandiranIslemSayisi > 0
+                        ? (double)singleTrader.statistics.KazandiranIslemSayisi / (singleTrader.statistics.KazandiranIslemSayisi + singleTrader.statistics.KaybettirenIslemSayisi) * 100.0
+                        : 0.0,
+                    ProfitFactor = singleTrader.status.ToplamZararFiyat != 0
+                        ? Math.Abs(singleTrader.status.ToplamKarFiyat / singleTrader.status.ToplamZararFiyat)
+                        : 0.0,
+                    MaxDrawdown = singleTrader.statistics.GetiriMaxDD
+                };
+
+                // Add all parameters to result (generic)
+                foreach (var kvp in paramCombo)
+                {
+                    result.Parameters[kvp.Key] = kvp.Value;
+                }
+
+                Results.Add(result);
+
+                Logger?.Log($"  → NetProfit: {result.NetProfit:F2}, WinRate: {result.WinRate:F2}%, PF: {result.ProfitFactor:F2}");
+
+
+
+
+
+
+
+
+
+
+
+                // strategy.Dispose();
+                strategy = null;
+
+                // Intermediate save check
+                if (SaveEveryN > 0 && effectiveCombinationCount % SaveEveryN == 0)
+                {
+                    Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
+                    OnSaveResults?.Invoke(Results, currentCombination);
+                }
             }
 
             singleTrader.Dispose();
@@ -425,8 +504,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             {
                 Logger?.Log("");
                 Logger?.Log("=== BEST RESULT ===");
-                Logger?.Log($"FastPeriod: {bestResult.Parameters["fastPeriod"]}");
-                Logger?.Log($"SlowPeriod: {bestResult.Parameters["slowPeriod"]}");
+
+                // Log all parameters (generic)
+                foreach (var kvp in bestResult.Parameters)
+                {
+                    Logger?.Log($"{kvp.Key}: {kvp.Value}");
+                }
+
                 Logger?.Log($"NetProfit: {bestResult.NetProfit:F2}");
                 Logger?.Log($"WinRate: {bestResult.WinRate:F2}%");
                 Logger?.Log($"ProfitFactor: {bestResult.ProfitFactor:F2}");
@@ -466,20 +550,39 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         #region Helper Methods
 
         /// <summary>
-        /// Generate all parameter combinations
+        /// Generate all parameter combinations (generic - recursive)
         /// </summary>
         private List<Dictionary<string, object>> GenerateParameterCombinations()
         {
-            ParameterRanges.Clear();
+            if (ParameterRanges == null || ParameterRanges.Count == 0)
+                return new List<Dictionary<string, object>>();
 
-            var parameterRange1 = new ParameterRange("fastPeriod", 10.0, 100.0, 5.0);
-            var parameterRange2 = new ParameterRange("slowPeriod", 10.0, 100.0, 5.0);
+            var results = new List<Dictionary<string, object>>();
+            GenerateCombinationsRecursive(0, new Dictionary<string, object>(), results);
+            return results;
+        }
 
-            ParameterRanges.Add(parameterRange1);
-            ParameterRanges.Add(parameterRange2);
+        /// <summary>
+        /// Recursive helper for generating parameter combinations
+        /// </summary>
+        private void GenerateCombinationsRecursive(int paramIndex, Dictionary<string, object> current, List<Dictionary<string, object>> results)
+        {
+            // Base case: all parameters assigned
+            if (paramIndex >= ParameterRanges.Count)
+            {
+                results.Add(new Dictionary<string, object>(current));
+                return;
+            }
 
-            // TODO: Implement recursive parameter combination generator
-            return new List<Dictionary<string, object>>();
+            // Recursive case: try all values for current parameter
+            var range = ParameterRanges[paramIndex];
+            var values = range.GetValues();
+
+            foreach (var value in values)
+            {
+                current[range.Name] = value;
+                GenerateCombinationsRecursive(paramIndex + 1, current, results);
+            }
         }
 
         private void OnSingleTraderReset(SingleTrader trader, int mode)
