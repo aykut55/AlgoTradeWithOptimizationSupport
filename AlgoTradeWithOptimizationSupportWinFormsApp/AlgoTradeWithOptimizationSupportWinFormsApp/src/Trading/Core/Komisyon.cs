@@ -131,7 +131,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             double totalCommission = 0.0;
             double komisyonCarpan = Trader.status.KomisyonCarpan;
-            int komisyonIslemSayisi = (int)Trader.lists.KomisyonIslemSayisiList[i];
+
+            // O bar'daki komisyon işlem sayısı artışını hesapla (toplam değil!)
+            int oncekiKomisyonIslemSayisi = i > 0 ? (int)Trader.lists.KomisyonIslemSayisiList[i - 1] : 0;
+            int mevcutKomisyonIslemSayisi = (int)Trader.lists.KomisyonIslemSayisiList[i];
+            int komisyonIslemSayisi = mevcutKomisyonIslemSayisi - oncekiKomisyonIslemSayisi;
 
             // EmirStatus kontrol et
             int emirStatus = Trader.signals.EmirStatus;
@@ -141,47 +145,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             if (emirStatus == 2 || emirStatus == 4)
             {
                 // DURUM 1: Ters Yön Değişimi (S→A veya A→S)
-                // İşlem 1: Eski pozisyonu KAPAT (Prev lot büyüklüğü)
-                double closeVolume = isMicroLot
-                    ? Trader.signals.PrevVarlikAdedSayisiMicro
-                    : Trader.signals.PrevVarlikAdedSayisi;
-
-                // İşlem 2: Yeni pozisyon AÇ (Son lot büyüklüğü)
-                double openVolume = isMicroLot
-                    ? Trader.signals.SonVarlikAdedSayisiMicro
-                    : Trader.signals.SonVarlikAdedSayisi;
+                // 2 ayrı işlem: Close + Open
+                // Her işlem için sabit komisyon varlık adedi kullan
+                double komisyonVolume = isMicroLot
+                    ? Trader.status.KomisyonVarlikAdedSayisiMicro
+                    : Trader.status.KomisyonVarlikAdedSayisi;
 
                 // Her iki işlem için de ayrı komisyon hesapla
-                double closeCommission = komisyonCarpan * closeVolume;
-                double openCommission = komisyonCarpan * openVolume;
+                double closeCommission = komisyonCarpan * komisyonVolume;
+                double openCommission = komisyonCarpan * komisyonVolume;
 
                 totalCommission = closeCommission + openCommission;
 
                 // Log (opsiyonel)
-                // Console.WriteLine($"Reverse Position: Close={closeVolume} lot, Open={openVolume} lot, Total Commission={totalCommission}");
+                // Console.WriteLine($"Reverse Position: 2 işlem × {komisyonVolume} lot × {komisyonCarpan} çarpan = {totalCommission} TL");
             }
             else if (komisyonIslemSayisi > 0)
             {
                 // DURUM 2: Normal işlem (Tek işlem - açma veya kapatma)
                 // EmirStatus = 1, 3, 5, 6
 
-                double volume = 0.0;
+                // Sabit komisyon varlık adedi kullan (dinamik volume yerine)
+                double komisyonVolume = isMicroLot
+                    ? Trader.status.KomisyonVarlikAdedSayisiMicro
+                    : Trader.status.KomisyonVarlikAdedSayisi;
 
-                if (emirStatus == 1 || emirStatus == 3)
-                {
-                    // Yeni pozisyon açma (F→A veya F→S)
-                    volume = isMicroLot
-                        ? Trader.signals.SonVarlikAdedSayisiMicro
-                        : Trader.signals.SonVarlikAdedSayisi;
-                }
-                else if (emirStatus == 5 || emirStatus == 6)
-                {
-                    // Pozisyon kapatma (A→F veya S→F)
-                    volume = isMicroLot
-                        ? Trader.signals.PrevVarlikAdedSayisiMicro
-                        : Trader.signals.PrevVarlikAdedSayisi;
-                }
-                else if (emirStatus == 10 || emirStatus == 11)
+                if (emirStatus == 10 || emirStatus == 11)
                 {
                     // DURUM 3: Pyramiding (A→A veya S→S: Pozisyon artırma)
                     // Sadece eklenen lot için komisyon hesapla
@@ -194,22 +183,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                         ? Trader.signals.PrevVarlikAdedSayisiMicro
                         : Trader.signals.PrevVarlikAdedSayisi;
 
-                    volume = sonLot - prevLot;  // Eklenen lot miktarı
-                }
-                else
-                {
-                    // EmirStatus belirtilmemişse, güvenli tarafta kalıp Son değeri kullan
-                    volume = isMicroLot
-                        ? Trader.signals.SonVarlikAdedSayisiMicro
-                        : Trader.signals.SonVarlikAdedSayisi;
+                    komisyonVolume = sonLot - prevLot;  // Eklenen lot miktarı
                 }
 
-                totalCommission = komisyonIslemSayisi * komisyonCarpan * volume;
+                totalCommission = komisyonIslemSayisi * komisyonCarpan * komisyonVolume;
             }
 
-            // Sonucu kaydet
-            Trader.status.KomisyonFiyat = totalCommission;
-            Trader.lists.KomisyonFiyatList[i] = totalCommission;
+            if (i == 1842489 - 1)
+            {
+                totalCommission = totalCommission + 1 - 1;
+            }
+            if (totalCommission > 0.0)
+                totalCommission = totalCommission + 1 - 1;
+
+            // Sonucu kaydet (kümülatif toplam - diğer metriklerle tutarlı)
+            Trader.status.KomisyonFiyat += totalCommission;  // Bu bar'daki komisyonu toplama ekle
+            Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;  // Toplam değeri kaydet
+
         }
 
         /// <summary>

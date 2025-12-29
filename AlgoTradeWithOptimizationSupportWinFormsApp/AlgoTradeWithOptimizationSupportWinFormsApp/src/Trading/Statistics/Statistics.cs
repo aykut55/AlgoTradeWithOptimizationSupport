@@ -154,7 +154,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public double KomisyonVarlikAdedSayisi => Trader?.status?.KomisyonVarlikAdedSayisi ?? 0;
         public double KomisyonVarlikAdedSayisiMicro => Trader?.status?.KomisyonVarlikAdedSayisiMicro ?? 0;
         public double KomisyonCarpan => Trader?.status?.KomisyonCarpan ?? 0;
-        public double KomisyonFiyat => Trader?.status?.KomisyonFiyat ?? 0;
+        public double KomisyonFiyat { get; set; }  // Toplam komisyon (Hesapla() metodunda hesaplanır)
         public double KomisyonFiyatYuzde { get; set; }
         public bool KomisyonuDahilEt => Trader?.flags?.KomisyonuDahilEt ?? false;
 
@@ -345,6 +345,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         #region Statistics Map
 
         public Dictionary<string, string> StatisticsMap { get; set; }
+        public Dictionary<string, string> StatisticsMapMinimal { get; set; }
 
         #endregion
 
@@ -353,6 +354,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public Statistics()
         {
             StatisticsMap = new Dictionary<string, string>();
+            StatisticsMapMinimal = new Dictionary<string, string>();
             IlkBarIndex = 0;
         }
 
@@ -375,6 +377,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public Statistics Reset()
         {
             StatisticsMap.Clear();
+            StatisticsMapMinimal.Clear();
             return this;
         }
 
@@ -441,9 +444,38 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             OrtGunlukIslemSayisi   = ToplamGecenSureGun > 0 ? 1.0 * IslemSayisi / ToplamGecenSureGun : 0;
             OrtSaatlikIslemSayisi  = ToplamGecenSureSaat > 0 ? 1.0 * IslemSayisi / ToplamGecenSureSaat : 0;
 
-            GetiriMaxDD            = 0.0;
-            GetiriMaxDDTarih       = "";
-            GetiriMaxKayip         = VarlikAdedSayisi * -1 * GetiriMaxDD;
+            // Maximum Drawdown hesaplaması
+            double maxBakiye = IlkBakiyeFiyat;
+            double maxDD = 0.0;
+            double maxDDYuzde = 0.0;
+            string maxDDTarih = "";
+
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                double mevcutBakiye = Trader.lists.BakiyeFiyatList[i];
+
+                // Yeni maksimum bakiye kontrolü
+                if (mevcutBakiye > maxBakiye)
+                {
+                    maxBakiye = mevcutBakiye;
+                }
+
+                // Drawdown hesapla (maksimum bakiyeden ne kadar düşmüş)
+                double drawdown = maxBakiye - mevcutBakiye;
+                double drawdownYuzde = maxBakiye > 0 ? (drawdown / maxBakiye) * 100.0 : 0.0;
+
+                // En büyük drawdown kontrolü
+                if (drawdownYuzde > maxDDYuzde)
+                {
+                    maxDDYuzde = drawdownYuzde;
+                    maxDD = drawdown;
+                    maxDDTarih = Trader.Data[i].DateTime.ToString("yyyy.MM.dd HH:mm:ss");
+                }
+            }
+
+            GetiriMaxDD            = maxDDYuzde;
+            GetiriMaxDDTarih       = maxDDTarih;
+            GetiriMaxKayip         = maxDD;
 
             MaxKarFiyat            = 0.0;
             MaxZararFiyat          = 0.0;
@@ -455,6 +487,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             MaxBakiyeFiyatNet      = IlkBakiyeFiyat;
             MinBakiyePuan          = IlkBakiyePuan;
             MaxBakiyePuan          = IlkBakiyePuan;
+
+            // Toplam komisyonu al (son bar'daki kümülatif değer)
+            KomisyonFiyat = lastBarIndex >= 0 ? Trader.lists.KomisyonFiyatList[lastBarIndex] : 0.0;
 
             // Find min/max values
             for (int i = 1; i < Trader.Data.Count; i++)
@@ -527,6 +562,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             GetiriIstatistikleriHesapla();
 
             AssignToMap();
+
+            AssignToMapMinimal();
 
             return result;
         }
@@ -753,9 +790,127 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriPuanSaat1", GetiriPuanSaat1, "F4");
         }
 
+        /// <summary>
+        /// AssignToMapMinimal - Minimal statistics set for quick reporting
+        /// Only essential metrics for optimization and quick analysis
+        /// </summary>
         private void AssignToMapMinimal()
         {
+            StatisticsMapMinimal.Clear();
 
+            // Helper to add null-safe and formatted values
+            void Add(string key, object value, string format = "")
+            {
+                if (value == null || (value is string s && string.IsNullOrEmpty(s)))
+                {
+                    StatisticsMapMinimal[key] = "...";
+                    return;
+                }
+                StatisticsMapMinimal[key] = string.IsNullOrEmpty(format) ? value.ToString() : string.Format("{0:" + format + "}", value);
+            }
+
+            // --- Identification ---
+            Add("TraderId", Id);
+            Add("TraderName", Name);
+
+            // --- System & Execution Info ---
+            Add("SymbolName", GrafikSembol);
+            Add("SymbolPeriod", GrafikPeriyot);
+            Add("SystemId", SistemId);
+            Add("SystemName", SistemName);
+            Add("StrategyId", StrategyId);
+            Add("StrategyName", StrategyName);
+            Add("LastExecutionId", LastExecutionId);
+            Add("LastExecutionTime", LastExecutionTime);
+            Add("LastExecutionTimeStart", LastExecutionTimeStart);
+            Add("LastExecutionTimeStop", LastExecutionTimeStop);
+            Add("LastExecutionTimeInMSec", LastExecutionTimeInMSec);
+            Add("LastResetTime", LastResetTime);
+            Add("LastStatisticsCalculationTime", LastStatisticsCalculationTime);
+
+            // --- Bar Info ---
+            Add("ToplamBarSayisi", ToplamBarSayisi);
+            Add("IlkBarTarihSaati", IlkBarTarihSaati);
+            Add("IlkBarTarihi", IlkBarTarihi);
+            Add("IlkBarSaati", IlkBarSaati);
+            Add("SonBarTarihSaati", SonBarTarihSaati);
+            Add("SonBarTarihi", SonBarTarihi);
+            Add("SonBarSaati", SonBarSaati);
+            Add("IlkBarIndex", IlkBarIndex);
+            Add("SonBarIndex", SonBarIndex);
+
+            // --- Time Statistics ---
+            Add("ToplamGecenSureAy", ToplamGecenSureAy, "F1");
+            Add("ToplamGecenSureGun", ToplamGecenSureGun);
+            Add("ToplamGecenSureSaat", ToplamGecenSureSaat);
+            Add("ToplamGecenSureDakika", ToplamGecenSureDakika);
+            Add("OrtAylikIslemSayisi", OrtAylikIslemSayisi, "F2");
+            Add("OrtHaftalikIslemSayisi", OrtHaftalikIslemSayisi, "F2");
+            Add("OrtGunlukIslemSayisi", OrtGunlukIslemSayisi, "F2");
+            Add("OrtSaatlikIslemSayisi", OrtSaatlikIslemSayisi, "F2");
+
+            // --- Balance (Initial) ---
+            Add("IlkBakiyeFiyat", IlkBakiyeFiyat, "F2");
+
+            // --- Balance (Current) ---
+            Add("BakiyeFiyat", BakiyeFiyat, "F2");
+            Add("GetiriFiyat", GetiriFiyat, "F2");
+            Add("GetiriFiyatYuzde", GetiriFiyatYuzde, "F2");
+            Add("BakiyeFiyatNet", BakiyeFiyatNet, "F2");
+            Add("GetiriFiyatNet", GetiriFiyatNet, "F2");
+            Add("GetiriFiyatYuzdeNet", GetiriFiyatYuzdeNet, "F2");
+
+            // --- Balance (Min/Max) ---
+            Add("MinBakiyeFiyat", MinBakiyeFiyat, "F2");
+            Add("MaxBakiyeFiyat", MaxBakiyeFiyat, "F2");
+            Add("MinBakiyeFiyatYuzde", MinBakiyeFiyatYuzde, "F2");
+            Add("MaxBakiyeFiyatYuzde", MaxBakiyeFiyatYuzde, "F2");
+            Add("MinBakiyeFiyatIndex", MinBakiyeFiyatIndex);
+            Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
+            Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
+            Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+
+            // --- Trade Counts ---
+            Add("IslemSayisi", IslemSayisi);
+            Add("AlisSayisi", AlisSayisi);
+            Add("SatisSayisi", SatisSayisi);
+            Add("FlatSayisi", FlatSayisi);
+            Add("PassSayisi", PassSayisi);
+            Add("KarAlSayisi", KarAlSayisi);
+            Add("ZararKesSayisi", ZararKesSayisi);
+            Add("KazandiranIslemSayisi", KazandiranIslemSayisi);
+            Add("KaybettirenIslemSayisi", KaybettirenIslemSayisi);
+            Add("NotrIslemSayisi", NotrIslemSayisi);
+
+            // --- Commission ---
+            Add("KomisyonIslemSayisi", KomisyonIslemSayisi);
+            Add("KomisyonVarlikAdedSayisi", KomisyonVarlikAdedSayisi, "F2");
+            Add("KomisyonVarlikAdedSayisiMicro", KomisyonVarlikAdedSayisiMicro, "F4");
+            Add("KomisyonCarpan", KomisyonCarpan, "F4");
+            Add("KomisyonFiyat", KomisyonFiyat, "F2");
+            Add("KomisyonFiyatYuzde", KomisyonFiyatYuzde, "F4");
+            Add("KomisyonuDahilEt", KomisyonuDahilEt);
+
+            // --- Performance Metrics ---
+            Add("KarliIslemOrani", KarliIslemOrani, "F2");
+            Add("GetiriMaxDD", GetiriMaxDD, "F2");
+            Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
+            Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
+            Add("ProfitFactor", ProfitFactor, "F2");
+
+            // --- Asset & Position Info ---
+            Add("HisseSayisi", HisseSayisi, "F2");
+            Add("KontratSayisi", KontratSayisi, "F2");
+            Add("VarlikAdedCarpani", VarlikAdedCarpani, "F2");
+            Add("VarlikAdedSayisi", VarlikAdedSayisi, "F2");
+            Add("VarlikAdedSayisiMicro", VarlikAdedSayisiMicro, "F4");
+            Add("KaymaMiktari", KaymaMiktari, "F4");
+            Add("KaymayiDahilEt", KaymayiDahilEt);
+            Add("MicroLotSizeEnabled", MicroLotSizeEnabled);
+            Add("PyramidingEnabled", PyramidingEnabled);
+            Add("MaxPositionSizeEnabled", MaxPositionSizeEnabled);
+            Add("MaxPositionSize", MaxPositionSize, "F4");
+            Add("MaxPositionSizeMicro", MaxPositionSizeMicro, "F4");
         }
         
         public void SaveToTxt(string filePath)
@@ -784,6 +939,47 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             sb.AppendLine("Key;Value");
 
             foreach (var kvp in StatisticsMap)
+            {
+                sb.AppendLine($"{kvp.Key};{kvp.Value}");
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Save minimal statistics to TXT file (faster, essential metrics only)
+        /// Ideal for optimization runs and quick analysis
+        /// </summary>
+        public void SaveToTxtMinimal(string filePath)
+        {
+            AssignToMapMinimal();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"TRADING STATISTICS REPORT (MINIMAL) - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("================================================================================");
+            sb.AppendLine($"{"Property Name".PadRight(40)} : Value");
+            sb.AppendLine("--------------------------------------------------------------------------------");
+
+            foreach (var kvp in StatisticsMapMinimal)
+            {
+                sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
+            }
+
+            sb.AppendLine("================================================================================");
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Save minimal statistics to CSV file (faster, essential metrics only)
+        /// Ideal for optimization runs and data analysis
+        /// </summary>
+        public void SaveToCsvMinimal(string filePath)
+        {
+            AssignToMapMinimal();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Key;Value");
+
+            foreach (var kvp in StatisticsMapMinimal)
             {
                 sb.AppendLine($"{kvp.Key};{kvp.Value}");
             }
