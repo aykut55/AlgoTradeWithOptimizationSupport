@@ -1393,6 +1393,304 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
+        #region Optimization Summary
+
+        /// <summary>
+        /// Optimization summary structure for fast CSV/TXT export during optimization runs
+        /// Contains essential metrics for strategy optimization and comparison
+        /// </summary>
+        public struct OptimizationSummary
+        {
+            // Identification
+            public int TraderId;
+            public string TraderName;
+            public string Symbol;
+            public string Period;
+            public string StrategyId;
+            public string StrategyName;
+
+            // Execution Info
+            public string ExecutionId;
+            public string ExecutionTime;
+            public string ExecutionTimeMs;
+
+            // Bar Info
+            public int ToplamBarSayisi;
+            public string IlkBarTarihi;
+            public string SonBarTarihi;
+
+            // Trade Counts
+            public int IslemSayisi;
+            public int AlisSayisi;
+            public int SatisSayisi;
+            public int FlatSayisi;
+            public int PassSayisi;
+            public int KazandiranIslemSayisi;
+            public int KaybettirenIslemSayisi;
+            public int NotrIslemSayisi;
+
+            // Balance & Returns (Gross)
+            public double IlkBakiyeFiyat;
+            public double BakiyeFiyat;
+            public double GetiriFiyat;
+            public double GetiriFiyatYuzde;
+
+            // Commission
+            public double KomisyonFiyat;
+            public double KomisyonFiyatYuzde;
+
+            // Balance & Returns (Net)
+            public double BakiyeFiyatNet;
+            public double GetiriFiyatNet;
+            public double GetiriFiyatYuzdeNet;
+
+            // Min/Max
+            public double MinBakiyeFiyat;
+            public double MaxBakiyeFiyat;
+            public double MinBakiyeFiyatYuzde;
+            public double MaxBakiyeFiyatYuzde;
+            public double MinBakiyeFiyatNet;
+            public double MaxBakiyeFiyatNet;
+            public double MinBakiyeFiyatNetYuzde;
+            public double MaxBakiyeFiyatNetYuzde;
+
+            // Performance Metrics
+            public double ProfitFactor;
+            public double KarliIslemOrani;
+            public double GetiriMaxDD;
+            public double GetiriMaxKayip;
+            public string GetiriMaxDDTarih;
+
+            // Position Info
+            public double VarlikAdedSayisi;
+            public double VarlikAdedSayisiMicro;
+            public double KomisyonCarpan;
+            public bool MicroLotSizeEnabled;
+            public bool PyramidingEnabled;
+            public bool MaxPositionSizeEnabled;
+
+            /// <summary>
+            /// Get CSV header (semicolon separated)
+            /// </summary>
+            public static string GetCsvHeader()
+            {
+                return "TraderId;TraderName;Symbol;Period;StrategyId;StrategyName;" +
+                       "ExecutionId;ExecutionTime;ExecutionTimeMs;" +
+                       "ToplamBarSayisi;IlkBarTarihi;SonBarTarihi;" +
+                       "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;" +
+                       "KazandiranIslemSayisi;KaybettirenIslemSayisi;NotrIslemSayisi;" +
+                       "IlkBakiyeFiyat;BakiyeFiyat;GetiriFiyat;GetiriFiyatYuzde;" +
+                       "KomisyonFiyat;KomisyonFiyatYuzde;" +
+                       "BakiyeFiyatNet;GetiriFiyatNet;GetiriFiyatYuzdeNet;" +
+                       "MinBakiyeFiyat;MaxBakiyeFiyat;MinBakiyeFiyatYuzde;MaxBakiyeFiyatYuzde;" +
+                       "MinBakiyeFiyatNet;MaxBakiyeFiyatNet;MinBakiyeFiyatNetYuzde;MaxBakiyeFiyatNetYuzde;" +
+                       "ProfitFactor;KarliIslemOrani;GetiriMaxDD;GetiriMaxKayip;GetiriMaxDDTarih;" +
+                       "VarlikAdedSayisi;VarlikAdedSayisiMicro;KomisyonCarpan;" +
+                       "MicroLotSizeEnabled;PyramidingEnabled;MaxPositionSizeEnabled";
+            }
+
+            /// <summary>
+            /// Convert to CSV row (semicolon separated)
+            /// </summary>
+            public string ToCsvRow()
+            {
+                return $"{TraderId};{TraderName};{Symbol};{Period};{StrategyId};{StrategyName};" +
+                       $"{ExecutionId};{ExecutionTime};{ExecutionTimeMs};" +
+                       $"{ToplamBarSayisi};{IlkBarTarihi};{SonBarTarihi};" +
+                       $"{IslemSayisi};{AlisSayisi};{SatisSayisi};{FlatSayisi};{PassSayisi};" +
+                       $"{KazandiranIslemSayisi};{KaybettirenIslemSayisi};{NotrIslemSayisi};" +
+                       $"{IlkBakiyeFiyat:F2};{BakiyeFiyat:F2};{GetiriFiyat:F2};{GetiriFiyatYuzde:F2};" +
+                       $"{KomisyonFiyat:F2};{KomisyonFiyatYuzde:F4};" +
+                       $"{BakiyeFiyatNet:F2};{GetiriFiyatNet:F2};{GetiriFiyatYuzdeNet:F2};" +
+                       $"{MinBakiyeFiyat:F2};{MaxBakiyeFiyat:F2};{MinBakiyeFiyatYuzde:F2};{MaxBakiyeFiyatYuzde:F2};" +
+                       $"{MinBakiyeFiyatNet:F2};{MaxBakiyeFiyatNet:F2};{MinBakiyeFiyatNetYuzde:F2};{MaxBakiyeFiyatNetYuzde:F2};" +
+                       $"{ProfitFactor:F2};{KarliIslemOrani:F2};{GetiriMaxDD:F2};{GetiriMaxKayip:F2};{GetiriMaxDDTarih};" +
+                       $"{VarlikAdedSayisi:F2};{VarlikAdedSayisiMicro:F4};{KomisyonCarpan:F4};" +
+                       $"{MicroLotSizeEnabled};{PyramidingEnabled};{MaxPositionSizeEnabled}";
+            }
+
+            /// <summary>
+            /// Convert to TXT row (tabular format with fixed-width columns)
+            /// </summary>
+            public string ToTxtRow()
+            {
+                return $"{TraderId,5} | " +
+                       $"{TraderName,20} | " +
+                       $"{Symbol,10} | " +
+                       $"{Period,6} | " +
+                       $"{StrategyName,30} | " +
+                       $"{ExecutionTimeMs,10} | " +
+                       $"{IslemSayisi,6} | " +
+                       $"{KazandiranIslemSayisi,6} | " +
+                       $"{KaybettirenIslemSayisi,6} | " +
+                       $"{GetiriFiyat,12:F2} | " +
+                       $"{GetiriFiyatYuzde,10:F2} | " +
+                       $"{GetiriFiyatNet,12:F2} | " +
+                       $"{GetiriFiyatYuzdeNet,10:F2} | " +
+                       $"{KomisyonFiyat,10:F2} | " +
+                       $"{ProfitFactor,8:F2} | " +
+                       $"{GetiriMaxDD,10:F2} | " +
+                       $"{KarliIslemOrani,10:F2}";
+            }
+
+            /// <summary>
+            /// Get TXT header (tabular format with fixed-width columns)
+            /// </summary>
+            public static string GetTxtHeader()
+            {
+                return $"{"ID",5} | " +
+                       $"{"Trader Name",20} | " +
+                       $"{"Symbol",10} | " +
+                       $"{"Period",6} | " +
+                       $"{"Strategy Name",30} | " +
+                       $"{"ExecMs",10} | " +
+                       $"{"Islem",6} | " +
+                       $"{"Kaz",6} | " +
+                       $"{"Kayb",6} | " +
+                       $"{"GetiriFiyat",12} | " +
+                       $"{"Getiri%",10} | " +
+                       $"{"GetiriNet",12} | " +
+                       $"{"GetiriNet%",10} | " +
+                       $"{"Komisyon",10} | " +
+                       $"{"ProfitF",8} | " +
+                       $"{"MaxDD%",10} | " +
+                       $"{"KarliOran",10}";
+            }
+
+            /// <summary>
+            /// Get TXT separator line
+            /// </summary>
+            public static string GetTxtSeparator()
+            {
+                return "".PadRight(230, '-');
+            }
+        }
+
+        /// <summary>
+        /// Get optimization summary structure
+        /// Call this after Hesapla() to get essential optimization metrics
+        /// </summary>
+        public OptimizationSummary GetOptimizationSummary()
+        {
+            // Ensure maps are populated (in case Hesapla wasn't called yet)
+            if (StatisticsMapMinimal.Count == 0)
+                AssignToMapMinimal();
+
+            return new OptimizationSummary
+            {
+                // Identification
+                TraderId = Id,
+                TraderName = Name ?? "...",
+                Symbol = GrafikSembol ?? "...",
+                Period = GrafikPeriyot ?? "...",
+                StrategyId = StrategyId ?? "...",
+                StrategyName = StrategyName ?? "...",
+
+                // Execution Info
+                ExecutionId = LastExecutionId ?? "...",
+                ExecutionTime = LastExecutionTime ?? "...",
+                ExecutionTimeMs = LastExecutionTimeInMSec ?? "...",
+
+                // Bar Info
+                ToplamBarSayisi = ToplamBarSayisi,
+                IlkBarTarihi = IlkBarTarihi ?? "...",
+                SonBarTarihi = SonBarTarihi ?? "...",
+
+                // Trade Counts
+                IslemSayisi = IslemSayisi,
+                AlisSayisi = AlisSayisi,
+                SatisSayisi = SatisSayisi,
+                FlatSayisi = FlatSayisi,
+                PassSayisi = PassSayisi,
+                KazandiranIslemSayisi = KazandiranIslemSayisi,
+                KaybettirenIslemSayisi = KaybettirenIslemSayisi,
+                NotrIslemSayisi = NotrIslemSayisi,
+
+                // Balance & Returns (Gross)
+                IlkBakiyeFiyat = IlkBakiyeFiyat,
+                BakiyeFiyat = BakiyeFiyat,
+                GetiriFiyat = GetiriFiyat,
+                GetiriFiyatYuzde = GetiriFiyatYuzde,
+
+                // Commission
+                KomisyonFiyat = KomisyonFiyat,
+                KomisyonFiyatYuzde = KomisyonFiyatYuzde,
+
+                // Balance & Returns (Net)
+                BakiyeFiyatNet = BakiyeFiyatNet,
+                GetiriFiyatNet = GetiriFiyatNet,
+                GetiriFiyatYuzdeNet = GetiriFiyatYuzdeNet,
+
+                // Min/Max
+                MinBakiyeFiyat = MinBakiyeFiyat,
+                MaxBakiyeFiyat = MaxBakiyeFiyat,
+                MinBakiyeFiyatYuzde = MinBakiyeFiyatYuzde,
+                MaxBakiyeFiyatYuzde = MaxBakiyeFiyatYuzde,
+                MinBakiyeFiyatNet = MinBakiyeFiyatNet,
+                MaxBakiyeFiyatNet = MaxBakiyeFiyatNet,
+                MinBakiyeFiyatNetYuzde = MinBakiyeFiyatNetYuzde,
+                MaxBakiyeFiyatNetYuzde = MaxBakiyeFiyatNetYuzde,
+
+                // Performance Metrics
+                ProfitFactor = ProfitFactor,
+                KarliIslemOrani = KarliIslemOrani,
+                GetiriMaxDD = GetiriMaxDD,
+                GetiriMaxKayip = GetiriMaxKayip,
+                GetiriMaxDDTarih = GetiriMaxDDTarih ?? "...",
+
+                // Position Info
+                VarlikAdedSayisi = VarlikAdedSayisi,
+                VarlikAdedSayisiMicro = VarlikAdedSayisiMicro,
+                KomisyonCarpan = KomisyonCarpan,
+                MicroLotSizeEnabled = MicroLotSizeEnabled,
+                PyramidingEnabled = PyramidingEnabled,
+                MaxPositionSizeEnabled = MaxPositionSizeEnabled
+            };
+        }
+
+        #endregion
+
+        #region Optimization Summary - Helper Methods (Optional)
+
+        /// <summary>
+        /// Append optimization summary to CSV file
+        /// Helper method - alternatively use GetOptimizationSummary() and handle file writing in Optimization Manager
+        /// </summary>
+        public void AppendToOptimizationCsv(string filePath, bool writeHeader = false)
+        {
+            var summary = GetOptimizationSummary();
+
+            if (writeHeader)
+            {
+                File.WriteAllText(filePath, OptimizationSummary.GetCsvHeader() + Environment.NewLine, Encoding.UTF8);
+            }
+
+            File.AppendAllText(filePath, summary.ToCsvRow() + Environment.NewLine, Encoding.UTF8);
+        }
+
+        /// <summary>
+        /// Append optimization summary to TXT file (tabular format)
+        /// Helper method - alternatively use GetOptimizationSummary() and handle file writing in Optimization Manager
+        /// </summary>
+        public void AppendToOptimizationTxt(string filePath, bool writeHeader = false)
+        {
+            var summary = GetOptimizationSummary();
+
+            if (writeHeader)
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine($"OPTIMIZATION RESULTS - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+                sb.AppendLine(OptimizationSummary.GetTxtSeparator());
+                sb.AppendLine(OptimizationSummary.GetTxtHeader());
+                sb.AppendLine(OptimizationSummary.GetTxtSeparator());
+                File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+            }
+
+            File.AppendAllText(filePath, summary.ToTxtRow() + Environment.NewLine, Encoding.UTF8);
+        }
+
+        #endregion
+
 
         #endregion
     }
