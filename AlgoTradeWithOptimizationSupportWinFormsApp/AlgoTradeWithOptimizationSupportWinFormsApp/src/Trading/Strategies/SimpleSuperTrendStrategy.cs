@@ -1,0 +1,193 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend.Results;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using System;
+using System.Collections.Generic;
+
+namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
+{
+    /// <summary>
+    /// SuperTrend İndikatörü Stratejisi
+    ///
+    /// SuperTrend Mantığı:
+    /// - ATR tabanlı trend-following indicator
+    /// - Yükseliş trendinde: SuperTrend fiyatın altında destek görevi görür
+    /// - Düşüş trendinde: SuperTrend fiyatın üstünde direnç görevi görür
+    /// - Direction: 1 (bullish), -1 (bearish)
+    ///
+    /// Trading Logic:
+    /// - AL: Direction -1'den 1'e değişirse (trend dönüşü: düşüşten yükselişe)
+    /// - SAT: Direction 1'den -1'e değişirse (trend dönüşü: yükselişten düşüşe)
+    ///
+    /// Parametreler:
+    /// - period: ATR periyodu (varsayılan 10)
+    /// - multiplier: ATR çarpanı (varsayılan 3.0)
+    /// </summary>
+    public class SimpleSuperTrendStrategy : BaseStrategy
+    {
+        public override string Name => "Simple SuperTrend Strategy";
+
+        private readonly int _period;
+        private readonly double _multiplier;
+        private SuperTrendResult? _superTrendResult;
+
+        // Parametresiz constructor (eski kullanımlar için)
+        public SimpleSuperTrendStrategy(int period = 10, double multiplier = 3.0)
+        {
+            _period = period;
+            _multiplier = multiplier;
+
+            Parameters["Period"] = period;
+            Parameters["Multiplier"] = multiplier;
+        }
+
+        // Parametreli constructor (yeni kullanım)
+        public SimpleSuperTrendStrategy(List<StockData> data, IndicatorManager indicators, int period = 10, double multiplier = 3.0)
+        {
+            _period = period;
+            _multiplier = multiplier;
+
+            Parameters["Period"] = period;
+            Parameters["Multiplier"] = multiplier;
+
+            // Initialize base strategy
+            Initialize(data, indicators);
+        }
+
+        public override void OnInit()
+        {
+            if (!IsInitialized)
+                return;
+
+            // SuperTrend indicator'ı hesapla
+            _superTrendResult = Indicators.Trend.SuperTrend(_period, _multiplier);
+
+            LogManager.Log($"SimpleSuperTrendStrategy initialized: Period={_period}, Multiplier={_multiplier}");
+            LogManager.Log($"SuperTrend calculated for {_superTrendResult.Length} bars");
+        }
+
+        public override TradeSignals OnStep(int currentIndex)
+        {
+            bool buy = false;
+            bool sell = false;
+            bool takeProfit = false;
+            bool stopLoss = false;
+            bool flat = false;
+            bool skip = false;
+
+            // İlk barlarda yeterli veri yok
+            if (currentIndex < _period)
+                return TradeSignals.None;
+
+            // SuperTrend hesaplanmamışsa sinyal üretme
+            if (_superTrendResult == null || _superTrendResult.Length == 0)
+                return TradeSignals.None;
+
+            // Geçerli ve önceki direction değerleri
+            int currentDirection = _superTrendResult.Direction[currentIndex];
+            int prevDirection = _superTrendResult.Direction[currentIndex - 1];
+
+            // AL Sinyali: Direction -1'den 1'e değişiyor (trend dönüşü: düşüşten yükselişe)
+            // Fiyat SuperTrend'i yukarı kırıyor
+            if (prevDirection == -1 && currentDirection == 1)
+            {
+                buy = true;
+            }
+
+            // SAT Sinyali: Direction 1'den -1'e değişiyor (trend dönüşü: yükselişten düşüşe)
+            // Fiyat SuperTrend'i aşağı kırıyor
+            if (prevDirection == 1 && currentDirection == -1)
+            {
+                sell = true;
+            }
+
+            // Opsiyonel: Take Profit / Stop Loss mantığı eklenebilir
+            // Şu an için placeholder'lar
+            if (1 == 2)
+            {
+                takeProfit = true;
+            }
+
+            if (2 == 3)
+            {
+                stopLoss = true;
+            }
+
+            if (3 == 4)
+            {
+                flat = true;
+            }
+
+            if (4 == 5)
+            {
+                skip = true;
+            }
+
+            // Sinyal önceliklendirmesi
+            if (skip)
+            {
+                return TradeSignals.None;
+            }
+            else if (flat)
+            {
+                return TradeSignals.Flat;
+            }
+            else if (takeProfit)
+            {
+                return TradeSignals.TakeProfit;
+            }
+            else if (stopLoss)
+            {
+                return TradeSignals.StopLoss;
+            }
+            else if (buy)
+            {
+                return TradeSignals.Buy;
+            }
+            else if (sell)
+            {
+                return TradeSignals.Sell;
+            }
+
+            return TradeSignals.None;
+        }
+
+        /// <summary>
+        /// SuperTrend değerlerini al (plotting veya analiz için)
+        /// </summary>
+        public double[]? GetSuperTrend() => _superTrendResult?.SuperTrend;
+
+        /// <summary>
+        /// SuperTrend direction değerlerini al (plotting veya analiz için)
+        /// </summary>
+        public int[]? GetDirection() => _superTrendResult?.Direction;
+
+        /// <summary>
+        /// Period parametresini al
+        /// </summary>
+        public int Period => _period;
+
+        /// <summary>
+        /// Multiplier parametresini al
+        /// </summary>
+        public double Multiplier => _multiplier;
+
+        /// <summary>
+        /// Şu anki trend yönü (1 = bullish, -1 = bearish)
+        /// </summary>
+        public int CurrentDirection => _superTrendResult?.CurrentDirection ?? 0;
+
+        /// <summary>
+        /// Şu anki trend bullish mi?
+        /// </summary>
+        public bool IsBullish => _superTrendResult?.IsBullish ?? false;
+
+        /// <summary>
+        /// Şu anki trend bearish mi?
+        /// </summary>
+        public bool IsBearish => _superTrendResult?.IsBearish ?? false;
+    }
+}

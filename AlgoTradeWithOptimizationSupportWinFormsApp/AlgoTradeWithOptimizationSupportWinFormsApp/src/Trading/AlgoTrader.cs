@@ -458,18 +458,25 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Tekrar Turlar(Optimizasyon için her parametre setinde)
 
             // Strategy Setup
+/*
             var strategy1 = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
             if (strategy1 == null)
                 return;
             strategy1.OnInit();
             singleTrader.SetStrategy(strategy1);
-
+*/
             var strategy2 = new SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
             if (strategy2 == null)
                 return;
             strategy2.OnInit();
             singleTrader.SetStrategy(strategy2);
-
+/*
+            var strategy3 = new SimpleSuperTrendStrategy(this.Data, indicators, period: 21, multiplier: 3.0);
+            if (strategy3 == null)
+                return;
+            strategy3.OnInit();
+            singleTrader.SetStrategy(strategy3);
+*/
             // Reset
             singleTrader.Reset();
 
