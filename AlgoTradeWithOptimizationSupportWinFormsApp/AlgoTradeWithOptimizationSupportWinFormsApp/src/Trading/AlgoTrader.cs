@@ -850,6 +850,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // OPTİMİZASYON AYARLARI
             // ============================================================
 
+            bool csvFileLoggingEnabled = true;
+            bool txtFileLoggingEnabled = true;
+            bool appendEnabled = true;
+            singleTraderOptimizer.SetOptimizationLogFileParams( csvFileLoggingEnabled, "logs\\singleTraderOptLog.csv", 
+                                                                txtFileLoggingEnabled, "logs\\singleTraderOptLog.txt",
+                                                                appendEnabled);
+
             // --- Skip Iteration Ayarları ---
             // İlk N kombinasyonu atlayarak devam etmek için kullanılır
 

@@ -101,6 +101,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public int SaveEveryN { get; set; }  // Her kaç kombinasyonda bir ara sonuç kaydet (0 = disable)
         public Action<List<OptimizationResult>, int>? OnSaveResults { get; set; }  // (results, currentCombination)
 
+        // Optimization log file settings
+        public bool CsvFileLoggingEnabled { get; set; }
+        public string CsvFilePath { get; set; }
+        public bool TxtFileLoggingEnabled { get; set; }
+        public string TxtFilePath { get; set; }
+        public bool AppendEnabled { get; set; }
+
         #endregion
 
         #region Constructor
@@ -244,6 +251,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             {
                 Logger?.Log($"Intermediate save settings: Disabled");
             }
+        }
+
+        /// <summary>
+        /// Set optimization log file parameters
+        /// Optimizasyon sonuçlarını CSV ve TXT dosyalarına kaydetmek için kullanılır
+        /// </summary>
+        /// <param name="csvFileLoggingEnabled">CSV dosyasına kayıt yapılsın mı?</param>
+        /// <param name="csvFilePath">CSV dosya yolu</param>
+        /// <param name="txtFileLoggingEnabled">TXT dosyasına kayıt yapılsın mı?</param>
+        /// <param name="txtFilePath">TXT dosya yolu</param>
+        /// <param name="appendEnabled">Append modda mı yoksa yeniden oluştur mu?</param>
+        public void SetOptimizationLogFileParams(
+            bool csvFileLoggingEnabled, string csvFilePath,
+            bool txtFileLoggingEnabled, string txtFilePath,
+            bool appendEnabled)
+        {
+            CsvFileLoggingEnabled = csvFileLoggingEnabled;
+            CsvFilePath = csvFilePath;
+            TxtFileLoggingEnabled = txtFileLoggingEnabled;
+            TxtFilePath = txtFilePath;
+            AppendEnabled = appendEnabled;
+
+            Logger?.Log($"Optimization log file settings:");
+            Logger?.Log($"  - CSV: Enabled={csvFileLoggingEnabled}, Path={csvFilePath}");
+            Logger?.Log($"  - TXT: Enabled={txtFileLoggingEnabled}, Path={txtFilePath}");
+            Logger?.Log($"  - Append: {appendEnabled}");
         }
 
         #endregion
@@ -439,47 +472,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 // Collect statistics
                 singleTrader.Finalize(false);
 
-                OptimizationSummary optSummary = singleTrader.statistics.GetOptimizationSummary();
+                // Get optimization summary
+                var optSummary = singleTrader.statistics.GetOptimizationSummary();
 
-
-
-
-
-
-
-
-                // Store result
-                var result = new OptimizationResult
-                {
-                    NetProfit = singleTrader.status.GetiriFiyatNet,
-                    WinRate = singleTrader.statistics.KazandiranIslemSayisi > 0
-                        ? (double)singleTrader.statistics.KazandiranIslemSayisi / (singleTrader.statistics.KazandiranIslemSayisi + singleTrader.statistics.KaybettirenIslemSayisi) * 100.0
-                        : 0.0,
-                    ProfitFactor = singleTrader.status.ToplamZararFiyat != 0
-                        ? Math.Abs(singleTrader.status.ToplamKarFiyat / singleTrader.status.ToplamZararFiyat)
-                        : 0.0,
-                    MaxDrawdown = singleTrader.statistics.GetiriMaxDD
-                };
-
-                // Add all parameters to result (generic)
-                foreach (var kvp in paramCombo)
-                {
-                    result.Parameters[kvp.Key] = kvp.Value;
-                }
+                // Create result from optimization summary
+                var result = CreateOptimizationResultFromSummary(optSummary, paramCombo);
 
                 Results.Add(result);
 
                 Logger?.Log($"  → NetProfit: {result.NetProfit:F2}, WinRate: {result.WinRate:F2}%, PF: {result.ProfitFactor:F2}");
 
+                // Append to CSV and TXT files (if enabled)
+                //AppendSingleResultToFiles(result, currentCombination);
 
-
-
-
-
-
-
-
-
+                // Append to CSV and TXT files (if enabled)
+                AppendSingleOptSummaryToFiles(optSummary, currentCombination);
 
                 // strategy.Dispose();
                 strategy = null;
@@ -517,6 +524,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 Logger?.Log($"MaxDrawdown: {bestResult.MaxDrawdown:F2}");
             }
 
+            // Save results to files (if enabled)
+            SaveOptimizationResultsToFiles();
+
             return bestResult;
         }
 
@@ -548,6 +558,402 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         #endregion
 
         #region Helper Methods
+
+        /// <summary>
+        /// Save optimization results to CSV and/or TXT files
+        /// </summary>
+        private void SaveOptimizationResultsToFiles()
+        {
+            if (!CsvFileLoggingEnabled && !TxtFileLoggingEnabled)
+                return;
+
+            if (Results == null || Results.Count == 0)
+            {
+                Logger?.Log("No results to save to files.");
+                return;
+            }
+
+            // Save to CSV
+            if (CsvFileLoggingEnabled && !string.IsNullOrEmpty(CsvFilePath))
+            {
+                try
+                {
+                    SaveResultsToCsv(CsvFilePath, AppendEnabled);
+                    Logger?.Log($"Optimization results saved to CSV: {CsvFilePath}");
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error saving to CSV: {ex.Message}");
+                }
+            }
+
+            // Save to TXT
+            if (TxtFileLoggingEnabled && !string.IsNullOrEmpty(TxtFilePath))
+            {
+                try
+                {
+                    SaveResultsToTxt(TxtFilePath, AppendEnabled);
+                    Logger?.Log($"Optimization results saved to TXT: {TxtFilePath}");
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error saving to TXT: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Append single optimization result to CSV and TXT files (called after each combination)
+        /// </summary>
+        private void AppendSingleResultToFiles(OptimizationResult result, int currentCombination)
+        {
+            if (!CsvFileLoggingEnabled && !TxtFileLoggingEnabled)
+                return;
+
+            // Append to CSV
+            if (CsvFileLoggingEnabled && !string.IsNullOrEmpty(CsvFilePath))
+            {
+                try
+                {
+                    AppendSingleResultToCsv(result, CsvFilePath, currentCombination);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error appending to CSV: {ex.Message}");
+                }
+            }
+
+            // Append to TXT
+            if (TxtFileLoggingEnabled && !string.IsNullOrEmpty(TxtFilePath))
+            {
+                try
+                {
+                    AppendSingleResultToTxt(result, TxtFilePath, currentCombination);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error appending to TXT: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Append single result to CSV file
+        /// </summary>
+        private void AppendSingleResultToCsv(OptimizationResult result, string filePath, int currentCombination)
+        {
+            bool fileExists = System.IO.File.Exists(filePath);
+            bool writeHeader = false;
+
+            // If file doesn't exist OR (not appending and first combination), write header
+            if (!fileExists || (!AppendEnabled && currentCombination == 1))
+            {
+                writeHeader = true;
+            }
+
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write header if needed
+                if (writeHeader)
+                {
+                    var paramNames = result.Parameters.Keys.ToList();
+                    var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,MaxDrawdown,SharpeRatio";
+                    sw.WriteLine(header);
+                }
+
+                // Write data
+                var paramValues = result.Parameters.Values.Select(v => v.ToString()).ToList();
+                var metrics = new[]
+                {
+                    result.NetProfit.ToString("F2"),
+                    result.WinRate.ToString("F2"),
+                    result.ProfitFactor.ToString("F2"),
+                    result.MaxDrawdown.ToString("F2"),
+                    result.SharpeRatio.ToString("F2")
+                };
+                var line = string.Join(",", paramValues.Concat(metrics));
+                sw.WriteLine(line);
+                sw.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Append single result to TXT file
+        /// </summary>
+        private void AppendSingleResultToTxt(OptimizationResult result, string filePath, int currentCombination)
+        {
+            bool fileExists = System.IO.File.Exists(filePath);
+            bool writeHeader = false;
+
+            // If file doesn't exist OR (not appending and first combination), write header
+            if (!fileExists || (!AppendEnabled && currentCombination == 1))
+            {
+                writeHeader = true;
+            }
+
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write header if needed
+                if (writeHeader)
+                {
+                    sw.WriteLine($"Optimization Results - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                    sw.WriteLine("================================================================================");
+                    sw.WriteLine();
+                }
+
+                // Write result
+                sw.WriteLine($"Combination #{currentCombination}:");
+
+                // Parameters
+                foreach (var kvp in result.Parameters)
+                {
+                    sw.WriteLine($"  {kvp.Key}: {kvp.Value}");
+                }
+
+                // Metrics
+                sw.WriteLine($"  NetProfit: {result.NetProfit:F2}");
+                sw.WriteLine($"  WinRate: {result.WinRate:F2}%");
+                sw.WriteLine($"  ProfitFactor: {result.ProfitFactor:F2}");
+                sw.WriteLine($"  MaxDrawdown: {result.MaxDrawdown:F2}");
+                sw.WriteLine($"  SharpeRatio: {result.SharpeRatio:F2}");
+                sw.WriteLine();
+
+                sw.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Append single OptimizationSummary to CSV and TXT files (called after each combination)
+        /// </summary>
+        private void AppendSingleOptSummaryToFiles(
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            int currentCombination)
+        {
+            if (!CsvFileLoggingEnabled && !TxtFileLoggingEnabled)
+                return;
+
+            // Append to CSV
+            if (CsvFileLoggingEnabled && !string.IsNullOrEmpty(CsvFilePath))
+            {
+                try
+                {
+                    AppendSingleOptSummaryToCsv(optSummary, CsvFilePath, currentCombination);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error appending OptSummary to CSV: {ex.Message}");
+                }
+            }
+
+            // Append to TXT
+            if (TxtFileLoggingEnabled && !string.IsNullOrEmpty(TxtFilePath))
+            {
+                try
+                {
+                    AppendSingleOptSummaryToTxt(optSummary, TxtFilePath, currentCombination);
+                }
+                catch (Exception ex)
+                {
+                    Logger?.Log($"Error appending OptSummary to TXT: {ex.Message}");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Append single OptimizationSummary to CSV file
+        /// </summary>
+        private void AppendSingleOptSummaryToCsv(
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            string filePath,
+            int currentCombination)
+        {
+            bool fileExists = System.IO.File.Exists(filePath);
+            bool writeHeader = false;
+
+            // If file doesn't exist OR (not appending and first combination), write header
+            if (!fileExists || (!AppendEnabled && currentCombination == 1))
+            {
+                writeHeader = true;
+            }
+
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write header if needed
+                if (writeHeader)
+                {
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetCsvHeader());
+                }
+
+                // Write data
+                sw.WriteLine(optSummary.ToCsvRow());
+                sw.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Append single OptimizationSummary to TXT file
+        /// </summary>
+        private void AppendSingleOptSummaryToTxt(
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            string filePath,
+            int currentCombination)
+        {
+            bool fileExists = System.IO.File.Exists(filePath);
+            bool writeHeader = false;
+
+            // If file doesn't exist OR (not appending and first combination), write header
+            if (!fileExists || (!AppendEnabled && currentCombination == 1))
+            {
+                writeHeader = true;
+            }
+
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write header if needed
+                if (writeHeader)
+                {
+                    sw.WriteLine($"Optimization Results - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtSeparator());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtHeader());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtSeparator());
+                }
+
+                // Write data
+                sw.WriteLine(optSummary.ToTxtRow());
+                sw.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Save results to CSV file
+        /// </summary>
+        private void SaveResultsToCsv(string filePath, bool append)
+        {
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                append ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write header if not appending or file is new
+                if (!append || fs.Length == 0)
+                {
+                    // Get all parameter names from first result
+                    if (Results.Count > 0)
+                    {
+                        var paramNames = Results[0].Parameters.Keys.ToList();
+                        var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,MaxDrawdown,SharpeRatio";
+                        sw.WriteLine(header);
+                    }
+                }
+
+                // Write data
+                foreach (var result in Results)
+                {
+                    var paramValues = result.Parameters.Values.Select(v => v.ToString()).ToList();
+                    var metrics = new[]
+                    {
+                        result.NetProfit.ToString("F2"),
+                        result.WinRate.ToString("F2"),
+                        result.ProfitFactor.ToString("F2"),
+                        result.MaxDrawdown.ToString("F2"),
+                        result.SharpeRatio.ToString("F2")
+                    };
+                    var line = string.Join(",", paramValues.Concat(metrics));
+                    sw.WriteLine(line);
+                }
+
+                sw.Flush();
+            }
+        }
+
+        /// <summary>
+        /// Save results to TXT file
+        /// </summary>
+        private void SaveResultsToTxt(string filePath, bool append)
+        {
+            using (var fs = new System.IO.FileStream(
+                filePath,
+                append ? System.IO.FileMode.Append : System.IO.FileMode.Create,
+                System.IO.FileAccess.Write,
+                System.IO.FileShare.ReadWrite))
+            using (var sw = new System.IO.StreamWriter(fs))
+            {
+                // Write separator for append mode
+                if (append && fs.Length > 0)
+                {
+                    sw.WriteLine();
+                    sw.WriteLine("================================================================================");
+                    sw.WriteLine($"New optimization run: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                    sw.WriteLine("================================================================================");
+                    sw.WriteLine();
+                }
+
+                // Write results
+                sw.WriteLine($"Optimization Results - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+                sw.WriteLine($"Total combinations tested: {Results.Count}");
+                sw.WriteLine();
+
+                for (int i = 0; i < Results.Count; i++)
+                {
+                    var result = Results[i];
+                    sw.WriteLine($"Result #{i + 1}:");
+
+                    // Parameters
+                    foreach (var kvp in result.Parameters)
+                    {
+                        sw.WriteLine($"  {kvp.Key}: {kvp.Value}");
+                    }
+
+                    // Metrics
+                    sw.WriteLine($"  NetProfit: {result.NetProfit:F2}");
+                    sw.WriteLine($"  WinRate: {result.WinRate:F2}%");
+                    sw.WriteLine($"  ProfitFactor: {result.ProfitFactor:F2}");
+                    sw.WriteLine($"  MaxDrawdown: {result.MaxDrawdown:F2}");
+                    sw.WriteLine($"  SharpeRatio: {result.SharpeRatio:F2}");
+                    sw.WriteLine();
+                }
+
+                // Best result
+                var bestResult = GetBestResult();
+                if (bestResult != null)
+                {
+                    sw.WriteLine("=== BEST RESULT ===");
+                    foreach (var kvp in bestResult.Parameters)
+                    {
+                        sw.WriteLine($"  {kvp.Key}: {kvp.Value}");
+                    }
+                    sw.WriteLine($"  NetProfit: {bestResult.NetProfit:F2}");
+                    sw.WriteLine($"  WinRate: {bestResult.WinRate:F2}%");
+                    sw.WriteLine($"  ProfitFactor: {bestResult.ProfitFactor:F2}");
+                    sw.WriteLine($"  MaxDrawdown: {bestResult.MaxDrawdown:F2}");
+                    sw.WriteLine($"  SharpeRatio: {bestResult.SharpeRatio:F2}");
+                }
+
+                sw.Flush();
+            }
+        }
 
         /// <summary>
         /// Generate all parameter combinations (generic - recursive)
@@ -583,6 +989,31 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 current[range.Name] = value;
                 GenerateCombinationsRecursive(paramIndex + 1, current, results);
             }
+        }
+
+        /// <summary>
+        /// Create OptimizationResult from OptimizationSummary
+        /// </summary>
+        private OptimizationResult CreateOptimizationResultFromSummary(
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            Dictionary<string, object> paramCombo)
+        {
+            var result = new OptimizationResult
+            {
+                NetProfit = optSummary.GetiriFiyatNet,
+                WinRate = optSummary.KarliIslemOrani, // Already calculated as percentage
+                ProfitFactor = optSummary.ProfitFactor,
+                MaxDrawdown = optSummary.GetiriMaxDD,
+                SharpeRatio = 0.0 // TODO: Calculate Sharpe Ratio if needed
+            };
+
+            // Add all parameters to result (generic)
+            foreach (var kvp in paramCombo)
+            {
+                result.Parameters[kvp.Key] = kvp.Value;
+            }
+
+            return result;
         }
 
         private void OnSingleTraderReset(SingleTrader trader, int mode)
