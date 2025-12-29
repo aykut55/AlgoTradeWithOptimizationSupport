@@ -139,6 +139,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             // EmirStatus kontrol et
             int emirStatus = Trader.signals.EmirStatus;
+
+            if (Trader.flags.KomisyonGuncelle == false)
+                return;
+
             bool isMicroLot = Trader.pozisyonBuyuklugu.MicroLotSizeEnabled;
 
             // Ters yön değişimi kontrolü (2 ayrı işlem)
@@ -156,9 +160,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 double openCommission = komisyonCarpan * komisyonVolume;
 
                 totalCommission = closeCommission + openCommission;
-
-                // Log (opsiyonel)
-                // Console.WriteLine($"Reverse Position: 2 işlem × {komisyonVolume} lot × {komisyonCarpan} çarpan = {totalCommission} TL");
             }
             else if (komisyonIslemSayisi > 0)
             {
@@ -189,17 +190,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 totalCommission = komisyonIslemSayisi * komisyonCarpan * komisyonVolume;
             }
 
-            if (i == 1842489 - 1)
-            {
-                totalCommission = totalCommission + 1 - 1;
-            }
-            if (totalCommission > 0.0)
-                totalCommission = totalCommission + 1 - 1;
-
             // Sonucu kaydet (kümülatif toplam - diğer metriklerle tutarlı)
             Trader.status.KomisyonFiyat += totalCommission;  // Bu bar'daki komisyonu toplama ekle
-            Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;  // Toplam değeri kaydet
-
+            Trader.lists.KomisyonFiyatList[i] = Trader.status.KomisyonFiyat;  // Her bar güncel kümülatif değeri kaydet
         }
 
         /// <summary>

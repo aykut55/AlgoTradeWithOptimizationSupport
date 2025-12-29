@@ -548,6 +548,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         {
             //this.NoneSignal = this.BuySignal = this.SellSignal = this.TakeProfitSignal = this.StopLossSignal = this.FlatSignal = this.SkipSignal = false;
             this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.PasGec = this.signals.KarAl = this.signals.ZararKes = false;
+            this.signals.Sinyal = "";
         }
         public void dongu_basi_degiskenleri_resetle(int i)
         {
