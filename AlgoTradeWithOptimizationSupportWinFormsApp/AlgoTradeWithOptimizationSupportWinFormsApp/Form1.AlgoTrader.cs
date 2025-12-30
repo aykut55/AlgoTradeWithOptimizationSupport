@@ -21,6 +21,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         // ====================================================================
 
         private SingleTraderLogger? _singleTraderLogger = null;
+        private SingleTraderOptLogger? _singleTraderOptLogger = null;
         private AlgoTrader? algoTrader = null;
 
         /// <summary>
@@ -30,9 +31,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void CreateObjects()
         {
             _singleTraderLogger = new SingleTraderLogger(richTextBoxSingleTrader);
+            _singleTraderOptLogger = new SingleTraderOptLogger(richTextBoxSingleTraderOptimization);
+
             algoTrader = new AlgoTrader();
             algoTrader.RegisterLogger(_singleTraderLogger);
+
             _singleTraderLogger.Log("=== AlgoTrader Objects Created ===");
+            _singleTraderOptLogger.Log("=== AlgoTrader Objects Created ===");
         }
 
         /// <summary>
@@ -180,6 +185,124 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             {
                 _singleTraderLogger.Clear();
                 _singleTraderLogger.Log("=== SingleTrader Logger Cleared ===");
+            }
+        }
+
+        /// <summary>
+        /// SingleTraderOptimization tab için local logger
+        /// Implements IAlgoTraderLogger interface
+        /// </summary>
+        private class SingleTraderOptLogger : IAlgoTraderLogger, IDisposable
+        {
+            private readonly RichTextBox _richTextBox;
+            private readonly FileSink _fileSink;
+            private readonly object _lockObject = new object();
+            private bool _isDisposed = false;
+
+            public SingleTraderOptLogger(RichTextBox richTextBox)
+            {
+                _richTextBox = richTextBox;
+                _fileSink = new FileSink("logs", "singleTraderOptLog.txt", appendMode: false);
+            }
+
+            public void Log(params object[] args)
+            {
+                WriteLog("INFO", args);
+            }
+
+            public void LogWarning(params object[] args)
+            {
+                WriteLog("WARNING", args);
+            }
+
+            public void LogError(params object[] args)
+            {
+                WriteLog("ERROR", args);
+            }
+
+            public void Clear()
+            {
+                if (_richTextBox.InvokeRequired)
+                {
+                    _richTextBox.Invoke(() => _richTextBox.Clear());
+                }
+                else
+                {
+                    _richTextBox.Clear();
+                }
+
+                // Dosyayı da temizle
+                _fileSink?.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    _fileSink?.Dispose();
+                }
+            }
+
+            private void WriteLog(string level, params object[] args)
+            {
+                if (args == null || args.Length == 0)
+                    return;
+
+                lock (_lockObject)
+                {
+                    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    var message = string.Join(" ", args);
+                    var logLine = $"[{timestamp}] [{level}] {message}";
+
+                    // RichTextBox'a yaz
+                    if (_richTextBox.InvokeRequired)
+                    {
+                        _richTextBox.Invoke(() =>
+                        {
+                            _richTextBox.AppendText(logLine + Environment.NewLine);
+                            _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                            _richTextBox.ScrollToCaret();
+                        });
+                    }
+                    else
+                    {
+                        _richTextBox.AppendText(logLine + Environment.NewLine);
+                        _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                        _richTextBox.ScrollToCaret();
+                    }
+
+                    // Dosyaya yaz
+                    if (!_isDisposed && _fileSink != null)
+                    {
+                        var logLevel = level switch
+                        {
+                            "WARNING" => LogLevel.Warning,
+                            "ERROR" => LogLevel.Error,
+                            _ => LogLevel.Info
+                        };
+
+                        var logEntry = new LogEntry(logLevel, message, "SingleTraderOpt");
+                        _fileSink.Write(logEntry);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// SingleTraderOptimization tab için local logger'ı başlat (sadece ilk kez)
+        /// </summary>
+        private void InitializeSingleTraderOptLogger()
+        {
+            if (_singleTraderOptLogger == null)
+            {
+                _singleTraderOptLogger = new SingleTraderOptLogger(richTextBoxSingleTraderOptimization);
+                _singleTraderOptLogger.Log("=== SingleTraderOpt Logger Initialized ===");
+            }
+            else
+            {
+                _singleTraderOptLogger.Clear();
+                _singleTraderOptLogger.Log("=== SingleTraderOpt Logger Cleared ===");
             }
         }
 
@@ -445,7 +568,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             try
             {
                 // Null check - objeler oluşturulmuş mu?
-                if (_singleTraderLogger == null || algoTrader == null)
+                if (_singleTraderOptLogger == null || algoTrader == null)
                 {
                     MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -453,43 +576,43 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
 
                 // Logger'ı temizle veya oluştur
-                InitializeSingleTraderLogger();
+                InitializeSingleTraderOptLogger();
 
                 // AlgoTrader zaten initialize edilmişse reset et
                 if (algoTrader.IsInitialized)
                 {
-                    _singleTraderLogger.Log("Resetting existing AlgoTrader...");
+                    _singleTraderOptLogger.Log("Resetting existing AlgoTrader...");
                     algoTrader.Reset();
                 }
 
                 // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
-                algoTrader.RegisterLogger(_singleTraderLogger);
+                algoTrader.RegisterLogger(_singleTraderOptLogger);
 
-                _singleTraderLogger.Log("=== AlgoTrader Test Started ===");
+                _singleTraderOptLogger.Log("=== SingleTrader Optimization Started ===");
 
                 // Stock data kontrolü
                 if (stockDataList == null || stockDataList.Count == 0)
                 {
-                    _singleTraderLogger.LogWarning("Stock data yüklü değil!");
+                    _singleTraderOptLogger.LogWarning("Stock data yüklü değil!");
                     MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
+                _singleTraderOptLogger.Log($"Data loaded: {stockDataList.Count} bars");
 
                 // Initialize with stock data
                 algoTrader.Initialize(stockDataList);
 
                 if (algoTrader.IsInitialized)
                 {
-                    _singleTraderLogger.Log("AlgoTrader initialized with stock data.");
-                    _singleTraderLogger.Log(algoTrader.GetDataInfo());
-                    _singleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
+                    _singleTraderOptLogger.Log("AlgoTrader initialized with stock data.");
+                    _singleTraderOptLogger.Log(algoTrader.GetDataInfo());
+                    _singleTraderOptLogger.Log("=== AlgoTrader Initialized Successfully ===");
                 }
                 else
                 {
-                    _singleTraderLogger.LogError("AlgoTrader initialization failed!");
+                    _singleTraderOptLogger.LogError("AlgoTrader initialization failed!");
                     MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -516,7 +639,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"Optimization progress update failed: {ex.Message}");
+                        _singleTraderOptLogger?.LogWarning($"Optimization progress update failed: {ex.Message}");
                     }
                 });
 
@@ -541,11 +664,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"SingleTrader progress update failed: {ex.Message}");
+                        _singleTraderOptLogger?.LogWarning($"SingleTrader progress update failed: {ex.Message}");
                     }
                 });
 
-                // Run SingleTrader with progress (ASYNC)                
+                // Run SingleTrader with progress (ASYNC)
                 await algoTrader.RunSingleTraderOptWithProgressAsync(progressOptimization, progressSingleTrader);
 
                 if (lblSingleTraderProgress != null)
@@ -557,7 +680,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             }
             catch (Exception ex)
             {
-                _singleTraderLogger?.LogError("AlgoTrader test hatası:", ex.Message, ex.StackTrace);
+                _singleTraderOptLogger?.LogError("SingleTrader Optimization hatası:", ex.Message, ex.StackTrace);
                 MessageBox.Show($"Hata: {ex.Message}", "Hata",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
@@ -577,6 +700,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnStopSingleTraderOpt.Enabled = true;
 
             btnStartSingleTraderOpt.Enabled = true;
+        }
+
+        /// <summary>
+        /// richTextBoxSingleTraderOptimization double click event handler
+        /// Clears the log
+        /// </summary>
+        private void richTextBoxSingleTraderOptimization_DoubleClick(object sender, EventArgs e)
+        {
+            _singleTraderOptLogger?.Clear();
         }
 
         // ====================================================================

@@ -148,13 +148,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
-            label2 = new Label();
-            label1 = new Label();
-            lblSingleTraderProgress2 = new Label();
-            lblOptimizationProgress = new Label();
-            btnStartSingleTraderOpt = new Button();
-            progressBarSingleTraderProgress = new ProgressBar();
-            progressBarOptimizationProgress = new ProgressBar();
             btnTestMultipleTrader = new Button();
             btnTestSingleTrader = new Button();
             progressBarSingleTrader = new ProgressBar();
@@ -164,11 +157,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnTestAlgoTrader = new Button();
             tabPageMultipleTraders = new TabPage();
             tabPageSingleTraderOptimization = new TabPage();
+            panel5 = new Panel();
+            btnStopSingleTraderOpt = new Button();
+            btnStartSingleTraderOpt = new Button();
+            label2 = new Label();
+            label1 = new Label();
+            lblSingleTraderProgress2 = new Label();
+            lblOptimizationProgress = new Label();
+            progressBarSingleTraderProgress = new ProgressBar();
+            progressBarOptimizationProgress = new ProgressBar();
+            richTextBoxSingleTraderOptimization = new RichTextBox();
+            lblOptimizationResult = new Label();
+            label3 = new Label();
+            lblOptimizationResults = new Label();
+            dataGridViewOptimizationResults = new DataGridView();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
-            btnStopSingleTraderOpt = new Button();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -183,6 +189,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.SuspendLayout();
             tabPageSingleTrader.SuspendLayout();
             panel4.SuspendLayout();
+            tabPageSingleTraderOptimization.SuspendLayout();
+            panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).BeginInit();
             SuspendLayout();
             // 
             // mainMenuStrip
@@ -1156,14 +1165,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel4
             // 
-            panel4.Controls.Add(btnStopSingleTraderOpt);
-            panel4.Controls.Add(label2);
-            panel4.Controls.Add(label1);
-            panel4.Controls.Add(lblSingleTraderProgress2);
-            panel4.Controls.Add(lblOptimizationProgress);
-            panel4.Controls.Add(btnStartSingleTraderOpt);
-            panel4.Controls.Add(progressBarSingleTraderProgress);
-            panel4.Controls.Add(progressBarOptimizationProgress);
             panel4.Controls.Add(btnTestMultipleTrader);
             panel4.Controls.Add(btnTestSingleTrader);
             panel4.Controls.Add(progressBarSingleTrader);
@@ -1175,66 +1176,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Name = "panel4";
             panel4.Size = new Size(1222, 717);
             panel4.TabIndex = 0;
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Location = new Point(817, 214);
-            label2.Name = "label2";
-            label2.Size = new Size(40, 15);
-            label2.TabIndex = 13;
-            label2.Text = "Trader";
-            // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Location = new Point(780, 185);
-            label1.Name = "label1";
-            label1.Size = new Size(77, 15);
-            label1.TabIndex = 12;
-            label1.Text = "Combination";
-            // 
-            // lblSingleTraderProgress2
-            // 
-            lblSingleTraderProgress2.AutoSize = true;
-            lblSingleTraderProgress2.Location = new Point(1054, 214);
-            lblSingleTraderProgress2.Name = "lblSingleTraderProgress2";
-            lblSingleTraderProgress2.Size = new Size(48, 15);
-            lblSingleTraderProgress2.TabIndex = 11;
-            lblSingleTraderProgress2.Text = "Ready...";
-            // 
-            // lblOptimizationProgress
-            // 
-            lblOptimizationProgress.AutoSize = true;
-            lblOptimizationProgress.Location = new Point(1054, 185);
-            lblOptimizationProgress.Name = "lblOptimizationProgress";
-            lblOptimizationProgress.Size = new Size(48, 15);
-            lblOptimizationProgress.TabIndex = 10;
-            lblOptimizationProgress.Text = "Ready...";
-            // 
-            // btnStartSingleTraderOpt
-            // 
-            btnStartSingleTraderOpt.Location = new Point(780, 235);
-            btnStartSingleTraderOpt.Name = "btnStartSingleTraderOpt";
-            btnStartSingleTraderOpt.Size = new Size(162, 23);
-            btnStartSingleTraderOpt.TabIndex = 9;
-            btnStartSingleTraderOpt.Text = "Start Single Trader Opt";
-            btnStartSingleTraderOpt.UseVisualStyleBackColor = true;
-            btnStartSingleTraderOpt.Click += btnStartSingleTraderOpt_Click;
-            // 
-            // progressBarSingleTraderProgress
-            // 
-            progressBarSingleTraderProgress.Location = new Point(863, 206);
-            progressBarSingleTraderProgress.Name = "progressBarSingleTraderProgress";
-            progressBarSingleTraderProgress.Size = new Size(185, 23);
-            progressBarSingleTraderProgress.TabIndex = 8;
-            // 
-            // progressBarOptimizationProgress
-            // 
-            progressBarOptimizationProgress.Location = new Point(863, 177);
-            progressBarOptimizationProgress.Name = "progressBarOptimizationProgress";
-            progressBarOptimizationProgress.Size = new Size(185, 23);
-            progressBarOptimizationProgress.TabIndex = 7;
             // 
             // btnTestMultipleTrader
             // 
@@ -1314,12 +1255,146 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // tabPageSingleTraderOptimization
             // 
             tabPageSingleTraderOptimization.BackColor = Color.White;
+            tabPageSingleTraderOptimization.Controls.Add(panel5);
             tabPageSingleTraderOptimization.Location = new Point(4, 24);
             tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
             tabPageSingleTraderOptimization.Padding = new Padding(3);
             tabPageSingleTraderOptimization.Size = new Size(1300, 793);
             tabPageSingleTraderOptimization.TabIndex = 3;
             tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
+            // 
+            // panel5
+            // 
+            panel5.Controls.Add(btnStopSingleTraderOpt);
+            panel5.Controls.Add(btnStartSingleTraderOpt);
+            panel5.Controls.Add(label2);
+            panel5.Controls.Add(label1);
+            panel5.Controls.Add(lblSingleTraderProgress2);
+            panel5.Controls.Add(lblOptimizationProgress);
+            panel5.Controls.Add(progressBarSingleTraderProgress);
+            panel5.Controls.Add(progressBarOptimizationProgress);
+            panel5.Controls.Add(richTextBoxSingleTraderOptimization);
+            panel5.Controls.Add(lblOptimizationResult);
+            panel5.Controls.Add(label3);
+            panel5.Controls.Add(lblOptimizationResults);
+            panel5.Controls.Add(dataGridViewOptimizationResults);
+            panel5.Location = new Point(16, 16);
+            panel5.Name = "panel5";
+            panel5.Size = new Size(1260, 751);
+            panel5.TabIndex = 0;
+            // 
+            // btnStopSingleTraderOpt
+            // 
+            btnStopSingleTraderOpt.Location = new Point(208, 86);
+            btnStopSingleTraderOpt.Name = "btnStopSingleTraderOpt";
+            btnStopSingleTraderOpt.Size = new Size(147, 23);
+            btnStopSingleTraderOpt.TabIndex = 14;
+            btnStopSingleTraderOpt.Text = "Stop Single Trader Opt";
+            btnStopSingleTraderOpt.UseVisualStyleBackColor = true;
+            btnStopSingleTraderOpt.Click += btnStopSingleTraderOpt_Click;
+            // 
+            // btnStartSingleTraderOpt
+            // 
+            btnStartSingleTraderOpt.Location = new Point(40, 86);
+            btnStartSingleTraderOpt.Name = "btnStartSingleTraderOpt";
+            btnStartSingleTraderOpt.Size = new Size(162, 23);
+            btnStartSingleTraderOpt.TabIndex = 9;
+            btnStartSingleTraderOpt.Text = "Start Single Trader Opt";
+            btnStartSingleTraderOpt.UseVisualStyleBackColor = true;
+            btnStartSingleTraderOpt.Click += btnStartSingleTraderOpt_Click;
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Location = new Point(65, 55);
+            label2.Name = "label2";
+            label2.Size = new Size(40, 15);
+            label2.TabIndex = 19;
+            label2.Text = "Trader";
+            // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Location = new Point(28, 26);
+            label1.Name = "label1";
+            label1.Size = new Size(77, 15);
+            label1.TabIndex = 18;
+            label1.Text = "Combination";
+            // 
+            // lblSingleTraderProgress2
+            // 
+            lblSingleTraderProgress2.AutoSize = true;
+            lblSingleTraderProgress2.Location = new Point(302, 55);
+            lblSingleTraderProgress2.Name = "lblSingleTraderProgress2";
+            lblSingleTraderProgress2.Size = new Size(48, 15);
+            lblSingleTraderProgress2.TabIndex = 17;
+            lblSingleTraderProgress2.Text = "Ready...";
+            // 
+            // lblOptimizationProgress
+            // 
+            lblOptimizationProgress.AutoSize = true;
+            lblOptimizationProgress.Location = new Point(302, 26);
+            lblOptimizationProgress.Name = "lblOptimizationProgress";
+            lblOptimizationProgress.Size = new Size(48, 15);
+            lblOptimizationProgress.TabIndex = 16;
+            lblOptimizationProgress.Text = "Ready...";
+            // 
+            // progressBarSingleTraderProgress
+            // 
+            progressBarSingleTraderProgress.Location = new Point(111, 47);
+            progressBarSingleTraderProgress.Name = "progressBarSingleTraderProgress";
+            progressBarSingleTraderProgress.Size = new Size(185, 23);
+            progressBarSingleTraderProgress.TabIndex = 15;
+            // 
+            // progressBarOptimizationProgress
+            // 
+            progressBarOptimizationProgress.Location = new Point(111, 18);
+            progressBarOptimizationProgress.Name = "progressBarOptimizationProgress";
+            progressBarOptimizationProgress.Size = new Size(185, 23);
+            progressBarOptimizationProgress.TabIndex = 14;
+            // 
+            // richTextBoxSingleTraderOptimization
+            // 
+            richTextBoxSingleTraderOptimization.Location = new Point(40, 136);
+            richTextBoxSingleTraderOptimization.Name = "richTextBoxSingleTraderOptimization";
+            richTextBoxSingleTraderOptimization.Size = new Size(489, 571);
+            richTextBoxSingleTraderOptimization.TabIndex = 4;
+            richTextBoxSingleTraderOptimization.Text = "";
+            richTextBoxSingleTraderOptimization.DoubleClick += richTextBoxSingleTraderOptimization_DoubleClick;
+            // 
+            // lblOptimizationResult
+            // 
+            lblOptimizationResult.Location = new Point(682, 86);
+            lblOptimizationResult.Name = "lblOptimizationResult";
+            lblOptimizationResult.Size = new Size(533, 15);
+            lblOptimizationResult.TabIndex = 3;
+            lblOptimizationResult.Text = "..........";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Location = new Point(567, 86);
+            label3.Name = "label3";
+            label3.Size = new Size(109, 15);
+            label3.TabIndex = 2;
+            label3.Text = "Last Optimization : ";
+            // 
+            // lblOptimizationResults
+            // 
+            lblOptimizationResults.AutoSize = true;
+            lblOptimizationResults.Location = new Point(567, 109);
+            lblOptimizationResults.Name = "lblOptimizationResults";
+            lblOptimizationResults.Size = new Size(119, 15);
+            lblOptimizationResults.TabIndex = 1;
+            lblOptimizationResults.Text = "Optimization Results ";
+            // 
+            // dataGridViewOptimizationResults
+            // 
+            dataGridViewOptimizationResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dataGridViewOptimizationResults.Location = new Point(567, 136);
+            dataGridViewOptimizationResults.Name = "dataGridViewOptimizationResults";
+            dataGridViewOptimizationResults.Size = new Size(648, 571);
+            dataGridViewOptimizationResults.TabIndex = 0;
             // 
             // openFileDialog1
             // 
@@ -1328,16 +1403,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // openFileDialog2
             // 
             openFileDialog2.FileName = "openFileDialog1";
-            // 
-            // btnStopSingleTraderOpt
-            // 
-            btnStopSingleTraderOpt.Location = new Point(948, 235);
-            btnStopSingleTraderOpt.Name = "btnStopSingleTraderOpt";
-            btnStopSingleTraderOpt.Size = new Size(147, 23);
-            btnStopSingleTraderOpt.TabIndex = 14;
-            btnStopSingleTraderOpt.Text = "Stop Single Trader Opt";
-            btnStopSingleTraderOpt.UseVisualStyleBackColor = true;
-            btnStopSingleTraderOpt.Click += btnStopSingleTraderOpt_Click;
             // 
             // Form1
             // 
@@ -1378,6 +1443,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTrader.ResumeLayout(false);
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
+            tabPageSingleTraderOptimization.ResumeLayout(false);
+            panel5.ResumeLayout(false);
+            panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1522,12 +1591,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button btnTestMultipleTrader;
         private Button btnTestSingleTrader;
         private Button btnStartSingleTraderOpt;
-        private ProgressBar progressBarSingleTraderProgress;
-        private ProgressBar progressBarOptimizationProgress;
-        private Label lblSingleTraderProgress2;
-        private Label lblOptimizationProgress;
+        private Button btnStopSingleTraderOpt;
+        private Panel panel5;
+        private Label lblOptimizationResults;
+        private DataGridView dataGridViewOptimizationResults;
+        private Label lblOptimizationResult;
+        private Label label3;
         private Label label2;
         private Label label1;
-        private Button btnStopSingleTraderOpt;
+        private Label lblSingleTraderProgress2;
+        private Label lblOptimizationProgress;
+        private ProgressBar progressBarSingleTraderProgress;
+        private ProgressBar progressBarOptimizationProgress;
+        private RichTextBox richTextBoxSingleTraderOptimization;
     }
 }

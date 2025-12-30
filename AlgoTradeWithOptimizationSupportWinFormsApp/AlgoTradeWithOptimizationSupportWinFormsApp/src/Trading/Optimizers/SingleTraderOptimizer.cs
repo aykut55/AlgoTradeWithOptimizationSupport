@@ -199,6 +199,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         // Progress callbacks
         public Action<int, int>? OnOptimizationProgress { get; set; }  // (currentCombination, totalCombinations)
         public Action<int, int>? OnSingleTraderProgressCallback { get; set; }  // (currentBar, totalBars)
+        public Action<SingleTraderOptimizer, SingleTrader, int>? OnReadOptimizationResultsFile { get; set; }  // (this, currentCombination)
 
         // Skip iteration support for resuming optimization
         public bool SkipIterationEnabled { get; set; }
@@ -598,6 +599,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
                 // Append to CSV and TXT files (if enabled)
                 AppendSingleOptSummaryToFiles(optResult, optSummary, currentCombination);
+
+                // Report optimization progress
+                OnReadOptimizationResultsFile?.Invoke(this, singleTrader, currentCombination);
 
                 // strategy.Dispose();
                 strategy = null;
