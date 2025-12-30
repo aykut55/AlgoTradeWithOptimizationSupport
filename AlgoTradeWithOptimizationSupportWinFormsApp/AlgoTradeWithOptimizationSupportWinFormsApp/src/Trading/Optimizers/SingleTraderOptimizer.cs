@@ -566,7 +566,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsViopEndex(kontratSayisi: 1)
-                    .SetKomisyonParams(komisyonCarpan: 0.0)
+                    .SetKomisyonParams(komisyonCarpan: 20.0)
                     .SetKaymaParams(kaymaMiktari: 0.5);
 
                 singleTrader.Init();
