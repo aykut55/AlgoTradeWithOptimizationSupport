@@ -199,7 +199,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainMenuStrip.Items.AddRange(new ToolStripItem[] { fileToolStripMenuItem, editToolStripMenuItem, viewToolStripMenuItem, toolsToolStripMenuItem, helpToolStripMenuItem });
             mainMenuStrip.Location = new Point(0, 0);
             mainMenuStrip.Name = "mainMenuStrip";
-            mainMenuStrip.Size = new Size(1484, 24);
+            mainMenuStrip.Size = new Size(1599, 24);
             mainMenuStrip.TabIndex = 0;
             mainMenuStrip.Text = "mainMenuStrip";
             // 
@@ -489,7 +489,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainToolStrip1.Items.AddRange(new ToolStripItem[] { newToolStripButton, openToolStripButton, saveToolStripButton, toolStripSeparator1, cutToolStripButton, copyToolStripButton, pasteToolStripButton, toolStripSeparator2, helpToolStripButton });
             mainToolStrip1.Location = new Point(0, 24);
             mainToolStrip1.Name = "mainToolStrip1";
-            mainToolStrip1.Size = new Size(1484, 25);
+            mainToolStrip1.Size = new Size(1599, 25);
             mainToolStrip1.TabIndex = 1;
             mainToolStrip1.ItemClicked += mainToolStrip_ItemClicked;
             // 
@@ -623,9 +623,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // statusStrip
             // 
             statusStrip.Items.AddRange(new ToolStripItem[] { statusLabel, progressBar, spacerLabel, timeLabel });
-            statusStrip.Location = new Point(0, 1036);
+            statusStrip.Location = new Point(0, 1206);
             statusStrip.Name = "statusStrip";
-            statusStrip.Size = new Size(1484, 25);
+            statusStrip.Size = new Size(1599, 25);
             statusStrip.TabIndex = 2;
             // 
             // statusLabel
@@ -642,7 +642,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // spacerLabel
             // 
             spacerLabel.Name = "spacerLabel";
-            spacerLabel.Size = new Size(1279, 20);
+            spacerLabel.Size = new Size(1394, 20);
             spacerLabel.Spring = true;
             // 
             // timeLabel
@@ -658,7 +658,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             topPanel.Dock = DockStyle.Top;
             topPanel.Location = new Point(0, 49);
             topPanel.Name = "topPanel";
-            topPanel.Size = new Size(1484, 27);
+            topPanel.Size = new Size(1599, 27);
             topPanel.TabIndex = 3;
             topPanel.Visible = false;
             // 
@@ -668,16 +668,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             leftPanel.Dock = DockStyle.Left;
             leftPanel.Location = new Point(0, 76);
             leftPanel.Name = "leftPanel";
-            leftPanel.Size = new Size(103, 823);
+            leftPanel.Size = new Size(103, 993);
             leftPanel.TabIndex = 5;
             // 
             // rightPanel
             // 
             rightPanel.BorderStyle = BorderStyle.FixedSingle;
             rightPanel.Dock = DockStyle.Right;
-            rightPanel.Location = new Point(1413, 76);
+            rightPanel.Location = new Point(1528, 76);
             rightPanel.Name = "rightPanel";
-            rightPanel.Size = new Size(71, 823);
+            rightPanel.Size = new Size(71, 993);
             rightPanel.TabIndex = 6;
             rightPanel.Visible = false;
             // 
@@ -686,9 +686,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             bottomPanel.BorderStyle = BorderStyle.FixedSingle;
             bottomPanel.Controls.Add(richTextBox1);
             bottomPanel.Dock = DockStyle.Bottom;
-            bottomPanel.Location = new Point(0, 899);
+            bottomPanel.Location = new Point(0, 1069);
             bottomPanel.Name = "bottomPanel";
-            bottomPanel.Size = new Size(1484, 137);
+            bottomPanel.Size = new Size(1599, 137);
             bottomPanel.TabIndex = 4;
             // 
             // richTextBox1
@@ -696,7 +696,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBox1.Dock = DockStyle.Fill;
             richTextBox1.Location = new Point(0, 0);
             richTextBox1.Name = "richTextBox1";
-            richTextBox1.Size = new Size(1482, 135);
+            richTextBox1.Size = new Size(1597, 135);
             richTextBox1.TabIndex = 0;
             richTextBox1.Text = "";
             // 
@@ -707,7 +707,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             centerPanel.Dock = DockStyle.Fill;
             centerPanel.Location = new Point(103, 76);
             centerPanel.Name = "centerPanel";
-            centerPanel.Size = new Size(1310, 823);
+            centerPanel.Size = new Size(1425, 993);
             centerPanel.TabIndex = 7;
             // 
             // mainTabControl
@@ -720,7 +720,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
             mainTabControl.SelectedIndex = 0;
-            mainTabControl.Size = new Size(1308, 821);
+            mainTabControl.Size = new Size(1423, 991);
             mainTabControl.TabIndex = 0;
             // 
             // tabPageStockDataReader
@@ -731,7 +731,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageStockDataReader.Location = new Point(4, 24);
             tabPageStockDataReader.Name = "tabPageStockDataReader";
             tabPageStockDataReader.Padding = new Padding(3);
-            tabPageStockDataReader.Size = new Size(1300, 793);
+            tabPageStockDataReader.Size = new Size(1415, 963);
             tabPageStockDataReader.TabIndex = 0;
             tabPageStockDataReader.Text = "StockDataReader";
             // 
@@ -740,7 +740,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel3.Dock = DockStyle.Fill;
             panel3.Location = new Point(1093, 3);
             panel3.Name = "panel3";
-            panel3.Size = new Size(204, 787);
+            panel3.Size = new Size(319, 957);
             panel3.TabIndex = 3;
             // 
             // panel2
@@ -750,7 +750,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel2.Dock = DockStyle.Left;
             panel2.Location = new Point(3, 3);
             panel2.Name = "panel2";
-            panel2.Size = new Size(1090, 787);
+            panel2.Size = new Size(1090, 957);
             panel2.TabIndex = 2;
             // 
             // panel1
@@ -772,7 +772,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel1.Dock = DockStyle.Fill;
             panel1.Location = new Point(0, 219);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1090, 568);
+            panel1.Size = new Size(1090, 738);
             panel1.TabIndex = 2;
             // 
             // lblReadStockDataTime
@@ -1159,7 +1159,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTrader.Location = new Point(4, 24);
             tabPageSingleTrader.Name = "tabPageSingleTrader";
             tabPageSingleTrader.Padding = new Padding(3);
-            tabPageSingleTrader.Size = new Size(1300, 793);
+            tabPageSingleTrader.Size = new Size(1415, 963);
             tabPageSingleTrader.TabIndex = 1;
             tabPageSingleTrader.Text = "SingleTrader";
             // 
@@ -1248,7 +1248,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageMultipleTraders.Location = new Point(4, 24);
             tabPageMultipleTraders.Name = "tabPageMultipleTraders";
             tabPageMultipleTraders.Padding = new Padding(3);
-            tabPageMultipleTraders.Size = new Size(1300, 793);
+            tabPageMultipleTraders.Size = new Size(1415, 963);
             tabPageMultipleTraders.TabIndex = 2;
             tabPageMultipleTraders.Text = "MultipleTraders";
             // 
@@ -1259,7 +1259,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTraderOptimization.Location = new Point(4, 24);
             tabPageSingleTraderOptimization.Name = "tabPageSingleTraderOptimization";
             tabPageSingleTraderOptimization.Padding = new Padding(3);
-            tabPageSingleTraderOptimization.Size = new Size(1300, 793);
+            tabPageSingleTraderOptimization.Size = new Size(1415, 963);
             tabPageSingleTraderOptimization.TabIndex = 3;
             tabPageSingleTraderOptimization.Text = "SingleTraderOptimization";
             // 
@@ -1280,7 +1280,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel5.Controls.Add(dataGridViewOptimizationResults);
             panel5.Location = new Point(16, 16);
             panel5.Name = "panel5";
-            panel5.Size = new Size(1260, 751);
+            panel5.Size = new Size(1330, 841);
             panel5.TabIndex = 0;
             // 
             // btnStopSingleTraderOpt
@@ -1355,16 +1355,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // richTextBoxSingleTraderOptimization
             // 
-            richTextBoxSingleTraderOptimization.Location = new Point(40, 136);
+            richTextBoxSingleTraderOptimization.Location = new Point(708, 180);
             richTextBoxSingleTraderOptimization.Name = "richTextBoxSingleTraderOptimization";
-            richTextBoxSingleTraderOptimization.Size = new Size(489, 571);
+            richTextBoxSingleTraderOptimization.Size = new Size(596, 571);
             richTextBoxSingleTraderOptimization.TabIndex = 4;
             richTextBoxSingleTraderOptimization.Text = "";
             richTextBoxSingleTraderOptimization.DoubleClick += richTextBoxSingleTraderOptimization_DoubleClick;
             // 
             // lblOptimizationResult
             // 
-            lblOptimizationResult.Location = new Point(682, 86);
+            lblOptimizationResult.Location = new Point(155, 764);
             lblOptimizationResult.Name = "lblOptimizationResult";
             lblOptimizationResult.Size = new Size(533, 15);
             lblOptimizationResult.TabIndex = 3;
@@ -1373,7 +1373,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(567, 86);
+            label3.Location = new Point(40, 764);
             label3.Name = "label3";
             label3.Size = new Size(109, 15);
             label3.TabIndex = 2;
@@ -1382,7 +1382,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblOptimizationResults
             // 
             lblOptimizationResults.AutoSize = true;
-            lblOptimizationResults.Location = new Point(567, 109);
+            lblOptimizationResults.Location = new Point(40, 153);
             lblOptimizationResults.Name = "lblOptimizationResults";
             lblOptimizationResults.Size = new Size(119, 15);
             lblOptimizationResults.TabIndex = 1;
@@ -1391,7 +1391,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // dataGridViewOptimizationResults
             // 
             dataGridViewOptimizationResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            dataGridViewOptimizationResults.Location = new Point(567, 136);
+            dataGridViewOptimizationResults.Location = new Point(40, 180);
             dataGridViewOptimizationResults.Name = "dataGridViewOptimizationResults";
             dataGridViewOptimizationResults.Size = new Size(648, 571);
             dataGridViewOptimizationResults.TabIndex = 0;
@@ -1408,7 +1408,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(1484, 1061);
+            ClientSize = new Size(1599, 1231);
             Controls.Add(centerPanel);
             Controls.Add(rightPanel);
             Controls.Add(leftPanel);
