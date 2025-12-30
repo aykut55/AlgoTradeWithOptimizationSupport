@@ -327,7 +327,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsViopEndex(kontratSayisi: 1)
-                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKomisyonParams(komisyonCarpan: 20.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
 
             // --------------------------------------------------------------
@@ -597,7 +597,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             singleTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsViopEndex(kontratSayisi: 1)
-                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKomisyonParams(komisyonCarpan: 20.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
 
             singleTrader.Init();
@@ -735,7 +735,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             mainTrader.pozisyonBuyuklugu.Reset()
                 .SetBakiyeParams(ilkBakiye: 100000.0)
                 .SetKontratParamsViopEndex(kontratSayisi: 1)
-                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKomisyonParams(komisyonCarpan: 20.0)
                 .SetKaymaParams(kaymaMiktari: 0.5);
             multipleTrader.DynamicPositionSizeEnabled = true;                   // (default false) : mainTrader her pozisyonda aynı lot büyüklüğünü kullanır
                                                                                 //          true   : mainTrader consensus'ten gelen lot büyüklüğünü kullanır (her pozisyon farklı olabilir)
@@ -771,7 +771,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsViopEndex(kontratSayisi: 1)
-                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKomisyonParams(komisyonCarpan: 20.0)
                     .SetKaymaParams(kaymaMiktari: 0.5);
 
                 singleTrader.Init();
@@ -802,7 +802,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsViopEndex(kontratSayisi: 1)
-                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKomisyonParams(komisyonCarpan: 20.0)
                     .SetKaymaParams(kaymaMiktari: 0.5);
 
                 singleTrader.Init();
@@ -833,7 +833,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsViopEndex(kontratSayisi: 1)
-                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKomisyonParams(komisyonCarpan: 20.0)
                     .SetKaymaParams(kaymaMiktari: 0.5);
 
                 singleTrader.Init();

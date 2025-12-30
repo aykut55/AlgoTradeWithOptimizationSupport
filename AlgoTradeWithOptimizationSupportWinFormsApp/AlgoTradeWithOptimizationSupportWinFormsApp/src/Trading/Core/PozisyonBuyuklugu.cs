@@ -366,7 +366,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         /// <summary>
         /// Set komisyon parametreleri
         /// </summary>
-        public PozisyonBuyuklugu SetKomisyonParams(double komisyonCarpan = 3.0)
+        public PozisyonBuyuklugu SetKomisyonParams(double komisyonCarpan = 20.0)
         {
             KomisyonCarpan = komisyonCarpan;
             KomisyonuDahilEt = komisyonCarpan != 0.0;
