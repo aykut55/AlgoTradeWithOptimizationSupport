@@ -1072,6 +1072,269 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
+        public void SaveToTxtFormatted(string filePath)
+        {
+            AssignToMap();
+            StringBuilder sb = new StringBuilder();
+
+            // Helper to get value safely
+            string GetValue(string key)
+            {
+                return StatisticsMap.ContainsKey(key) ? StatisticsMap[key].ToString() : "...";
+            }
+
+            // === Header ===
+            sb.AppendLine("================================================================================");
+            sb.AppendLine("                    SINGLE TRADER RUN RESULTS - DETAILED REPORT");
+            sb.AppendLine($"                    Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine("================================================================================");
+            sb.AppendLine();
+
+            // === Trader & System Information ===
+            sb.AppendLine("┌─ TRADER & SYSTEM INFORMATION ──────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Trader ID          : {GetValue("TraderId"),-60} │");
+            sb.AppendLine($"│ Trader Name        : {GetValue("TraderName"),-60} │");
+            sb.AppendLine($"│ Symbol Name        : {GetValue("SymbolName"),-60} │");
+            sb.AppendLine($"│ Symbol Period      : {GetValue("SymbolPeriod"),-60} │");
+            sb.AppendLine($"│ System ID          : {GetValue("SystemId"),-60} │");
+            sb.AppendLine($"│ System Name        : {GetValue("SystemName"),-60} │");
+            sb.AppendLine($"│ Strategy ID        : {GetValue("StrategyId"),-60} │");
+            sb.AppendLine($"│ Strategy Name      : {GetValue("StrategyName"),-60} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Execution Information ===
+            sb.AppendLine("┌─ EXECUTION INFORMATION ────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Last Execution ID        : {GetValue("LastExecutionId"),-50} │");
+            sb.AppendLine($"│ Last Execution Time      : {GetValue("LastExecutionTime"),-50} │");
+            sb.AppendLine($"│ Execution Start          : {GetValue("LastExecutionTimeStart"),-50} │");
+            sb.AppendLine($"│ Execution Stop           : {GetValue("LastExecutionTimeStop"),-50} │");
+            sb.AppendLine($"│ Execution Time (ms)      : {GetValue("LastExecutionTimeInMSec"),-50} │");
+            sb.AppendLine($"│ Last Reset Time          : {GetValue("LastResetTime"),-50} │");
+            sb.AppendLine($"│ Statistics Calc Time     : {GetValue("LastStatisticsCalculationTime"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Bar Information ===
+            sb.AppendLine("┌─ BAR INFORMATION ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Bars               : {GetValue("ToplamBarSayisi"),-50} │");
+            sb.AppendLine($"│ Selected Bar Number      : {GetValue("SecilenBarNumarasi"),-50} │");
+            sb.AppendLine($"│ Selected Bar DateTime    : {GetValue("SecilenBarTarihSaati"),-50} │");
+            sb.AppendLine($"│ Selected Bar Date        : {GetValue("SecilenBarTarihi"),-50} │");
+            sb.AppendLine($"│ Selected Bar Time        : {GetValue("SecilenBarSaati"),-50} │");
+            sb.AppendLine($"│ First Bar DateTime       : {GetValue("IlkBarTarihSaati"),-50} │");
+            sb.AppendLine($"│ First Bar Date           : {GetValue("IlkBarTarihi"),-50} │");
+            sb.AppendLine($"│ First Bar Time           : {GetValue("IlkBarSaati"),-50} │");
+            sb.AppendLine($"│ Last Bar DateTime        : {GetValue("SonBarTarihSaati"),-50} │");
+            sb.AppendLine($"│ Last Bar Date            : {GetValue("SonBarTarihi"),-50} │");
+            sb.AppendLine($"│ Last Bar Time            : {GetValue("SonBarSaati"),-50} │");
+            sb.AppendLine($"│ First Bar Index          : {GetValue("IlkBarIndex"),-50} │");
+            sb.AppendLine($"│ Last Bar Index           : {GetValue("SonBarIndex"),-50} │");
+            sb.AppendLine($"│ Last Bar Open            : {GetValue("SonBarAcilisFiyati"),-50} │");
+            sb.AppendLine($"│ Last Bar High            : {GetValue("SonBarYuksekFiyati"),-50} │");
+            sb.AppendLine($"│ Last Bar Low             : {GetValue("SonBarDusukFiyati"),-50} │");
+            sb.AppendLine($"│ Last Bar Close           : {GetValue("SonBarKapanisFiyati"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Time Statistics ===
+            sb.AppendLine("┌─ TIME STATISTICS ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Months             : {GetValue("ToplamGecenSureAy"),-50} │");
+            sb.AppendLine($"│ Total Days               : {GetValue("ToplamGecenSureGun"),-50} │");
+            sb.AppendLine($"│ Total Hours              : {GetValue("ToplamGecenSureSaat"),-50} │");
+            sb.AppendLine($"│ Total Minutes            : {GetValue("ToplamGecenSureDakika"),-50} │");
+            sb.AppendLine($"│ Avg Monthly Trades       : {GetValue("OrtAylikIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Weekly Trades        : {GetValue("OrtHaftalikIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Daily Trades         : {GetValue("OrtGunlukIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Hourly Trades        : {GetValue("OrtSaatlikIslemSayisi"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Balance & Returns ===
+            sb.AppendLine("┌─ BALANCE & RETURNS ────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Initial Balance (Price)  : {GetValue("IlkBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Initial Balance (Points) : {GetValue("IlkBakiyePuan"),-50} │");
+            sb.AppendLine($"│ Final Balance (Price)    : {GetValue("BakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Final Balance (Points)   : {GetValue("BakiyePuan"),-50} │");
+            sb.AppendLine($"│ Gross Return (Price)     : {GetValue("GetiriFiyat"),-50} │");
+            sb.AppendLine($"│ Gross Return (Points)    : {GetValue("GetiriPuan"),-50} │");
+            sb.AppendLine($"│ Gross Return % (Price)   : {GetValue("GetiriFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Gross Return % (Points)  : {GetValue("GetiriPuanYuzde"),-50} │");
+            sb.AppendLine($"│ Commission               : {GetValue("KomisyonFiyat"),-50} │");
+            sb.AppendLine($"│ Net Balance (Price)      : {GetValue("BakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Net Balance (Points)     : {GetValue("BakiyePuanNet"),-50} │");
+            sb.AppendLine($"│ Net Return (Price)       : {GetValue("GetiriFiyatNet"),-50} │");
+            sb.AppendLine($"│ Net Return (Points)      : {GetValue("GetiriPuanNet"),-50} │");
+            sb.AppendLine($"│ Net Return % (Price)     : {GetValue("GetiriFiyatYuzdeNet"),-50} │");
+            sb.AppendLine($"│ Net Return % (Points)    : {GetValue("GetiriPuanYuzdeNet"),-50} │");
+            sb.AppendLine($"│ Return Kz                : {GetValue("GetiriKz"),-50} │");
+            sb.AppendLine($"│ Return Kz Net            : {GetValue("GetiriKzNet"),-50} │");
+            sb.AppendLine($"│ Return Kz System         : {GetValue("GetiriKzSistem"),-50} │");
+            sb.AppendLine($"│ Return Kz System %       : {GetValue("GetiriKzSistemYuzde"),-50} │");
+            sb.AppendLine($"│ Return Kz Net System     : {GetValue("GetiriKzNetSistem"),-50} │");
+            sb.AppendLine($"│ Return Kz Net System %   : {GetValue("GetiriKzNetSistemYuzde"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Balance Min/Max ===
+            sb.AppendLine("┌─ BALANCE MIN/MAX ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Min Balance (Price)      : {GetValue("MinBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Max Balance (Price)      : {GetValue("MaxBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Min Balance (Points)     : {GetValue("MinBakiyePuan"),-50} │");
+            sb.AppendLine($"│ Max Balance (Points)     : {GetValue("MaxBakiyePuan"),-50} │");
+            sb.AppendLine($"│ Min Balance %            : {GetValue("MinBakiyeFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Max Balance %            : {GetValue("MaxBakiyeFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Min Balance Index        : {GetValue("MinBakiyeFiyatIndex"),-50} │");
+            sb.AppendLine($"│ Max Balance Index        : {GetValue("MaxBakiyeFiyatIndex"),-50} │");
+            sb.AppendLine($"│ Min Balance Net          : {GetValue("MinBakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Max Balance Net          : {GetValue("MaxBakiyeFiyatNet"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Trade Counts ===
+            sb.AppendLine("┌─ TRADE COUNTS ─────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Trades             : {GetValue("IslemSayisi"),-50} │");
+            sb.AppendLine($"│ Buy Trades               : {GetValue("AlisSayisi"),-50} │");
+            sb.AppendLine($"│ Sell Trades              : {GetValue("SatisSayisi"),-50} │");
+            sb.AppendLine($"│ Flat Count               : {GetValue("FlatSayisi"),-50} │");
+            sb.AppendLine($"│ Pass Count               : {GetValue("PassSayisi"),-50} │");
+            sb.AppendLine($"│ Take Profit Count        : {GetValue("KarAlSayisi"),-50} │");
+            sb.AppendLine($"│ Stop Loss Count          : {GetValue("ZararKesSayisi"),-50} │");
+            sb.AppendLine($"│ Winning Trades           : {GetValue("KazandiranIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Losing Trades            : {GetValue("KaybettirenIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Neutral Trades           : {GetValue("NotrIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Winning Buys             : {GetValue("KazandiranAlisSayisi"),-50} │");
+            sb.AppendLine($"│ Losing Buys              : {GetValue("KaybettirenAlisSayisi"),-50} │");
+            sb.AppendLine($"│ Neutral Buys             : {GetValue("NotrAlisSayisi"),-50} │");
+            sb.AppendLine($"│ Winning Sells            : {GetValue("KazandiranSatisSayisi"),-50} │");
+            sb.AppendLine($"│ Losing Sells             : {GetValue("KaybettirenSatisSayisi"),-50} │");
+            sb.AppendLine($"│ Neutral Sells            : {GetValue("NotrSatisSayisi"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Command Counts ===
+            sb.AppendLine("┌─ COMMAND COUNTS ───────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Buy Commands             : {GetValue("AlKomutSayisi"),-50} │");
+            sb.AppendLine($"│ Sell Commands            : {GetValue("SatKomutSayisi"),-50} │");
+            sb.AppendLine($"│ Pass Commands            : {GetValue("PasGecKomutSayisi"),-50} │");
+            sb.AppendLine($"│ Take Profit Commands     : {GetValue("KarAlKomutSayisi"),-50} │");
+            sb.AppendLine($"│ Stop Loss Commands       : {GetValue("ZararKesKomutSayisi"),-50} │");
+            sb.AppendLine($"│ Flat Commands            : {GetValue("FlatOlKomutSayisi"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Commission Details ===
+            sb.AppendLine("┌─ COMMISSION DETAILS ───────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Commission Trades        : {GetValue("KomisyonIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Commission Asset Count   : {GetValue("KomisyonVarlikAdedSayisi"),-50} │");
+            sb.AppendLine($"│ Commission Micro         : {GetValue("KomisyonVarlikAdedSayisiMicro"),-50} │");
+            sb.AppendLine($"│ Commission Multiplier    : {GetValue("KomisyonCarpan"),-50} │");
+            sb.AppendLine($"│ Total Commission         : {GetValue("KomisyonFiyat"),-50} │");
+            sb.AppendLine($"│ Commission %             : {GetValue("KomisyonFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Include Commission       : {GetValue("KomisyonuDahilEt"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Profit & Loss ===
+            sb.AppendLine("┌─ PROFIT & LOSS ────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ P&L (Price)              : {GetValue("KarZararFiyat"),-50} │");
+            sb.AppendLine($"│ P&L % (Price)            : {GetValue("KarZararFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ P&L (Points)             : {GetValue("KarZararPuan"),-50} │");
+            sb.AppendLine($"│ Total Profit (Price)     : {GetValue("ToplamKarFiyat"),-50} │");
+            sb.AppendLine($"│ Total Loss (Price)       : {GetValue("ToplamZararFiyat"),-50} │");
+            sb.AppendLine($"│ Net Profit (Price)       : {GetValue("NetKarFiyat"),-50} │");
+            sb.AppendLine($"│ Total Profit (Points)    : {GetValue("ToplamKarPuan"),-50} │");
+            sb.AppendLine($"│ Total Loss (Points)      : {GetValue("ToplamZararPuan"),-50} │");
+            sb.AppendLine($"│ Net Profit (Points)      : {GetValue("NetKarPuan"),-50} │");
+            sb.AppendLine($"│ Max Profit (Price)       : {GetValue("MaxKarFiyat"),-50} │");
+            sb.AppendLine($"│ Max Loss (Price)         : {GetValue("MaxZararFiyat"),-50} │");
+            sb.AppendLine($"│ Max Profit (Points)      : {GetValue("MaxKarPuan"),-50} │");
+            sb.AppendLine($"│ Max Loss (Points)        : {GetValue("MaxZararPuan"),-50} │");
+            sb.AppendLine($"│ Bars in Profit           : {GetValue("KardaBarSayisi"),-50} │");
+            sb.AppendLine($"│ Bars in Loss             : {GetValue("ZarardaBarSayisi"),-50} │");
+            sb.AppendLine($"│ Win Rate                 : {GetValue("KarliIslemOrani"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Risk Metrics ===
+            sb.AppendLine("┌─ RISK METRICS ─────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Max Drawdown             : {GetValue("GetiriMaxDD"),-50} │");
+            sb.AppendLine($"│ Max Drawdown Date        : {GetValue("GetiriMaxDDTarih"),-50} │");
+            sb.AppendLine($"│ Max Loss                 : {GetValue("GetiriMaxKayip"),-50} │");
+            sb.AppendLine($"│ Profit Factor            : {GetValue("ProfitFactor"),-50} │");
+            sb.AppendLine($"│ Profit Factor (System)   : {GetValue("ProfitFactorSistem"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Signals & Execution Status ===
+            sb.AppendLine("┌─ SIGNALS & EXECUTION STATUS ───────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Signal                   : {GetValue("Sinyal"),-50} │");
+            sb.AppendLine($"│ Last Direction           : {GetValue("SonYon"),-50} │");
+            sb.AppendLine($"│ Previous Direction       : {GetValue("PrevYon"),-50} │");
+            sb.AppendLine($"│ Last Price               : {GetValue("SonFiyat"),-50} │");
+            sb.AppendLine($"│ Last Buy Price           : {GetValue("SonAFiyat"),-50} │");
+            sb.AppendLine($"│ Last Sell Price          : {GetValue("SonSFiyat"),-50} │");
+            sb.AppendLine($"│ Last Flat Price          : {GetValue("SonFFiyat"),-50} │");
+            sb.AppendLine($"│ Last Pass Price          : {GetValue("SonPFiyat"),-50} │");
+            sb.AppendLine($"│ Previous Price           : {GetValue("PrevFiyat"),-50} │");
+            sb.AppendLine($"│ Last Bar Number          : {GetValue("SonBarNo"),-50} │");
+            sb.AppendLine($"│ Last Buy Bar Number      : {GetValue("SonABarNo"),-50} │");
+            sb.AppendLine($"│ Last Sell Bar Number     : {GetValue("SonSBarNo"),-50} │");
+            sb.AppendLine($"│ Order Command            : {GetValue("EmirKomut"),-50} │");
+            sb.AppendLine($"│ Order Status             : {GetValue("EmirStatus"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Asset & Position Info ===
+            sb.AppendLine("┌─ ASSET & POSITION INFO ────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Share Count              : {GetValue("HisseSayisi"),-50} │");
+            sb.AppendLine($"│ Contract Count           : {GetValue("KontratSayisi"),-50} │");
+            sb.AppendLine($"│ Asset Multiplier         : {GetValue("VarlikAdedCarpani"),-50} │");
+            sb.AppendLine($"│ Asset Count              : {GetValue("VarlikAdedSayisi"),-50} │");
+            sb.AppendLine($"│ Asset Count (Micro)      : {GetValue("VarlikAdedSayisiMicro"),-50} │");
+            sb.AppendLine($"│ Slippage Amount          : {GetValue("KaymaMiktari"),-50} │");
+            sb.AppendLine($"│ Include Slippage         : {GetValue("KaymayiDahilEt"),-50} │");
+            sb.AppendLine($"│ Micro Lot Size Enabled   : {GetValue("MicroLotSizeEnabled"),-50} │");
+            sb.AppendLine($"│ Pyramiding Enabled       : {GetValue("PyramidingEnabled"),-50} │");
+            sb.AppendLine($"│ Max Position Size Enabled: {GetValue("MaxPositionSizeEnabled"),-50} │");
+            sb.AppendLine($"│ Max Position Size        : {GetValue("MaxPositionSize"),-50} │");
+            sb.AppendLine($"│ Max Position Size (Micro): {GetValue("MaxPositionSizeMicro"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Periodic Returns (Price) ===
+            sb.AppendLine("┌─ PERIODIC RETURNS (PRICE) ─────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ This Month               : {GetValue("GetiriFiyatBuAy"),-50} │");
+            sb.AppendLine($"│ Last Month               : {GetValue("GetiriFiyatAy1"),-50} │");
+            sb.AppendLine($"│ This Week                : {GetValue("GetiriFiyatBuHafta"),-50} │");
+            sb.AppendLine($"│ Last Week                : {GetValue("GetiriFiyatHafta1"),-50} │");
+            sb.AppendLine($"│ Today                    : {GetValue("GetiriFiyatBuGun"),-50} │");
+            sb.AppendLine($"│ Yesterday                : {GetValue("GetiriFiyatGun1"),-50} │");
+            sb.AppendLine($"│ This Hour                : {GetValue("GetiriFiyatBuSaat"),-50} │");
+            sb.AppendLine($"│ Last Hour                : {GetValue("GetiriFiyatSaat1"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Periodic Returns (Points) ===
+            sb.AppendLine("┌─ PERIODIC RETURNS (POINTS) ────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ This Month (Pts)         : {GetValue("GetiriPuanBuAy"),-50} │");
+            sb.AppendLine($"│ Last Month (Pts)         : {GetValue("GetiriPuanAy1"),-50} │");
+            sb.AppendLine($"│ This Week (Pts)          : {GetValue("GetiriPuanBuHafta"),-50} │");
+            sb.AppendLine($"│ Last Week (Pts)          : {GetValue("GetiriPuanHafta1"),-50} │");
+            sb.AppendLine($"│ Today (Pts)              : {GetValue("GetiriPuanBuGun"),-50} │");
+            sb.AppendLine($"│ Yesterday (Pts)          : {GetValue("GetiriPuanGun1"),-50} │");
+            sb.AppendLine($"│ This Hour (Pts)          : {GetValue("GetiriPuanBuSaat"),-50} │");
+            sb.AppendLine($"│ Last Hour (Pts)          : {GetValue("GetiriPuanSaat1"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            sb.AppendLine("================================================================================");
+            sb.AppendLine("                              END OF REPORT");
+            sb.AppendLine("================================================================================");
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
         private void AssignToMapMinimal()
         {
             int keyId = 0;
@@ -1368,6 +1631,144 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.EmirStatusList[i]:F0}"
                 );
             }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        public void SaveToTxtMinimalFormatted(string filePath)
+        {
+            AssignToMapMinimal();
+            StringBuilder sb = new StringBuilder();
+
+            // Helper to get value safely
+            string GetValue(string key)
+            {
+                return StatisticsMapMinimal.ContainsKey(key) ? StatisticsMapMinimal[key].ToString() : "...";
+            }
+
+            // === Header ===
+            sb.AppendLine("================================================================================");
+            sb.AppendLine("                  SINGLE TRADER RUN RESULTS - MINIMAL REPORT");
+            sb.AppendLine($"                    Generated: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine("================================================================================");
+            sb.AppendLine();
+
+            // === Trader & System Information ===
+            sb.AppendLine("┌─ TRADER & SYSTEM INFORMATION ──────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Trader ID          : {GetValue("TraderId"),-60} │");
+            sb.AppendLine($"│ Trader Name        : {GetValue("TraderName"),-60} │");
+            sb.AppendLine($"│ Symbol Name        : {GetValue("SymbolName"),-60} │");
+            sb.AppendLine($"│ Symbol Period      : {GetValue("SymbolPeriod"),-60} │");
+            sb.AppendLine($"│ System ID          : {GetValue("SystemId"),-60} │");
+            sb.AppendLine($"│ System Name        : {GetValue("SystemName"),-60} │");
+            sb.AppendLine($"│ Strategy ID        : {GetValue("StrategyId"),-60} │");
+            sb.AppendLine($"│ Strategy Name      : {GetValue("StrategyName"),-60} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Execution Information ===
+            sb.AppendLine("┌─ EXECUTION INFORMATION ────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Last Execution ID        : {GetValue("LastExecutionId"),-50} │");
+            sb.AppendLine($"│ Last Execution Time      : {GetValue("LastExecutionTime"),-50} │");
+            sb.AppendLine($"│ Execution Start          : {GetValue("LastExecutionTimeStart"),-50} │");
+            sb.AppendLine($"│ Execution Stop           : {GetValue("LastExecutionTimeStop"),-50} │");
+            sb.AppendLine($"│ Execution Time (ms)      : {GetValue("LastExecutionTimeInMSec"),-50} │");
+            sb.AppendLine($"│ Last Reset Time          : {GetValue("LastResetTime"),-50} │");
+            sb.AppendLine($"│ Statistics Calc Time     : {GetValue("LastStatisticsCalculationTime"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Bar Information ===
+            sb.AppendLine("┌─ BAR INFORMATION ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Bars               : {GetValue("ToplamBarSayisi"),-50} │");
+            sb.AppendLine($"│ First Bar DateTime       : {GetValue("IlkBarTarihSaati"),-50} │");
+            sb.AppendLine($"│ First Bar Date           : {GetValue("IlkBarTarihi"),-50} │");
+            sb.AppendLine($"│ First Bar Time           : {GetValue("IlkBarSaati"),-50} │");
+            sb.AppendLine($"│ Last Bar DateTime        : {GetValue("SonBarTarihSaati"),-50} │");
+            sb.AppendLine($"│ Last Bar Date            : {GetValue("SonBarTarihi"),-50} │");
+            sb.AppendLine($"│ Last Bar Time            : {GetValue("SonBarSaati"),-50} │");
+            sb.AppendLine($"│ First Bar Index          : {GetValue("IlkBarIndex"),-50} │");
+            sb.AppendLine($"│ Last Bar Index           : {GetValue("SonBarIndex"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Time Statistics ===
+            sb.AppendLine("┌─ TIME STATISTICS ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Months             : {GetValue("ToplamGecenSureAy"),-50} │");
+            sb.AppendLine($"│ Total Days               : {GetValue("ToplamGecenSureGun"),-50} │");
+            sb.AppendLine($"│ Total Hours              : {GetValue("ToplamGecenSureSaat"),-50} │");
+            sb.AppendLine($"│ Total Minutes            : {GetValue("ToplamGecenSureDakika"),-50} │");
+            sb.AppendLine($"│ Avg Monthly Trades       : {GetValue("OrtAylikIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Weekly Trades        : {GetValue("OrtHaftalikIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Daily Trades         : {GetValue("OrtGunlukIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Avg Hourly Trades        : {GetValue("OrtSaatlikIslemSayisi"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Balance & Returns (Price Only) ===
+            sb.AppendLine("┌─ BALANCE & RETURNS ────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Initial Balance          : {GetValue("IlkBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Final Balance            : {GetValue("BakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Gross Return             : {GetValue("GetiriFiyat"),-50} │");
+            sb.AppendLine($"│ Gross Return %           : {GetValue("GetiriFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Commission               : {GetValue("KomisyonFiyat"),-50} │");
+            sb.AppendLine($"│ Net Balance              : {GetValue("BakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Net Return               : {GetValue("GetiriFiyatNet"),-50} │");
+            sb.AppendLine($"│ Net Return %             : {GetValue("GetiriFiyatYuzdeNet"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Balance Min/Max ===
+            sb.AppendLine("┌─ BALANCE MIN/MAX ──────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Min Balance              : {GetValue("MinBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Max Balance              : {GetValue("MaxBakiyeFiyat"),-50} │");
+            sb.AppendLine($"│ Min Balance %            : {GetValue("MinBakiyeFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Max Balance %            : {GetValue("MaxBakiyeFiyatYuzde"),-50} │");
+            sb.AppendLine($"│ Min Balance Index        : {GetValue("MinBakiyeFiyatIndex"),-50} │");
+            sb.AppendLine($"│ Max Balance Index        : {GetValue("MaxBakiyeFiyatIndex"),-50} │");
+            sb.AppendLine($"│ Min Balance Net          : {GetValue("MinBakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Max Balance Net          : {GetValue("MaxBakiyeFiyatNet"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Trade Counts ===
+            sb.AppendLine("┌─ TRADE COUNTS ─────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Trades             : {GetValue("IslemSayisi"),-50} │");
+            sb.AppendLine($"│ Buy Trades               : {GetValue("AlisSayisi"),-50} │");
+            sb.AppendLine($"│ Sell Trades              : {GetValue("SatisSayisi"),-50} │");
+            sb.AppendLine($"│ Flat Count               : {GetValue("FlatSayisi"),-50} │");
+            sb.AppendLine($"│ Pass Count               : {GetValue("PassSayisi"),-50} │");
+            sb.AppendLine($"│ Take Profit Count        : {GetValue("KarAlSayisi"),-50} │");
+            sb.AppendLine($"│ Stop Loss Count          : {GetValue("ZararKesSayisi"),-50} │");
+            sb.AppendLine($"│ Winning Trades           : {GetValue("KazandiranIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Losing Trades            : {GetValue("KaybettirenIslemSayisi"),-50} │");
+            sb.AppendLine($"│ Neutral Trades           : {GetValue("NotrIslemSayisi"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Profit & Loss ===
+            sb.AppendLine("┌─ PROFIT & LOSS ────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Total Profit             : {GetValue("ToplamKarFiyat"),-50} │");
+            sb.AppendLine($"│ Total Loss               : {GetValue("ToplamZararFiyat"),-50} │");
+            sb.AppendLine($"│ Net Profit               : {GetValue("NetKarFiyat"),-50} │");
+            sb.AppendLine($"│ Max Profit               : {GetValue("MaxKarFiyat"),-50} │");
+            sb.AppendLine($"│ Max Loss                 : {GetValue("MaxZararFiyat"),-50} │");
+            sb.AppendLine($"│ Win Rate                 : {GetValue("KarliIslemOrani"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            // === Risk Metrics ===
+            sb.AppendLine("┌─ RISK METRICS ─────────────────────────────────────────────────────────────┐");
+            sb.AppendLine($"│ Max Drawdown             : {GetValue("GetiriMaxDD"),-50} │");
+            sb.AppendLine($"│ Max Drawdown Date        : {GetValue("GetiriMaxDDTarih"),-50} │");
+            sb.AppendLine($"│ Max Loss                 : {GetValue("GetiriMaxKayip"),-50} │");
+            sb.AppendLine($"│ Profit Factor            : {GetValue("ProfitFactor"),-50} │");
+            sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
+            sb.AppendLine();
+
+            sb.AppendLine("================================================================================");
+            sb.AppendLine("                              END OF REPORT");
+            sb.AppendLine("================================================================================");
 
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
