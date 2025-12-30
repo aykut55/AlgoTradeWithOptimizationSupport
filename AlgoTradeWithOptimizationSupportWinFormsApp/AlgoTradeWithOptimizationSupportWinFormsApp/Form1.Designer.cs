@@ -124,6 +124,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblPageSize = new Label();
             groupBox1 = new GroupBox();
             btnClearStockData = new Button();
+            btnClearLogFiles = new Button();
             btnSaveFile2 = new Button();
             btnBrowseFile2 = new Button();
             txtConfigFileName = new TextBox();
@@ -916,6 +917,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // groupBox1
             // 
             groupBox1.Controls.Add(btnClearStockData);
+            groupBox1.Controls.Add(btnClearLogFiles);
             groupBox1.Controls.Add(btnSaveFile2);
             groupBox1.Controls.Add(btnBrowseFile2);
             groupBox1.Controls.Add(txtConfigFileName);
@@ -955,6 +957,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnClearStockData.Text = "Clear StockData";
             btnClearStockData.UseVisualStyleBackColor = true;
             btnClearStockData.Click += btnClearStockData_Click;
+            // 
+            // btnClearLogFiles
+            // 
+            btnClearLogFiles.Location = new Point(976, 45);
+            btnClearLogFiles.Name = "btnClearLogFiles";
+            btnClearLogFiles.Size = new Size(100, 25);
+            btnClearLogFiles.TabIndex = 23;
+            btnClearLogFiles.Text = "Clear Log Files";
+            btnClearLogFiles.UseVisualStyleBackColor = true;
+            btnClearLogFiles.Click += btnClearLogFiles_Click;
             // 
             // btnSaveFile2
             // 
@@ -1581,6 +1593,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private ComboBox cmbPageSize;
         private Label lblPageSize;
         private Button btnClearStockData;
+        private Button btnClearLogFiles;
         private Label lblReadStockDataTime;
         private Panel panel4;
         private Button btnTestAlgoTrader;

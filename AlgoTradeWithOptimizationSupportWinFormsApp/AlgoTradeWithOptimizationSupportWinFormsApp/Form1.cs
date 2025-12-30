@@ -1171,6 +1171,107 @@ Format           : ";
             lblReadStockDataTime.Text = $"Last StockData Read Time : ";
         }
 
+        /// <summary>
+        /// Clear all log files (.txt and .csv) in the "logs" folder
+        /// </summary>
+        private void btnClearLogFiles_Click(object sender, EventArgs e)
+        {
+            string logsFolder = "logs";
+
+            try
+            {
+                // Logs klasörü var mı kontrol et
+                if (!Directory.Exists(logsFolder))
+                {
+                    LogManager.Log($"Logs folder not found: {logsFolder}");
+                    MessageBox.Show($"Logs folder not found: {logsFolder}", "Info",
+                        MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    return;
+                }
+/*
+                // Kullanıcıya onay sor
+                var result = MessageBox.Show(
+                    $"Are you sure you want to delete all .txt and .csv files in '{logsFolder}' folder?",
+                    "Confirm Delete",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Warning);
+
+                if (result != DialogResult.Yes)
+                {
+                    LogManager.Log("Log files deletion cancelled by user.");
+                    return;
+                }
+*/
+                // TXT dosyalarını bul ve sil
+                var txtFiles = Directory.GetFiles(logsFolder, "*.txt");
+                int txtDeleted = 0;
+                int txtFailed = 0;
+
+                LogManager.Log($"Found {txtFiles.Length} .txt files in {logsFolder}");
+
+                foreach (var file in txtFiles)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                        LogManager.Log($"  ✓ Deleted: {file}");
+                        txtDeleted++;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogManager.Log($"  ✗ Failed to delete {file}: {ex.Message}");
+                        txtFailed++;
+                    }
+                }
+
+                // CSV dosyalarını bul ve sil
+                var csvFiles = Directory.GetFiles(logsFolder, "*.csv");
+                int csvDeleted = 0;
+                int csvFailed = 0;
+
+                LogManager.Log($"Found {csvFiles.Length} .csv files in {logsFolder}");
+
+                foreach (var file in csvFiles)
+                {
+                    try
+                    {
+                        File.Delete(file);
+                        LogManager.Log($"  ✓ Deleted: {file}");
+                        csvDeleted++;
+                    }
+                    catch (Exception ex)
+                    {
+                        LogManager.Log($"  ✗ Failed to delete {file}: {ex.Message}");
+                        csvFailed++;
+                    }
+                }
+
+                // Özet
+                int totalDeleted = txtDeleted + csvDeleted;
+                int totalFailed = txtFailed + csvFailed;
+
+                string summary = $"Log files deletion completed:\n\n" +
+                                $"TXT files: {txtDeleted} deleted, {txtFailed} failed\n" +
+                                $"CSV files: {csvDeleted} deleted, {csvFailed} failed\n\n" +
+                                $"Total: {totalDeleted} deleted, {totalFailed} failed";
+
+                LogManager.Log("========================================");
+                LogManager.Log(summary.Replace("\n", " "));
+                LogManager.Log("========================================");
+/*
+                MessageBox.Show(summary, "Log Files Cleared",
+                    MessageBoxButtons.OK,
+                    totalFailed > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+*/
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"Error clearing log files: {ex.Message}";
+                LogManager.Log(errorMsg);
+                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private async void BtnReadStockData_Click(object? sender, EventArgs e)
         {
             string fileName = txtDataFileName.Text;
