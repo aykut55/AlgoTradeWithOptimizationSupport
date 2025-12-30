@@ -62,7 +62,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
         public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
-        
+
         public TimeManager timeManager { get; private set; }
 
         public string SymbolName { get; set; }
@@ -71,6 +71,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public string SystemName { get; set; }
         public string StrategyId { get; set; }
         public string StrategyName { get; set; }
+
+        // Optimization log file paths (for TODO 544)
+        public Action<string, bool>? OnOptimizationResultsUpdated { get; set; }  // (filePath, useCsv)
+
+        // Optimization file type preference for reading (CSV or TXT)
+        private bool _preferCsvForReading = false;  // Default: TXT
 
         #endregion
 
@@ -420,6 +426,98 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         {
             // InitializeUserControlledFlags
             trader.ConfigureUserFlagsOnce();
+        }
+        private void OnReadOptimizationResultsFile(SingleTraderOptimizer traderOptimizer, SingleTrader trader, int currentCombination)
+        {
+            // DONE TODO 545 : Optimization sırasında her bir kosum sonrasında callback ile buraya gelinir.
+            // Burada OptimizationLogFile dosyası okunacak ve içi sort edilip  dataGridViewOptimizationResults e yazılacak...
+            // Form1.cs ile bir sekilde iletişim kurulmalı... cunku dataGridViewOptimizationResults gui elemanı...
+            // IMPLEMENTATION: OnOptimizationResultsUpdated callback kullanılarak Form1'e bildirim yapılıyor
+            // Form1'de bu callback'i handle ederek dosyayı okuyup, sort edip dataGridViewOptimizationResults'a yazacak
+
+            // Get the optimization log file path (using user preference)
+            string optimizationLogFilePath = GetOptimizationLogFilePath(preferCsv: _preferCsvForReading);
+
+            if (string.IsNullOrEmpty(optimizationLogFilePath))
+            {
+                LogWarning("Optimization log file path is not set.");
+                return;
+            }
+
+            if (!System.IO.File.Exists(optimizationLogFilePath))
+            {
+                LogWarning($"Optimization log file does not exist: {optimizationLogFilePath}");
+                return;
+            }
+
+            // Trigger callback to Form1 to update dataGridViewOptimizationResults
+            // Form1 will read the file, sort it, and update the DataGridView
+            bool useCsv = optimizationLogFilePath.EndsWith(".csv", StringComparison.OrdinalIgnoreCase);
+            OnOptimizationResultsUpdated?.Invoke(optimizationLogFilePath, useCsv);
+        }
+
+        /// <summary>
+        /// Get optimization log file path (CSV or TXT)
+        /// </summary>
+        /// <param name="preferCsv">If true, returns CSV path if available, otherwise TXT path</param>
+        /// <returns>File path or empty string if not available</returns>
+        public string GetOptimizationLogFilePath(bool preferCsv = true)
+        {
+            if (singleTraderOptimizer == null)
+                return string.Empty;
+
+            if (preferCsv && singleTraderOptimizer.CsvFileLoggingEnabled && !string.IsNullOrEmpty(singleTraderOptimizer.CsvFilePath))
+            {
+                return singleTraderOptimizer.CsvFilePath;
+            }
+            else if (singleTraderOptimizer.TxtFileLoggingEnabled && !string.IsNullOrEmpty(singleTraderOptimizer.TxtFilePath))
+            {
+                return singleTraderOptimizer.TxtFilePath;
+            }
+
+            return string.Empty;
+        }
+
+        /// <summary>
+        /// Get optimization CSV log file path
+        /// </summary>
+        public string GetOptimizationCsvFilePath()
+        {
+            if (singleTraderOptimizer == null || !singleTraderOptimizer.CsvFileLoggingEnabled)
+                return string.Empty;
+
+            return singleTraderOptimizer.CsvFilePath ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Get optimization TXT log file path
+        /// </summary>
+        public string GetOptimizationTxtFilePath()
+        {
+            if (singleTraderOptimizer == null || !singleTraderOptimizer.TxtFileLoggingEnabled)
+                return string.Empty;
+
+            return singleTraderOptimizer.TxtFilePath ?? string.Empty;
+        }
+
+        /// <summary>
+        /// Set which optimization log file type to prefer for reading (CSV or TXT)
+        /// Both files can be written simultaneously, but this determines which one to read for GUI updates
+        /// </summary>
+        /// <param name="preferCsv">True: CSV, False: TXT</param>
+        public void SetOptimizationFileTypePreference(bool preferCsv)
+        {
+            _preferCsvForReading = preferCsv;
+            Log($"Optimization file type preference set to: {(preferCsv ? "CSV" : "TXT")}");
+        }
+
+        /// <summary>
+        /// Get current optimization file type preference
+        /// </summary>
+        /// <returns>True if CSV is preferred, False if TXT is preferred</returns>
+        public bool GetOptimizationFileTypePreference()
+        {
+            return _preferCsvForReading;
         }
 
         /// <summary>
@@ -850,12 +948,28 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // OPTİMİZASYON AYARLARI
             // ============================================================
 
-            bool csvFileLoggingEnabled = true;
-            bool txtFileLoggingEnabled = true;
+            bool csvFileLoggingEnabled = true;   // CSV enabled - for fast processing later
+            bool txtFileLoggingEnabled = true;   // TXT enabled - for human readable logs
             bool appendEnabled = true;
-            singleTraderOptimizer.SetOptimizationLogFileParams( csvFileLoggingEnabled, "logs\\singleTraderOptLog.csv", 
+            singleTraderOptimizer.SetOptimizationLogFileParams( csvFileLoggingEnabled, "logs\\singleTraderOptLog.csv",
                                                                 txtFileLoggingEnabled, "logs\\singleTraderOptLog.txt",
                                                                 appendEnabled);
+
+            // Set preference to read TXT file for GUI updates (can be changed to CSV later)
+            SetOptimizationFileTypePreference(preferCsv: false);  // false = TXT, true = CSV
+
+            // DONE TODO 544 : SetOptimizationLogFileParams kullanmıştım ama bunu daha smart hale getirmek gerekecek cunku simdilik
+            // dataGridViewOptimizationResults ı txt dosyasını okuyarak güncelleyeceğim ama daha sonrasında hızlı olması bakımından
+            // csv dosyasını okuyarak yapmayı düşünüyorum...
+            // DONE TODO 545 ile bağlantısını kurmayı düşünüyorum...
+            // DONE - Sanıyorum kullanılacak olan OptimizationLogFile'ı bir setter'la singleTraderOptimizer e tanıtmak gerekecek ki TODO 545 yapılıyorken
+            // bu dosyayı okuyup dataGridViewOptimizationResults ı güncelleyebileyim...
+            // IMPLEMENTATION: GetOptimizationLogFilePath() methodları eklendi (GetOptimizationCsvFilePath, GetOptimizationTxtFilePath)
+            // IMPLEMENTATION: OnOptimizationResultsUpdated callback eklendi - Form1'e dosya yolunu ve dosya tipini (csv/txt) bildirir
+            // TODO: Form1.cs'te InitializeOptimizationResultsDataGridView() methodu oluşturulmalı (InitializeStockDataGridView gibi)
+            // TODO: dataGridViewOptimizationResults için kolonlar AppendSingleOptSummaryToFiles methodundaki sütun sıralamasına göre oluşturulmalı
+
+            singleTraderOptimizer.OnReadOptimizationResultsFile = OnReadOptimizationResultsFile;
 
             // --- Skip Iteration Ayarları ---
             // İlk N kombinasyonu atlayarak devam etmek için kullanılır

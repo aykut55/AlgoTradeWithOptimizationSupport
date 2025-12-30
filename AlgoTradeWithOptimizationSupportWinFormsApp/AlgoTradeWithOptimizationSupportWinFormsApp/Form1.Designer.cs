@@ -1355,16 +1355,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // richTextBoxSingleTraderOptimization
             // 
-            richTextBoxSingleTraderOptimization.Location = new Point(708, 180);
+            richTextBoxSingleTraderOptimization.Location = new Point(40, 637);
             richTextBoxSingleTraderOptimization.Name = "richTextBoxSingleTraderOptimization";
-            richTextBoxSingleTraderOptimization.Size = new Size(596, 571);
+            richTextBoxSingleTraderOptimization.Size = new Size(1264, 185);
             richTextBoxSingleTraderOptimization.TabIndex = 4;
             richTextBoxSingleTraderOptimization.Text = "";
             richTextBoxSingleTraderOptimization.DoubleClick += richTextBoxSingleTraderOptimization_DoubleClick;
             // 
             // lblOptimizationResult
             // 
-            lblOptimizationResult.Location = new Point(155, 764);
+            lblOptimizationResult.Location = new Point(155, 162);
             lblOptimizationResult.Name = "lblOptimizationResult";
             lblOptimizationResult.Size = new Size(533, 15);
             lblOptimizationResult.TabIndex = 3;
@@ -1373,7 +1373,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // label3
             // 
             label3.AutoSize = true;
-            label3.Location = new Point(40, 764);
+            label3.Location = new Point(40, 162);
             label3.Name = "label3";
             label3.Size = new Size(109, 15);
             label3.TabIndex = 2;
@@ -1382,7 +1382,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblOptimizationResults
             // 
             lblOptimizationResults.AutoSize = true;
-            lblOptimizationResults.Location = new Point(40, 153);
+            lblOptimizationResults.Location = new Point(1185, 162);
             lblOptimizationResults.Name = "lblOptimizationResults";
             lblOptimizationResults.Size = new Size(119, 15);
             lblOptimizationResults.TabIndex = 1;
@@ -1393,7 +1393,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             dataGridViewOptimizationResults.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             dataGridViewOptimizationResults.Location = new Point(40, 180);
             dataGridViewOptimizationResults.Name = "dataGridViewOptimizationResults";
-            dataGridViewOptimizationResults.Size = new Size(648, 571);
+            dataGridViewOptimizationResults.Size = new Size(1264, 451);
             dataGridViewOptimizationResults.TabIndex = 0;
             // 
             // openFileDialog1

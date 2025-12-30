@@ -612,6 +612,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
                     OnSaveResults?.Invoke(Results, currentCombination);
                 }
+
+                //if (currentCombination == 4)
+                    //break;
             }
 
             singleTrader.Dispose();

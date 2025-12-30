@@ -36,8 +36,353 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             algoTrader = new AlgoTrader();
             algoTrader.RegisterLogger(_singleTraderLogger);
 
+            // TODO 545 : Optimization results güncelleme callback'ini bağla
+            algoTrader.OnOptimizationResultsUpdated = OnOptimizationResultsUpdated;
+
             _singleTraderLogger.Log("=== AlgoTrader Objects Created ===");
             _singleTraderOptLogger.Log("=== AlgoTrader Objects Created ===");
+        }
+
+        /// <summary>
+        /// Optimization results dosyası güncellendiğinde çağrılır (TODO 545)
+        /// Dosyayı okur, sort eder ve dataGridViewOptimizationResults'a yazar
+        /// </summary>
+        private void OnOptimizationResultsUpdated(string filePath, bool useCsv)
+        {
+            // Debug dosyasına yaz
+            string debugFile = "logs\\gui_update_debug.txt";
+            try
+            {
+                System.IO.Directory.CreateDirectory("logs");
+                System.IO.File.AppendAllText(debugFile, $"\n=== {DateTime.Now:HH:mm:ss.fff} ===\n");
+                System.IO.File.AppendAllText(debugFile, $"OnOptimizationResultsUpdated called\n");
+                System.IO.File.AppendAllText(debugFile, $"File: {filePath}\n");
+                System.IO.File.AppendAllText(debugFile, $"UseCsv: {useCsv}\n");
+                System.IO.File.AppendAllText(debugFile, $"File exists: {System.IO.File.Exists(filePath)}\n");
+            }
+            catch { }
+
+            _singleTraderOptLogger?.Log($"[DEBUG] OnOptimizationResultsUpdated called - File: {filePath}, UseCsv: {useCsv}");
+            _singleTraderOptLogger?.Log($"[DEBUG] InvokeRequired: {InvokeRequired}");
+
+            // Thread-safe UI update
+            UpdateUIControl(() =>
+            {
+                try
+                {
+                    System.IO.File.AppendAllText(debugFile, $"Inside UpdateUIControl lambda\n");
+
+                    _singleTraderOptLogger?.Log($"[DEBUG] Inside UpdateUIControl lambda");
+                    _singleTraderOptLogger?.Log($"Optimization results updated: {filePath} (CSV: {useCsv})");
+
+                    // Dosya var mı kontrol et
+                    if (!System.IO.File.Exists(filePath))
+                    {
+                        System.IO.File.AppendAllText(debugFile, $"ERROR: File not found!\n");
+                        _singleTraderOptLogger?.LogWarning($"Optimization results file not found: {filePath}");
+                        return;
+                    }
+
+                    System.IO.File.AppendAllText(debugFile, $"File found, calling read method\n");
+                    _singleTraderOptLogger?.Log($"[DEBUG] File exists, calling read method...");
+
+                    // CSV dosyası ise oku
+                    if (useCsv)
+                    {
+                        System.IO.File.AppendAllText(debugFile, $"Reading CSV...\n");
+                        _singleTraderOptLogger?.Log($"[DEBUG] Reading CSV file...");
+                        ReadAndDisplayCsvOptimizationResults(filePath);
+                    }
+                    else
+                    {
+                        System.IO.File.AppendAllText(debugFile, $"Reading TXT...\n");
+                        _singleTraderOptLogger?.Log($"[DEBUG] Reading TXT file...");
+                        // TXT dosyası oku
+                        ReadAndDisplayTxtOptimizationResults(filePath);
+                    }
+
+                    System.IO.File.AppendAllText(debugFile, $"Read completed - Grid rows: {dataGridViewOptimizationResults.Rows.Count}\n");
+                    _singleTraderOptLogger?.Log($"[DEBUG] Read method completed.");
+                }
+                catch (Exception ex)
+                {
+                    System.IO.File.AppendAllText(debugFile, $"EXCEPTION: {ex.Message}\n");
+                    System.IO.File.AppendAllText(debugFile, $"Stack: {ex.StackTrace}\n");
+                    _singleTraderOptLogger?.LogError($"Error reading optimization results: {ex.Message}");
+                    _singleTraderOptLogger?.LogError($"Stack trace: {ex.StackTrace}");
+                }
+            });
+
+            System.IO.File.AppendAllText(debugFile, $"OnOptimizationResultsUpdated exiting\n");
+            _singleTraderOptLogger?.Log($"[DEBUG] OnOptimizationResultsUpdated exiting");
+        }
+
+        /// <summary>
+        /// CSV optimization results dosyasını okur ve dataGridViewOptimizationResults'a yazar
+        /// Duplicate check yapar (CombNo'ya göre) ve NetProfit'e göre sort eder
+        /// </summary>
+        private void ReadAndDisplayCsvOptimizationResults(string filePath)
+        {
+            try
+            {
+                _singleTraderOptLogger?.Log($"[DEBUG] Reading CSV file: {filePath}");
+
+                // CSV dosyasını oku
+                var lines = System.IO.File.ReadAllLines(filePath);
+                if (lines.Length == 0)
+                {
+                    _singleTraderOptLogger?.LogWarning("CSV file is empty.");
+                    return;
+                }
+
+                // İlk satır header
+                string headerLine = lines[0];
+                var headers = headerLine.Split(',')
+                                       .Select(h => h.Trim())
+                                       .ToArray();
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Headers count: {headers.Length}");
+
+                // CombNo ve NetProfit kolonlarının indexini bul
+                int combNoIndex = Array.FindIndex(headers, h => h.Equals("CombNo", StringComparison.OrdinalIgnoreCase));
+                int netProfitIndex = Array.FindIndex(headers, h => h.Contains("NetProf") || h.Contains("OR_NetProf"));
+
+                _singleTraderOptLogger?.Log($"[DEBUG] CombNo index: {combNoIndex}, NetProfit index: {netProfitIndex}");
+
+                // DataGridView'ı temizle ve kolonları oluştur (sadece ilk kez)
+                if (dataGridViewOptimizationResults.Columns.Count == 0)
+                {
+                    _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
+                    dataGridViewOptimizationResults.Columns.Clear();
+                    foreach (var header in headers)
+                    {
+                        dataGridViewOptimizationResults.Columns.Add(header, header);
+                    }
+                    _singleTraderOptLogger?.Log($"[DEBUG] Columns created: {dataGridViewOptimizationResults.Columns.Count}");
+                }
+
+                // Tüm veriyi oku ve Dictionary'de tut (CombNo -> values)
+                var dataDict = new Dictionary<string, string[]>();
+                int duplicateCount = 0;
+
+                // Veri satırlarını oku (header hariç)
+                for (int i = 1; i < lines.Length; i++)
+                {
+                    if (string.IsNullOrWhiteSpace(lines[i]))
+                        continue;
+
+                    var values = lines[i].Split(',')
+                                        .Select(v => v.Trim())
+                                        .ToArray();
+
+                    // Kolon sayısı eşleşiyorsa ekle
+                    if (values.Length == headers.Length && combNoIndex >= 0)
+                    {
+                        string combNo = values[combNoIndex];
+
+                        // Duplicate check - sadece en son eklenen değeri tut
+                        if (dataDict.ContainsKey(combNo))
+                        {
+                            duplicateCount++;
+                            _singleTraderOptLogger?.Log($"[DEBUG] Duplicate CombNo {combNo} - updating with latest data");
+                        }
+
+                        dataDict[combNo] = values;
+                    }
+                }
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Unique rows: {dataDict.Count}, Duplicates removed: {duplicateCount}");
+
+                // Sort by NetProfit (azalan sırada)
+                var sortedData = dataDict.Values.AsEnumerable();
+
+                if (netProfitIndex >= 0)
+                {
+                    sortedData = sortedData.OrderByDescending(values =>
+                    {
+                        if (double.TryParse(values[netProfitIndex], out double netProfit))
+                            return netProfit;
+                        return double.MinValue;
+                    });
+                    _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
+                }
+
+                // DataGridView'ı temizle
+                dataGridViewOptimizationResults.Rows.Clear();
+                _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
+
+                // Sıralı ve unique veriyi ekle
+                int rowsAdded = 0;
+                foreach (var values in sortedData)
+                {
+                    dataGridViewOptimizationResults.Rows.Add(values);
+                    rowsAdded++;
+                }
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Total rows added to grid: {rowsAdded}");
+                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from CSV (sorted by NetProfit).");
+            }
+            catch (Exception ex)
+            {
+                _singleTraderOptLogger?.LogError($"Error reading CSV file: {ex.Message}");
+                _singleTraderOptLogger?.LogError($"Stack trace: {ex.StackTrace}");
+            }
+        }
+
+        /// <summary>
+        /// TXT optimization results dosyasını okur ve dataGridViewOptimizationResults'a yazar
+        /// TXT dosyası pipe (|) ile ayrılmış fixed-width format kullanıyor
+        /// Duplicate check yapar (CombNo'ya göre) ve NetProfit'e göre sort eder
+        /// </summary>
+        private void ReadAndDisplayTxtOptimizationResults(string filePath)
+        {
+            string debugFile = "logs\\gui_update_debug.txt";
+            try
+            {
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Starting\n");
+                _singleTraderOptLogger?.Log($"[DEBUG] Reading TXT file: {filePath}");
+
+                // TXT dosyasını oku
+                var lines = System.IO.File.ReadAllLines(filePath);
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Total lines = {lines.Length}\n");
+                _singleTraderOptLogger?.Log($"[DEBUG] Total lines read: {lines.Length}");
+
+                if (lines.Length == 0)
+                {
+                    _singleTraderOptLogger?.LogWarning("TXT file is empty.");
+                    return;
+                }
+
+                // İlk birkaç satır başlık ve çizgi olabilir, header satırını bul
+                int headerLineIndex = -1;
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Searching for header in first 20 lines\n");
+
+                for (int i = 0; i < Math.Min(20, lines.Length); i++)
+                {
+                    string preview = lines[i].Length > 100 ? lines[i].Substring(0, 100) + "..." : lines[i];
+                    _singleTraderOptLogger?.Log($"[DEBUG] Line {i}: {preview}");
+                    System.IO.File.AppendAllText(debugFile, $"  Line {i}: {preview}\n");
+
+                    // Header'ı bul - pipe içeren ve "CombNo" içeren satır
+                    if (lines[i].Contains("|") && lines[i].Contains("CombNo"))
+                    {
+                        headerLineIndex = i;
+                        System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Header found at line {i}\n");
+                        _singleTraderOptLogger?.Log($"[DEBUG] Header found at line {i}");
+                        break;
+                    }
+                }
+
+                if (headerLineIndex == -1)
+                {
+                    System.IO.File.AppendAllText(debugFile, $"  ReadTXT: ERROR - Header not found!\n");
+                    _singleTraderOptLogger?.LogWarning("TXT file header not found.");
+                    _singleTraderOptLogger?.LogWarning("Check logs\\gui_update_debug.txt for details");
+                    return;
+                }
+
+                // Header satırını parse et (pipe ile ayrılmış)
+                string headerLine = lines[headerLineIndex];
+                var headers = headerLine.Split('|', StringSplitOptions.RemoveEmptyEntries)
+                                       .Select(h => h.Trim())
+                                       .ToArray();
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Headers count: {headers.Length}");
+                _singleTraderOptLogger?.Log($"[DEBUG] First 5 headers: {string.Join(", ", headers.Take(5))}");
+
+                // CombNo ve NetProfit kolonlarının indexini bul
+                int combNoIndex = Array.FindIndex(headers, h => h.Equals("CombNo", StringComparison.OrdinalIgnoreCase));
+                int netProfitIndex = Array.FindIndex(headers, h => h.Contains("NetProf") || h.Contains("OR_NetProf"));
+
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: CombNo index = {combNoIndex}, NetProfit index = {netProfitIndex}\n");
+                _singleTraderOptLogger?.Log($"[DEBUG] CombNo index: {combNoIndex}, NetProfit index: {netProfitIndex}");
+
+                // DataGridView'ı temizle ve kolonları oluştur (sadece ilk kez)
+                if (dataGridViewOptimizationResults.Columns.Count == 0)
+                {
+                    _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
+                    dataGridViewOptimizationResults.Columns.Clear();
+                    foreach (var header in headers)
+                    {
+                        dataGridViewOptimizationResults.Columns.Add(header, header);
+                    }
+                    _singleTraderOptLogger?.Log($"[DEBUG] Columns created: {dataGridViewOptimizationResults.Columns.Count}");
+                }
+                else
+                {
+                    _singleTraderOptLogger?.Log($"[DEBUG] Columns already exist: {dataGridViewOptimizationResults.Columns.Count}");
+                }
+
+                // Tüm veriyi oku ve Dictionary'de tut (CombNo -> values)
+                var dataDict = new Dictionary<string, string[]>();
+                int duplicateCount = 0;
+
+                for (int i = headerLineIndex + 1; i < lines.Length; i++)
+                {
+                    // Boş satırları ve ayırıcı satırları atla
+                    if (string.IsNullOrWhiteSpace(lines[i]) || lines[i].Contains("==="))
+                        continue;
+
+                    // Pipe ile ayrılmış değerleri parse et
+                    var values = lines[i].Split('|', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(v => v.Trim())
+                                        .ToArray();
+
+                    // Kolon sayısı eşleşiyorsa ekle
+                    if (values.Length == headers.Length && combNoIndex >= 0)
+                    {
+                        string combNo = values[combNoIndex];
+
+                        // Duplicate check - sadece en son eklenen değeri tut
+                        if (dataDict.ContainsKey(combNo))
+                        {
+                            duplicateCount++;
+                            _singleTraderOptLogger?.Log($"[DEBUG] Duplicate CombNo {combNo} - updating with latest data");
+                        }
+
+                        dataDict[combNo] = values;
+                    }
+                }
+
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Unique rows = {dataDict.Count}, Duplicates = {duplicateCount}\n");
+                _singleTraderOptLogger?.Log($"[DEBUG] Unique rows: {dataDict.Count}, Duplicates removed: {duplicateCount}");
+
+                // Sort by NetProfit (azalan sırada)
+                var sortedData = dataDict.Values.AsEnumerable();
+
+                if (netProfitIndex >= 0)
+                {
+                    sortedData = sortedData.OrderByDescending(values =>
+                    {
+                        if (double.TryParse(values[netProfitIndex], out double netProfit))
+                            return netProfit;
+                        return double.MinValue;
+                    });
+                    _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
+                }
+
+                // DataGridView'ı temizle
+                dataGridViewOptimizationResults.Rows.Clear();
+                _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
+
+                // Sıralı ve unique veriyi ekle
+                int rowsAdded = 0;
+                foreach (var values in sortedData)
+                {
+                    dataGridViewOptimizationResults.Rows.Add(values);
+                    rowsAdded++;
+                }
+
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Rows added to grid = {rowsAdded}\n");
+                _singleTraderOptLogger?.Log($"[DEBUG] Total rows added to grid: {rowsAdded}");
+                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from TXT (sorted by NetProfit).");
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText(debugFile, $"  ReadTXT: EXCEPTION - {ex.Message}\n");
+                _singleTraderOptLogger?.LogError($"Error reading TXT file: {ex.Message}");
+                _singleTraderOptLogger?.LogError($"Stack trace: {ex.StackTrace}");
+            }
         }
 
         /// <summary>
@@ -202,7 +547,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             public SingleTraderOptLogger(RichTextBox richTextBox)
             {
                 _richTextBox = richTextBox;
-                _fileSink = new FileSink("logs", "singleTraderOptLog.txt", appendMode: false);
+                _fileSink = new FileSink("logs", "singleTraderOptDebug.txt", appendMode: false);
             }
 
             public void Log(params object[] args)

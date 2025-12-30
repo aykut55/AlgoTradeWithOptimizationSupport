@@ -54,6 +54,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             InitializeMainLoop();
             InitializeFilterModeComboBox();
             InitializeStockDataGridView();
+            InitializeOptimizationResultsDataGridView();  // TODO 544
             InitializePagination();
             stockDataReader = new StockDataReader();
             stockDataReader.EnableLogManager(true);
@@ -214,6 +215,45 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridView.Columns.Add(new DataGridViewCheckBoxColumn { DataPropertyName = "IsBearish", HeaderText = "Bearish" });
 
             stockDataGridView.SelectionChanged += StockDataGridView_SelectionChanged;
+        }
+
+        /// <summary>
+        /// TODO 544: Initialize Optimization Results DataGridView
+        /// Optimization sonuçlarını göstermek için DataGridView'ı hazırla
+        /// Kolonlar AppendSingleOptSummaryToFiles methodundaki sütun sıralamasına göre oluşturulur
+        /// Stil stockDataGridView ile aynı (Orange header, LightGray/White rows)
+        /// Hücre seçimi ve kopyalama aktif (Ctrl+C ile kopyalanabilir)
+        /// </summary>
+        private void InitializeOptimizationResultsDataGridView()
+        {
+            // Grid ayarları
+            dataGridViewOptimizationResults.AutoGenerateColumns = false;
+            dataGridViewOptimizationResults.ReadOnly = true;
+            dataGridViewOptimizationResults.SelectionMode = DataGridViewSelectionMode.CellSelect;  // Hücre seçimi
+            dataGridViewOptimizationResults.MultiSelect = true;  // Çoklu seçim aktif
+            dataGridViewOptimizationResults.AllowUserToAddRows = false;
+            dataGridViewOptimizationResults.AllowUserToDeleteRows = false;
+            dataGridViewOptimizationResults.RowHeadersVisible = false;
+            dataGridViewOptimizationResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+
+            // Kopyalama ayarları (Ctrl+C ile kopyalanabilir)
+            dataGridViewOptimizationResults.ClipboardCopyMode = DataGridViewClipboardCopyMode.EnableWithAutoHeaderText;
+
+            // Column Header Styling (stockDataGridView ile aynı stil)
+            dataGridViewOptimizationResults.EnableHeadersVisualStyles = false; // Özel stil için gerekli
+            dataGridViewOptimizationResults.ColumnHeadersDefaultCellStyle.BackColor = Color.Orange;
+            dataGridViewOptimizationResults.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            dataGridViewOptimizationResults.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+            dataGridViewOptimizationResults.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewOptimizationResults.ColumnHeadersHeight = 30;
+
+            // Alternatif satır renklendirme (Zebra striping - daha okunabilir)
+            dataGridViewOptimizationResults.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
+            dataGridViewOptimizationResults.DefaultCellStyle.BackColor = Color.White;
+
+            // NOT: Kolonlar CSV/TXT dosyası okunurken dinamik olarak oluşturulacak
+            // Bu method sadece grid'in genel ayarlarını yapar
+            // Kolonların sıralaması AppendSingleOptSummaryToFiles methodundaki gibi olacak
         }
 
         private void InitializeLogManager()
