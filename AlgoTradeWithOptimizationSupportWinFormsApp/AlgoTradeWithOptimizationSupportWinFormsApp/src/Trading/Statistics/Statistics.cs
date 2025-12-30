@@ -218,6 +218,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         #region Performance Metrics
 
         public double ProfitFactor { get; set; }
+        public double ProfitFactorNet { get; set; }  // Commission-adjusted profit factor
         public double ProfitFactorSistem { get; set; }
         public double KarliIslemOrani { get; set; }
 
@@ -550,6 +551,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             // Calculate performance metrics
             ProfitFactor           = Math.Abs(ToplamZararPuan) > 0 ? ToplamKarPuan / Math.Abs(ToplamZararPuan) : 0;
+            // ProfitFactorNet: Commission-adjusted profit factor (commission added to loss side)
+            double totalLossWithCommission = Math.Abs(ToplamZararPuan) + KomisyonFiyat;
+            ProfitFactorNet        = totalLossWithCommission > 0 ? ToplamKarPuan / totalLossWithCommission : 0;
             ProfitFactorSistem     = 0.0;
             KarliIslemOrani        = IslemSayisi > 0 ? (1.0 * KazandiranIslemSayisi) / (1.0 * IslemSayisi) * 100.0 : 0;
 
@@ -765,6 +769,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
             Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
             Add("ProfitFactor", ProfitFactor, "F2");
+            Add("ProfitFactorNet", ProfitFactorNet, "F2");
             Add("ProfitFactorSistem", ProfitFactorSistem, "F2");
 
             StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
@@ -1262,6 +1267,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             sb.AppendLine($"│ Max Drawdown Date        : {GetValue("GetiriMaxDDTarih"),-50} │");
             sb.AppendLine($"│ Max Loss                 : {GetValue("GetiriMaxKayip"),-50} │");
             sb.AppendLine($"│ Profit Factor            : {GetValue("ProfitFactor"),-50} │");
+            sb.AppendLine($"│ Profit Factor (Net)      : {GetValue("ProfitFactorNet"),-50} │");
             sb.AppendLine($"│ Profit Factor (System)   : {GetValue("ProfitFactorSistem"),-50} │");
             sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
             sb.AppendLine();
@@ -1459,6 +1465,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriMaxDDTarih", GetiriMaxDDTarih);
             Add("GetiriMaxKayip", GetiriMaxKayip, "F2");
             Add("ProfitFactor", ProfitFactor, "F2");
+            Add("ProfitFactorNet", ProfitFactorNet, "F2");
 
             StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
@@ -1763,6 +1770,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             sb.AppendLine($"│ Max Drawdown Date        : {GetValue("GetiriMaxDDTarih"),-50} │");
             sb.AppendLine($"│ Max Loss                 : {GetValue("GetiriMaxKayip"),-50} │");
             sb.AppendLine($"│ Profit Factor            : {GetValue("ProfitFactor"),-50} │");
+            sb.AppendLine($"│ Profit Factor (Net)      : {GetValue("ProfitFactorNet"),-50} │");
             sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
             sb.AppendLine();
 
@@ -1925,6 +1933,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             public string GetiriMaxDDTarih;
             public double GetiriMaxKayip;
             public double ProfitFactor;
+            public double ProfitFactorNet;
             public double ProfitFactorSistem;
 
             // --- Signals & Execution ---
@@ -2002,7 +2011,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        "KarZararFiyat;KarZararFiyatYuzde;KarZararPuan;ToplamKarFiyat;ToplamZararFiyat;NetKarFiyat;" +
                        "ToplamKarPuan;ToplamZararPuan;NetKarPuan;MaxKarFiyat;MaxZararFiyat;MaxKarPuan;MaxZararPuan;" +
                        "KardaBarSayisi;ZarardaBarSayisi;KarliIslemOrani;" +
-                       "GetiriMaxDD;GetiriMaxDDTarih;GetiriMaxKayip;ProfitFactor;ProfitFactorSistem;" +
+                       "GetiriMaxDD;GetiriMaxDDTarih;GetiriMaxKayip;ProfitFactor;ProfitFactorNet;ProfitFactorSistem;" +
                        "Sinyal;SonYon;PrevYon;SonFiyat;SonAFiyat;SonSFiyat;SonFFiyat;SonPFiyat;PrevFiyat;" +
                        "SonBarNo;SonABarNo;SonSBarNo;EmirKomut;EmirStatus;" +
                        "HisseSayisi;KontratSayisi;VarlikAdedCarpani;VarlikAdedSayisi;VarlikAdedSayisiMicro;KaymaMiktari;KaymayiDahilEt;" +
@@ -2036,7 +2045,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{KarZararFiyat:F2};{KarZararFiyatYuzde:F2};{KarZararPuan:F4};{ToplamKarFiyat:F2};{ToplamZararFiyat:F2};{NetKarFiyat:F2};" +
                        $"{ToplamKarPuan:F4};{ToplamZararPuan:F4};{NetKarPuan:F4};{MaxKarFiyat:F2};{MaxZararFiyat:F2};{MaxKarPuan:F4};{MaxZararPuan:F4};" +
                        $"{KardaBarSayisi};{ZarardaBarSayisi};{KarliIslemOrani:F2};" +
-                       $"{GetiriMaxDD:F2};{GetiriMaxDDTarih};{GetiriMaxKayip:F2};{ProfitFactor:F2};{ProfitFactorSistem:F2};" +
+                       $"{GetiriMaxDD:F2};{GetiriMaxDDTarih};{GetiriMaxKayip:F2};{ProfitFactor:F2};{ProfitFactorNet:F2};{ProfitFactorSistem:F2};" +
                        $"{Sinyal};{SonYon};{PrevYon};{SonFiyat:F4};{SonAFiyat:F4};{SonSFiyat:F4};{SonFFiyat:F4};{SonPFiyat:F4};{PrevFiyat:F4};" +
                        $"{SonBarNo};{SonABarNo};{SonSBarNo};{EmirKomut};{EmirStatus};" +
                        $"{HisseSayisi:F2};{KontratSayisi:F2};{VarlikAdedCarpani:F2};{VarlikAdedSayisi:F2};{VarlikAdedSayisiMicro:F4};{KaymaMiktari:F4};{KaymayiDahilEt};" +
@@ -2065,6 +2074,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{GetiriFiyatYuzdeNet,10:F2} | " +
                        $"{KomisyonFiyat,10:F2} | " +
                        $"{ProfitFactor,8:F2} | " +
+                       $"{ProfitFactorNet,8:F2} | " +
                        $"{GetiriMaxDD,10:F2} | " +
                        $"{KarliIslemOrani,10:F2}";
             }
@@ -2089,6 +2099,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{"GetiriNet%",10} | " +
                        $"{"Komisyon",10} | " +
                        $"{"ProfitF",8} | " +
+                       $"{"ProfitFNet",8} | " +
                        $"{"MaxDD%",10} | " +
                        $"{"KarliOran",10}";
             }
@@ -2258,6 +2269,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 GetiriMaxDDTarih = GetiriMaxDDTarih ?? "...",
                 GetiriMaxKayip = GetiriMaxKayip,
                 ProfitFactor = ProfitFactor,
+                ProfitFactorNet = ProfitFactorNet,
                 ProfitFactorSistem = ProfitFactorSistem,
 
                 // --- Signals & Execution ---
@@ -2373,6 +2385,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
             // Performance Metrics
             public double ProfitFactor;
+            public double ProfitFactorNet;
             public double KarliIslemOrani;
             public double GetiriMaxDD;
             public double GetiriMaxKayip;
@@ -2401,7 +2414,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        "BakiyeFiyatNet;GetiriFiyatNet;GetiriFiyatYuzdeNet;" +
                        "MinBakiyeFiyat;MaxBakiyeFiyat;MinBakiyeFiyatYuzde;MaxBakiyeFiyatYuzde;" +
                        "MinBakiyeFiyatNet;MaxBakiyeFiyatNet;MinBakiyeFiyatNetYuzde;MaxBakiyeFiyatNetYuzde;" +
-                       "ProfitFactor;KarliIslemOrani;GetiriMaxDD;GetiriMaxKayip;GetiriMaxDDTarih;" +
+                       "ProfitFactor;ProfitFactorNet;KarliIslemOrani;GetiriMaxDD;GetiriMaxKayip;GetiriMaxDDTarih;" +
                        "VarlikAdedSayisi;VarlikAdedSayisiMicro;KomisyonCarpan;" +
                        "MicroLotSizeEnabled;PyramidingEnabled;MaxPositionSizeEnabled";
             }
@@ -2421,7 +2434,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{BakiyeFiyatNet:F2};{GetiriFiyatNet:F2};{GetiriFiyatYuzdeNet:F2};" +
                        $"{MinBakiyeFiyat:F2};{MaxBakiyeFiyat:F2};{MinBakiyeFiyatYuzde:F2};{MaxBakiyeFiyatYuzde:F2};" +
                        $"{MinBakiyeFiyatNet:F2};{MaxBakiyeFiyatNet:F2};{MinBakiyeFiyatNetYuzde:F2};{MaxBakiyeFiyatNetYuzde:F2};" +
-                       $"{ProfitFactor:F2};{KarliIslemOrani:F2};{GetiriMaxDD:F2};{GetiriMaxKayip:F2};{GetiriMaxDDTarih};" +
+                       $"{ProfitFactor:F2};{ProfitFactorNet:F2};{KarliIslemOrani:F2};{GetiriMaxDD:F2};{GetiriMaxKayip:F2};{GetiriMaxDDTarih};" +
                        $"{VarlikAdedSayisi:F2};{VarlikAdedSayisiMicro:F4};{KomisyonCarpan:F4};" +
                        $"{MicroLotSizeEnabled};{PyramidingEnabled};{MaxPositionSizeEnabled}";
             }
@@ -2446,6 +2459,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{GetiriFiyatYuzdeNet,10:F2} | " +
                        $"{KomisyonFiyat,10:F2} | " +
                        $"{ProfitFactor,8:F2} | " +
+                       $"{ProfitFactorNet,8:F2} | " +
                        $"{GetiriMaxDD,10:F2} | " +
                        $"{KarliIslemOrani,10:F2}";
             }
@@ -2470,6 +2484,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                        $"{"GetiriNet%",10} | " +
                        $"{"Komisyon",10} | " +
                        $"{"ProfitF",8} | " +
+                       $"{"ProfitFNet",8} | " +
                        $"{"MaxDD%",10} | " +
                        $"{"KarliOran",10}";
             }
@@ -2550,6 +2565,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
                 // Performance Metrics
                 ProfitFactor = ProfitFactor,
+                ProfitFactorNet = ProfitFactorNet,
                 KarliIslemOrani = KarliIslemOrani,
                 GetiriMaxDD = GetiriMaxDD,
                 GetiriMaxKayip = GetiriMaxKayip,

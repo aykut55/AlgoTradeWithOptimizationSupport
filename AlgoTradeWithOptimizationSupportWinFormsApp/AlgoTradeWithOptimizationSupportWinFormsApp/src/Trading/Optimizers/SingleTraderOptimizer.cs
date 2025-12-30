@@ -132,6 +132,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public DateTime GetiriMaxDDTarih { get; set; }
         public double GetiriMaxKayip { get; set; }
         public double ProfitFactor { get; set; }
+        public double ProfitFactorNet { get; set; }
 
         // Standard Performance Metrics
         public double NetProfit { get; set; }
@@ -169,6 +170,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public double NetProfit { get; set; }
         public double WinRate { get; set; }
         public double ProfitFactor { get; set; }
+        public double ProfitFactorNet { get; set; }
         public double MaxDrawdown { get; set; }
         public double SharpeRatio { get; set; }
 
@@ -564,7 +566,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsViopEndex(kontratSayisi: 1)
-                    .SetKomisyonParams(komisyonCarpan: 3.0)
+                    .SetKomisyonParams(komisyonCarpan: 0.0)
                     .SetKaymaParams(kaymaMiktari: 0.5);
 
                 singleTrader.Init();
@@ -592,7 +594,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
                 Results.Add(optResult);
 
-                Logger?.Log($"  → NetProfit: {optResult.NetProfit:F2}, WinRate: {optResult.WinRate:F2}%, PF: {optResult.ProfitFactor:F2}");
+                Logger?.Log($"  → NetProfit: {optResult.NetProfit:F2}, WinRate: {optResult.WinRate:F2}%, PF: {optResult.ProfitFactor:F2}, PFNet: {optResult.ProfitFactorNet:F2}");
 
                 // Append to CSV and TXT files (if enabled)
                 //AppendSingleResultToFiles(result, currentCombination);
@@ -645,6 +647,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     Logger?.Log($"NetProfit: {bestResult.NetProfit:F2}");
                     Logger?.Log($"WinRate: {bestResult.WinRate:F2}%");
                     Logger?.Log($"ProfitFactor: {bestResult.ProfitFactor:F2}");
+                    Logger?.Log($"ProfitFactorNet: {bestResult.ProfitFactorNet:F2}");
                     Logger?.Log($"MaxDrawdown: {bestResult.MaxDrawdown:F2}");
                 }
 
@@ -787,7 +790,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 if (writeHeader)
                 {
                     var paramNames = result.Parameters.Keys.ToList();
-                    var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,MaxDrawdown,SharpeRatio";
+                    var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,ProfitFactorNet,MaxDrawdown,SharpeRatio";
                     sw.WriteLine(header);
                 }
 
@@ -798,6 +801,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     result.NetProfit.ToString("F2"),
                     result.WinRate.ToString("F2"),
                     result.ProfitFactor.ToString("F2"),
+                    result.ProfitFactorNet.ToString("F2"),
                     result.MaxDrawdown.ToString("F2"),
                     result.SharpeRatio.ToString("F2")
                 };
@@ -849,6 +853,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 sw.WriteLine($"  NetProfit: {result.NetProfit:F2}");
                 sw.WriteLine($"  WinRate: {result.WinRate:F2}%");
                 sw.WriteLine($"  ProfitFactor: {result.ProfitFactor:F2}");
+                sw.WriteLine($"  ProfitFactorNet: {result.ProfitFactorNet:F2}");
                 sw.WriteLine($"  MaxDrawdown: {result.MaxDrawdown:F2}");
                 sw.WriteLine($"  SharpeRatio: {result.SharpeRatio:F2}");
                 sw.WriteLine();
@@ -1124,6 +1129,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     headerParts.Add("MaxDDDate");
                     headerParts.Add("MaxKayip");
                     headerParts.Add("ProfitFac");
+                    headerParts.Add("ProfitFacNet");
                     headerParts.Add("ProfFacSis");
                     headerParts.Add("Sinyal");
                     headerParts.Add("SonYon");
@@ -1220,6 +1226,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(result.GetiriMaxDDTarih.ToString("yyyy.MM.dd HH:mm:ss"));
                 dataParts.Add(result.GetiriMaxKayip.ToString("F2"));
                 dataParts.Add(result.ProfitFactor.ToString("F2"));
+                dataParts.Add(result.ProfitFactorNet.ToString("F2"));
                 dataParts.Add(result.NetProfit.ToString("F2"));
                 dataParts.Add(result.WinRate.ToString("F2"));
                 dataParts.Add(result.MaxDrawdown.ToString("F2"));
@@ -1372,6 +1379,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(optSummary.GetiriMaxDDTarih);
                 dataParts.Add(optSummary.GetiriMaxKayip.ToString("F2"));
                 dataParts.Add(optSummary.ProfitFactor.ToString("F2"));
+                dataParts.Add(optSummary.ProfitFactorNet.ToString("F2"));
                 dataParts.Add(optSummary.ProfitFactorSistem.ToString("F2"));
                 dataParts.Add(optSummary.Sinyal);
                 dataParts.Add(optSummary.SonYon);
@@ -1506,6 +1514,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                         $"{"OR_MaxDDDt",20} | " +
                         $"{"OR_MaxKayip",10} | " +
                         $"{"OR_ProfFact",10} | " +
+                        $"{"OR_ProfFactNet",10} | " +
                         $"{"OR_NetProf",15} | " +
                         $"{"OR_WinRate",10} | " +
                         $"{"OR_MaxDD2",10} | " +
@@ -1660,6 +1669,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                         $"{"MaxDDDate",20} | " +
                         $"{"MaxKayip",10} | " +
                         $"{"ProfitFac",10} | " +
+                        $"{"ProfitFacNet",10} | " +
                         $"{"ProfFacSis",15} | " +
                         $"{"Sinyal",10} | " +
                         $"{"SonYon",10} | " +
@@ -1761,6 +1771,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     $"{optResult.GetiriMaxDDTarih,20:yyyy.MM.dd HH:mm:ss} | " +
                     $"{optResult.GetiriMaxKayip,10:F2} | " +
                     $"{optResult.ProfitFactor,10:F2} | " +
+                    $"{optResult.ProfitFactorNet,10:F2} | " +
                     $"{optResult.NetProfit,15:F2} | " +
                     $"{optResult.WinRate,10:F2} | " +
                     $"{optResult.MaxDrawdown,10:F2} | " +
@@ -1913,6 +1924,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     $"{optSummary.GetiriMaxDDTarih,20} | " +
                     $"{optSummary.GetiriMaxKayip,10:F2} | " +
                     $"{optSummary.ProfitFactor,10:F2} | " +
+                    $"{optSummary.ProfitFactorNet,10:F2} | " +
                     $"{optSummary.ProfitFactorSistem,15:F2} | " +
                     $"{optSummary.Sinyal,10} | " +
                     $"{optSummary.SonYon,10} | " +
@@ -1982,7 +1994,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     if (Results.Count > 0)
                     {
                         var paramNames = Results[0].Parameters.Keys.ToList();
-                        var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,MaxDrawdown,SharpeRatio";
+                        var header = string.Join(",", paramNames) + ",NetProfit,WinRate,ProfitFactor,ProfitFactorNet,MaxDrawdown,SharpeRatio";
                         sw.WriteLine(header);
                     }
                 }
@@ -1996,6 +2008,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                         result.NetProfit.ToString("F2"),
                         result.WinRate.ToString("F2"),
                         result.ProfitFactor.ToString("F2"),
+                        result.ProfitFactorNet.ToString("F2"),
                         result.MaxDrawdown.ToString("F2"),
                         result.SharpeRatio.ToString("F2")
                     };
@@ -2049,6 +2062,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     sw.WriteLine($"  NetProfit: {result.NetProfit:F2}");
                     sw.WriteLine($"  WinRate: {result.WinRate:F2}%");
                     sw.WriteLine($"  ProfitFactor: {result.ProfitFactor:F2}");
+                    sw.WriteLine($"  ProfitFactorNet: {result.ProfitFactorNet:F2}");
                     sw.WriteLine($"  MaxDrawdown: {result.MaxDrawdown:F2}");
                     sw.WriteLine($"  SharpeRatio: {result.SharpeRatio:F2}");
                     sw.WriteLine();
@@ -2066,6 +2080,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     sw.WriteLine($"  NetProfit: {bestResult.NetProfit:F2}");
                     sw.WriteLine($"  WinRate: {bestResult.WinRate:F2}%");
                     sw.WriteLine($"  ProfitFactor: {bestResult.ProfitFactor:F2}");
+                    sw.WriteLine($"  ProfitFactorNet: {bestResult.ProfitFactorNet:F2}");
                     sw.WriteLine($"  MaxDrawdown: {bestResult.MaxDrawdown:F2}");
                     sw.WriteLine($"  SharpeRatio: {bestResult.SharpeRatio:F2}");
                 }
@@ -2122,6 +2137,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 NetProfit = optSummary.GetiriFiyatNet,
                 WinRate = optSummary.KarliIslemOrani, // Already calculated as percentage
                 ProfitFactor = optSummary.ProfitFactor,
+                ProfitFactorNet = optSummary.ProfitFactorNet,
                 MaxDrawdown = optSummary.GetiriMaxDD,
                 SharpeRatio = 0.0 // TODO: Calculate Sharpe Ratio if needed
             };
@@ -2219,6 +2235,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 GetiriMaxDDTarih = DateTime.TryParse(optSummary.GetiriMaxDDTarih, out DateTime maxDdDate) ? maxDdDate : DateTime.MinValue,
                 GetiriMaxKayip = optSummary.GetiriMaxKayip,
                 ProfitFactor = optSummary.ProfitFactor,
+                ProfitFactorNet = optSummary.ProfitFactorNet,
 
                 // Standard Performance Metrics
                 NetProfit = optSummary.GetiriFiyatNet,
