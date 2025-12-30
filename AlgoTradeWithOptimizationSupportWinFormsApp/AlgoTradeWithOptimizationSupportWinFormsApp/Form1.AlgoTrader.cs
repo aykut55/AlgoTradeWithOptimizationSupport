@@ -1180,6 +1180,34 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         }
 
         /// <summary>
+        /// Get column width for tabular TXT format based on header name
+        /// Follows the same width rules as AppendSingleOptSummaryToTxt
+        /// </summary>
+        private int GetColumnWidth(string headerName)
+        {
+            // Special cases
+            if (headerName == "CombNo") return 10;
+            if (headerName == "OptResult" || headerName == "OptSummary") return 20;
+
+            // Name columns
+            if (headerName.Contains("Name") || headerName.Contains("Strat")) return 20;
+
+            // DateTime columns
+            if (headerName.Contains("DT") || headerName.Contains("Time") || headerName.Contains("Date")) return 20;
+
+            // Financial/numeric columns (larger numbers)
+            if (headerName.Contains("Fiyat") || headerName.Contains("Fyt") ||
+                headerName.Contains("Puan") || headerName.Contains("Pua") ||
+                headerName.Contains("Kar") || headerName.Contains("Zar") ||
+                headerName.Contains("Profit") || headerName.Contains("Loss") ||
+                headerName.Contains("Bak") || headerName.Contains("Get") ||
+                headerName.Contains("Win") || headerName.Contains("Avg")) return 15;
+
+            // Default width
+            return 10;
+        }
+
+        /// <summary>
         /// Write sorted optimization results to CSV file
         /// Tüm veri sorted dosyaya yazılır (row limit uygulanmaz)
         /// </summary>
@@ -1215,7 +1243,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         }
 
         /// <summary>
-        /// Write sorted optimization results to TXT file (pipe-delimited)
+        /// Write sorted optimization results to TXT file (tabular format with fixed-width columns)
         /// Tüm veri sorted dosyaya yazılır (row limit uygulanmaz)
         /// </summary>
         private void WriteSortedOptimizationResultsTxt(string originalFilePath, string[] headerValues, IEnumerable<string[]> sortedData)
@@ -1229,13 +1257,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                 using (var sw = new System.IO.StreamWriter(sortedFilePath, false, System.Text.Encoding.UTF8))
                 {
-                    // Header yaz (pipe-delimited)
-                    sw.WriteLine(string.Join(" | ", headerValues));
+                    // Title satırı
+                    sw.WriteLine($"OPTIMIZATION RESULTS (SORTED BY NETPROFIT) - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+                    sw.WriteLine("".PadRight(3000, '='));
 
-                    // Sorted data yaz (pipe-delimited)
+                    // Header satırını tabular format ile yaz
+                    var headerBuilder = new System.Text.StringBuilder();
+
+                    foreach (var header in headerValues)
+                    {
+                        int width = GetColumnWidth(header);
+                        string paddedHeader = header.PadLeft(width);
+                        headerBuilder.Append(paddedHeader + " | ");
+                    }
+
+                    sw.WriteLine(headerBuilder.ToString().TrimEnd(' ', '|'));
+                    sw.WriteLine("".PadRight(3000, '-'));
+
+                    // Sorted data satırlarını tabular format ile yaz
                     foreach (var values in sortedData)
                     {
-                        sw.WriteLine(string.Join(" | ", values));
+                        var rowBuilder = new System.Text.StringBuilder();
+
+                        for (int i = 0; i < values.Length && i < headerValues.Length; i++)
+                        {
+                            int width = GetColumnWidth(headerValues[i]);
+                            string paddedValue = values[i].PadLeft(width);
+                            rowBuilder.Append(paddedValue + " | ");
+                        }
+
+                        sw.WriteLine(rowBuilder.ToString().TrimEnd(' ', '|'));
                     }
                 }
 
