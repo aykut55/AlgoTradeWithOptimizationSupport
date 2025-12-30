@@ -54,6 +54,116 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
     /// </summary>
     public class OptimizationResult
     {
+        // Parameters
+        public Dictionary<string, object> Parameters { get; set; }
+
+        // Trader Information
+        public int TraderId { get; set; }
+        public string TraderName { get; set; }
+
+        // Symbol Information
+        public string SymbolName { get; set; }
+        public string SymbolPeriod { get; set; }
+
+        // System Information
+        public int SystemId { get; set; }
+        public string SystemName { get; set; }
+
+        // Strategy Information
+        public int StrategyId { get; set; }
+        public string StrategyName { get; set; }
+
+        // Bar Information
+        public int ToplamBarSayisi { get; set; }
+        public DateTime IlkBarTarihSaati { get; set; }
+        public DateTime IlkBarTarihi { get; set; }
+        public TimeSpan IlkBarSaati { get; set; }
+        public DateTime SonBarTarihSaati { get; set; }
+        public DateTime SonBarTarihi { get; set; }
+        public TimeSpan SonBarSaati { get; set; }
+
+        // Balance & Return Metrics
+        public double IlkBakiyeFiyat { get; set; }
+        public double BakiyeFiyat { get; set; }
+        public double GetiriFiyat { get; set; }
+        public double GetiriFiyatYuzde { get; set; }
+        public double KomisyonFiyat { get; set; }
+        public double BakiyeFiyatNet { get; set; }
+        public double GetiriFiyatNet { get; set; }
+        public double GetiriFiyatYuzdeNet { get; set; }
+        public double KomisyonFiyatYuzde { get; set; }
+
+        // Balance Min/Max
+        public double MinBakiyeFiyat { get; set; }
+        public double MaxBakiyeFiyat { get; set; }
+        public double MinBakiyeFiyatYuzde { get; set; }
+        public double MaxBakiyeFiyatYuzde { get; set; }
+        public double MinBakiyeFiyatNet { get; set; }
+        public double MaxBakiyeFiyatNet { get; set; }
+
+        // Trade Counts
+        public int IslemSayisi { get; set; }
+        public int AlisSayisi { get; set; }
+        public int SatisSayisi { get; set; }
+        public int FlatSayisi { get; set; }
+        public int PassSayisi { get; set; }
+        public int KarAlSayisi { get; set; }
+        public int ZararKesSayisi { get; set; }
+        public int KomisyonIslemSayisi { get; set; }
+
+        // Win/Loss Counts
+        public int KazandiranIslemSayisi { get; set; }
+        public int KaybettirenIslemSayisi { get; set; }
+        public int NotrIslemSayisi { get; set; }
+
+        // Profit & Loss
+        public double ToplamKarFiyat { get; set; }
+        public double ToplamZararFiyat { get; set; }
+        public double NetKarFiyat { get; set; }
+        public double MaxKarFiyat { get; set; }
+        public double MaxZararFiyat { get; set; }
+
+        // Win Rate
+        public double KarliIslemOrani { get; set; }
+
+        // Drawdown & Risk Metrics
+        public double GetiriMaxDD { get; set; }
+        public DateTime GetiriMaxDDTarih { get; set; }
+        public double GetiriMaxKayip { get; set; }
+        public double ProfitFactor { get; set; }
+
+        // Standard Performance Metrics
+        public double NetProfit { get; set; }
+        public double WinRate { get; set; }
+        public double MaxDrawdown { get; set; }
+        public double SharpeRatio { get; set; }
+
+        // Additional Trade Statistics
+        public int TotalTrades { get; set; }
+        public int WinningTrades { get; set; }
+        public int LosingTrades { get; set; }
+        public double TotalProfit { get; set; }
+        public double TotalLoss { get; set; }
+        public double AverageWin { get; set; }
+        public double AverageLoss { get; set; }
+        public double MaxDrawdownPct { get; set; }
+
+        public OptimizationResult()
+        {
+            Parameters = new Dictionary<string, object>();
+            TraderName = string.Empty;
+            SymbolName = string.Empty;
+            SymbolPeriod = string.Empty;
+            SystemName = string.Empty;
+            StrategyName = string.Empty;
+        }
+    }
+
+    /// <summary>
+    /// Optimization result
+    /// </summary>
+    public class OptimizationResultEskisi
+    {
         public Dictionary<string, object> Parameters { get; set; }
         public double NetProfit { get; set; }
         public double WinRate { get; set; }
@@ -61,7 +171,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public double MaxDrawdown { get; set; }
         public double SharpeRatio { get; set; }
 
-        public OptimizationResult()
+        public OptimizationResultEskisi()
         {
             Parameters = new Dictionary<string, object>();
         }
@@ -505,27 +615,34 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             Logger?.Log("");
             Logger?.Log($"Optimization completed! Tested {effectiveCombinationCount} combinations (Total: {currentCombination}/{totalCombinations})");
 
+
+
+
             OptimizationResult bestResult = GetBestResult();
 
-            if (bestResult != null)
+            bool writeBestResultToFileEnabled = false;
+            if (writeBestResultToFileEnabled)
             {
-                Logger?.Log("");
-                Logger?.Log("=== BEST RESULT ===");
-
-                // Log all parameters (generic)
-                foreach (var kvp in bestResult.Parameters)
+                if (bestResult != null)
                 {
-                    Logger?.Log($"{kvp.Key}: {kvp.Value}");
+                    Logger?.Log("");
+                    Logger?.Log("=== BEST RESULT ===");
+
+                    // Log all parameters (generic)
+                    foreach (var kvp in bestResult.Parameters)
+                    {
+                        Logger?.Log($"{kvp.Key}: {kvp.Value}");
+                    }
+
+                    Logger?.Log($"NetProfit: {bestResult.NetProfit:F2}");
+                    Logger?.Log($"WinRate: {bestResult.WinRate:F2}%");
+                    Logger?.Log($"ProfitFactor: {bestResult.ProfitFactor:F2}");
+                    Logger?.Log($"MaxDrawdown: {bestResult.MaxDrawdown:F2}");
                 }
 
-                Logger?.Log($"NetProfit: {bestResult.NetProfit:F2}");
-                Logger?.Log($"WinRate: {bestResult.WinRate:F2}%");
-                Logger?.Log($"ProfitFactor: {bestResult.ProfitFactor:F2}");
-                Logger?.Log($"MaxDrawdown: {bestResult.MaxDrawdown:F2}");
+                // Save results to files (if enabled)
+                SaveOptimizationResultsToFiles();
             }
-
-            // Save results to files (if enabled)
-            SaveOptimizationResultsToFiles();
 
             return bestResult;
         }
@@ -796,7 +913,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 // Write header if needed
                 if (writeHeader)
                 {
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetCsvHeader());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetCsvHeader());
                 }
 
                 // Write data
@@ -833,9 +950,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 if (writeHeader)
                 {
                     sw.WriteLine($"Optimization Results - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtSeparator());
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtHeader());
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetTxtSeparator());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtSeparator());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtHeader());
+                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtSeparator());
                 }
 
                 // Write data
@@ -995,7 +1112,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// Create OptimizationResult from OptimizationSummary
         /// </summary>
         private OptimizationResult CreateOptimizationResultFromSummary(
-            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal optSummary,
             Dictionary<string, object> paramCombo)
         {
             var result = new OptimizationResult
@@ -1015,6 +1132,118 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
             return result;
         }
+
+
+        /// <summary>
+        /// Create OptimizationResult from OptimizationSummary
+        /// </summary>
+        private OptimizationResult CreateOptimizationResultFromSummary(
+            AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
+            Dictionary<string, object> paramCombo)
+        {
+            var result = new OptimizationResult
+            {
+                // Trader Information
+                TraderId = optSummary.TraderId,
+                TraderName = optSummary.TraderName,
+
+                // Symbol Information
+                SymbolName = optSummary.SymbolName,
+                SymbolPeriod = optSummary.SymbolPeriod,
+
+                // System Information
+                SystemId = int.TryParse(optSummary.SystemId, out int sysId) ? sysId : 0,
+                SystemName = optSummary.SystemName,
+
+                // Strategy Information
+                StrategyId = int.TryParse(optSummary.StrategyId, out int stratId) ? stratId : 0,
+                StrategyName = optSummary.StrategyName,
+
+                // Bar Information
+                ToplamBarSayisi = optSummary.ToplamBarSayisi,
+                IlkBarTarihSaati = DateTime.TryParse(optSummary.IlkBarTarihSaati, out DateTime ilkDt) ? ilkDt : DateTime.MinValue,
+                IlkBarTarihi = DateTime.TryParse(optSummary.IlkBarTarihi, out DateTime ilkTarih) ? ilkTarih : DateTime.MinValue,
+                IlkBarSaati = TimeSpan.TryParse(optSummary.IlkBarSaati, out TimeSpan ilkSaat) ? ilkSaat : TimeSpan.Zero,
+                SonBarTarihSaati = DateTime.TryParse(optSummary.SonBarTarihSaati, out DateTime sonDt) ? sonDt : DateTime.MinValue,
+                SonBarTarihi = DateTime.TryParse(optSummary.SonBarTarihi, out DateTime sonTarih) ? sonTarih : DateTime.MinValue,
+                SonBarSaati = TimeSpan.TryParse(optSummary.SonBarSaati, out TimeSpan sonSaat) ? sonSaat : TimeSpan.Zero,
+
+                // Balance & Return Metrics
+                IlkBakiyeFiyat = optSummary.IlkBakiyeFiyat,
+                BakiyeFiyat = optSummary.BakiyeFiyat,
+                GetiriFiyat = optSummary.GetiriFiyat,
+                GetiriFiyatYuzde = optSummary.GetiriFiyatYuzde,
+                KomisyonFiyat = optSummary.KomisyonFiyat,
+                BakiyeFiyatNet = optSummary.BakiyeFiyatNet,
+                GetiriFiyatNet = optSummary.GetiriFiyatNet,
+                GetiriFiyatYuzdeNet = optSummary.GetiriFiyatYuzdeNet,
+                KomisyonFiyatYuzde = optSummary.KomisyonFiyatYuzde,
+
+                // Balance Min/Max
+                MinBakiyeFiyat = optSummary.MinBakiyeFiyat,
+                MaxBakiyeFiyat = optSummary.MaxBakiyeFiyat,
+                MinBakiyeFiyatYuzde = optSummary.MinBakiyeFiyatYuzde,
+                MaxBakiyeFiyatYuzde = optSummary.MaxBakiyeFiyatYuzde,
+                MinBakiyeFiyatNet = optSummary.MinBakiyeFiyatNet,
+                MaxBakiyeFiyatNet = optSummary.MaxBakiyeFiyatNet,
+
+                // Trade Counts
+                IslemSayisi = optSummary.IslemSayisi,
+                AlisSayisi = optSummary.AlisSayisi,
+                SatisSayisi = optSummary.SatisSayisi,
+                FlatSayisi = optSummary.FlatSayisi,
+                PassSayisi = optSummary.PassSayisi,
+                KarAlSayisi = optSummary.KarAlSayisi,
+                ZararKesSayisi = optSummary.ZararKesSayisi,
+                KomisyonIslemSayisi = optSummary.KomisyonIslemSayisi,
+
+                // Win/Loss Counts
+                KazandiranIslemSayisi = optSummary.KazandiranIslemSayisi,
+                KaybettirenIslemSayisi = optSummary.KaybettirenIslemSayisi,
+                NotrIslemSayisi = optSummary.NotrIslemSayisi,
+
+                // Profit & Loss
+                ToplamKarFiyat = optSummary.ToplamKarFiyat,
+                ToplamZararFiyat = optSummary.ToplamZararFiyat,
+                NetKarFiyat = optSummary.NetKarFiyat,
+                MaxKarFiyat = optSummary.MaxKarFiyat,
+                MaxZararFiyat = optSummary.MaxZararFiyat,
+
+                // Win Rate
+                KarliIslemOrani = optSummary.KarliIslemOrani,
+
+                // Drawdown & Risk Metrics
+                GetiriMaxDD = optSummary.GetiriMaxDD,
+                GetiriMaxDDTarih = DateTime.TryParse(optSummary.GetiriMaxDDTarih, out DateTime maxDdDate) ? maxDdDate : DateTime.MinValue,
+                GetiriMaxKayip = optSummary.GetiriMaxKayip,
+                ProfitFactor = optSummary.ProfitFactor,
+
+                // Standard Performance Metrics
+                NetProfit = optSummary.GetiriFiyatNet,
+                WinRate = optSummary.KarliIslemOrani,
+                MaxDrawdown = optSummary.GetiriMaxDD,
+                SharpeRatio = 0.0, // TODO: Calculate Sharpe Ratio if needed
+
+                // Additional Trade Statistics
+                TotalTrades = optSummary.IslemSayisi,
+                WinningTrades = optSummary.KazandiranIslemSayisi,
+                LosingTrades = optSummary.KaybettirenIslemSayisi,
+                TotalProfit = optSummary.ToplamKarFiyat,
+                TotalLoss = Math.Abs(optSummary.ToplamZararFiyat), // Make sure it's positive
+                AverageWin = optSummary.KazandiranIslemSayisi > 0 ? optSummary.ToplamKarFiyat / optSummary.KazandiranIslemSayisi : 0,
+                AverageLoss = optSummary.KaybettirenIslemSayisi > 0 ? Math.Abs(optSummary.ToplamZararFiyat) / optSummary.KaybettirenIslemSayisi : 0,
+                MaxDrawdownPct = optSummary.GetiriMaxDD
+            };
+
+            // Add all parameters to result (generic)
+            foreach (var kvp in paramCombo)
+            {
+                result.Parameters[kvp.Key] = kvp.Value;
+            }
+
+            return result;
+        }
+
 
         private void OnSingleTraderReset(SingleTrader trader, int mode)
         {

@@ -828,10 +828,250 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("GetiriPuanSaat1", GetiriPuanSaat1, "F4");
         }
 
-        /// <summary>
-        /// AssignToMapMinimal - Minimal statistics set for quick reporting
-        /// Only essential metrics for optimization and quick analysis
-        /// </summary>
+        public void SaveToTxt(string filePath)
+        {
+            AssignToMap();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"TRADING STATISTICS REPORT - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("================================================================================");
+            sb.AppendLine($"{"Property Name".PadRight(40)} : Value");
+            sb.AppendLine("--------------------------------------------------------------------------------");
+
+            foreach (var kvp in StatisticsMap)
+            {
+                if (kvp.Key.StartsWith(SEPARATOR))
+                    sb.AppendLine();  // Boş satır
+                else
+                    sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
+            }
+
+            sb.AppendLine("================================================================================");
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        public void SaveToCsv(string filePath)
+        {
+            AssignToMap();
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Key;Value");
+
+            foreach (var kvp in StatisticsMap)
+            {
+                if (!kvp.Key.StartsWith(SEPARATOR))  // SEPARATOR satırlarını CSV'ye ekleme
+                    sb.AppendLine($"{kvp.Key};{kvp.Value}");
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        // Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
+        public void SaveListsToTxt(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Title
+            sb.AppendLine($"BAR-BY-BAR TRADING DATA (ALL) - {SistemName} ({GrafikSembol})");
+            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+            sb.AppendLine("".PadRight(500, '='));
+
+            // Header
+            sb.AppendLine(
+                $"{"BarNo",7} | " +
+                $"{"Date",10} | " +
+                $"{"Time",8} | " +
+                $"{"Open",10} | " +
+                $"{"High",10} | " +
+                $"{"Low",10} | " +
+                $"{"Close",10} | " +
+                $"{"Volume",10} | " +
+                $"{"Yon",3} | " +
+                $"{"Seviye",10} | " +
+                $"{"Sinyal",6} | " +
+                $"{"KzPuan",10} | " +
+                $"{"KzFiyat",10} | " +
+                $"{"KzPuan%",10} | " +
+                $"{"KzFiyat%",10} | " +
+                $"{"KarAl",5} | " +
+                $"{"IzStop",10} | " +
+                $"{"Islem",6} | " +
+                $"{"Alis",6} | " +
+                $"{"Satis",6} | " +
+                $"{"Flat",6} | " +
+                $"{"Pass",6} | " +
+                $"{"Kontrat",8} | " +
+                $"{"VarAded",8} | " +
+                $"{"KomVAded",9} | " +
+                $"{"KomIslem",9} | " +
+                $"{"KomFiyat",10} | " +
+                $"{"KarBar",7} | " +
+                $"{"ZarBar",7} | " +
+                $"{"BakPuan",12} | " +
+                $"{"BakFiyat",12} | " +
+                $"{"GetPuan",12} | " +
+                $"{"GetFiyat",12} | " +
+                $"{"GetPuan%",10} | " +
+                $"{"GetFiyat%",10} | " +
+                $"{"BakPuanN",12} | " +
+                $"{"BakFiyatN",12} | " +
+                $"{"GetPuanN",12} | " +
+                $"{"GetFiyatN",12} | " +
+                $"{"GetPuan%N",10} | " +
+                $"{"GetFiyat%N",10} | " +
+                $"{"GetKz",10} | " +
+                $"{"GetKzNet",10} | " +
+                $"{"GetKzSis",10} | " +
+                $"{"GetKzSisN",10} | " +
+                $"{"EmirKmt",7} | " +
+                $"{"EmirSts",7}"
+            );
+            sb.AppendLine("".PadRight(500, '-'));
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i,7} | " +
+                    $"{bar.Date:yyyy.MM.dd} | " +
+                    $"{bar.DateTime:HH:mm:ss} | " +
+                    $"{bar.Open,10:F2} | " +
+                    $"{bar.High,10:F2} | " +
+                    $"{bar.Low,10:F2} | " +
+                    $"{bar.Close,10:F2} | " +
+                    $"{bar.Volume,10:F0} | " +
+                    $"{Trader.lists.YonList[i],3} | " +
+                    $"{Trader.lists.SeviyeList[i],10:F2} | " +
+                    $"{Trader.lists.SinyalList[i],6:F1} | " +
+                    $"{Trader.lists.KarZararPuanList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararPuanYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.KarZararFiyatYuzdeList[i],10:F2} | " +
+                    $"{(Trader.lists.KarAlList[i] ? "True" : ""),5} | " +
+                    $"{Trader.lists.IzleyenStopList[i],10:F2} | " +
+                    $"{Trader.lists.IslemSayisiList[i],6} | " +
+                    $"{Trader.lists.AlisSayisiList[i],6} | " +
+                    $"{Trader.lists.SatisSayisiList[i],6} | " +
+                    $"{Trader.lists.FlatSayisiList[i],6} | " +
+                    $"{Trader.lists.PassSayisiList[i],6} | " +
+                    $"{Trader.lists.KontratSayisiList[i],8:F2} | " +
+                    $"{Trader.lists.VarlikAdedSayisiList[i],8:F2} | " +
+                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i],9:F2} | " +
+                    $"{Trader.lists.KomisyonIslemSayisiList[i],9} | " +
+                    $"{Trader.lists.KomisyonFiyatList[i],10:F2} | " +
+                    $"{Trader.lists.KardaBarSayisiList[i],7} | " +
+                    $"{Trader.lists.ZarardaBarSayisiList[i],7} | " +
+                    $"{Trader.lists.BakiyePuanList[i],12:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriFiyatYuzdeList[i],10:F2} | " +
+                    $"{Trader.lists.BakiyePuanNetList[i],12:F2} | " +
+                    $"{Trader.lists.BakiyeFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriFiyatNetList[i],12:F2} | " +
+                    $"{Trader.lists.GetiriPuanYuzdeNetList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKz[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzNet[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzSistem[i],10:F2} | " +
+                    $"{Trader.lists.GetiriKzNetSistem[i],10:F2} | " +
+                    $"{Trader.lists.EmirKomutList[i],7:F0} | " +
+                    $"{Trader.lists.EmirStatusList[i],7:F0}"
+                );
+            }
+
+            sb.AppendLine("".PadRight(500, '='));
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
+        // Save bar-by-bar lists to CSV file (semicolon separated) - ALL COLUMNS
+        public void SaveListsToCsv(string filePath)
+        {
+            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
+                return;
+
+            StringBuilder sb = new StringBuilder();
+
+            // Header
+            sb.AppendLine(
+                "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
+                "Yon;Seviye;Sinyal;" +
+                "KarZararPuan;KarZararFiyat;KarZararPuanYuzde;KarZararFiyatYuzde;" +
+                "KarAl;IzleyenStop;" +
+                "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;" +
+                "KontratSayisi;VarlikAdedSayisi;KomisyonVarlikAdedSayisi;KomisyonIslemSayisi;KomisyonFiyat;" +
+                "KardaBarSayisi;ZarardaBarSayisi;" +
+                "BakiyePuan;BakiyeFiyat;GetiriPuan;GetiriFiyat;GetiriPuanYuzde;GetiriFiyatYuzde;" +
+                "BakiyePuanNet;BakiyeFiyatNet;GetiriPuanNet;GetiriFiyatNet;GetiriPuanYuzdeNet;GetiriFiyatYuzdeNet;" +
+                "GetiriKz;GetiriKzNet;GetiriKzSistem;GetiriKzNetSistem;" +
+                "EmirKomut;EmirStatus"
+            );
+
+            // Data rows
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                var bar = Trader.Data[i];
+
+                sb.AppendLine(
+                    $"{i};" +
+                    $"{bar.Date:yyyy.MM.dd};" +
+                    $"{bar.DateTime:HH:mm:ss};" +
+                    $"{bar.Open:F2};" +
+                    $"{bar.High:F2};" +
+                    $"{bar.Low:F2};" +
+                    $"{bar.Close:F2};" +
+                    $"{bar.Volume:F0};" +
+                    $"{Trader.lists.YonList[i]};" +
+                    $"{Trader.lists.SeviyeList[i]:F2};" +
+                    $"{Trader.lists.SinyalList[i]:F1};" +
+                    $"{Trader.lists.KarZararPuanList[i]:F2};" +
+                    $"{Trader.lists.KarZararFiyatList[i]:F2};" +
+                    $"{Trader.lists.KarZararPuanYuzdeList[i]:F2};" +
+                    $"{Trader.lists.KarZararFiyatYuzdeList[i]:F2};" +
+                    $"{Trader.lists.KarAlList[i]};" +
+                    $"{Trader.lists.IzleyenStopList[i]:F2};" +
+                    $"{Trader.lists.IslemSayisiList[i]};" +
+                    $"{Trader.lists.AlisSayisiList[i]};" +
+                    $"{Trader.lists.SatisSayisiList[i]};" +
+                    $"{Trader.lists.FlatSayisiList[i]};" +
+                    $"{Trader.lists.PassSayisiList[i]};" +
+                    $"{Trader.lists.KontratSayisiList[i]:F2};" +
+                    $"{Trader.lists.VarlikAdedSayisiList[i]:F2};" +
+                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i]:F2};" +
+                    $"{Trader.lists.KomisyonIslemSayisiList[i]};" +
+                    $"{Trader.lists.KomisyonFiyatList[i]:F2};" +
+                    $"{Trader.lists.KardaBarSayisiList[i]};" +
+                    $"{Trader.lists.ZarardaBarSayisiList[i]};" +
+                    $"{Trader.lists.BakiyePuanList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanYuzdeList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatYuzdeList[i]:F2};" +
+                    $"{Trader.lists.BakiyePuanNetList[i]:F2};" +
+                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriPuanYuzdeNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i]:F2};" +
+                    $"{Trader.lists.GetiriKz[i]:F2};" +
+                    $"{Trader.lists.GetiriKzNet[i]:F2};" +
+                    $"{Trader.lists.GetiriKzSistem[i]:F2};" +
+                    $"{Trader.lists.GetiriKzNetSistem[i]:F2};" +
+                    $"{Trader.lists.EmirKomutList[i]:F0};" +
+                    $"{Trader.lists.EmirStatusList[i]:F0}"
+                );
+            }
+
+            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+        }
+
         private void AssignToMapMinimal()
         {
             int keyId = 0;
@@ -976,47 +1216,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("MaxPositionSizeMicro", MaxPositionSizeMicro, "F4");
         }
         
-        public void SaveToTxt(string filePath)
-        {
-            AssignToMap();
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"TRADING STATISTICS REPORT - {SistemName} ({GrafikSembol})");
-            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
-            sb.AppendLine("================================================================================");
-            sb.AppendLine($"{"Property Name".PadRight(40)} : Value");
-            sb.AppendLine("--------------------------------------------------------------------------------");
-
-            foreach (var kvp in StatisticsMap)
-            {
-                if (kvp.Key.StartsWith(SEPARATOR))
-                    sb.AppendLine();  // Boş satır
-                else
-                    sb.AppendLine($"{kvp.Key.PadRight(40)} : {kvp.Value}");
-            }
-
-            sb.AppendLine("================================================================================");
-            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-        }
-
-        public void SaveToCsv(string filePath)
-        {
-            AssignToMap();
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Key;Value");
-
-            foreach (var kvp in StatisticsMap)
-            {
-                if (!kvp.Key.StartsWith(SEPARATOR))  // SEPARATOR satırlarını CSV'ye ekleme
-                    sb.AppendLine($"{kvp.Key};{kvp.Value}");
-            }
-
-            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-        }
-
-        /// <summary>
-        /// Save minimal statistics to TXT file (faster, essential metrics only)
-        /// Ideal for optimization runs and quick analysis
-        /// </summary>
         public void SaveToTxtMinimal(string filePath)
         {
             AssignToMapMinimal();
@@ -1039,10 +1238,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Save minimal statistics to CSV file (faster, essential metrics only)
-        /// Ideal for optimization runs and data analysis
-        /// </summary>
         public void SaveToCsvMinimal(string filePath)
         {
             AssignToMapMinimal();
@@ -1058,221 +1253,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
-        /// </summary>
-        public void SaveListsToTxt(string filePath)
-        {
-            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
-                return;
-
-            StringBuilder sb = new StringBuilder();
-
-            // Title
-            sb.AppendLine($"BAR-BY-BAR TRADING DATA (ALL) - {SistemName} ({GrafikSembol})");
-            sb.AppendLine($"Generated: {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
-            sb.AppendLine("".PadRight(500, '='));
-
-            // Header
-            sb.AppendLine(
-                $"{"BarNo",7} | " +
-                $"{"Date",10} | " +
-                $"{"Time",8} | " +
-                $"{"Open",10} | " +
-                $"{"High",10} | " +
-                $"{"Low",10} | " +
-                $"{"Close",10} | " +
-                $"{"Volume",10} | " +
-                $"{"Yon",3} | " +
-                $"{"Seviye",10} | " +
-                $"{"Sinyal",6} | " +
-                $"{"KzPuan",10} | " +
-                $"{"KzFiyat",10} | " +
-                $"{"KzPuan%",10} | " +
-                $"{"KzFiyat%",10} | " +
-                $"{"KarAl",5} | " +
-                $"{"IzStop",10} | " +
-                $"{"Islem",6} | " +
-                $"{"Alis",6} | " +
-                $"{"Satis",6} | " +
-                $"{"Flat",6} | " +
-                $"{"Pass",6} | " +
-                $"{"Kontrat",8} | " +
-                $"{"VarAded",8} | " +
-                $"{"KomVAded",9} | " +
-                $"{"KomIslem",9} | " +
-                $"{"KomFiyat",10} | " +
-                $"{"KarBar",7} | " +
-                $"{"ZarBar",7} | " +
-                $"{"BakPuan",12} | " +
-                $"{"BakFiyat",12} | " +
-                $"{"GetPuan",12} | " +
-                $"{"GetFiyat",12} | " +
-                $"{"GetPuan%",10} | " +
-                $"{"GetFiyat%",10} | " +
-                $"{"BakPuanN",12} | " +
-                $"{"BakFiyatN",12} | " +
-                $"{"GetPuanN",12} | " +
-                $"{"GetFiyatN",12} | " +
-                $"{"GetPuan%N",10} | " +
-                $"{"GetFiyat%N",10} | " +
-                $"{"GetKz",10} | " +
-                $"{"GetKzNet",10} | " +
-                $"{"GetKzSis",10} | " +
-                $"{"GetKzSisN",10} | " +
-                $"{"EmirKmt",7} | " +
-                $"{"EmirSts",7}"
-            );
-            sb.AppendLine("".PadRight(500, '-'));
-
-            // Data rows
-            for (int i = 0; i < Trader.Data.Count; i++)
-            {
-                var bar = Trader.Data[i];
-
-                sb.AppendLine(
-                    $"{i,7} | " +
-                    $"{bar.Date:yyyy.MM.dd} | " +
-                    $"{bar.DateTime:HH:mm:ss} | " +
-                    $"{bar.Open,10:F2} | " +
-                    $"{bar.High,10:F2} | " +
-                    $"{bar.Low,10:F2} | " +
-                    $"{bar.Close,10:F2} | " +
-                    $"{bar.Volume,10:F0} | " +
-                    $"{Trader.lists.YonList[i],3} | " +
-                    $"{Trader.lists.SeviyeList[i],10:F2} | " +
-                    $"{Trader.lists.SinyalList[i],6:F1} | " +
-                    $"{Trader.lists.KarZararPuanList[i],10:F2} | " +
-                    $"{Trader.lists.KarZararFiyatList[i],10:F2} | " +
-                    $"{Trader.lists.KarZararPuanYuzdeList[i],10:F2} | " +
-                    $"{Trader.lists.KarZararFiyatYuzdeList[i],10:F2} | " +
-                    $"{(Trader.lists.KarAlList[i] ? "True" : ""),5} | " +
-                    $"{Trader.lists.IzleyenStopList[i],10:F2} | " +
-                    $"{Trader.lists.IslemSayisiList[i],6} | " +
-                    $"{Trader.lists.AlisSayisiList[i],6} | " +
-                    $"{Trader.lists.SatisSayisiList[i],6} | " +
-                    $"{Trader.lists.FlatSayisiList[i],6} | " +
-                    $"{Trader.lists.PassSayisiList[i],6} | " +
-                    $"{Trader.lists.KontratSayisiList[i],8:F2} | " +
-                    $"{Trader.lists.VarlikAdedSayisiList[i],8:F2} | " +
-                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i],9:F2} | " +
-                    $"{Trader.lists.KomisyonIslemSayisiList[i],9} | " +
-                    $"{Trader.lists.KomisyonFiyatList[i],10:F2} | " +
-                    $"{Trader.lists.KardaBarSayisiList[i],7} | " +
-                    $"{Trader.lists.ZarardaBarSayisiList[i],7} | " +
-                    $"{Trader.lists.BakiyePuanList[i],12:F2} | " +
-                    $"{Trader.lists.BakiyeFiyatList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriPuanList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriFiyatList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriPuanYuzdeList[i],10:F2} | " +
-                    $"{Trader.lists.GetiriFiyatYuzdeList[i],10:F2} | " +
-                    $"{Trader.lists.BakiyePuanNetList[i],12:F2} | " +
-                    $"{Trader.lists.BakiyeFiyatNetList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriPuanNetList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriFiyatNetList[i],12:F2} | " +
-                    $"{Trader.lists.GetiriPuanYuzdeNetList[i],10:F2} | " +
-                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i],10:F2} | " +
-                    $"{Trader.lists.GetiriKz[i],10:F2} | " +
-                    $"{Trader.lists.GetiriKzNet[i],10:F2} | " +
-                    $"{Trader.lists.GetiriKzSistem[i],10:F2} | " +
-                    $"{Trader.lists.GetiriKzNetSistem[i],10:F2} | " +
-                    $"{Trader.lists.EmirKomutList[i],7:F0} | " +
-                    $"{Trader.lists.EmirStatusList[i],7:F0}"
-                );
-            }
-
-            sb.AppendLine("".PadRight(500, '='));
-            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-        }
-
-        /// <summary>
-        /// Save bar-by-bar lists to CSV file (semicolon separated) - ALL COLUMNS
-        /// </summary>
-        public void SaveListsToCsv(string filePath)
-        {
-            if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
-                return;
-
-            StringBuilder sb = new StringBuilder();
-
-            // Header
-            sb.AppendLine(
-                "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
-                "Yon;Seviye;Sinyal;" +
-                "KarZararPuan;KarZararFiyat;KarZararPuanYuzde;KarZararFiyatYuzde;" +
-                "KarAl;IzleyenStop;" +
-                "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;" +
-                "KontratSayisi;VarlikAdedSayisi;KomisyonVarlikAdedSayisi;KomisyonIslemSayisi;KomisyonFiyat;" +
-                "KardaBarSayisi;ZarardaBarSayisi;" +
-                "BakiyePuan;BakiyeFiyat;GetiriPuan;GetiriFiyat;GetiriPuanYuzde;GetiriFiyatYuzde;" +
-                "BakiyePuanNet;BakiyeFiyatNet;GetiriPuanNet;GetiriFiyatNet;GetiriPuanYuzdeNet;GetiriFiyatYuzdeNet;" +
-                "GetiriKz;GetiriKzNet;GetiriKzSistem;GetiriKzNetSistem;" +
-                "EmirKomut;EmirStatus"
-            );
-
-            // Data rows
-            for (int i = 0; i < Trader.Data.Count; i++)
-            {
-                var bar = Trader.Data[i];
-
-                sb.AppendLine(
-                    $"{i};" +
-                    $"{bar.Date:yyyy.MM.dd};" +
-                    $"{bar.DateTime:HH:mm:ss};" +
-                    $"{bar.Open:F2};" +
-                    $"{bar.High:F2};" +
-                    $"{bar.Low:F2};" +
-                    $"{bar.Close:F2};" +
-                    $"{bar.Volume:F0};" +
-                    $"{Trader.lists.YonList[i]};" +
-                    $"{Trader.lists.SeviyeList[i]:F2};" +
-                    $"{Trader.lists.SinyalList[i]:F1};" +
-                    $"{Trader.lists.KarZararPuanList[i]:F2};" +
-                    $"{Trader.lists.KarZararFiyatList[i]:F2};" +
-                    $"{Trader.lists.KarZararPuanYuzdeList[i]:F2};" +
-                    $"{Trader.lists.KarZararFiyatYuzdeList[i]:F2};" +
-                    $"{Trader.lists.KarAlList[i]};" +
-                    $"{Trader.lists.IzleyenStopList[i]:F2};" +
-                    $"{Trader.lists.IslemSayisiList[i]};" +
-                    $"{Trader.lists.AlisSayisiList[i]};" +
-                    $"{Trader.lists.SatisSayisiList[i]};" +
-                    $"{Trader.lists.FlatSayisiList[i]};" +
-                    $"{Trader.lists.PassSayisiList[i]};" +
-                    $"{Trader.lists.KontratSayisiList[i]:F2};" +
-                    $"{Trader.lists.VarlikAdedSayisiList[i]:F2};" +
-                    $"{Trader.lists.KomisyonVarlikAdedSayisiList[i]:F2};" +
-                    $"{Trader.lists.KomisyonIslemSayisiList[i]};" +
-                    $"{Trader.lists.KomisyonFiyatList[i]:F2};" +
-                    $"{Trader.lists.KardaBarSayisiList[i]};" +
-                    $"{Trader.lists.ZarardaBarSayisiList[i]};" +
-                    $"{Trader.lists.BakiyePuanList[i]:F2};" +
-                    $"{Trader.lists.BakiyeFiyatList[i]:F2};" +
-                    $"{Trader.lists.GetiriPuanList[i]:F2};" +
-                    $"{Trader.lists.GetiriFiyatList[i]:F2};" +
-                    $"{Trader.lists.GetiriPuanYuzdeList[i]:F2};" +
-                    $"{Trader.lists.GetiriFiyatYuzdeList[i]:F2};" +
-                    $"{Trader.lists.BakiyePuanNetList[i]:F2};" +
-                    $"{Trader.lists.BakiyeFiyatNetList[i]:F2};" +
-                    $"{Trader.lists.GetiriPuanNetList[i]:F2};" +
-                    $"{Trader.lists.GetiriFiyatNetList[i]:F2};" +
-                    $"{Trader.lists.GetiriPuanYuzdeNetList[i]:F2};" +
-                    $"{Trader.lists.GetiriFiyatYuzdeNetList[i]:F2};" +
-                    $"{Trader.lists.GetiriKz[i]:F2};" +
-                    $"{Trader.lists.GetiriKzNet[i]:F2};" +
-                    $"{Trader.lists.GetiriKzSistem[i]:F2};" +
-                    $"{Trader.lists.GetiriKzNetSistem[i]:F2};" +
-                    $"{Trader.lists.EmirKomutList[i]:F0};" +
-                    $"{Trader.lists.EmirStatusList[i]:F0}"
-                );
-            }
-
-            File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-        }
-
-
-        /// <summary>
-        /// Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
-        /// </summary>
+        // Save bar-by-bar lists to TXT file (tabular format with fixed-width columns)
         public void SaveListsToTxtMinimal(string filePath)
         {
             if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
@@ -1343,9 +1324,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
         }
 
-        /// <summary>
-        /// Save bar-by-bar lists to CSV file (semicolon separated) - MINIMAL
-        /// </summary>
+        // Save bar-by-bar lists to CSV file (semicolon separated) - MINIMAL
         public void SaveListsToCsvMinimal(string filePath)
         {
             if (Trader == null || Trader.Data == null || Trader.Data.Count == 0)
@@ -1396,10 +1375,547 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         #region Optimization Summary
 
         /// <summary>
-        /// Optimization summary structure for fast CSV/TXT export during optimization runs
-        /// Contains essential metrics for strategy optimization and comparison
+        /// Complete optimization summary structure with all statistics
+        /// Based on AssignToMap() - contains comprehensive trading metrics
         /// </summary>
         public struct OptimizationSummary
+        {
+            // --- Identification ---
+            public int TraderId;
+            public string TraderName;
+
+            // --- System & Execution Info ---
+            public string SymbolName;
+            public string SymbolPeriod;
+            public string SystemId;
+            public string SystemName;
+            public string StrategyId;
+            public string StrategyName;
+
+            public string LastExecutionId;
+            public string LastExecutionTime;
+            public string LastExecutionTimeStart;
+            public string LastExecutionTimeStop;
+            public string LastExecutionTimeInMSec;
+            public string LastResetTime;
+            public string LastStatisticsCalculationTime;
+
+            // --- Bar Info ---
+            public int ToplamBarSayisi;
+            public int SecilenBarNumarasi;
+            public string SecilenBarTarihSaati;
+            public string SecilenBarTarihi;
+            public string SecilenBarSaati;
+
+            public string IlkBarTarihSaati;
+            public string IlkBarTarihi;
+            public string IlkBarSaati;
+
+            public string SonBarTarihSaati;
+            public string SonBarTarihi;
+            public string SonBarSaati;
+
+            public int IlkBarIndex;
+            public int SonBarIndex;
+            public double SonBarAcilisFiyati;
+            public double SonBarYuksekFiyati;
+            public double SonBarDusukFiyati;
+            public double SonBarKapanisFiyati;
+
+            // --- Time Statistics ---
+            public double ToplamGecenSureAy;
+            public int ToplamGecenSureGun;
+            public int ToplamGecenSureSaat;
+            public int ToplamGecenSureDakika;
+            public double OrtAylikIslemSayisi;
+            public double OrtHaftalikIslemSayisi;
+            public double OrtGunlukIslemSayisi;
+            public double OrtSaatlikIslemSayisi;
+
+            // --- Balance & Returns ---
+            public double IlkBakiyeFiyat;
+            public double IlkBakiyePuan;
+            public double BakiyeFiyat;
+            public double BakiyePuan;
+            public double GetiriFiyat;
+            public double GetiriPuan;
+            public double GetiriFiyatYuzde;
+            public double GetiriPuanYuzde;
+            public double BakiyeFiyatNet;
+            public double BakiyePuanNet;
+            public double GetiriFiyatNet;
+            public double GetiriPuanNet;
+            public double GetiriFiyatYuzdeNet;
+            public double GetiriPuanYuzdeNet;
+            public double GetiriKz;
+            public double GetiriKzNet;
+            public double GetiriKzSistem;
+            public double GetiriKzSistemYuzde;
+            public double GetiriKzNetSistem;
+            public double GetiriKzNetSistemYuzde;
+
+            // --- Min/Max Balance ---
+            public double MinBakiyeFiyat;
+            public double MaxBakiyeFiyat;
+            public double MinBakiyePuan;
+            public double MaxBakiyePuan;
+            public double MinBakiyeFiyatYuzde;
+            public double MaxBakiyeFiyatYuzde;
+            public int MinBakiyeFiyatIndex;
+            public int MaxBakiyeFiyatIndex;
+            public double MinBakiyeFiyatNet;
+            public double MaxBakiyeFiyatNet;
+
+            // --- Trade Counts ---
+            public int IslemSayisi;
+            public int AlisSayisi;
+            public int SatisSayisi;
+            public int FlatSayisi;
+            public int PassSayisi;
+            public int KarAlSayisi;
+            public int ZararKesSayisi;
+            public int KazandiranIslemSayisi;
+            public int KaybettirenIslemSayisi;
+            public int NotrIslemSayisi;
+            public int KazandiranAlisSayisi;
+            public int KaybettirenAlisSayisi;
+            public int NotrAlisSayisi;
+            public int KazandiranSatisSayisi;
+            public int KaybettirenSatisSayisi;
+            public int NotrSatisSayisi;
+
+            // --- Command Counts ---
+            public int AlKomutSayisi;
+            public int SatKomutSayisi;
+            public int PasGecKomutSayisi;
+            public int KarAlKomutSayisi;
+            public int ZararKesKomutSayisi;
+            public int FlatOlKomutSayisi;
+
+            // --- Commission ---
+            public int KomisyonIslemSayisi;
+            public double KomisyonVarlikAdedSayisi;
+            public double KomisyonVarlikAdedSayisiMicro;
+            public double KomisyonCarpan;
+            public double KomisyonFiyat;
+            public double KomisyonFiyatYuzde;
+            public bool KomisyonuDahilEt;
+
+            // --- PnL Aggregates ---
+            public double KarZararFiyat;
+            public double KarZararFiyatYuzde;
+            public double KarZararPuan;
+            public double ToplamKarFiyat;
+            public double ToplamZararFiyat;
+            public double NetKarFiyat;
+            public double ToplamKarPuan;
+            public double ToplamZararPuan;
+            public double NetKarPuan;
+            public double MaxKarFiyat;
+            public double MaxZararFiyat;
+            public double MaxKarPuan;
+            public double MaxZararPuan;
+            public int KardaBarSayisi;
+            public int ZarardaBarSayisi;
+            public double KarliIslemOrani;
+
+            // --- Risk Metrics ---
+            public double GetiriMaxDD;
+            public string GetiriMaxDDTarih;
+            public double GetiriMaxKayip;
+            public double ProfitFactor;
+            public double ProfitFactorSistem;
+
+            // --- Signals & Execution ---
+            public string Sinyal;
+            public string SonYon;
+            public string PrevYon;
+            public double SonFiyat;
+            public double SonAFiyat;
+            public double SonSFiyat;
+            public double SonFFiyat;
+            public double SonPFiyat;
+            public double PrevFiyat;
+            public int SonBarNo;
+            public int SonABarNo;
+            public int SonSBarNo;
+            public string EmirKomut;
+            public string EmirStatus;
+
+            // --- Asset & Position Info ---
+            public double HisseSayisi;
+            public double KontratSayisi;
+            public double VarlikAdedCarpani;
+            public double VarlikAdedSayisi;
+            public double VarlikAdedSayisiMicro;
+            public double KaymaMiktari;
+            public bool KaymayiDahilEt;
+
+            public bool MicroLotSizeEnabled;
+            public bool PyramidingEnabled;
+            public bool MaxPositionSizeEnabled;
+            public double MaxPositionSize;
+            public double MaxPositionSizeMicro;
+
+            // --- Periodic Returns ---
+            public double GetiriFiyatBuAy;
+            public double GetiriFiyatAy1;
+            public double GetiriFiyatBuHafta;
+            public double GetiriFiyatHafta1;
+            public double GetiriFiyatBuGun;
+            public double GetiriFiyatGun1;
+            public double GetiriFiyatBuSaat;
+            public double GetiriFiyatSaat1;
+
+            public double GetiriPuanBuAy;
+            public double GetiriPuanAy1;
+            public double GetiriPuanBuHafta;
+            public double GetiriPuanHafta1;
+            public double GetiriPuanBuGun;
+            public double GetiriPuanGun1;
+            public double GetiriPuanBuSaat;
+            public double GetiriPuanSaat1;
+
+            /// <summary>
+            /// Get CSV header (semicolon separated) - comprehensive version
+            /// </summary>
+            public static string GetCsvHeader()
+            {
+                return "TraderId;TraderName;SymbolName;SymbolPeriod;SystemId;SystemName;StrategyId;StrategyName;" +
+                       "LastExecutionId;LastExecutionTime;LastExecutionTimeStart;LastExecutionTimeStop;LastExecutionTimeInMSec;LastResetTime;LastStatisticsCalculationTime;" +
+                       "ToplamBarSayisi;SecilenBarNumarasi;SecilenBarTarihSaati;SecilenBarTarihi;SecilenBarSaati;" +
+                       "IlkBarTarihSaati;IlkBarTarihi;IlkBarSaati;SonBarTarihSaati;SonBarTarihi;SonBarSaati;" +
+                       "IlkBarIndex;SonBarIndex;SonBarAcilisFiyati;SonBarYuksekFiyati;SonBarDusukFiyati;SonBarKapanisFiyati;" +
+                       "ToplamGecenSureAy;ToplamGecenSureGun;ToplamGecenSureSaat;ToplamGecenSureDakika;" +
+                       "OrtAylikIslemSayisi;OrtHaftalikIslemSayisi;OrtGunlukIslemSayisi;OrtSaatlikIslemSayisi;" +
+                       "IlkBakiyeFiyat;IlkBakiyePuan;BakiyeFiyat;BakiyePuan;GetiriFiyat;GetiriPuan;GetiriFiyatYuzde;GetiriPuanYuzde;" +
+                       "BakiyeFiyatNet;BakiyePuanNet;GetiriFiyatNet;GetiriPuanNet;GetiriFiyatYuzdeNet;GetiriPuanYuzdeNet;" +
+                       "GetiriKz;GetiriKzNet;GetiriKzSistem;GetiriKzSistemYuzde;GetiriKzNetSistem;GetiriKzNetSistemYuzde;" +
+                       "MinBakiyeFiyat;MaxBakiyeFiyat;MinBakiyePuan;MaxBakiyePuan;MinBakiyeFiyatYuzde;MaxBakiyeFiyatYuzde;" +
+                       "MinBakiyeFiyatIndex;MaxBakiyeFiyatIndex;MinBakiyeFiyatNet;MaxBakiyeFiyatNet;" +
+                       "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;KarAlSayisi;ZararKesSayisi;" +
+                       "KazandiranIslemSayisi;KaybettirenIslemSayisi;NotrIslemSayisi;" +
+                       "KazandiranAlisSayisi;KaybettirenAlisSayisi;NotrAlisSayisi;KazandiranSatisSayisi;KaybettirenSatisSayisi;NotrSatisSayisi;" +
+                       "AlKomutSayisi;SatKomutSayisi;PasGecKomutSayisi;KarAlKomutSayisi;ZararKesKomutSayisi;FlatOlKomutSayisi;" +
+                       "KomisyonIslemSayisi;KomisyonVarlikAdedSayisi;KomisyonVarlikAdedSayisiMicro;KomisyonCarpan;KomisyonFiyat;KomisyonFiyatYuzde;KomisyonuDahilEt;" +
+                       "KarZararFiyat;KarZararFiyatYuzde;KarZararPuan;ToplamKarFiyat;ToplamZararFiyat;NetKarFiyat;" +
+                       "ToplamKarPuan;ToplamZararPuan;NetKarPuan;MaxKarFiyat;MaxZararFiyat;MaxKarPuan;MaxZararPuan;" +
+                       "KardaBarSayisi;ZarardaBarSayisi;KarliIslemOrani;" +
+                       "GetiriMaxDD;GetiriMaxDDTarih;GetiriMaxKayip;ProfitFactor;ProfitFactorSistem;" +
+                       "Sinyal;SonYon;PrevYon;SonFiyat;SonAFiyat;SonSFiyat;SonFFiyat;SonPFiyat;PrevFiyat;" +
+                       "SonBarNo;SonABarNo;SonSBarNo;EmirKomut;EmirStatus;" +
+                       "HisseSayisi;KontratSayisi;VarlikAdedCarpani;VarlikAdedSayisi;VarlikAdedSayisiMicro;KaymaMiktari;KaymayiDahilEt;" +
+                       "MicroLotSizeEnabled;PyramidingEnabled;MaxPositionSizeEnabled;MaxPositionSize;MaxPositionSizeMicro;" +
+                       "GetiriFiyatBuAy;GetiriFiyatAy1;GetiriFiyatBuHafta;GetiriFiyatHafta1;GetiriFiyatBuGun;GetiriFiyatGun1;GetiriFiyatBuSaat;GetiriFiyatSaat1;" +
+                       "GetiriPuanBuAy;GetiriPuanAy1;GetiriPuanBuHafta;GetiriPuanHafta1;GetiriPuanBuGun;GetiriPuanGun1;GetiriPuanBuSaat;GetiriPuanSaat1";
+            }
+
+            /// <summary>
+            /// Convert to CSV row (semicolon separated) - comprehensive version
+            /// </summary>
+            public string ToCsvRow()
+            {
+                return $"{TraderId};{TraderName};{SymbolName};{SymbolPeriod};{SystemId};{SystemName};{StrategyId};{StrategyName};" +
+                       $"{LastExecutionId};{LastExecutionTime};{LastExecutionTimeStart};{LastExecutionTimeStop};{LastExecutionTimeInMSec};{LastResetTime};{LastStatisticsCalculationTime};" +
+                       $"{ToplamBarSayisi};{SecilenBarNumarasi};{SecilenBarTarihSaati};{SecilenBarTarihi};{SecilenBarSaati};" +
+                       $"{IlkBarTarihSaati};{IlkBarTarihi};{IlkBarSaati};{SonBarTarihSaati};{SonBarTarihi};{SonBarSaati};" +
+                       $"{IlkBarIndex};{SonBarIndex};{SonBarAcilisFiyati:F4};{SonBarYuksekFiyati:F4};{SonBarDusukFiyati:F4};{SonBarKapanisFiyati:F4};" +
+                       $"{ToplamGecenSureAy:F1};{ToplamGecenSureGun};{ToplamGecenSureSaat};{ToplamGecenSureDakika};" +
+                       $"{OrtAylikIslemSayisi:F2};{OrtHaftalikIslemSayisi:F2};{OrtGunlukIslemSayisi:F2};{OrtSaatlikIslemSayisi:F2};" +
+                       $"{IlkBakiyeFiyat:F2};{IlkBakiyePuan:F2};{BakiyeFiyat:F2};{BakiyePuan:F2};{GetiriFiyat:F2};{GetiriPuan:F4};{GetiriFiyatYuzde:F2};{GetiriPuanYuzde:F2};" +
+                       $"{BakiyeFiyatNet:F2};{BakiyePuanNet:F2};{GetiriFiyatNet:F2};{GetiriPuanNet:F4};{GetiriFiyatYuzdeNet:F2};{GetiriPuanYuzdeNet:F2};" +
+                       $"{GetiriKz:F4};{GetiriKzNet:F4};{GetiriKzSistem:F4};{GetiriKzSistemYuzde:F2};{GetiriKzNetSistem:F4};{GetiriKzNetSistemYuzde:F2};" +
+                       $"{MinBakiyeFiyat:F2};{MaxBakiyeFiyat:F2};{MinBakiyePuan:F2};{MaxBakiyePuan:F2};{MinBakiyeFiyatYuzde:F2};{MaxBakiyeFiyatYuzde:F2};" +
+                       $"{MinBakiyeFiyatIndex};{MaxBakiyeFiyatIndex};{MinBakiyeFiyatNet:F2};{MaxBakiyeFiyatNet:F2};" +
+                       $"{IslemSayisi};{AlisSayisi};{SatisSayisi};{FlatSayisi};{PassSayisi};{KarAlSayisi};{ZararKesSayisi};" +
+                       $"{KazandiranIslemSayisi};{KaybettirenIslemSayisi};{NotrIslemSayisi};" +
+                       $"{KazandiranAlisSayisi};{KaybettirenAlisSayisi};{NotrAlisSayisi};{KazandiranSatisSayisi};{KaybettirenSatisSayisi};{NotrSatisSayisi};" +
+                       $"{AlKomutSayisi};{SatKomutSayisi};{PasGecKomutSayisi};{KarAlKomutSayisi};{ZararKesKomutSayisi};{FlatOlKomutSayisi};" +
+                       $"{KomisyonIslemSayisi};{KomisyonVarlikAdedSayisi:F2};{KomisyonVarlikAdedSayisiMicro:F4};{KomisyonCarpan:F4};{KomisyonFiyat:F2};{KomisyonFiyatYuzde:F4};{KomisyonuDahilEt};" +
+                       $"{KarZararFiyat:F2};{KarZararFiyatYuzde:F2};{KarZararPuan:F4};{ToplamKarFiyat:F2};{ToplamZararFiyat:F2};{NetKarFiyat:F2};" +
+                       $"{ToplamKarPuan:F4};{ToplamZararPuan:F4};{NetKarPuan:F4};{MaxKarFiyat:F2};{MaxZararFiyat:F2};{MaxKarPuan:F4};{MaxZararPuan:F4};" +
+                       $"{KardaBarSayisi};{ZarardaBarSayisi};{KarliIslemOrani:F2};" +
+                       $"{GetiriMaxDD:F2};{GetiriMaxDDTarih};{GetiriMaxKayip:F2};{ProfitFactor:F2};{ProfitFactorSistem:F2};" +
+                       $"{Sinyal};{SonYon};{PrevYon};{SonFiyat:F4};{SonAFiyat:F4};{SonSFiyat:F4};{SonFFiyat:F4};{SonPFiyat:F4};{PrevFiyat:F4};" +
+                       $"{SonBarNo};{SonABarNo};{SonSBarNo};{EmirKomut};{EmirStatus};" +
+                       $"{HisseSayisi:F2};{KontratSayisi:F2};{VarlikAdedCarpani:F2};{VarlikAdedSayisi:F2};{VarlikAdedSayisiMicro:F4};{KaymaMiktari:F4};{KaymayiDahilEt};" +
+                       $"{MicroLotSizeEnabled};{PyramidingEnabled};{MaxPositionSizeEnabled};{MaxPositionSize:F4};{MaxPositionSizeMicro:F4};" +
+                       $"{GetiriFiyatBuAy:F2};{GetiriFiyatAy1:F2};{GetiriFiyatBuHafta:F2};{GetiriFiyatHafta1:F2};{GetiriFiyatBuGun:F2};{GetiriFiyatGun1:F2};{GetiriFiyatBuSaat:F2};{GetiriFiyatSaat1:F2};" +
+                       $"{GetiriPuanBuAy:F4};{GetiriPuanAy1:F4};{GetiriPuanBuHafta:F4};{GetiriPuanHafta1:F4};{GetiriPuanBuGun:F4};{GetiriPuanGun1:F4};{GetiriPuanBuSaat:F4};{GetiriPuanSaat1:F4}";
+            }
+
+            /// <summary>
+            /// Convert to TXT row (tabular format with fixed-width columns) - comprehensive version
+            /// </summary>
+            public string ToTxtRow()
+            {
+                return $"{TraderId,5} | " +
+                       $"{TraderName,20} | " +
+                       $"{SymbolName,10} | " +
+                       $"{SymbolPeriod,6} | " +
+                       $"{StrategyName,30} | " +
+                       $"{LastExecutionTimeInMSec,10} | " +
+                       $"{IslemSayisi,6} | " +
+                       $"{KazandiranIslemSayisi,6} | " +
+                       $"{KaybettirenIslemSayisi,6} | " +
+                       $"{GetiriFiyat,12:F2} | " +
+                       $"{GetiriFiyatYuzde,10:F2} | " +
+                       $"{GetiriFiyatNet,12:F2} | " +
+                       $"{GetiriFiyatYuzdeNet,10:F2} | " +
+                       $"{KomisyonFiyat,10:F2} | " +
+                       $"{ProfitFactor,8:F2} | " +
+                       $"{GetiriMaxDD,10:F2} | " +
+                       $"{KarliIslemOrani,10:F2}";
+            }
+
+            /// <summary>
+            /// Get TXT header (tabular format with fixed-width columns)
+            /// </summary>
+            public static string GetTxtHeader()
+            {
+                return $"{"ID",5} | " +
+                       $"{"Trader Name",20} | " +
+                       $"{"Symbol",10} | " +
+                       $"{"Period",6} | " +
+                       $"{"Strategy Name",30} | " +
+                       $"{"ExecMs",10} | " +
+                       $"{"Islem",6} | " +
+                       $"{"Kaz",6} | " +
+                       $"{"Kayb",6} | " +
+                       $"{"GetiriFiyat",12} | " +
+                       $"{"Getiri%",10} | " +
+                       $"{"GetiriNet",12} | " +
+                       $"{"GetiriNet%",10} | " +
+                       $"{"Komisyon",10} | " +
+                       $"{"ProfitF",8} | " +
+                       $"{"MaxDD%",10} | " +
+                       $"{"KarliOran",10}";
+            }
+
+            /// <summary>
+            /// Get TXT separator line
+            /// </summary>
+            public static string GetTxtSeparator()
+            {
+                return "".PadRight(230, '-');
+            }
+        }
+
+        /// <summary>
+        /// Get complete optimization summary structure with all statistics
+        /// Call this after Hesapla() to get comprehensive optimization metrics
+        /// </summary>
+        public OptimizationSummary GetOptimizationSummary()
+        {
+            // Ensure maps are populated (in case Hesapla wasn't called yet)
+            if (StatisticsMap.Count == 0)
+                AssignToMap();
+
+            return new OptimizationSummary
+            {
+                // --- Identification ---
+                TraderId = Id,
+                TraderName = Name ?? "...",
+
+                // --- System & Execution Info ---
+                SymbolName = GrafikSembol ?? "...",
+                SymbolPeriod = GrafikPeriyot ?? "...",
+                SystemId = SistemId ?? "...",
+                SystemName = SistemName ?? "...",
+                StrategyId = StrategyId ?? "...",
+                StrategyName = StrategyName ?? "...",
+
+                LastExecutionId = LastExecutionId ?? "...",
+                LastExecutionTime = LastExecutionTime ?? "...",
+                LastExecutionTimeStart = LastExecutionTimeStart ?? "...",
+                LastExecutionTimeStop = LastExecutionTimeStop ?? "...",
+                LastExecutionTimeInMSec = LastExecutionTimeInMSec ?? "...",
+                LastResetTime = LastResetTime ?? "...",
+                LastStatisticsCalculationTime = LastStatisticsCalculationTime ?? "...",
+
+                // --- Bar Info ---
+                ToplamBarSayisi = ToplamBarSayisi,
+                SecilenBarNumarasi = SecilenBarNumarasi,
+                SecilenBarTarihSaati = SecilenBarTarihSaati ?? "...",
+                SecilenBarTarihi = SecilenBarTarihi ?? "...",
+                SecilenBarSaati = SecilenBarSaati ?? "...",
+
+                IlkBarTarihSaati = IlkBarTarihSaati ?? "...",
+                IlkBarTarihi = IlkBarTarihi ?? "...",
+                IlkBarSaati = IlkBarSaati ?? "...",
+
+                SonBarTarihSaati = SonBarTarihSaati ?? "...",
+                SonBarTarihi = SonBarTarihi ?? "...",
+                SonBarSaati = SonBarSaati ?? "...",
+
+                IlkBarIndex = IlkBarIndex,
+                SonBarIndex = SonBarIndex,
+                SonBarAcilisFiyati = SonBarAcilisFiyati,
+                SonBarYuksekFiyati = SonBarYuksekFiyati,
+                SonBarDusukFiyati = SonBarDusukFiyati,
+                SonBarKapanisFiyati = SonBarKapanisFiyati,
+
+                // --- Time Statistics ---
+                ToplamGecenSureAy = ToplamGecenSureAy,
+                ToplamGecenSureGun = ToplamGecenSureGun,
+                ToplamGecenSureSaat = ToplamGecenSureSaat,
+                ToplamGecenSureDakika = ToplamGecenSureDakika,
+                OrtAylikIslemSayisi = OrtAylikIslemSayisi,
+                OrtHaftalikIslemSayisi = OrtHaftalikIslemSayisi,
+                OrtGunlukIslemSayisi = OrtGunlukIslemSayisi,
+                OrtSaatlikIslemSayisi = OrtSaatlikIslemSayisi,
+
+                // --- Balance & Returns ---
+                IlkBakiyeFiyat = IlkBakiyeFiyat,
+                IlkBakiyePuan = IlkBakiyePuan,
+                BakiyeFiyat = BakiyeFiyat,
+                BakiyePuan = BakiyePuan,
+                GetiriFiyat = GetiriFiyat,
+                GetiriPuan = GetiriPuan,
+                GetiriFiyatYuzde = GetiriFiyatYuzde,
+                GetiriPuanYuzde = GetiriPuanYuzde,
+                BakiyeFiyatNet = BakiyeFiyatNet,
+                BakiyePuanNet = BakiyePuanNet,
+                GetiriFiyatNet = GetiriFiyatNet,
+                GetiriPuanNet = GetiriPuanNet,
+                GetiriFiyatYuzdeNet = GetiriFiyatYuzdeNet,
+                GetiriPuanYuzdeNet = GetiriPuanYuzdeNet,
+                GetiriKz = GetiriKz,
+                GetiriKzNet = GetiriKzNet,
+                GetiriKzSistem = GetiriKzSistem,
+                GetiriKzSistemYuzde = GetiriKzSistemYuzde,
+                GetiriKzNetSistem = GetiriKzNetSistem,
+                GetiriKzNetSistemYuzde = GetiriKzNetSistemYuzde,
+
+                // --- Min/Max Balance ---
+                MinBakiyeFiyat = MinBakiyeFiyat,
+                MaxBakiyeFiyat = MaxBakiyeFiyat,
+                MinBakiyePuan = MinBakiyePuan,
+                MaxBakiyePuan = MaxBakiyePuan,
+                MinBakiyeFiyatYuzde = MinBakiyeFiyatYuzde,
+                MaxBakiyeFiyatYuzde = MaxBakiyeFiyatYuzde,
+                MinBakiyeFiyatIndex = MinBakiyeFiyatIndex,
+                MaxBakiyeFiyatIndex = MaxBakiyeFiyatIndex,
+                MinBakiyeFiyatNet = MinBakiyeFiyatNet,
+                MaxBakiyeFiyatNet = MaxBakiyeFiyatNet,
+
+                // --- Trade Counts ---
+                IslemSayisi = IslemSayisi,
+                AlisSayisi = AlisSayisi,
+                SatisSayisi = SatisSayisi,
+                FlatSayisi = FlatSayisi,
+                PassSayisi = PassSayisi,
+                KarAlSayisi = KarAlSayisi,
+                ZararKesSayisi = ZararKesSayisi,
+                KazandiranIslemSayisi = KazandiranIslemSayisi,
+                KaybettirenIslemSayisi = KaybettirenIslemSayisi,
+                NotrIslemSayisi = NotrIslemSayisi,
+                KazandiranAlisSayisi = KazandiranAlisSayisi,
+                KaybettirenAlisSayisi = KaybettirenAlisSayisi,
+                NotrAlisSayisi = NotrAlisSayisi,
+                KazandiranSatisSayisi = KazandiranSatisSayisi,
+                KaybettirenSatisSayisi = KaybettirenSatisSayisi,
+                NotrSatisSayisi = NotrSatisSayisi,
+
+                // --- Command Counts ---
+                AlKomutSayisi = AlKomutSayisi,
+                SatKomutSayisi = SatKomutSayisi,
+                PasGecKomutSayisi = PasGecKomutSayisi,
+                KarAlKomutSayisi = KarAlKomutSayisi,
+                ZararKesKomutSayisi = ZararKesKomutSayisi,
+                FlatOlKomutSayisi = FlatOlKomutSayisi,
+
+                // --- Commission ---
+                KomisyonIslemSayisi = KomisyonIslemSayisi,
+                KomisyonVarlikAdedSayisi = KomisyonVarlikAdedSayisi,
+                KomisyonVarlikAdedSayisiMicro = KomisyonVarlikAdedSayisiMicro,
+                KomisyonCarpan = KomisyonCarpan,
+                KomisyonFiyat = KomisyonFiyat,
+                KomisyonFiyatYuzde = KomisyonFiyatYuzde,
+                KomisyonuDahilEt = KomisyonuDahilEt,
+
+                // --- PnL Aggregates ---
+                KarZararFiyat = KarZararFiyat,
+                KarZararFiyatYuzde = KarZararFiyatYuzde,
+                KarZararPuan = KarZararPuan,
+                ToplamKarFiyat = ToplamKarFiyat,
+                ToplamZararFiyat = ToplamZararFiyat,
+                NetKarFiyat = NetKarFiyat,
+                ToplamKarPuan = ToplamKarPuan,
+                ToplamZararPuan = ToplamZararPuan,
+                NetKarPuan = NetKarPuan,
+                MaxKarFiyat = MaxKarFiyat,
+                MaxZararFiyat = MaxZararFiyat,
+                MaxKarPuan = MaxKarPuan,
+                MaxZararPuan = MaxZararPuan,
+                KardaBarSayisi = KardaBarSayisi,
+                ZarardaBarSayisi = ZarardaBarSayisi,
+                KarliIslemOrani = KarliIslemOrani,
+
+                // --- Risk Metrics ---
+                GetiriMaxDD = GetiriMaxDD,
+                GetiriMaxDDTarih = GetiriMaxDDTarih ?? "...",
+                GetiriMaxKayip = GetiriMaxKayip,
+                ProfitFactor = ProfitFactor,
+                ProfitFactorSistem = ProfitFactorSistem,
+
+                // --- Signals & Execution ---
+                Sinyal = Sinyal ?? "...",
+                SonYon = SonYon ?? "...",
+                PrevYon = PrevYon ?? "...",
+                SonFiyat = SonFiyat,
+                SonAFiyat = SonAFiyat,
+                SonSFiyat = SonSFiyat,
+                SonFFiyat = SonFFiyat,
+                SonPFiyat = SonPFiyat,
+                PrevFiyat = PrevFiyat,
+                SonBarNo = SonBarNo,
+                SonABarNo = SonABarNo,
+                SonSBarNo = SonSBarNo,
+                EmirKomut = EmirKomut.ToString(),
+                EmirStatus = EmirStatus.ToString(),
+
+                // --- Asset & Position Info ---
+                HisseSayisi = HisseSayisi,
+                KontratSayisi = KontratSayisi,
+                VarlikAdedCarpani = VarlikAdedCarpani,
+                VarlikAdedSayisi = VarlikAdedSayisi,
+                VarlikAdedSayisiMicro = VarlikAdedSayisiMicro,
+                KaymaMiktari = KaymaMiktari,
+                KaymayiDahilEt = KaymayiDahilEt,
+
+                MicroLotSizeEnabled = MicroLotSizeEnabled,
+                PyramidingEnabled = PyramidingEnabled,
+                MaxPositionSizeEnabled = MaxPositionSizeEnabled,
+                MaxPositionSize = MaxPositionSize,
+                MaxPositionSizeMicro = MaxPositionSizeMicro,
+
+                // --- Periodic Returns ---
+                GetiriFiyatBuAy = GetiriFiyatBuAy,
+                GetiriFiyatAy1 = GetiriFiyatAy1,
+                GetiriFiyatBuHafta = GetiriFiyatBuHafta,
+                GetiriFiyatHafta1 = GetiriFiyatHafta1,
+                GetiriFiyatBuGun = GetiriFiyatBuGun,
+                GetiriFiyatGun1 = GetiriFiyatGun1,
+                GetiriFiyatBuSaat = GetiriFiyatBuSaat,
+                GetiriFiyatSaat1 = GetiriFiyatSaat1,
+
+                GetiriPuanBuAy = GetiriPuanBuAy,
+                GetiriPuanAy1 = GetiriPuanAy1,
+                GetiriPuanBuHafta = GetiriPuanBuHafta,
+                GetiriPuanHafta1 = GetiriPuanHafta1,
+                GetiriPuanBuGun = GetiriPuanBuGun,
+                GetiriPuanGun1 = GetiriPuanGun1,
+                GetiriPuanBuSaat = GetiriPuanBuSaat,
+                GetiriPuanSaat1 = GetiriPuanSaat1
+            };
+        }
+
+        /// <summary>
+        /// Optimization summary structure (Minimal) for fast CSV/TXT export during optimization runs
+        /// Contains essential metrics for strategy optimization and comparison
+        /// </summary>
+        public struct OptimizationSummaryMinimal
         {
             // Identification
             public int TraderId;
@@ -1567,16 +2083,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         }
 
         /// <summary>
-        /// Get optimization summary structure
+        /// Get optimization summary structure (Minimal)
         /// Call this after Hesapla() to get essential optimization metrics
         /// </summary>
-        public OptimizationSummary GetOptimizationSummary()
+        public OptimizationSummaryMinimal GetOptimizationSummaryMinimal()
         {
             // Ensure maps are populated (in case Hesapla wasn't called yet)
             if (StatisticsMapMinimal.Count == 0)
                 AssignToMapMinimal();
 
-            return new OptimizationSummary
+            return new OptimizationSummaryMinimal
             {
                 // Identification
                 TraderId = Id,
@@ -1654,39 +2170,72 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
 
         /// <summary>
         /// Append optimization summary to CSV file
-        /// Helper method - alternatively use GetOptimizationSummary() and handle file writing in Optimization Manager
+        /// Helper method - alternatively use GetOptimizationSummaryMinimal() and handle file writing in Optimization Manager
         /// </summary>
-        public void AppendToOptimizationCsv(string filePath, bool writeHeader = false)
+        public void AppendToOptimizationCsv(string filePath, bool writeHeader = false, bool useMinimal = false)
         {
-            var summary = GetOptimizationSummary();
-
-            if (writeHeader)
+            if (useMinimal)
             {
-                File.WriteAllText(filePath, OptimizationSummary.GetCsvHeader() + Environment.NewLine, Encoding.UTF8);
-            }
+                var summary = GetOptimizationSummaryMinimal();
 
-            File.AppendAllText(filePath, summary.ToCsvRow() + Environment.NewLine, Encoding.UTF8);
+                if (writeHeader)
+                {
+                    File.WriteAllText(filePath, OptimizationSummaryMinimal.GetCsvHeader() + Environment.NewLine, Encoding.UTF8);
+                }
+
+                File.AppendAllText(filePath, summary.ToCsvRow() + Environment.NewLine, Encoding.UTF8);
+            }
+            else
+            {
+                var summary = GetOptimizationSummary();
+
+                if (writeHeader)
+                {
+                    File.WriteAllText(filePath, OptimizationSummary.GetCsvHeader() + Environment.NewLine, Encoding.UTF8);
+                }
+
+                File.AppendAllText(filePath, summary.ToCsvRow() + Environment.NewLine, Encoding.UTF8);
+            }
         }
 
         /// <summary>
         /// Append optimization summary to TXT file (tabular format)
-        /// Helper method - alternatively use GetOptimizationSummary() and handle file writing in Optimization Manager
+        /// Helper method - alternatively use GetOptimizationSummaryMinimal() and handle file writing in Optimization Manager
         /// </summary>
-        public void AppendToOptimizationTxt(string filePath, bool writeHeader = false)
+        public void AppendToOptimizationTxt(string filePath, bool writeHeader = false, bool useMinimal = false)
         {
-            var summary = GetOptimizationSummary();
-
-            if (writeHeader)
+            if (useMinimal)
             {
-                var sb = new StringBuilder();
-                sb.AppendLine($"OPTIMIZATION RESULTS - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
-                sb.AppendLine(OptimizationSummary.GetTxtSeparator());
-                sb.AppendLine(OptimizationSummary.GetTxtHeader());
-                sb.AppendLine(OptimizationSummary.GetTxtSeparator());
-                File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
-            }
+                var summary = GetOptimizationSummaryMinimal();
 
-            File.AppendAllText(filePath, summary.ToTxtRow() + Environment.NewLine, Encoding.UTF8);
+                if (writeHeader)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"OPTIMIZATION RESULTS - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+                    sb.AppendLine(OptimizationSummaryMinimal.GetTxtSeparator());
+                    sb.AppendLine(OptimizationSummaryMinimal.GetTxtHeader());
+                    sb.AppendLine(OptimizationSummaryMinimal.GetTxtSeparator());
+                    File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+                }
+
+                File.AppendAllText(filePath, summary.ToTxtRow() + Environment.NewLine, Encoding.UTF8);
+            }
+            else
+            {
+                var summary = GetOptimizationSummary();
+
+                if (writeHeader)
+                {
+                    var sb = new StringBuilder();
+                    sb.AppendLine($"OPTIMIZATION RESULTS - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+                    sb.AppendLine(OptimizationSummary.GetTxtSeparator());
+                    sb.AppendLine(OptimizationSummary.GetTxtHeader());
+                    sb.AppendLine(OptimizationSummary.GetTxtSeparator());
+                    File.WriteAllText(filePath, sb.ToString(), Encoding.UTF8);
+                }
+
+                File.AppendAllText(filePath, summary.ToTxtRow() + Environment.NewLine, Encoding.UTF8);
+            }
         }
 
         #endregion
