@@ -1652,7 +1652,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             bool saveFullListsTxt = true,
             bool saveFullListsCsv = true,
             bool saveMinimalListsTxt = true,
-            bool saveMinimalListsCsv = true)
+            bool saveMinimalListsCsv = true,
+            bool saveFullStatsTxtFormatted = true,
+            bool saveMinimalStatsTxtFormatted = true)
         {
             if (saveFullStatsTxt)
                 statistics.SaveToTxt("logs\\SingleTraderStatistics.txt");
@@ -1677,6 +1679,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             if (saveMinimalListsCsv)
                 statistics.SaveListsToCsvMinimal("logs\\SingleTraderListsMinimal.csv");
+
+            if (saveFullStatsTxtFormatted)
+                statistics.SaveToTxtFormatted("logs\\SingleTraderStatisticsFormatted.txt");
+
+            if (saveMinimalStatsTxtFormatted)
+                statistics.SaveToTxtMinimalFormatted ("logs\\SingleTraderStatisticsFormattedMinimal.txt");
         }
 
         #endregion
