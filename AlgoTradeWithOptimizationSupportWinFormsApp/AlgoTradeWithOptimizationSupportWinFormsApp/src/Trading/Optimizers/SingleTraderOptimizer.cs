@@ -8,6 +8,7 @@ using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.PortableExecutable;
 using System.Text.Json;
 using System.Xml.Linq;
 using Tulip;
@@ -915,7 +916,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 // Write header if needed
                 if (writeHeader)
                 {
-                    // Build header: CombNo + Parameters + OptimizationSummary fields
+                    // Build header: CombNo + Parameters + OptimizationResult fields + OptimizationSummary fields
                     var headerParts = new List<string> { "CombNo" };
 
                     // Add parameter names
@@ -924,23 +925,489 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                         headerParts.AddRange(result.Parameters.Keys);
                     }
 
-                    // Add OptimizationSummary header
-                    headerParts.Add(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetCsvHeader());
+                    // Add OptimizationResult section header
+                    headerParts.Add("OptResult");
+
+                    // Add OptimizationResult fields
+                    headerParts.Add("OR_IlkBakFy");
+                    headerParts.Add("OR_BakFiyat");
+                    headerParts.Add("OR_GetFiyat");
+                    headerParts.Add("OR_GetFyt%");
+                    headerParts.Add("OR_KomFiyat");
+                    headerParts.Add("OR_BakFyNet");
+                    headerParts.Add("OR_GetFyNet");
+                    headerParts.Add("OR_GetFy%N");
+                    headerParts.Add("OR_KomFy%");
+                    headerParts.Add("OR_MinBakFy");
+                    headerParts.Add("OR_MaxBakFy");
+                    headerParts.Add("OR_MinBak%");
+                    headerParts.Add("OR_MaxBak%");
+                    headerParts.Add("OR_MinBakNt");
+                    headerParts.Add("OR_MaxBakNt");
+                    headerParts.Add("OR_Islem");
+                    headerParts.Add("OR_Alis");
+                    headerParts.Add("OR_Satis");
+                    headerParts.Add("OR_Flat");
+                    headerParts.Add("OR_Pass");
+                    headerParts.Add("OR_KarAl");
+                    headerParts.Add("OR_ZararKes");
+                    headerParts.Add("OR_KomIslem");
+                    headerParts.Add("OR_Kazand");
+                    headerParts.Add("OR_Kaybett");
+                    headerParts.Add("OR_Notr");
+                    headerParts.Add("OR_TopKarFy");
+                    headerParts.Add("OR_TopZarFy");
+                    headerParts.Add("OR_NetKarFy");
+                    headerParts.Add("OR_MaxKarFy");
+                    headerParts.Add("OR_MaxZarFy");
+                    headerParts.Add("OR_KarliOra");
+                    headerParts.Add("OR_MaxDD");
+                    headerParts.Add("OR_MaxDDDt");
+                    headerParts.Add("OR_MaxKayip");
+                    headerParts.Add("OR_ProfFact");
+                    headerParts.Add("OR_NetProf");
+                    headerParts.Add("OR_WinRate");
+                    headerParts.Add("OR_MaxDD2");
+                    headerParts.Add("OR_Sharpe");
+                    headerParts.Add("OR_TotTrade");
+                    headerParts.Add("OR_WinTrade");
+                    headerParts.Add("OR_LosTrade");
+                    headerParts.Add("OR_TotProf");
+                    headerParts.Add("OR_TotLoss");
+                    headerParts.Add("OR_AvgWin");
+                    headerParts.Add("OR_AvgLoss");
+                    headerParts.Add("OR_MaxDD%");
+
+                    headerParts.Add("OR_TraderId");
+                    headerParts.Add("OR_TrdrName");
+                    headerParts.Add("OR_Symbol");
+                    headerParts.Add("OR_SymPer");
+                    headerParts.Add("OR_SysId");
+                    headerParts.Add("OR_SysName");
+                    headerParts.Add("OR_StratId");
+                    headerParts.Add("OR_StratNam");
+                    headerParts.Add("OR_BarCnt");
+                    headerParts.Add("OR_IlkBarDT");
+                    headerParts.Add("OR_IlkBarD");
+                    headerParts.Add("OR_IlkBarT");
+                    headerParts.Add("OR_SonBarDT");
+                    headerParts.Add("OR_SonBarD");
+                    headerParts.Add("OR_SonBarT");
+
+                    // Add OptimizationSummary section header
+                    headerParts.Add("OptSummary");
+
+                    // Add OptimizationSummary fields
+                    headerParts.Add("TraderId");
+                    headerParts.Add("TraderName");
+                    headerParts.Add("SymbolName");
+                    headerParts.Add("SymbolPer");
+                    headerParts.Add("SystemId");
+                    headerParts.Add("SystemName");
+                    headerParts.Add("StrategyId");
+                    headerParts.Add("StrategyName");
+                    headerParts.Add("LastExecId");
+                    headerParts.Add("LastExecTime");
+                    headerParts.Add("ExecStart");
+                    headerParts.Add("ExecStop");
+                    headerParts.Add("ExecMs");
+                    headerParts.Add("ResetTime");
+                    headerParts.Add("StatsTime");
+                    headerParts.Add("BarCnt");
+                    headerParts.Add("SelBarNo");
+                    headerParts.Add("SelBarDT");
+                    headerParts.Add("SelBarD");
+                    headerParts.Add("SelBarT");
+                    headerParts.Add("IlkBarDT");
+                    headerParts.Add("IlkBarD");
+                    headerParts.Add("IlkBarT");
+                    headerParts.Add("SonBarDT");
+                    headerParts.Add("SonBarD");
+                    headerParts.Add("SonBarT");
+                    headerParts.Add("IlkBarIdx");
+                    headerParts.Add("SonBarIdx");
+                    headerParts.Add("SonBarOp");
+                    headerParts.Add("SonBarHi");
+                    headerParts.Add("SonBarLo");
+                    headerParts.Add("SonBarCl");
+                    headerParts.Add("Months");
+                    headerParts.Add("Days");
+                    headerParts.Add("Hours");
+                    headerParts.Add("Mins");
+                    headerParts.Add("AvgMoTrd");
+                    headerParts.Add("AvgWeekTr");
+                    headerParts.Add("AvgDayTr");
+                    headerParts.Add("AvgHrTrd");
+                    headerParts.Add("IlkBakFyt");
+                    headerParts.Add("IlkBakPua");
+                    headerParts.Add("BakFiyat");
+                    headerParts.Add("BakPuan");
+                    headerParts.Add("GetFiyat");
+                    headerParts.Add("GetPuan");
+                    headerParts.Add("GetFyt%");
+                    headerParts.Add("GetPua%");
+                    headerParts.Add("BakFytNet");
+                    headerParts.Add("BakPuaNet");
+                    headerParts.Add("GetFytNet");
+                    headerParts.Add("GetPuaNet");
+                    headerParts.Add("GetFyt%N");
+                    headerParts.Add("GetPua%N");
+                    headerParts.Add("GetKz");
+                    headerParts.Add("GetKzNet");
+                    headerParts.Add("GetKzSis");
+                    headerParts.Add("GetKzSis%");
+                    headerParts.Add("GetKzNetS");
+                    headerParts.Add("GetKzNtS%");
+                    headerParts.Add("MinBakFyt");
+                    headerParts.Add("MaxBakFyt");
+                    headerParts.Add("MinBakPua");
+                    headerParts.Add("MaxBakPua");
+                    headerParts.Add("MinBakF%");
+                    headerParts.Add("MaxBakF%");
+                    headerParts.Add("MinBakIdx");
+                    headerParts.Add("MaxBakIdx");
+                    headerParts.Add("MinBakNet");
+                    headerParts.Add("MaxBakNet");
+                    headerParts.Add("Islem");
+                    headerParts.Add("Alis");
+                    headerParts.Add("Satis");
+                    headerParts.Add("Flat");
+                    headerParts.Add("Pass");
+                    headerParts.Add("KarAl");
+                    headerParts.Add("ZararKes");
+                    headerParts.Add("Kazand");
+                    headerParts.Add("Kaybett");
+                    headerParts.Add("Notr");
+                    headerParts.Add("KazAlis");
+                    headerParts.Add("KayAlis");
+                    headerParts.Add("NotAlis");
+                    headerParts.Add("KazSatis");
+                    headerParts.Add("KaySatis");
+                    headerParts.Add("NotSatis");
+                    headerParts.Add("AlKomut");
+                    headerParts.Add("SatKomut");
+                    headerParts.Add("PasKomut");
+                    headerParts.Add("KarAlKom");
+                    headerParts.Add("ZarKesKom");
+                    headerParts.Add("FlatKom");
+                    headerParts.Add("KomIslem");
+                    headerParts.Add("KomVarAd");
+                    headerParts.Add("KomVarMic");
+                    headerParts.Add("KomCarpa");
+                    headerParts.Add("KomFiyat");
+                    headerParts.Add("KomFyt%");
+                    headerParts.Add("KomDahil");
+                    headerParts.Add("KZFiyat");
+                    headerParts.Add("KZFiyat%");
+                    headerParts.Add("KZPuan");
+                    headerParts.Add("TopKarFyt");
+                    headerParts.Add("TopZarFyt");
+                    headerParts.Add("NetKarFyt");
+                    headerParts.Add("TopKarPua");
+                    headerParts.Add("TopZarPua");
+                    headerParts.Add("NetKarPua");
+                    headerParts.Add("MaxKarFyt");
+                    headerParts.Add("MaxZarFyt");
+                    headerParts.Add("MaxKarPua");
+                    headerParts.Add("MaxZarPua");
+                    headerParts.Add("KarBar");
+                    headerParts.Add("ZarBar");
+                    headerParts.Add("KarliOran");
+                    headerParts.Add("MaxDD");
+                    headerParts.Add("MaxDDDate");
+                    headerParts.Add("MaxKayip");
+                    headerParts.Add("ProfitFac");
+                    headerParts.Add("ProfFacSis");
+                    headerParts.Add("Sinyal");
+                    headerParts.Add("SonYon");
+                    headerParts.Add("PrevYon");
+                    headerParts.Add("SonFyt");
+                    headerParts.Add("SonAFyt");
+                    headerParts.Add("SonSFyt");
+                    headerParts.Add("SonFFyt");
+                    headerParts.Add("SonPFyt");
+                    headerParts.Add("PrevFyt");
+                    headerParts.Add("SonBarNo");
+                    headerParts.Add("SonABarNo");
+                    headerParts.Add("SonSBarNo");
+                    headerParts.Add("EmirKomut");
+                    headerParts.Add("EmirStatus");
+                    headerParts.Add("HisseSayisi");
+                    headerParts.Add("KontratSayisi");
+                    headerParts.Add("VarlikAdCarp");
+                    headerParts.Add("VarlikAded");
+                    headerParts.Add("VarlikAdMic");
+                    headerParts.Add("KaymaMikt");
+                    headerParts.Add("KaymaDahil");
+                    headerParts.Add("MicroLot");
+                    headerParts.Add("Pyramiding");
+                    headerParts.Add("MaxPosSize");
+                    headerParts.Add("MaxPosFiyat");
+                    headerParts.Add("MaxPosMicro");
+                    headerParts.Add("GetFytBuAy");
+                    headerParts.Add("GetFytAy1");
+                    headerParts.Add("GetFytBuHaf");
+                    headerParts.Add("GetFytHaf1");
+                    headerParts.Add("GetFytBuGun");
+                    headerParts.Add("GetFytGun1");
+                    headerParts.Add("GetFytBuSa");
+                    headerParts.Add("GetFytSa1");
+                    headerParts.Add("GetPuaBuAy");
+                    headerParts.Add("GetPuaAy1");
+                    headerParts.Add("GetPuaBuHaf");
+                    headerParts.Add("GetPuaHaf1");
+                    headerParts.Add("GetPuaBuGun");
+                    headerParts.Add("GetPuaGun1");
+                    headerParts.Add("GetPuaBuSa");
+                    headerParts.Add("GetPuaSa1");
 
                     sw.WriteLine(string.Join(";", headerParts));
                 }
 
-                // Write data row: CombNo + Parameter values + OptimizationSummary data
+                // Write data row: CombNo + Parameter values + OptimizationResult values + OptimizationSummary values
                 var dataParts = new List<string> { currentCombination.ToString() };
 
                 // Add parameter values
                 if (result.Parameters != null && result.Parameters.Count > 0)
                 {
-                    dataParts.AddRange(result.Parameters.Values.Select(v => v.ToString()));
+                    dataParts.AddRange(result.Parameters.Values.Select(v => v?.ToString() ?? ""));
                 }
 
-                // Add OptimizationSummary data
-                dataParts.Add(optSummary.ToCsvRow());
+                // Add OptimizationResult section placeholder
+                dataParts.Add("");
+
+                // Add OptimizationResult values
+                dataParts.Add(result.IlkBakiyeFiyat.ToString("F2"));
+                dataParts.Add(result.BakiyeFiyat.ToString("F2"));
+                dataParts.Add(result.GetiriFiyat.ToString("F2"));
+                dataParts.Add(result.GetiriFiyatYuzde.ToString("F2"));
+                dataParts.Add(result.KomisyonFiyat.ToString("F2"));
+                dataParts.Add(result.BakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(result.GetiriFiyatNet.ToString("F2"));
+                dataParts.Add(result.GetiriFiyatYuzdeNet.ToString("F2"));
+                dataParts.Add(result.KomisyonFiyatYuzde.ToString("F4"));
+                dataParts.Add(result.MinBakiyeFiyat.ToString("F2"));
+                dataParts.Add(result.MaxBakiyeFiyat.ToString("F2"));
+                dataParts.Add(result.MinBakiyeFiyatYuzde.ToString("F2"));
+                dataParts.Add(result.MaxBakiyeFiyatYuzde.ToString("F2"));
+                dataParts.Add(result.MinBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(result.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(result.IslemSayisi.ToString());
+                dataParts.Add(result.AlisSayisi.ToString());
+                dataParts.Add(result.SatisSayisi.ToString());
+                dataParts.Add(result.FlatSayisi.ToString());
+                dataParts.Add(result.PassSayisi.ToString());
+                dataParts.Add(result.KarAlSayisi.ToString());
+                dataParts.Add(result.ZararKesSayisi.ToString());
+                dataParts.Add(result.KomisyonIslemSayisi.ToString());
+                dataParts.Add(result.KazandiranIslemSayisi.ToString());
+                dataParts.Add(result.KaybettirenIslemSayisi.ToString());
+                dataParts.Add(result.NotrIslemSayisi.ToString());
+                dataParts.Add(result.ToplamKarFiyat.ToString("F2"));
+                dataParts.Add(result.ToplamZararFiyat.ToString("F2"));
+                dataParts.Add(result.NetKarFiyat.ToString("F2"));
+                dataParts.Add(result.MaxKarFiyat.ToString("F2"));
+                dataParts.Add(result.MaxZararFiyat.ToString("F2"));
+                dataParts.Add(result.KarliIslemOrani.ToString("F2"));
+                dataParts.Add(result.GetiriMaxDD.ToString("F2"));
+                dataParts.Add(result.GetiriMaxDDTarih.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(result.GetiriMaxKayip.ToString("F2"));
+                dataParts.Add(result.ProfitFactor.ToString("F2"));
+                dataParts.Add(result.NetProfit.ToString("F2"));
+                dataParts.Add(result.WinRate.ToString("F2"));
+                dataParts.Add(result.MaxDrawdown.ToString("F2"));
+                dataParts.Add(result.SharpeRatio.ToString("F2"));
+                dataParts.Add(result.TotalTrades.ToString());
+                dataParts.Add(result.WinningTrades.ToString());
+                dataParts.Add(result.LosingTrades.ToString());
+                dataParts.Add(result.TotalProfit.ToString("F2"));
+                dataParts.Add(result.TotalLoss.ToString("F2"));
+                dataParts.Add(result.AverageWin.ToString("F2"));
+                dataParts.Add(result.AverageLoss.ToString("F2"));
+                dataParts.Add(result.MaxDrawdownPct.ToString("F2"));
+
+                dataParts.Add(result.TraderId.ToString());
+                dataParts.Add(result.TraderName);
+                dataParts.Add(result.SymbolName);
+                dataParts.Add(result.SymbolPeriod);
+                dataParts.Add(result.SystemId.ToString());
+                dataParts.Add(result.SystemName);
+                dataParts.Add(result.StrategyId.ToString());
+                dataParts.Add(result.StrategyName);
+                dataParts.Add(result.ToplamBarSayisi.ToString());
+                dataParts.Add(result.IlkBarTarihSaati.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(result.IlkBarTarihi.ToString("yyyy.MM.dd"));
+                dataParts.Add(result.IlkBarSaati.ToString());
+                dataParts.Add(result.SonBarTarihSaati.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(result.SonBarTarihi.ToString("yyyy.MM.dd"));
+                dataParts.Add(result.SonBarSaati.ToString());
+
+                // Add OptimizationSummary section placeholder
+                dataParts.Add("");
+
+                // Add OptimizationSummary values
+                dataParts.Add(optSummary.TraderId.ToString());
+                dataParts.Add(optSummary.TraderName);
+                dataParts.Add(optSummary.SymbolName);
+                dataParts.Add(optSummary.SymbolPeriod);
+                dataParts.Add(optSummary.SystemId.ToString());
+                dataParts.Add(optSummary.SystemName);
+                dataParts.Add(optSummary.StrategyId.ToString());
+                dataParts.Add(optSummary.StrategyName);
+                dataParts.Add(optSummary.LastExecutionId.ToString());
+                dataParts.Add(optSummary.LastExecutionTime.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.LastExecutionTimeStart.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.LastExecutionTimeStop.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.LastExecutionTimeInMSec.ToString());
+                dataParts.Add(optSummary.LastResetTime.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.LastStatisticsCalculationTime.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.ToplamBarSayisi.ToString());
+                dataParts.Add(optSummary.SecilenBarNumarasi.ToString());
+                dataParts.Add(optSummary.SecilenBarTarihSaati.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.SecilenBarTarihi.ToString("yyyy.MM.dd"));
+                dataParts.Add(optSummary.SecilenBarSaati.ToString());
+                dataParts.Add(optSummary.IlkBarTarihSaati.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.IlkBarTarihi.ToString("yyyy.MM.dd"));
+                dataParts.Add(optSummary.IlkBarSaati.ToString());
+                dataParts.Add(optSummary.SonBarTarihSaati.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.SonBarTarihi.ToString("yyyy.MM.dd"));
+                dataParts.Add(optSummary.SonBarSaati.ToString());
+                dataParts.Add(optSummary.IlkBarIndex.ToString());
+                dataParts.Add(optSummary.SonBarIndex.ToString());
+                dataParts.Add(optSummary.SonBarAcilisFiyati.ToString("F4"));
+                dataParts.Add(optSummary.SonBarYuksekFiyati.ToString("F4"));
+                dataParts.Add(optSummary.SonBarDusukFiyati.ToString("F4"));
+                dataParts.Add(optSummary.SonBarKapanisFiyati.ToString("F4"));
+                dataParts.Add(optSummary.ToplamGecenSureAy.ToString("F1"));
+                dataParts.Add(optSummary.ToplamGecenSureGun.ToString());
+                dataParts.Add(optSummary.ToplamGecenSureSaat.ToString());
+                dataParts.Add(optSummary.ToplamGecenSureDakika.ToString());
+                dataParts.Add(optSummary.OrtAylikIslemSayisi.ToString("F2"));
+                dataParts.Add(optSummary.OrtHaftalikIslemSayisi.ToString("F2"));
+                dataParts.Add(optSummary.OrtGunlukIslemSayisi.ToString("F2"));
+                dataParts.Add(optSummary.OrtSaatlikIslemSayisi.ToString("F2"));
+                dataParts.Add(optSummary.IlkBakiyeFiyat.ToString("F2"));
+                dataParts.Add(optSummary.IlkBakiyePuan.ToString("F2"));
+                dataParts.Add(optSummary.BakiyeFiyat.ToString("F2"));
+                dataParts.Add(optSummary.BakiyePuan.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyat.ToString("F2"));
+                dataParts.Add(optSummary.GetiriPuan.ToString("F4"));
+                dataParts.Add(optSummary.GetiriFiyatYuzde.ToString("F2"));
+                dataParts.Add(optSummary.GetiriPuanYuzde.ToString("F2"));
+                dataParts.Add(optSummary.BakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.BakiyePuanNet.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.GetiriPuanNet.ToString("F4"));
+                dataParts.Add(optSummary.GetiriFiyatYuzdeNet.ToString("F2"));
+                dataParts.Add(optSummary.GetiriPuanYuzdeNet.ToString("F2"));
+                dataParts.Add(optSummary.GetiriKz.ToString("F4"));
+                dataParts.Add(optSummary.GetiriKzNet.ToString("F4"));
+                dataParts.Add(optSummary.GetiriKzSistem.ToString("F4"));
+                dataParts.Add(optSummary.GetiriKzSistemYuzde.ToString("F2"));
+                dataParts.Add(optSummary.GetiriKzNetSistem.ToString("F4"));
+                dataParts.Add(optSummary.GetiriKzNetSistemYuzde.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyat.ToString("F2"));
+                dataParts.Add(optSummary.MaxBakiyeFiyat.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyePuan.ToString("F2"));
+                dataParts.Add(optSummary.MaxBakiyePuan.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyatYuzde.ToString("F2"));
+                dataParts.Add(optSummary.MaxBakiyeFiyatYuzde.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyatIndex.ToString());
+                dataParts.Add(optSummary.MaxBakiyeFiyatIndex.ToString());
+                dataParts.Add(optSummary.MinBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.IslemSayisi.ToString());
+                dataParts.Add(optSummary.AlisSayisi.ToString());
+                dataParts.Add(optSummary.SatisSayisi.ToString());
+                dataParts.Add(optSummary.FlatSayisi.ToString());
+                dataParts.Add(optSummary.PassSayisi.ToString());
+                dataParts.Add(optSummary.KarAlSayisi.ToString());
+                dataParts.Add(optSummary.ZararKesSayisi.ToString());
+                dataParts.Add(optSummary.KazandiranIslemSayisi.ToString());
+                dataParts.Add(optSummary.KaybettirenIslemSayisi.ToString());
+                dataParts.Add(optSummary.NotrIslemSayisi.ToString());
+                dataParts.Add(optSummary.KazandiranAlisSayisi.ToString());
+                dataParts.Add(optSummary.KaybettirenAlisSayisi.ToString());
+                dataParts.Add(optSummary.NotrAlisSayisi.ToString());
+                dataParts.Add(optSummary.KazandiranSatisSayisi.ToString());
+                dataParts.Add(optSummary.KaybettirenSatisSayisi.ToString());
+                dataParts.Add(optSummary.NotrSatisSayisi.ToString());
+                dataParts.Add(optSummary.AlKomutSayisi.ToString());
+                dataParts.Add(optSummary.SatKomutSayisi.ToString());
+                dataParts.Add(optSummary.PasGecKomutSayisi.ToString());
+                dataParts.Add(optSummary.KarAlKomutSayisi.ToString());
+                dataParts.Add(optSummary.ZararKesKomutSayisi.ToString());
+                dataParts.Add(optSummary.FlatOlKomutSayisi.ToString());
+                dataParts.Add(optSummary.KomisyonIslemSayisi.ToString());
+                dataParts.Add(optSummary.KomisyonVarlikAdedSayisi.ToString("F2"));
+                dataParts.Add(optSummary.KomisyonVarlikAdedSayisiMicro.ToString("F4"));
+                dataParts.Add(optSummary.KomisyonCarpan.ToString("F4"));
+                dataParts.Add(optSummary.KomisyonFiyat.ToString("F2"));
+                dataParts.Add(optSummary.KomisyonFiyatYuzde.ToString("F4"));
+                dataParts.Add(optSummary.KomisyonuDahilEt.ToString());
+                dataParts.Add(optSummary.KarZararFiyat.ToString("F2"));
+                dataParts.Add(optSummary.KarZararFiyatYuzde.ToString("F2"));
+                dataParts.Add(optSummary.KarZararPuan.ToString("F4"));
+                dataParts.Add(optSummary.ToplamKarFiyat.ToString("F2"));
+                dataParts.Add(optSummary.ToplamZararFiyat.ToString("F2"));
+                dataParts.Add(optSummary.NetKarFiyat.ToString("F2"));
+                dataParts.Add(optSummary.ToplamKarPuan.ToString("F4"));
+                dataParts.Add(optSummary.ToplamZararPuan.ToString("F4"));
+                dataParts.Add(optSummary.NetKarPuan.ToString("F4"));
+                dataParts.Add(optSummary.MaxKarFiyat.ToString("F2"));
+                dataParts.Add(optSummary.MaxZararFiyat.ToString("F2"));
+                dataParts.Add(optSummary.MaxKarPuan.ToString("F4"));
+                dataParts.Add(optSummary.MaxZararPuan.ToString("F4"));
+                dataParts.Add(optSummary.KardaBarSayisi.ToString());
+                dataParts.Add(optSummary.ZarardaBarSayisi.ToString());
+                dataParts.Add(optSummary.KarliIslemOrani.ToString("F2"));
+                dataParts.Add(optSummary.GetiriMaxDD.ToString("F2"));
+                dataParts.Add(optSummary.GetiriMaxDDTarih.ToString("yyyy.MM.dd HH:mm:ss"));
+                dataParts.Add(optSummary.GetiriMaxKayip.ToString("F2"));
+                dataParts.Add(optSummary.ProfitFactor.ToString("F2"));
+                dataParts.Add(optSummary.ProfitFactorSistem.ToString("F2"));
+                dataParts.Add(optSummary.Sinyal);
+                dataParts.Add(optSummary.SonYon);
+                dataParts.Add(optSummary.PrevYon);
+                dataParts.Add(optSummary.SonFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonAFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonSFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonFFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonPFiyat.ToString("F4"));
+                dataParts.Add(optSummary.PrevFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonBarNo.ToString());
+                dataParts.Add(optSummary.SonABarNo.ToString());
+                dataParts.Add(optSummary.SonSBarNo.ToString());
+                dataParts.Add(optSummary.EmirKomut);
+                dataParts.Add(optSummary.EmirStatus);
+                dataParts.Add(optSummary.HisseSayisi.ToString("F2"));
+                dataParts.Add(optSummary.KontratSayisi.ToString("F2"));
+                dataParts.Add(optSummary.VarlikAdedCarpani.ToString("F2"));
+                dataParts.Add(optSummary.VarlikAdedSayisi.ToString("F2"));
+                dataParts.Add(optSummary.VarlikAdedSayisiMicro.ToString("F4"));
+                dataParts.Add(optSummary.KaymaMiktari.ToString("F4"));
+                dataParts.Add(optSummary.KaymayiDahilEt.ToString());
+                dataParts.Add(optSummary.MicroLotSizeEnabled.ToString());
+                dataParts.Add(optSummary.PyramidingEnabled.ToString());
+                dataParts.Add(optSummary.MaxPositionSizeEnabled.ToString());
+                dataParts.Add(optSummary.MaxPositionSize.ToString("F4"));
+                dataParts.Add(optSummary.MaxPositionSizeMicro.ToString("F4"));
+                dataParts.Add(optSummary.GetiriFiyatBuAy.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatAy1.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatBuHafta.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatHafta1.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatBuGun.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatGun1.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatBuSaat.ToString("F2"));
+                dataParts.Add(optSummary.GetiriFiyatSaat1.ToString("F2"));
+                dataParts.Add(optSummary.GetiriPuanBuAy.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanAy1.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanBuHafta.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanHafta1.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanBuGun.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanGun1.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanBuSaat.ToString("F4"));
+                dataParts.Add(optSummary.GetiriPuanSaat1.ToString("F4"));
 
                 sw.WriteLine(string.Join(";", dataParts));
                 sw.Flush();
@@ -951,7 +1418,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// Append single OptimizationSummary to TXT file (Tabular format like SaveListsToTxt)
         /// </summary>
         private void AppendSingleOptSummaryToTxt(
-            OptimizationResult result,
+            OptimizationResult optResult,
             AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
             string filePath,
             int currentCombination)
@@ -983,15 +1450,89 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     headerBuilder.Append($"{"CombNo",7} | ");
 
                     // Add parameter columns dynamically
-                    if (result.Parameters != null && result.Parameters.Count > 0)
+                    if (optResult.Parameters != null && optResult.Parameters.Count > 0)
                     {
-                        foreach (var paramName in result.Parameters.Keys)
+                        foreach (var paramName in optResult.Parameters.Keys)
                         {
                             headerBuilder.Append($"{paramName,12} | ");
                         }
                     }
 
-                    // Add rest of the fields
+                    // Add OptimizationResult section header
+                    headerBuilder.Append($"{"OptResult",20} | ");
+
+                    // Add OptimizationResult fields
+                    headerBuilder.Append(
+                        $"{"OR_IlkBakFy",11} | " +
+                        $"{"OR_BakFiyat",11} | " +
+                        $"{"OR_GetFiyat",11} | " +
+                        $"{"OR_GetFyt%",9} | " +
+                        $"{"OR_KomFiyat",11} | " +
+                        $"{"OR_BakFyNet",11} | " +
+                        $"{"OR_GetFyNet",11} | " +
+                        $"{"OR_GetFy%N",9} | " +
+                        $"{"OR_KomFy%",9} | " +
+                        $"{"OR_MinBakFy",11} | " +
+                        $"{"OR_MaxBakFy",11} | " +
+                        $"{"OR_MinBak%",10} | " +
+                        $"{"OR_MaxBak%",10} | " +
+                        $"{"OR_MinBakNt",11} | " +
+                        $"{"OR_MaxBakNt",11} | " +
+                        $"{"OR_Islem",8} | " +
+                        $"{"OR_Alis",8} | " +
+                        $"{"OR_Satis",8} | " +
+                        $"{"OR_Flat",8} | " +
+                        $"{"OR_Pass",8} | " +
+                        $"{"OR_KarAl",8} | " +
+                        $"{"OR_ZararKes",10} | " +
+                        $"{"OR_KomIslem",10} | " +
+                        $"{"OR_Kazand",8} | " +
+                        $"{"OR_Kaybett",8} | " +
+                        $"{"OR_Notr",8} | " +
+                        $"{"OR_TopKarFy",11} | " +
+                        $"{"OR_TopZarFy",11} | " +
+                        $"{"OR_NetKarFy",11} | " +
+                        $"{"OR_MaxKarFy",11} | " +
+                        $"{"OR_MaxZarFy",11} | " +
+                        $"{"OR_KarliOra",10} | " +
+                        $"{"OR_MaxDD",10} | " +
+                        $"{"OR_MaxDDDt",19} | " +
+                        $"{"OR_MaxKayip",10} | " +
+                        $"{"OR_ProfFact",10} | " +
+                        $"{"OR_NetProf",11} | " +
+                        $"{"OR_WinRate",10} | " +
+                        $"{"OR_MaxDD2",10} | " +
+                        $"{"OR_Sharpe",10} | " +
+                        $"{"OR_TotTrade",10} | " +
+                        $"{"OR_WinTrade",10} | " +
+                        $"{"OR_LosTrade",10} | " +
+                        $"{"OR_TotProf",11} | " +
+                        $"{"OR_TotLoss",11} | " +
+                        $"{"OR_AvgWin",11} | " +
+                        $"{"OR_AvgLoss",11} | " +
+                        $"{"OR_MaxDD%",10} | " +
+
+                        $"{"OR_TraderId",10} | " +
+                        $"{"OR_TrdrName",20} | " +
+                        $"{"OR_Symbol",10} | " +
+                        $"{"OR_SymPer",9} | " +
+                        $"{"OR_SysId",10} | " +
+                        $"{"OR_SysName",20} | " +
+                        $"{"OR_StratId",10} | " +
+                        $"{"OR_StratNam",20} | " +
+                        $"{"OR_BarCnt",10} | " +
+                        $"{"OR_IlkBarDT",19} | " +
+                        $"{"OR_IlkBarD",10} | " +
+                        $"{"OR_IlkBarT",10} | " +
+                        $"{"OR_SonBarDT",19} | " +
+                        $"{"OR_SonBarD",10} | " +
+                        $"{"OR_SonBarT",10} | "
+                    );
+
+                    // Add OptimizationSummary section header
+                    headerBuilder.Append($"{"OptSummary",20} | ");
+
+                    // Add OptimizationSummary fields
                     headerBuilder.Append(
                         $"{"TraderId",8} | " +
                         $"{"TraderName",20} | " +
@@ -1166,13 +1707,83 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataBuilder.Append($"{currentCombination,7} | ");
 
                 // Add parameter values dynamically
-                if (result.Parameters != null && result.Parameters.Count > 0)
+                if (optResult.Parameters != null && optResult.Parameters.Count > 0)
                 {
-                    foreach (var paramValue in result.Parameters.Values)
+                    foreach (var paramValue in optResult.Parameters.Values)
                     {
                         dataBuilder.Append($"{paramValue,12} | ");
                     }
                 }
+
+                // OptimizationResult headerBuilder deki sırayla...
+                dataBuilder.Append(
+                    $"{ "", 20} | " +
+                    $"{optResult.IlkBakiyeFiyat,11:F2} | " +
+                    $"{optResult.BakiyeFiyat,11:F2} | " +
+                    $"{optResult.GetiriFiyat,11:F2} | " +
+                    $"{optResult.GetiriFiyatYuzde,9:F2} | " +
+                    $"{optResult.KomisyonFiyat,11:F2} | " +
+                    $"{optResult.BakiyeFiyatNet,11:F2} | " +
+                    $"{optResult.GetiriFiyatNet,11:F2} | " +
+                    $"{optResult.GetiriFiyatYuzdeNet,9:F2} | " +
+                    $"{optResult.KomisyonFiyatYuzde,9:F4} | " +
+                    $"{optResult.MinBakiyeFiyat,11:F2} | " +
+                    $"{optResult.MaxBakiyeFiyat,11:F2} | " +
+                    $"{optResult.MinBakiyeFiyatYuzde,10:F2} | " +
+                    $"{optResult.MaxBakiyeFiyatYuzde,10:F2} | " +
+                    $"{optResult.MinBakiyeFiyatNet,11:F2} | " +
+                    $"{optResult.MaxBakiyeFiyatNet,11:F2} | " +
+                    $"{optResult.IslemSayisi,8} | " +
+                    $"{optResult.AlisSayisi,8} | " +
+                    $"{optResult.SatisSayisi,8} | " +
+                    $"{optResult.FlatSayisi,8} | " +
+                    $"{optResult.PassSayisi,8} | " +
+                    $"{optResult.KarAlSayisi,8} | " +
+                    $"{optResult.ZararKesSayisi,10} | " +
+                    $"{optResult.KomisyonIslemSayisi,10} | " +
+                    $"{optResult.KazandiranIslemSayisi,8} | " +
+                    $"{optResult.KaybettirenIslemSayisi,8} | " +
+                    $"{optResult.NotrIslemSayisi,8} | " +
+                    $"{optResult.ToplamKarFiyat,11:F2} | " +
+                    $"{optResult.ToplamZararFiyat,11:F2} | " +
+                    $"{optResult.NetKarFiyat,11:F2} | " +
+                    $"{optResult.MaxKarFiyat,11:F2} | " +
+                    $"{optResult.MaxZararFiyat,11:F2} | " +
+                    $"{optResult.KarliIslemOrani,10:F2} | " +
+                    $"{optResult.GetiriMaxDD,10:F2} | " +
+                    $"{optResult.GetiriMaxDDTarih,19:yyyy.MM.dd HH:mm:ss} | " +
+                    $"{optResult.GetiriMaxKayip,10:F2} | " +
+                    $"{optResult.ProfitFactor,10:F2} | " +
+                    $"{optResult.NetProfit,11:F2} | " +
+                    $"{optResult.WinRate,10:F2} | " +
+                    $"{optResult.MaxDrawdown,10:F2} | " +
+                    $"{optResult.SharpeRatio,10:F2} | " +
+                    $"{optResult.TotalTrades,10} | " +
+                    $"{optResult.WinningTrades,10} | " +
+                    $"{optResult.LosingTrades,10} | " +
+                    $"{optResult.TotalProfit,11:F2} | " +
+                    $"{optResult.TotalLoss,11:F2} | " +
+                    $"{optResult.AverageWin,11:F2} | " +
+                    $"{optResult.AverageLoss,11:F2} | " +
+                    $"{optResult.MaxDrawdownPct,10:F2} | " +
+
+                    $"{optResult.TraderId,10} | " +
+                    $"{optResult.TraderName,20} | " +
+                    $"{optResult.SymbolName,10} | " +
+                    $"{optResult.SymbolPeriod,9} | " +
+                    $"{optResult.SystemId,10} | " +
+                    $"{optResult.SystemName,20} | " +
+                    $"{optResult.StrategyId,10} | " +
+                    $"{optResult.StrategyName,20} | " +
+                    $"{optResult.ToplamBarSayisi,10} | " +
+                    $"{optResult.IlkBarTarihSaati,19:yyyy.MM.dd HH:mm:ss} | " +
+                    $"{optResult.IlkBarTarihi,10:yyyy.MM.dd} | " +
+                    $"{optResult.IlkBarSaati,10} | " +
+                    $"{optResult.SonBarTarihSaati,19:yyyy.MM.dd HH:mm:ss} | " +
+                    $"{optResult.SonBarTarihi,10:yyyy.MM.dd} | " +
+                    $"{optResult.SonBarSaati,10} | " +
+                    $"{ "", 20} | "
+                );
 
                 // Add rest of the data
                 dataBuilder.Append(
