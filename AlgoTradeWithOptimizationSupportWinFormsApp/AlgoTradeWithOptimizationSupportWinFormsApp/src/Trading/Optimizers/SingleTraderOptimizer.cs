@@ -548,7 +548,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     }
                 }
 
-                Logger?.Log($"Testing combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%) [Effective: {effectiveCombinationCount}]: {paramsStr}");
+                Logger?.Log($"    Testing combination {currentCombination}/{totalCombinations} ({progressPercent:F1}%) [Effective: {effectiveCombinationCount}]: {paramsStr}");
 
                 // Create strategy instance using factory (generic!)
                 var strategy = StrategyFactoryMethod(this.Data, indicators, paramCombo);
@@ -586,17 +586,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 var optSummary = singleTrader.statistics.GetOptimizationSummary();
 
                 // Create result from optimization summary
-                var result = CreateOptimizationResultFromSummary(optSummary, paramCombo);
+                var optResult = CreateOptimizationResultFromSummary(optSummary, paramCombo);
 
-                Results.Add(result);
+                Results.Add(optResult);
 
-                Logger?.Log($"  → NetProfit: {result.NetProfit:F2}, WinRate: {result.WinRate:F2}%, PF: {result.ProfitFactor:F2}");
+                Logger?.Log($"  → NetProfit: {optResult.NetProfit:F2}, WinRate: {optResult.WinRate:F2}%, PF: {optResult.ProfitFactor:F2}");
 
                 // Append to CSV and TXT files (if enabled)
                 //AppendSingleResultToFiles(result, currentCombination);
 
                 // Append to CSV and TXT files (if enabled)
-                AppendSingleOptSummaryToFiles(optSummary, currentCombination);
+                AppendSingleOptSummaryToFiles(optResult, optSummary, currentCombination);
 
                 // strategy.Dispose();
                 strategy = null;
@@ -853,6 +853,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// Append single OptimizationSummary to CSV and TXT files (called after each combination)
         /// </summary>
         private void AppendSingleOptSummaryToFiles(
+            OptimizationResult result,
             AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
             int currentCombination)
         {
@@ -864,7 +865,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             {
                 try
                 {
-                    AppendSingleOptSummaryToCsv(optSummary, CsvFilePath, currentCombination);
+                    AppendSingleOptSummaryToCsv(result, optSummary, CsvFilePath, currentCombination);
                 }
                 catch (Exception ex)
                 {
@@ -877,7 +878,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             {
                 try
                 {
-                    AppendSingleOptSummaryToTxt(optSummary, TxtFilePath, currentCombination);
+                    AppendSingleOptSummaryToTxt(result, optSummary, TxtFilePath, currentCombination);
                 }
                 catch (Exception ex)
                 {
@@ -890,6 +891,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// Append single OptimizationSummary to CSV file
         /// </summary>
         private void AppendSingleOptSummaryToCsv(
+            OptimizationResult result,
             AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
             string filePath,
             int currentCombination)
@@ -908,24 +910,48 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
                 System.IO.FileAccess.Write,
                 System.IO.FileShare.ReadWrite))
-            using (var sw = new System.IO.StreamWriter(fs))
+            using (var sw = new System.IO.StreamWriter(fs, System.Text.Encoding.UTF8))
             {
                 // Write header if needed
                 if (writeHeader)
                 {
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetCsvHeader());
+                    // Build header: CombNo + Parameters + OptimizationSummary fields
+                    var headerParts = new List<string> { "CombNo" };
+
+                    // Add parameter names
+                    if (result.Parameters != null && result.Parameters.Count > 0)
+                    {
+                        headerParts.AddRange(result.Parameters.Keys);
+                    }
+
+                    // Add OptimizationSummary header
+                    headerParts.Add(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary.GetCsvHeader());
+
+                    sw.WriteLine(string.Join(";", headerParts));
                 }
 
-                // Write data
-                sw.WriteLine(optSummary.ToCsvRow());
+                // Write data row: CombNo + Parameter values + OptimizationSummary data
+                var dataParts = new List<string> { currentCombination.ToString() };
+
+                // Add parameter values
+                if (result.Parameters != null && result.Parameters.Count > 0)
+                {
+                    dataParts.AddRange(result.Parameters.Values.Select(v => v.ToString()));
+                }
+
+                // Add OptimizationSummary data
+                dataParts.Add(optSummary.ToCsvRow());
+
+                sw.WriteLine(string.Join(";", dataParts));
                 sw.Flush();
             }
         }
 
         /// <summary>
-        /// Append single OptimizationSummary to TXT file
+        /// Append single OptimizationSummary to TXT file (Tabular format like SaveListsToTxt)
         /// </summary>
         private void AppendSingleOptSummaryToTxt(
+            OptimizationResult result,
             AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
             string filePath,
             int currentCombination)
@@ -944,19 +970,377 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 (AppendEnabled && fileExists) ? System.IO.FileMode.Append : System.IO.FileMode.Create,
                 System.IO.FileAccess.Write,
                 System.IO.FileShare.ReadWrite))
-            using (var sw = new System.IO.StreamWriter(fs))
+            using (var sw = new System.IO.StreamWriter(fs, System.Text.Encoding.UTF8))
             {
                 // Write header if needed
                 if (writeHeader)
                 {
-                    sw.WriteLine($"Optimization Results - {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtSeparator());
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtHeader());
-                    sw.WriteLine(AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummaryMinimal.GetTxtSeparator());
+                    sw.WriteLine($"OPTIMIZATION RESULTS - {DateTime.Now:yyyy.MM.dd HH:mm:ss}");
+                    sw.WriteLine("".PadRight(3000, '='));
+
+                    // Build header with dynamic parameters
+                    var headerBuilder = new System.Text.StringBuilder();
+                    headerBuilder.Append($"{"CombNo",7} | ");
+
+                    // Add parameter columns dynamically
+                    if (result.Parameters != null && result.Parameters.Count > 0)
+                    {
+                        foreach (var paramName in result.Parameters.Keys)
+                        {
+                            headerBuilder.Append($"{paramName,12} | ");
+                        }
+                    }
+
+                    // Add rest of the fields
+                    headerBuilder.Append(
+                        $"{"TraderId",8} | " +
+                        $"{"TraderName",20} | " +
+                        $"{"SymbolName",10} | " +
+                        $"{"SymbolPer",9} | " +
+                        $"{"SystemId",10} | " +
+                        $"{"SystemName",20} | " +
+                        $"{"StrategyId",10} | " +
+                        $"{"StrategyName",25} | " +
+                        $"{"LastExecId",15} | " +
+                        $"{"LastExecTime",20} | " +
+                        $"{"ExecStart",20} | " +
+                        $"{"ExecStop",20} | " +
+                        $"{"ExecMs",10} | " +
+                        $"{"ResetTime",20} | " +
+                        $"{"StatsTime",20} | " +
+                        $"{"BarCnt",7} | " +
+                        $"{"SelBarNo",8} | " +
+                        $"{"SelBarDT",19} | " +
+                        $"{"SelBarD",10} | " +
+                        $"{"SelBarT",8} | " +
+                        $"{"IlkBarDT",19} | " +
+                        $"{"IlkBarD",10} | " +
+                        $"{"IlkBarT",8} | " +
+                        $"{"SonBarDT",19} | " +
+                        $"{"SonBarD",10} | " +
+                        $"{"SonBarT",8} | " +
+                        $"{"IlkBarIdx",9} | " +
+                        $"{"SonBarIdx",9} | " +
+                        $"{"SonBarOp",10} | " +
+                        $"{"SonBarHi",10} | " +
+                        $"{"SonBarLo",10} | " +
+                        $"{"SonBarCl",10} | " +
+                        $"{"Months",7} | " +
+                        $"{"Days",7} | " +
+                        $"{"Hours",7} | " +
+                        $"{"Mins",7} | " +
+                        $"{"AvgMoTrd",9} | " +
+                        $"{"AvgWeekTr",10} | " +
+                        $"{"AvgDayTr",9} | " +
+                        $"{"AvgHrTrd",9} | " +
+                        $"{"IlkBakFyt",11} | " +
+                        $"{"IlkBakPua",11} | " +
+                        $"{"BakFiyat",11} | " +
+                        $"{"BakPuan",11} | " +
+                        $"{"GetFiyat",11} | " +
+                        $"{"GetPuan",11} | " +
+                        $"{"GetFyt%",9} | " +
+                        $"{"GetPua%",9} | " +
+                        $"{"BakFytNet",11} | " +
+                        $"{"BakPuaNet",11} | " +
+                        $"{"GetFytNet",11} | " +
+                        $"{"GetPuaNet",11} | " +
+                        $"{"GetFyt%N",9} | " +
+                        $"{"GetPua%N",9} | " +
+                        $"{"GetKz",11} | " +
+                        $"{"GetKzNet",11} | " +
+                        $"{"GetKzSis",11} | " +
+                        $"{"GetKzSis%",10} | " +
+                        $"{"GetKzNetS",11} | " +
+                        $"{"GetKzNtS%",11} | " +
+                        $"{"MinBakFyt",11} | " +
+                        $"{"MaxBakFyt",11} | " +
+                        $"{"MinBakPua",11} | " +
+                        $"{"MaxBakPua",11} | " +
+                        $"{"MinBakF%",10} | " +
+                        $"{"MaxBakF%",10} | " +
+                        $"{"MinBakIdx",9} | " +
+                        $"{"MaxBakIdx",9} | " +
+                        $"{"MinBakNet",11} | " +
+                        $"{"MaxBakNet",11} | " +
+                        $"{"Islem",6} | " +
+                        $"{"Alis",6} | " +
+                        $"{"Satis",6} | " +
+                        $"{"Flat",6} | " +
+                        $"{"Pass",6} | " +
+                        $"{"KarAl",6} | " +
+                        $"{"ZararKes",8} | " +
+                        $"{"Kazand",7} | " +
+                        $"{"Kaybett",8} | " +
+                        $"{"Notr",6} | " +
+                        $"{"KazAlis",8} | " +
+                        $"{"KayAlis",8} | " +
+                        $"{"NotAlis",8} | " +
+                        $"{"KazSatis",9} | " +
+                        $"{"KaySatis",9} | " +
+                        $"{"NotSatis",9} | " +
+                        $"{"AlKomut",8} | " +
+                        $"{"SatKomut",9} | " +
+                        $"{"PasKomut",9} | " +
+                        $"{"KarAlKom",9} | " +
+                        $"{"ZarKesKom",10} | " +
+                        $"{"FlatKom",8} | " +
+                        $"{"KomIslem",9} | " +
+                        $"{"KomVarAd",10} | " +
+                        $"{"KomVarMic",10} | " +
+                        $"{"KomCarpa",10} | " +
+                        $"{"KomFiyat",10} | " +
+                        $"{"KomFyt%",9} | " +
+                        $"{"KomDahil",9} | " +
+                        $"{"KZFiyat",10} | " +
+                        $"{"KZFiyat%",10} | " +
+                        $"{"KZPuan",10} | " +
+                        $"{"TopKarFyt",11} | " +
+                        $"{"TopZarFyt",11} | " +
+                        $"{"NetKarFyt",11} | " +
+                        $"{"TopKarPua",11} | " +
+                        $"{"TopZarPua",11} | " +
+                        $"{"NetKarPua",11} | " +
+                        $"{"MaxKarFyt",11} | " +
+                        $"{"MaxZarFyt",11} | " +
+                        $"{"MaxKarPua",11} | " +
+                        $"{"MaxZarPua",11} | " +
+                        $"{"KarBar",7} | " +
+                        $"{"ZarBar",7} | " +
+                        $"{"KarliOran",10} | " +
+                        $"{"MaxDD",10} | " +
+                        $"{"MaxDDDate",19} | " +
+                        $"{"MaxKayip",10} | " +
+                        $"{"ProfitFac",10} | " +
+                        $"{"ProfFacSis",11} | " +
+                        $"{"Sinyal",8} | " +
+                        $"{"SonYon",6} | " +
+                        $"{"PrevYon",7} | " +
+                        $"{"SonFyt",10} | " +
+                        $"{"SonAFyt",10} | " +
+                        $"{"SonSFyt",10} | " +
+                        $"{"SonFFyt",10} | " +
+                        $"{"SonPFyt",10} | " +
+                        $"{"PrevFyt",10} | " +
+                        $"{"SonBarNo",9} | " +
+                        $"{"SonABarNo",10} | " +
+                        $"{"SonSBarNo",10} | " +
+                        $"{"EmirKmt",8} | " +
+                        $"{"EmirSts",8} | " +
+                        $"{"Hisse",10} | " +
+                        $"{"Kontrat",10} | " +
+                        $"{"VarCarpa",10} | " +
+                        $"{"VarAded",10} | " +
+                        $"{"VarAdMic",10} | " +
+                        $"{"Kayma",10} | " +
+                        $"{"KaymaDah",9} | " +
+                        $"{"MicroEna",9} | " +
+                        $"{"PyramEna",9} | " +
+                        $"{"MaxPosEna",10} | " +
+                        $"{"MaxPos",10} | " +
+                        $"{"MaxPosMic",10} | " +
+                        $"{"GetFBuAy",10} | " +
+                        $"{"GetFAy1",10} | " +
+                        $"{"GetFBuHft",10} | " +
+                        $"{"GetFHft1",10} | " +
+                        $"{"GetFBuGun",10} | " +
+                        $"{"GetFGun1",10} | " +
+                        $"{"GetFBuSat",10} | " +
+                        $"{"GetFSat1",10} | " +
+                        $"{"GetPBuAy",10} | " +
+                        $"{"GetPAy1",10} | " +
+                        $"{"GetPBuHft",10} | " +
+                        $"{"GetPHft1",10} | " +
+                        $"{"GetPBuGun",10} | " +
+                        $"{"GetPGun1",10} | " +
+                        $"{"GetPBuSat",10} | " +
+                        $"{"GetPSat1",10}"
+                    );
+
+                    sw.WriteLine(headerBuilder.ToString());
+                    sw.WriteLine("".PadRight(3000, '-'));
                 }
 
-                // Write data
-                sw.WriteLine(optSummary.ToTxtRow());
+                // Build data row with dynamic parameters
+                var dataBuilder = new System.Text.StringBuilder();
+                dataBuilder.Append($"{currentCombination,7} | ");
+
+                // Add parameter values dynamically
+                if (result.Parameters != null && result.Parameters.Count > 0)
+                {
+                    foreach (var paramValue in result.Parameters.Values)
+                    {
+                        dataBuilder.Append($"{paramValue,12} | ");
+                    }
+                }
+
+                // Add rest of the data
+                dataBuilder.Append(
+                    $"{optSummary.TraderId,8} | " +
+                    $"{optSummary.TraderName,20} | " +
+                    $"{optSummary.SymbolName,10} | " +
+                    $"{optSummary.SymbolPeriod,9} | " +
+                    $"{optSummary.SystemId,10} | " +
+                    $"{optSummary.SystemName,20} | " +
+                    $"{optSummary.StrategyId,10} | " +
+                    $"{optSummary.StrategyName,25} | " +
+                    $"{optSummary.LastExecutionId,15} | " +
+                    $"{optSummary.LastExecutionTime,20} | " +
+                    $"{optSummary.LastExecutionTimeStart,20} | " +
+                    $"{optSummary.LastExecutionTimeStop,20} | " +
+                    $"{optSummary.LastExecutionTimeInMSec,10} | " +
+                    $"{optSummary.LastResetTime,20} | " +
+                    $"{optSummary.LastStatisticsCalculationTime,20} | " +
+                    $"{optSummary.ToplamBarSayisi,7} | " +
+                    $"{optSummary.SecilenBarNumarasi,8} | " +
+                    $"{optSummary.SecilenBarTarihSaati,19} | " +
+                    $"{optSummary.SecilenBarTarihi,10} | " +
+                    $"{optSummary.SecilenBarSaati,8} | " +
+                    $"{optSummary.IlkBarTarihSaati,19} | " +
+                    $"{optSummary.IlkBarTarihi,10} | " +
+                    $"{optSummary.IlkBarSaati,8} | " +
+                    $"{optSummary.SonBarTarihSaati,19} | " +
+                    $"{optSummary.SonBarTarihi,10} | " +
+                    $"{optSummary.SonBarSaati,8} | " +
+                    $"{optSummary.IlkBarIndex,9} | " +
+                    $"{optSummary.SonBarIndex,9} | " +
+                    $"{optSummary.SonBarAcilisFiyati,10:F4} | " +
+                    $"{optSummary.SonBarYuksekFiyati,10:F4} | " +
+                    $"{optSummary.SonBarDusukFiyati,10:F4} | " +
+                    $"{optSummary.SonBarKapanisFiyati,10:F4} | " +
+                    $"{optSummary.ToplamGecenSureAy,7:F1} | " +
+                    $"{optSummary.ToplamGecenSureGun,7} | " +
+                    $"{optSummary.ToplamGecenSureSaat,7} | " +
+                    $"{optSummary.ToplamGecenSureDakika,7} | " +
+                    $"{optSummary.OrtAylikIslemSayisi,9:F2} | " +
+                    $"{optSummary.OrtHaftalikIslemSayisi,10:F2} | " +
+                    $"{optSummary.OrtGunlukIslemSayisi,9:F2} | " +
+                    $"{optSummary.OrtSaatlikIslemSayisi,9:F2} | " +
+                    $"{optSummary.IlkBakiyeFiyat,11:F2} | " +
+                    $"{optSummary.IlkBakiyePuan,11:F2} | " +
+                    $"{optSummary.BakiyeFiyat,11:F2} | " +
+                    $"{optSummary.BakiyePuan,11:F2} | " +
+                    $"{optSummary.GetiriFiyat,11:F2} | " +
+                    $"{optSummary.GetiriPuan,11:F4} | " +
+                    $"{optSummary.GetiriFiyatYuzde,9:F2} | " +
+                    $"{optSummary.GetiriPuanYuzde,9:F2} | " +
+                    $"{optSummary.BakiyeFiyatNet,11:F2} | " +
+                    $"{optSummary.BakiyePuanNet,11:F2} | " +
+                    $"{optSummary.GetiriFiyatNet,11:F2} | " +
+                    $"{optSummary.GetiriPuanNet,11:F4} | " +
+                    $"{optSummary.GetiriFiyatYuzdeNet,9:F2} | " +
+                    $"{optSummary.GetiriPuanYuzdeNet,9:F2} | " +
+                    $"{optSummary.GetiriKz,11:F4} | " +
+                    $"{optSummary.GetiriKzNet,11:F4} | " +
+                    $"{optSummary.GetiriKzSistem,11:F4} | " +
+                    $"{optSummary.GetiriKzSistemYuzde,10:F2} | " +
+                    $"{optSummary.GetiriKzNetSistem,11:F4} | " +
+                    $"{optSummary.GetiriKzNetSistemYuzde,11:F2} | " +
+                    $"{optSummary.MinBakiyeFiyat,11:F2} | " +
+                    $"{optSummary.MaxBakiyeFiyat,11:F2} | " +
+                    $"{optSummary.MinBakiyePuan,11:F2} | " +
+                    $"{optSummary.MaxBakiyePuan,11:F2} | " +
+                    $"{optSummary.MinBakiyeFiyatYuzde,10:F2} | " +
+                    $"{optSummary.MaxBakiyeFiyatYuzde,10:F2} | " +
+                    $"{optSummary.MinBakiyeFiyatIndex,9} | " +
+                    $"{optSummary.MaxBakiyeFiyatIndex,9} | " +
+                    $"{optSummary.MinBakiyeFiyatNet,11:F2} | " +
+                    $"{optSummary.MaxBakiyeFiyatNet,11:F2} | " +
+                    $"{optSummary.IslemSayisi,6} | " +
+                    $"{optSummary.AlisSayisi,6} | " +
+                    $"{optSummary.SatisSayisi,6} | " +
+                    $"{optSummary.FlatSayisi,6} | " +
+                    $"{optSummary.PassSayisi,6} | " +
+                    $"{optSummary.KarAlSayisi,6} | " +
+                    $"{optSummary.ZararKesSayisi,8} | " +
+                    $"{optSummary.KazandiranIslemSayisi,7} | " +
+                    $"{optSummary.KaybettirenIslemSayisi,8} | " +
+                    $"{optSummary.NotrIslemSayisi,6} | " +
+                    $"{optSummary.KazandiranAlisSayisi,8} | " +
+                    $"{optSummary.KaybettirenAlisSayisi,8} | " +
+                    $"{optSummary.NotrAlisSayisi,8} | " +
+                    $"{optSummary.KazandiranSatisSayisi,9} | " +
+                    $"{optSummary.KaybettirenSatisSayisi,9} | " +
+                    $"{optSummary.NotrSatisSayisi,9} | " +
+                    $"{optSummary.AlKomutSayisi,8} | " +
+                    $"{optSummary.SatKomutSayisi,9} | " +
+                    $"{optSummary.PasGecKomutSayisi,9} | " +
+                    $"{optSummary.KarAlKomutSayisi,9} | " +
+                    $"{optSummary.ZararKesKomutSayisi,10} | " +
+                    $"{optSummary.FlatOlKomutSayisi,8} | " +
+                    $"{optSummary.KomisyonIslemSayisi,9} | " +
+                    $"{optSummary.KomisyonVarlikAdedSayisi,10:F2} | " +
+                    $"{optSummary.KomisyonVarlikAdedSayisiMicro,10:F4} | " +
+                    $"{optSummary.KomisyonCarpan,10:F4} | " +
+                    $"{optSummary.KomisyonFiyat,10:F2} | " +
+                    $"{optSummary.KomisyonFiyatYuzde,9:F4} | " +
+                    $"{optSummary.KomisyonuDahilEt,9} | " +
+                    $"{optSummary.KarZararFiyat,10:F2} | " +
+                    $"{optSummary.KarZararFiyatYuzde,10:F2} | " +
+                    $"{optSummary.KarZararPuan,10:F4} | " +
+                    $"{optSummary.ToplamKarFiyat,11:F2} | " +
+                    $"{optSummary.ToplamZararFiyat,11:F2} | " +
+                    $"{optSummary.NetKarFiyat,11:F2} | " +
+                    $"{optSummary.ToplamKarPuan,11:F4} | " +
+                    $"{optSummary.ToplamZararPuan,11:F4} | " +
+                    $"{optSummary.NetKarPuan,11:F4} | " +
+                    $"{optSummary.MaxKarFiyat,11:F2} | " +
+                    $"{optSummary.MaxZararFiyat,11:F2} | " +
+                    $"{optSummary.MaxKarPuan,11:F4} | " +
+                    $"{optSummary.MaxZararPuan,11:F4} | " +
+                    $"{optSummary.KardaBarSayisi,7} | " +
+                    $"{optSummary.ZarardaBarSayisi,7} | " +
+                    $"{optSummary.KarliIslemOrani,10:F2} | " +
+                    $"{optSummary.GetiriMaxDD,10:F2} | " +
+                    $"{optSummary.GetiriMaxDDTarih,19} | " +
+                    $"{optSummary.GetiriMaxKayip,10:F2} | " +
+                    $"{optSummary.ProfitFactor,10:F2} | " +
+                    $"{optSummary.ProfitFactorSistem,11:F2} | " +
+                    $"{optSummary.Sinyal,8} | " +
+                    $"{optSummary.SonYon,6} | " +
+                    $"{optSummary.PrevYon,7} | " +
+                    $"{optSummary.SonFiyat,10:F4} | " +
+                    $"{optSummary.SonAFiyat,10:F4} | " +
+                    $"{optSummary.SonSFiyat,10:F4} | " +
+                    $"{optSummary.SonFFiyat,10:F4} | " +
+                    $"{optSummary.SonPFiyat,10:F4} | " +
+                    $"{optSummary.PrevFiyat,10:F4} | " +
+                    $"{optSummary.SonBarNo,9} | " +
+                    $"{optSummary.SonABarNo,10} | " +
+                    $"{optSummary.SonSBarNo,10} | " +
+                    $"{optSummary.EmirKomut,8} | " +
+                    $"{optSummary.EmirStatus,8} | " +
+                    $"{optSummary.HisseSayisi,10:F2} | " +
+                    $"{optSummary.KontratSayisi,10:F2} | " +
+                    $"{optSummary.VarlikAdedCarpani,10:F2} | " +
+                    $"{optSummary.VarlikAdedSayisi,10:F2} | " +
+                    $"{optSummary.VarlikAdedSayisiMicro,10:F4} | " +
+                    $"{optSummary.KaymaMiktari,10:F4} | " +
+                    $"{optSummary.KaymayiDahilEt,9} | " +
+                    $"{optSummary.MicroLotSizeEnabled,9} | " +
+                    $"{optSummary.PyramidingEnabled,9} | " +
+                    $"{optSummary.MaxPositionSizeEnabled,10} | " +
+                    $"{optSummary.MaxPositionSize,10:F4} | " +
+                    $"{optSummary.MaxPositionSizeMicro,10:F4} | " +
+                    $"{optSummary.GetiriFiyatBuAy,10:F2} | " +
+                    $"{optSummary.GetiriFiyatAy1,10:F2} | " +
+                    $"{optSummary.GetiriFiyatBuHafta,10:F2} | " +
+                    $"{optSummary.GetiriFiyatHafta1,10:F2} | " +
+                    $"{optSummary.GetiriFiyatBuGun,10:F2} | " +
+                    $"{optSummary.GetiriFiyatGun1,10:F2} | " +
+                    $"{optSummary.GetiriFiyatBuSaat,10:F2} | " +
+                    $"{optSummary.GetiriFiyatSaat1,10:F2} | " +
+                    $"{optSummary.GetiriPuanBuAy,10:F4} | " +
+                    $"{optSummary.GetiriPuanAy1,10:F4} | " +
+                    $"{optSummary.GetiriPuanBuHafta,10:F4} | " +
+                    $"{optSummary.GetiriPuanHafta1,10:F4} | " +
+                    $"{optSummary.GetiriPuanBuGun,10:F4} | " +
+                    $"{optSummary.GetiriPuanGun1,10:F4} | " +
+                    $"{optSummary.GetiriPuanBuSaat,10:F4} | " +
+                    $"{optSummary.GetiriPuanSaat1,10:F4}"
+                );
+
+                sw.WriteLine(dataBuilder.ToString());
                 sw.Flush();
             }
         }
@@ -1137,7 +1521,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         /// <summary>
         /// Create OptimizationResult from OptimizationSummary
         /// </summary>
-        private OptimizationResult CreateOptimizationResultFromSummary(
+        private OptimizationResult CreateOptimizationResultFromSummary(            
             AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics.OptimizationSummary optSummary,
             Dictionary<string, object> paramCombo)
         {
