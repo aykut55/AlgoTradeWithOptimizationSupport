@@ -199,27 +199,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 _singleTraderOptLogger?.Log($"[DEBUG] Unique rows: {dataDict.Count}, Duplicates removed: {duplicateCount}");
 
                 // Sort by NetProfit (azalan sırada)
-                var sortedData = dataDict.Values.AsEnumerable();
-
-                if (netProfitIndex >= 0)
+                var sortedData = dataDict.Values.OrderByDescending(values =>
                 {
-                    sortedData = sortedData.OrderByDescending(values =>
-                    {
-                        if (double.TryParse(values[netProfitIndex], out double netProfit))
-                            return netProfit;
-                        return double.MinValue;
-                    });
-                    _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
-                }
+                    if (netProfitIndex >= 0 && double.TryParse(values[netProfitIndex], out double netProfit))
+                        return netProfit;
+                    return double.MinValue;
+                }).ToList();
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
+
+                // ROW LIMIT UYGULA - GUI için
+                int rowLimit = algoTrader?.GetOptimizationGuiRowLimit() ?? 5000;
+                var limitedData = sortedData.Take(rowLimit);
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Row limit applied: {rowLimit}, Total rows: {sortedData.Count}, Limited to: {limitedData.Count()}");
+
+                // SORTED DOSYAYA YAZ (tüm data)
+                WriteSortedOptimizationResults(filePath, headers, sortedData);
 
                 // DataGridView'ı temizle
                 dataGridViewOptimizationResults.Rows.Clear();
                 _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
 
-                // Sıralı ve unique veriyi ekle (Rank ile birlikte)
+                // GUI'ye sadece limit kadar yaz (Rank ile birlikte)
                 int rowsAdded = 0;
                 int rank = 1;
-                foreach (var values in sortedData)
+                foreach (var values in limitedData)
                 {
                     // Rank'ı integer olarak en başa ekle (numeric sorting için)
                     var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
@@ -229,7 +234,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
 
                 _singleTraderOptLogger?.Log($"[DEBUG] Total rows added to grid: {rowsAdded}");
-                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from CSV (sorted by NetProfit).");
+                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from CSV (sorted by NetProfit, showing top {rowLimit}).");
             }
             catch (Exception ex)
             {
@@ -362,27 +367,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 _singleTraderOptLogger?.Log($"[DEBUG] Unique rows: {dataDict.Count}, Duplicates removed: {duplicateCount}");
 
                 // Sort by NetProfit (azalan sırada)
-                var sortedData = dataDict.Values.AsEnumerable();
-
-                if (netProfitIndex >= 0)
+                var sortedData = dataDict.Values.OrderByDescending(values =>
                 {
-                    sortedData = sortedData.OrderByDescending(values =>
-                    {
-                        if (double.TryParse(values[netProfitIndex], out double netProfit))
-                            return netProfit;
-                        return double.MinValue;
-                    });
-                    _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
-                }
+                    if (netProfitIndex >= 0 && double.TryParse(values[netProfitIndex], out double netProfit))
+                        return netProfit;
+                    return double.MinValue;
+                }).ToList();
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Data sorted by NetProfit (descending)");
+
+                // ROW LIMIT UYGULA - GUI için
+                int rowLimit = algoTrader?.GetOptimizationGuiRowLimit() ?? 5000;
+                var limitedData = sortedData.Take(rowLimit);
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Row limit applied: {rowLimit}, Total rows: {sortedData.Count}, Limited to: {limitedData.Count()}");
+
+                // SORTED DOSYAYA YAZ (tüm data)
+                WriteSortedOptimizationResultsTxt(filePath, headers, sortedData);
 
                 // DataGridView'ı temizle
                 dataGridViewOptimizationResults.Rows.Clear();
                 _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
 
-                // Sıralı ve unique veriyi ekle (Rank ile birlikte)
+                // GUI'ye sadece limit kadar yaz (Rank ile birlikte)
                 int rowsAdded = 0;
                 int rank = 1;
-                foreach (var values in sortedData)
+                foreach (var values in limitedData)
                 {
                     // Rank'ı integer olarak en başa ekle (numeric sorting için)
                     var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
@@ -393,7 +403,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                 System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Rows added to grid = {rowsAdded}\n");
                 _singleTraderOptLogger?.Log($"[DEBUG] Total rows added to grid: {rowsAdded}");
-                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from TXT (sorted by NetProfit).");
+                _singleTraderOptLogger?.Log($"Loaded {dataGridViewOptimizationResults.Rows.Count} optimization results from TXT (sorted by NetProfit, showing top {rowLimit}).");
             }
             catch (Exception ex)
             {
@@ -981,6 +991,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     return;
                 }
 
+                // ============================================================
+                // PERFORMANS OPTİMİZASYONU AYARLARI
+                // ============================================================
+
+                // Callback throttle - Her kaç kombinasyonda bir GUI güncellensin?
+                // Düşük değer: Daha sık güncelleme, daha yavaş (örn: 100)
+                // Yüksek değer: Daha az güncelleme, daha hızlı (örn: 5000)
+                algoTrader.SetOptimizationCallbackThrottle(1);  // Her 100 kombinasyonda bir güncelle
+
+                // GUI row limit - GUI'de max kaç satır gösterilsin?
+                // Yüksek değer daha fazla satır gösterir ama performans düşer
+                algoTrader.SetOptimizationGuiRowLimit(5000);  // Max 5000 satır göster
+
+                _singleTraderOptLogger.Log($"Throttle: {algoTrader.GetOptimizationCallbackThrottle()}, Row limit: {algoTrader.GetOptimizationGuiRowLimit()}");
+
                 // Progress reporter oluştur - Optimization (kombinasyon ilerlemesi)
                 var progressOptimization = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
@@ -1133,6 +1158,94 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             else
             {
                 action();
+            }
+        }
+
+        // ====================================================================
+        // OPTIMIZATION RESULTS - HELPER METHODS
+        // ====================================================================
+
+        /// <summary>
+        /// Get sorted file path from original file path
+        /// Adds "_sorted" suffix before extension
+        /// Example: "logs\\singleTraderOptLog.txt" -> "logs\\singleTraderOptLog_sorted.txt"
+        /// </summary>
+        private string GetSortedFilePath(string originalFilePath)
+        {
+            string directory = System.IO.Path.GetDirectoryName(originalFilePath) ?? string.Empty;
+            string fileNameWithoutExt = System.IO.Path.GetFileNameWithoutExtension(originalFilePath);
+            string extension = System.IO.Path.GetExtension(originalFilePath);
+
+            return System.IO.Path.Combine(directory, $"{fileNameWithoutExt}_sorted{extension}");
+        }
+
+        /// <summary>
+        /// Write sorted optimization results to CSV file
+        /// Tüm veri sorted dosyaya yazılır (row limit uygulanmaz)
+        /// </summary>
+        private void WriteSortedOptimizationResults(string originalFilePath, string[] headers, IEnumerable<string[]> sortedData)
+        {
+            try
+            {
+                // Get sorted file path
+                string sortedFilePath = GetSortedFilePath(originalFilePath);
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Writing sorted CSV to: {sortedFilePath}");
+
+                using (var sw = new System.IO.StreamWriter(sortedFilePath, false, System.Text.Encoding.UTF8))
+                {
+                    // Header yaz
+                    sw.WriteLine(string.Join(",", headers));
+
+                    // Sorted data yaz
+                    foreach (var values in sortedData)
+                    {
+                        sw.WriteLine(string.Join(",", values));
+                    }
+                }
+
+                _singleTraderOptLogger?.Log($"Sorted CSV file written: {sortedFilePath}");
+            }
+            catch (Exception ex)
+            {
+                // Hata logla ama UI'yi bloke etme
+                _singleTraderOptLogger?.LogWarning($"Sorted CSV file write error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Sorted file write error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Write sorted optimization results to TXT file (pipe-delimited)
+        /// Tüm veri sorted dosyaya yazılır (row limit uygulanmaz)
+        /// </summary>
+        private void WriteSortedOptimizationResultsTxt(string originalFilePath, string[] headerValues, IEnumerable<string[]> sortedData)
+        {
+            try
+            {
+                // Get sorted file path
+                string sortedFilePath = GetSortedFilePath(originalFilePath);
+
+                _singleTraderOptLogger?.Log($"[DEBUG] Writing sorted TXT to: {sortedFilePath}");
+
+                using (var sw = new System.IO.StreamWriter(sortedFilePath, false, System.Text.Encoding.UTF8))
+                {
+                    // Header yaz (pipe-delimited)
+                    sw.WriteLine(string.Join(" | ", headerValues));
+
+                    // Sorted data yaz (pipe-delimited)
+                    foreach (var values in sortedData)
+                    {
+                        sw.WriteLine(string.Join(" | ", values));
+                    }
+                }
+
+                _singleTraderOptLogger?.Log($"Sorted TXT file written: {sortedFilePath}");
+            }
+            catch (Exception ex)
+            {
+                // Hata logla ama UI'yi bloke etme
+                _singleTraderOptLogger?.LogWarning($"Sorted TXT file write error: {ex.Message}");
+                System.Diagnostics.Debug.WriteLine($"Sorted file write error: {ex.Message}");
             }
         }
 

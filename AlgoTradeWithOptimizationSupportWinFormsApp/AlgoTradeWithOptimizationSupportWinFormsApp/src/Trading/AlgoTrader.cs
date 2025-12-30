@@ -78,6 +78,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         // Optimization file type preference for reading (CSV or TXT)
         private bool _preferCsvForReading = false;  // Default: TXT
 
+        // Performance optimization parameters
+        private int _optimizationCallbackThrottle = 5000;  // Her kaç kombinasyonda callback tetiklensin
+        private int _optimizationGuiRowLimit = 5000;        // GUI'de max kaç satır gösterilsin
+
         #endregion
 
         #region Constructor
@@ -435,6 +439,11 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // IMPLEMENTATION: OnOptimizationResultsUpdated callback kullanılarak Form1'e bildirim yapılıyor
             // Form1'de bu callback'i handle ederek dosyayı okuyup, sort edip dataGridViewOptimizationResults'a yazacak
 
+            // Throttling check - her N kombinasyonda bir tetikle (performance optimization)
+            // İlk kombinasyonda (1) ve her N'inci kombinasyonda tetikle
+            if (currentCombination > 1 && currentCombination % _optimizationCallbackThrottle != 0)
+                return;
+
             // Get the optimization log file path (using user preference)
             string optimizationLogFilePath = GetOptimizationLogFilePath(preferCsv: _preferCsvForReading);
 
@@ -518,6 +527,46 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         public bool GetOptimizationFileTypePreference()
         {
             return _preferCsvForReading;
+        }
+
+        /// <summary>
+        /// Set optimization callback throttle
+        /// Callback her kaç kombinasyonda bir tetiklenecek (performance için)
+        /// </summary>
+        /// <param name="throttle">Her kaç kombinasyonda bir callback tetiklensin (default: 5000)</param>
+        public void SetOptimizationCallbackThrottle(int throttle)
+        {
+            _optimizationCallbackThrottle = throttle;
+            Log($"Optimization callback throttle set to: {throttle}");
+        }
+
+        /// <summary>
+        /// Get optimization callback throttle value
+        /// </summary>
+        /// <returns>Current throttle value</returns>
+        public int GetOptimizationCallbackThrottle()
+        {
+            return _optimizationCallbackThrottle;
+        }
+
+        /// <summary>
+        /// Set optimization GUI row limit
+        /// GUI'de max kaç satır gösterilecek (performance için)
+        /// </summary>
+        /// <param name="rowLimit">Max kaç satır gösterilsin (default: 5000)</param>
+        public void SetOptimizationGuiRowLimit(int rowLimit)
+        {
+            _optimizationGuiRowLimit = rowLimit;
+            Log($"Optimization GUI row limit set to: {rowLimit}");
+        }
+
+        /// <summary>
+        /// Get optimization GUI row limit
+        /// </summary>
+        /// <returns>Current row limit</returns>
+        public int GetOptimizationGuiRowLimit()
+        {
+            return _optimizationGuiRowLimit;
         }
 
         /// <summary>
