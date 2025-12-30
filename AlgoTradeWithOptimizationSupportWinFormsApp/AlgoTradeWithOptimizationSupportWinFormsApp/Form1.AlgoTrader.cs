@@ -154,6 +154,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
                     dataGridViewOptimizationResults.Columns.Clear();
+
+                    // İlk kolon: Rank
+                    dataGridViewOptimizationResults.Columns.Add("Rank", "Rank");
+
+                    // Geri kalan kolonlar
                     foreach (var header in headers)
                     {
                         dataGridViewOptimizationResults.Columns.Add(header, header);
@@ -211,12 +216,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 dataGridViewOptimizationResults.Rows.Clear();
                 _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
 
-                // Sıralı ve unique veriyi ekle
+                // Sıralı ve unique veriyi ekle (Rank ile birlikte)
                 int rowsAdded = 0;
+                int rank = 1;
                 foreach (var values in sortedData)
                 {
-                    dataGridViewOptimizationResults.Rows.Add(values);
+                    // Rank'ı integer olarak en başa ekle (numeric sorting için)
+                    var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
+                    dataGridViewOptimizationResults.Rows.Add(valuesWithRank);
                     rowsAdded++;
+                    rank++;
                 }
 
                 _singleTraderOptLogger?.Log($"[DEBUG] Total rows added to grid: {rowsAdded}");
@@ -302,6 +311,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
                     dataGridViewOptimizationResults.Columns.Clear();
+
+                    // İlk kolon: Rank
+                    dataGridViewOptimizationResults.Columns.Add("Rank", "Rank");
+
+                    // Geri kalan kolonlar
                     foreach (var header in headers)
                     {
                         dataGridViewOptimizationResults.Columns.Add(header, header);
@@ -365,12 +379,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 dataGridViewOptimizationResults.Rows.Clear();
                 _singleTraderOptLogger?.Log($"[DEBUG] Rows cleared.");
 
-                // Sıralı ve unique veriyi ekle
+                // Sıralı ve unique veriyi ekle (Rank ile birlikte)
                 int rowsAdded = 0;
+                int rank = 1;
                 foreach (var values in sortedData)
                 {
-                    dataGridViewOptimizationResults.Rows.Add(values);
+                    // Rank'ı integer olarak en başa ekle (numeric sorting için)
+                    var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
+                    dataGridViewOptimizationResults.Rows.Add(valuesWithRank);
                     rowsAdded++;
+                    rank++;
                 }
 
                 System.IO.File.AppendAllText(debugFile, $"  ReadTXT: Rows added to grid = {rowsAdded}\n");
