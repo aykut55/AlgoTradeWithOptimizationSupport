@@ -1593,8 +1593,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             OnRun?.Invoke(this, 0);
 
-            emirleri_resetle(i);
-
             emir_oncesi_dongu_foksiyonlarini_calistir(i);
 
             if (i < 1)
