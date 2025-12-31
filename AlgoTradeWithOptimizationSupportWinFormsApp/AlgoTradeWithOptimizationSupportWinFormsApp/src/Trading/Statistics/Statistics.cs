@@ -931,7 +931,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 $"{"GetKzSis",10} | " +
                 $"{"GetKzSisN",10} | " +
                 $"{"EmirKmt",7} | " +
-                $"{"EmirSts",7}"
+                $"{"EmirSts",7} | " +
+                $"{"TrdEnbl",7} | " +
+                $"{"PozKpEnbl",9}"
             );
             sb.AppendLine("".PadRight(500, '-'));
 
@@ -987,7 +989,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.GetiriKzSistem[i],10:F2} | " +
                     $"{Trader.lists.GetiriKzNetSistem[i],10:F2} | " +
                     $"{Trader.lists.EmirKomutList[i],7:F0} | " +
-                    $"{Trader.lists.EmirStatusList[i],7:F0}"
+                    $"{Trader.lists.EmirStatusList[i],7:F0} | " +
+                    $"{Trader.lists.IsTradeEnabledList[i],7} | " +
+                    $"{Trader.lists.IsPozKapatEnabledList[i],9}"
                 );
             }
 
@@ -1015,7 +1019,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 "BakiyePuan;BakiyeFiyat;GetiriPuan;GetiriFiyat;GetiriPuanYuzde;GetiriFiyatYuzde;" +
                 "BakiyePuanNet;BakiyeFiyatNet;GetiriPuanNet;GetiriFiyatNet;GetiriPuanYuzdeNet;GetiriFiyatYuzdeNet;" +
                 "GetiriKz;GetiriKzNet;GetiriKzSistem;GetiriKzNetSistem;" +
-                "EmirKomut;EmirStatus"
+                "EmirKomut;EmirStatus;" +
+                "IsTradeEnabled;IsPozKapatEnabled"
             );
 
             // Data rows
@@ -1070,7 +1075,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.GetiriKzSistem[i]:F2};" +
                     $"{Trader.lists.GetiriKzNetSistem[i]:F2};" +
                     $"{Trader.lists.EmirKomutList[i]:F0};" +
-                    $"{Trader.lists.EmirStatusList[i]:F0}"
+                    $"{Trader.lists.EmirStatusList[i]:F0};" +
+                    $"{Trader.lists.IsTradeEnabledList[i]};" +
+                    $"{Trader.lists.IsPozKapatEnabledList[i]}"
                 );
             }
 
@@ -1557,7 +1564,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 $"{"GetiriNet",12} | " +
                 $"{"IslemSay",8} | " +
                 $"{"EmirKmt",7} | " +
-                $"{"EmirSts",7}"
+                $"{"EmirSts",7} | " +
+                $"{"TrdEnbl",7} | " +
+                $"{"PozKpEnbl",9}"
             );
             sb.AppendLine("".PadRight(200, '-'));
 
@@ -1586,7 +1595,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.GetiriFiyatNetList[i],12:F2} | " +
                     $"{Trader.lists.IslemSayisiList[i],8} | " +
                     $"{Trader.lists.EmirKomutList[i],7} | " +
-                    $"{Trader.lists.EmirStatusList[i],7}"
+                    $"{Trader.lists.EmirStatusList[i],7} | " +
+                    $"{Trader.lists.IsTradeEnabledList[i],7} | " +
+                    $"{Trader.lists.IsPozKapatEnabledList[i],9}"
                 );
             }
 
@@ -1607,7 +1618,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
                 "Yon;Seviye;Sinyal;" +
                 "KarZarar;Bakiye;Getiri;Komisyon;BakiyeNet;GetiriNet;" +
-                "IslemSayisi;EmirKomut;EmirStatus"
+                "IslemSayisi;EmirKomut;EmirStatus;" +
+                "IsTradeEnabled;IsPozKapatEnabled"
             );
 
             // Data rows
@@ -1635,7 +1647,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{Trader.lists.GetiriFiyatNetList[i]:F2};" +
                     $"{Trader.lists.IslemSayisiList[i]};" +
                     $"{Trader.lists.EmirKomutList[i]:F0};" +
-                    $"{Trader.lists.EmirStatusList[i]:F0}"
+                    $"{Trader.lists.EmirStatusList[i]:F0};" +
+                    $"{Trader.lists.IsTradeEnabledList[i]};" +
+                    $"{Trader.lists.IsPozKapatEnabledList[i]}"
                 );
             }
 
