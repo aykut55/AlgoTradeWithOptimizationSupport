@@ -185,8 +185,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             DateTime barDateTime = Trader.Data[barIndex].DateTime;
             DateOnly barDate = DateOnly.FromDateTime(barDateTime);
 
-            // Parse date string (format: "dd.MM.yyyy" or "dd/MM/yyyy")
-            if (DateOnly.TryParseExact(dateStr, new[] { "dd.MM.yyyy", "dd/MM/yyyy" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly compareDate))
+            // Parse date string (format: "yyyy.MM.dd")
+            if (DateOnly.TryParseExact(dateStr, new[] { "yyyy.MM.dd" }, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateOnly compareDate))
             {
                 return barDate.CompareTo(compareDate);
             }
@@ -205,8 +205,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             DateTime barDateTime = Trader.Data[barIndex].DateTime;
 
-            // Parse datetime string (format: "dd.MM.yyyy HH:mm:ss" or "dd/MM/yyyy HH:mm:ss")
-            if (DateTime.TryParseExact(dateTimeStr, new[] { "dd.MM.yyyy HH:mm:ss", "dd/MM/yyyy HH:mm:ss", "dd.MM.yyyy HH:mm", "dd/MM/yyyy HH:mm" },
+            // Parse datetime string (format: "yyyy.MM.dd HH:mm:ss")
+            if (DateTime.TryParseExact(dateTimeStr, new[] { "yyyy.MM.dd HH:mm:ss", "yyyy.MM.dd HH:mm" },
                 CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime compareDateTime))
             {
                 return barDateTime.CompareTo(compareDateTime);

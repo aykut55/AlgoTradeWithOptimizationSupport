@@ -334,7 +334,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void StatusTimer_Tick(object? sender, EventArgs e)
         {
             // Update time label with current date and time
-            timeLabel.Text = DateTime.Now.ToString("dd.MM.yyyy HH:mm:ss");
+            timeLabel.Text = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
         }
 
         private void LoadInitialTabs()

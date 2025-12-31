@@ -709,8 +709,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             string stopTime = this.StopTimeStr ?? "";
 
             DateTime now = DateTime.Now;
-            string nowDateTime = now.ToString("dd.MM.yyyy HH:mm:ss");
-            string nowDate = now.ToString("dd.MM.yyyy");
+            string nowDateTime = now.ToString("yyyy.MM.dd HH:mm:ss");
+            string nowDate = now.ToString("yyyy.MM.dd");
             string nowTime = now.ToString("HH:mm:ss");
 
             bool useTimeFiltering = this.signals.TimeFilteringEnabled;

@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Tulip;
+using static ScottPlot.Generate;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
@@ -434,6 +435,29 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         {
             // InitializeUserControlledFlags
             trader.ConfigureUserFlagsOnce();
+
+            int traderId = trader.GetId();
+            if (traderId == 0)
+            {
+                // 0 id'li trader icin
+            }
+            else if (traderId == 1)
+            {
+                // 1 id'li trader icin
+            }
+
+            var dateTimes = new string[] { "2025.05.25 14:30:00", "2025.06.02 14:00:00" };
+
+            trader.StartDateTimeStr = dateTimes[0];
+            trader.StopDateTimeStr  = dateTimes[1];
+
+            var startDateTime = System.DateTime.ParseExact(dateTimes[0], "yyyy.MM.dd HH:mm:ss", null);
+            trader.StartDateStr = startDateTime.ToString("yyyy.MM.dd");  // "2025.05.25"
+            trader.StartTimeStr = startDateTime.ToString("HH:mm:ss");    // "14:30:00"
+
+            var stopDateTime = System.DateTime.ParseExact(dateTimes[1], "yyyy.MM.dd HH:mm:ss", null);
+            trader.StopDateStr = stopDateTime.ToString("yyyy.MM.dd");    // "2025.06.02"
+            trader.StopTimeStr = stopDateTime.ToString("HH:mm:ss");      // "14:00:00"
         }
         private void OnReadOptimizationResultsFile(SingleTraderOptimizer traderOptimizer, SingleTrader trader, int currentCombination)
         {
@@ -667,14 +691,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Reset
             singleTrader.Reset();
 
-            singleTrader.SymbolName        = this.SymbolName;
-            singleTrader.SymbolPeriod      = this.SymbolPeriod;
-            singleTrader.SystemId          = this.SystemId     = "0";
-            singleTrader.SystemName        = this.SystemName   = "SystemName";
-            singleTrader.StrategyId        = this.StrategyId   = "0";
-            singleTrader.StrategyName      = this.StrategyName = "StrategyName";
-            singleTrader.LastExecutionTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-            singleTrader.LastExecutionTimeStart = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.SymbolName             = this.SymbolName;
+            singleTrader.SymbolPeriod           = this.SymbolPeriod;
+            singleTrader.SystemId               = this.SystemId     = "0";
+            singleTrader.SystemName             = this.SystemName   = "SystemName";
+            singleTrader.StrategyId             = this.StrategyId   = "0";
+            singleTrader.StrategyName           = this.StrategyName = "StrategyName";
+            singleTrader.LastExecutionTime      = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.LastExecutionTimeStart = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
             // Configure position sizing
             singleTrader.pozisyonBuyuklugu.Reset()
@@ -711,7 +735,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.StartTimer("2");
             Log("Single Trader - Run (~100 ms)");
 
-            var startTime = DateTime.Now;
+            var startTime = System.DateTime.Now;
             await Task.Run(() =>
             {
                 for (int i = 0; i < totalBars; i++)
@@ -721,7 +745,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     // Report progress every 10 bars or on last bar (more frequent updates)
                     if (progress != null && (i % 10 == 0 || i == totalBars - 1))
                     {
-                        var elapsed = DateTime.Now - startTime;
+                        var elapsed = System.DateTime.Now - startTime;
                         double percentComplete = (double)(i + 1) / totalBars * 100.0;
                         double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
                         int remainingBars = totalBars - (i + 1);
@@ -756,7 +780,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             this.timeManager.StopTimer("0");
             var t0 = this.timeManager.GetElapsedTime("0");
-            singleTrader.LastExecutionTimeStop = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.LastExecutionTimeStop = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
             singleTrader.LastExecutionTimeInMSec = t0.ToString();
 
             // Finalize
@@ -941,7 +965,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             multipleTrader.Initialize();
             this.timeManager.StopTimer("1");
 
-            var startTime = DateTime.Now;
+            var startTime = System.DateTime.Now;
 
             this.timeManager.ResetTimer("2");
             this.timeManager.StartTimer("2");
@@ -954,7 +978,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     // Report progress every 10 bars or on last bar (more frequent updates)
                     if (progress != null && (i % 10 == 0 || i == totalBars - 1))
                     {
-                        var elapsed = DateTime.Now - startTime;
+                        var elapsed = System.DateTime.Now - startTime;
                         double percentComplete = (double)(i + 1) / totalBars * 100.0;
                         double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
                         int remainingBars = totalBars - (i + 1);
@@ -1144,13 +1168,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // progressOpt: Kombinasyon ilerlemesi (kaç kombinasyon test edildi)
             // progressTrader: Her kombinasyon için bar ilerlemesi
 
-            var startTime = DateTime.Now;
+            var startTime = System.DateTime.Now;
 
             if (progressOpt != null)
             {
                 singleTraderOptimizer.OnOptimizationProgress = (currentCombination, totalCombinations) =>
                 {
-                    var elapsed = DateTime.Now - startTime;
+                    var elapsed = System.DateTime.Now - startTime;
                     var percentComplete = (double)currentCombination / totalCombinations * 100.0;
 
                     // Estimated time remaining
