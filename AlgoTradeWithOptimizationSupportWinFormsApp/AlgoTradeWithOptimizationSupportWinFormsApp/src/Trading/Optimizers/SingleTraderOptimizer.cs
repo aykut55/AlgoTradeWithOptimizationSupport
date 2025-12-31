@@ -222,6 +222,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public string TxtFilePath { get; set; }
         public bool AppendEnabled { get; set; }
 
+        // Optimization state flags
+        public bool IsStarted { get; private set; }
+        public bool IsRunning { get; private set; }
+        public bool IsStopped { get; private set; }
+        public bool IsStopRequested { get; private set; }
+
         #endregion
 
         #region Constructor
@@ -399,7 +405,26 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
         public void Reset()
         {
+            IsStarted = false;
+            IsRunning = false;
+            IsStopped = false;
+            IsStopRequested = false;
+            Logger?.Log("Optimizer state flags reset");
         }
+
+        public void Stop()
+        {
+            if (IsRunning)
+            {
+                IsStopRequested = true;
+                Logger?.Log("Stop requested - optimization will stop after current iteration");
+            }
+            else
+            {
+                Logger?.LogWarning("Stop requested but optimization is not running");
+            }
+        }
+
         public void Init()
         {
         }
@@ -411,6 +436,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Optimizer not initialized");
+
+            // Set state flags
+            IsStarted = true;
+            IsRunning = true;
+            IsStopped = false;
+            IsStopRequested = false;
 
             int totalBars = Data.Count;
 
@@ -518,6 +549,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             // Test all combinations (generic - no more nested loops!)
             foreach (var paramCombo in allCombinations)
             {
+                // Check if stop is requested
+                if (IsStopRequested)
+                {
+                    Logger?.Log($"Optimization stopped by user request at combination {currentCombination}/{totalCombinations}");
+                    break;
+                }
+
                 currentCombination++;
 
                 // Calculate progress percentage
@@ -614,9 +652,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
                     OnSaveResults?.Invoke(Results, currentCombination);
                 }
-
-                //if (currentCombination == 4)
-                    //break;
             }
 
             singleTrader.Dispose();
@@ -654,6 +689,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 // Save results to files (if enabled)
                 SaveOptimizationResultsToFiles();
             }
+
+            // Update state flags
+            IsRunning = false;
+            IsStopped = true;
+            Logger?.Log($"Optimization finished - IsRunning: {IsRunning}, IsStopped: {IsStopped}");
 
             return bestResult;
         }

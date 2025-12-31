@@ -951,6 +951,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 // Logger'ı temizle veya oluştur
                 InitializeSingleTraderOptLogger();
 
+                // Grid'i temizle
+                dataGridViewOptimizationResults.Rows.Clear();
+                _singleTraderOptLogger?.Log("Optimization results grid cleared");
+
                 // AlgoTrader zaten initialize edilmişse reset et
                 if (algoTrader.IsInitialized)
                 {
@@ -1085,8 +1089,28 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         }
         private async void btnStopSingleTraderOpt_Click(object sender, EventArgs e)
         {
-            btnStopSingleTraderOpt.Enabled = true;
+            _singleTraderOptLogger?.Log("Stop button clicked - requesting optimization stop...");
 
+            // Stop optimization if running
+            if (algoTrader?.singleTraderOptimizer != null)
+            {
+                if (algoTrader.singleTraderOptimizer.IsRunning)
+                {
+                    algoTrader.singleTraderOptimizer.Stop();
+                    _singleTraderOptLogger?.Log("Stop request sent to optimizer");
+                }
+                else
+                {
+                    _singleTraderOptLogger?.LogWarning("Optimizer is not running");
+                }
+            }
+            else
+            {
+                _singleTraderOptLogger?.LogWarning("Optimizer instance not found");
+            }
+
+            // Disable stop button, enable start button
+            btnStopSingleTraderOpt.Enabled = false;
             btnStartSingleTraderOpt.Enabled = true;
         }
 
