@@ -1372,50 +1372,50 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblSingleTraderProgress2.Text = "Ready...";
             // 
             // lblOptimizationProgress
-            //
+            // 
             lblOptimizationProgress.AutoSize = true;
             lblOptimizationProgress.Location = new Point(302, 26);
             lblOptimizationProgress.Name = "lblOptimizationProgress";
             lblOptimizationProgress.Size = new Size(48, 15);
             lblOptimizationProgress.TabIndex = 16;
             lblOptimizationProgress.Text = "Ready...";
-            //
+            // 
             // lblSkipIteration
-            //
+            // 
             lblSkipIteration.AutoSize = true;
-            lblSkipIteration.Location = new Point(400, 26);
+            lblSkipIteration.Location = new Point(485, 29);
             lblSkipIteration.Name = "lblSkipIteration";
-            lblSkipIteration.Size = new Size(80, 15);
+            lblSkipIteration.Size = new Size(79, 15);
             lblSkipIteration.TabIndex = 17;
             lblSkipIteration.Text = "Skip Iteration:";
-            //
+            // 
             // txtSkipIteration
-            //
-            txtSkipIteration.Location = new Point(485, 23);
+            // 
+            txtSkipIteration.Location = new Point(570, 26);
             txtSkipIteration.Name = "txtSkipIteration";
             txtSkipIteration.Size = new Size(60, 23);
             txtSkipIteration.TabIndex = 18;
             txtSkipIteration.Text = "-1";
             txtSkipIteration.TextAlign = HorizontalAlignment.Center;
-            //
+            // 
             // lblMaxIteration
-            //
+            // 
             lblMaxIteration.AutoSize = true;
-            lblMaxIteration.Location = new Point(560, 26);
+            lblMaxIteration.Location = new Point(485, 58);
             lblMaxIteration.Name = "lblMaxIteration";
-            lblMaxIteration.Size = new Size(82, 15);
+            lblMaxIteration.Size = new Size(79, 15);
             lblMaxIteration.TabIndex = 19;
             lblMaxIteration.Text = "Max Iteration:";
-            //
+            // 
             // txtMaxIteration
-            //
-            txtMaxIteration.Location = new Point(647, 23);
+            // 
+            txtMaxIteration.Location = new Point(572, 55);
             txtMaxIteration.Name = "txtMaxIteration";
             txtMaxIteration.Size = new Size(60, 23);
             txtMaxIteration.TabIndex = 20;
             txtMaxIteration.Text = "-1";
             txtMaxIteration.TextAlign = HorizontalAlignment.Center;
-            //
+            // 
             // progressBarSingleTraderProgress
             // 
             progressBarSingleTraderProgress.Location = new Point(111, 47);

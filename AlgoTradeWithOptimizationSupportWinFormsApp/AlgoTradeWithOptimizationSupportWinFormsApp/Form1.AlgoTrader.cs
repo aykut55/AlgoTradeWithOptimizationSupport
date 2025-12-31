@@ -155,13 +155,31 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
                     dataGridViewOptimizationResults.Columns.Clear();
 
-                    // İlk kolon: Rank
-                    dataGridViewOptimizationResults.Columns.Add("Rank", "Rank");
+                    // İlk kolon: Rank (numeric)
+                    var rankColumn = new DataGridViewTextBoxColumn();
+                    rankColumn.Name = "Rank";
+                    rankColumn.HeaderText = "Rank";
+                    rankColumn.ValueType = typeof(int);
+                    dataGridViewOptimizationResults.Columns.Add(rankColumn);
 
                     // Geri kalan kolonlar
                     foreach (var header in headers)
                     {
-                        dataGridViewOptimizationResults.Columns.Add(header, header);
+                        var column = new DataGridViewTextBoxColumn();
+                        column.Name = header;
+                        column.HeaderText = header;
+
+                        // Numeric mi string mi belirle
+                        if (IsNumericColumn(header))
+                        {
+                            column.ValueType = typeof(double);
+                        }
+                        else
+                        {
+                            column.ValueType = typeof(string);
+                        }
+
+                        dataGridViewOptimizationResults.Columns.Add(column);
                     }
                     _singleTraderOptLogger?.Log($"[DEBUG] Columns created: {dataGridViewOptimizationResults.Columns.Count}");
                 }
@@ -226,9 +244,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 int rank = 1;
                 foreach (var values in limitedData)
                 {
-                    // Rank'ı integer olarak en başa ekle (numeric sorting için)
-                    var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
-                    dataGridViewOptimizationResults.Rows.Add(valuesWithRank);
+                    // Parse values to correct types
+                    var parsedValues = new object[values.Length + 1];
+                    parsedValues[0] = rank; // Rank (int)
+
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        string header = headers[i];
+                        parsedValues[i + 1] = ParseCellValue(header, values[i]);
+                    }
+
+                    dataGridViewOptimizationResults.Rows.Add(parsedValues);
                     rowsAdded++;
                     rank++;
                 }
@@ -317,13 +343,31 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     _singleTraderOptLogger?.Log($"[DEBUG] Creating columns...");
                     dataGridViewOptimizationResults.Columns.Clear();
 
-                    // İlk kolon: Rank
-                    dataGridViewOptimizationResults.Columns.Add("Rank", "Rank");
+                    // İlk kolon: Rank (numeric)
+                    var rankColumn = new DataGridViewTextBoxColumn();
+                    rankColumn.Name = "Rank";
+                    rankColumn.HeaderText = "Rank";
+                    rankColumn.ValueType = typeof(int);
+                    dataGridViewOptimizationResults.Columns.Add(rankColumn);
 
                     // Geri kalan kolonlar
                     foreach (var header in headers)
                     {
-                        dataGridViewOptimizationResults.Columns.Add(header, header);
+                        var column = new DataGridViewTextBoxColumn();
+                        column.Name = header;
+                        column.HeaderText = header;
+
+                        // Numeric mi string mi belirle
+                        if (IsNumericColumn(header))
+                        {
+                            column.ValueType = typeof(double);
+                        }
+                        else
+                        {
+                            column.ValueType = typeof(string);
+                        }
+
+                        dataGridViewOptimizationResults.Columns.Add(column);
                     }
                     _singleTraderOptLogger?.Log($"[DEBUG] Columns created: {dataGridViewOptimizationResults.Columns.Count}");
                 }
@@ -394,9 +438,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 int rank = 1;
                 foreach (var values in limitedData)
                 {
-                    // Rank'ı integer olarak en başa ekle (numeric sorting için)
-                    var valuesWithRank = new object[] { rank }.Concat(values.Cast<object>()).ToArray();
-                    dataGridViewOptimizationResults.Rows.Add(valuesWithRank);
+                    // Parse values to correct types
+                    var parsedValues = new object[values.Length + 1];
+                    parsedValues[0] = rank; // Rank (int)
+
+                    for (int i = 0; i < values.Length; i++)
+                    {
+                        string header = headers[i];
+                        parsedValues[i + 1] = ParseCellValue(header, values[i]);
+                    }
+
+                    dataGridViewOptimizationResults.Rows.Add(parsedValues);
                     rowsAdded++;
                     rank++;
                 }
@@ -1254,6 +1306,78 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             // Default width
             return 10;
+        }
+
+        /// <summary>
+        /// Determine if a column should be numeric based on header name
+        /// Returns true if the column contains numeric data (for proper sorting)
+        /// </summary>
+        private bool IsNumericColumn(string headerName)
+        {
+            // Explicit numeric columns
+            if (headerName == "Rank") return true;
+            if (headerName == "CombNo") return true;
+
+            // ID columns
+            if (headerName.Contains("Id") || headerName.Contains("ID")) return true;
+
+            // Count/Sayı columns
+            if (headerName.Contains("Sayi") || headerName.Contains("Count") || headerName.Contains("Toplam")) return true;
+
+            // Financial/numeric columns
+            if (headerName.Contains("Fiyat") || headerName.Contains("Fyt") ||
+                headerName.Contains("Puan") || headerName.Contains("Pua") ||
+                headerName.Contains("Kar") || headerName.Contains("Zar") ||
+                headerName.Contains("Profit") || headerName.Contains("Loss") ||
+                headerName.Contains("Bak") || headerName.Contains("Get") ||
+                headerName.Contains("Komisyon") || headerName.Contains("Net")) return true;
+
+            // Trading metrics
+            if (headerName.Contains("Win") || headerName.Contains("Kazanc") ||
+                headerName.Contains("Kayip") || headerName.Contains("Avg") ||
+                headerName.Contains("Max") || headerName.Contains("Min") ||
+                headerName.Contains("PF") || headerName.Contains("Factor") ||
+                headerName.Contains("Ratio") || headerName.Contains("Rate") ||
+                headerName.Contains("Percent") || headerName.Contains("Yuzde")) return true;
+
+            // Drawdown columns
+            if (headerName.Contains("DD") || headerName.Contains("Drawdown")) return true;
+
+            // Period/multiplier parameters
+            if (headerName.Contains("Period") || headerName.Contains("Multiplier") ||
+                headerName.Contains("period") || headerName.Contains("multiplier")) return true;
+
+            // Default: string
+            return false;
+        }
+
+        /// <summary>
+        /// Parse cell value to correct type based on column header
+        /// Returns numeric value if column is numeric, otherwise returns string
+        /// </summary>
+        private object ParseCellValue(string headerName, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+                return value;
+
+            // Rank özel durum - integer
+            if (headerName == "Rank")
+            {
+                if (int.TryParse(value, out int intVal))
+                    return intVal;
+                return value;
+            }
+
+            // Numeric sütunlar - double
+            if (IsNumericColumn(headerName))
+            {
+                if (double.TryParse(value, out double doubleVal))
+                    return doubleVal;
+                return value; // Parse edilemezse string olarak dön
+            }
+
+            // String sütunlar
+            return value;
         }
 
         /// <summary>
