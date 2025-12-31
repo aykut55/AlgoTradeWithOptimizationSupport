@@ -82,6 +82,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         private int _optimizationCallbackThrottle = 5000;  // Her kaç kombinasyonda callback tetiklensin
         private int _optimizationGuiRowLimit = 5000;        // GUI'de max kaç satır gösterilsin
 
+        // Skip and Max iteration settings
+        private int _skipIterationValue = -1;  // -1 = disabled
+        private int _maxIterationValue = -1;   // -1 = disabled
+
         #endregion
 
         #region Constructor
@@ -570,6 +574,42 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         }
 
         /// <summary>
+        /// Set skip iteration value
+        /// -1 = disabled, >=0 = enabled
+        /// </summary>
+        public void SetSkipIterationValue(int skipValue)
+        {
+            _skipIterationValue = skipValue;
+            Log($"Skip iteration value set to: {skipValue}");
+        }
+
+        /// <summary>
+        /// Get skip iteration value
+        /// </summary>
+        public int GetSkipIterationValue()
+        {
+            return _skipIterationValue;
+        }
+
+        /// <summary>
+        /// Set max iteration value
+        /// -1 = disabled, >=0 = enabled
+        /// </summary>
+        public void SetMaxIterationValue(int maxValue)
+        {
+            _maxIterationValue = maxValue;
+            Log($"Max iteration value set to: {maxValue}");
+        }
+
+        /// <summary>
+        /// Get max iteration value
+        /// </summary>
+        public int GetMaxIterationValue()
+        {
+            return _maxIterationValue;
+        }
+
+        /// <summary>
         /// Run single trader with progress reporting (async version)
         /// </summary>
         public async Task RunSingleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
@@ -1027,7 +1067,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: 500);
 
             // Örnek 2: Skip kullanma (baştan başla)
-            singleTraderOptimizer.SetSkipIterationSettings(enabled: false, skipCount: 0);
+            // singleTraderOptimizer.SetSkipIterationSettings(enabled: false, skipCount: 0);
             // veya
             // singleTraderOptimizer.DisableSkipIteration();
 
@@ -1038,7 +1078,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // singleTraderOptimizer.SetMaxIterationsSettings(enabled: true, maxCount: 3000);
 
             // Örnek 2: Max iteration kullanma (sonuna kadar çalıştır)
-            singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
+            // singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
             // veya
             // singleTraderOptimizer.DisableMaxIterations();
 
@@ -1056,6 +1096,32 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // 3. Çalıştırma (6001-sonuna kadar):
             // singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: 6000);
             // singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
+
+            // --- Skip Iteration Ayarları (Form'dan alınan değerlerle) ---
+            // _skipIterationValue: -1 = disabled, >=0 = enabled
+            if (_skipIterationValue >= 0)
+            {
+                singleTraderOptimizer.SetSkipIterationSettings(enabled: true, skipCount: _skipIterationValue);
+                Log($"Skip Iteration: ENABLED - Skip count: {_skipIterationValue}");
+            }
+            else
+            {
+                singleTraderOptimizer.SetSkipIterationSettings(enabled: false, skipCount: 0);
+                Log($"Skip Iteration: DISABLED");
+            }
+
+            // --- Max Iterations Ayarları (Form'dan alınan değerlerle) ---
+            // _maxIterationValue: -1 = disabled, >=0 = enabled
+            if (_maxIterationValue >= 0)
+            {
+                singleTraderOptimizer.SetMaxIterationsSettings(enabled: true, maxCount: _maxIterationValue);
+                Log($"Max Iteration: ENABLED - Max count: {_maxIterationValue}");
+            }
+            else
+            {
+                singleTraderOptimizer.SetMaxIterationsSettings(enabled: false, maxCount: 0);
+                Log($"Max Iteration: DISABLED");
+            }
 
             // --- Ara Sonuç Kaydetme Ayarları ---
             // Her N kombinasyonda bir ara sonuçları kaydetmek için

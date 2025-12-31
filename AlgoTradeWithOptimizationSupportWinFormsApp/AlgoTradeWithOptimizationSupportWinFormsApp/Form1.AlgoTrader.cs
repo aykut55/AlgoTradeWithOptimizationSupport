@@ -1010,6 +1010,31 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                 _singleTraderOptLogger.Log($"Throttle: {algoTrader.GetOptimizationCallbackThrottle()}, Row limit: {algoTrader.GetOptimizationGuiRowLimit()}");
 
+                // ============================================================
+                // SKIP ITERATION VE MAX ITERATION AYARLARI
+                // ============================================================
+
+                // TextBox'lardan değerleri oku
+                int skipIteration = -1;
+                int maxIteration = -1;
+
+                if (int.TryParse(txtSkipIteration.Text, out int skipValue))
+                {
+                    skipIteration = skipValue;
+                }
+
+                if (int.TryParse(txtMaxIteration.Text, out int maxValue))
+                {
+                    maxIteration = maxValue;
+                }
+
+                // AlgoTrader'a değerleri set et (RunSingleTraderOptWithProgressAsync içinde kullanılacak)
+                algoTrader.SetSkipIterationValue(skipIteration);
+                algoTrader.SetMaxIterationValue(maxIteration);
+
+                _singleTraderOptLogger.Log($"Skip Iteration set to: {skipIteration} (GUI input)");
+                _singleTraderOptLogger.Log($"Max Iteration set to: {maxIteration} (GUI input)");
+
                 // Progress reporter oluştur - Optimization (kombinasyon ilerlemesi)
                 var progressOptimization = new Progress<BacktestProgressInfo>(progressInfo =>
                 {
