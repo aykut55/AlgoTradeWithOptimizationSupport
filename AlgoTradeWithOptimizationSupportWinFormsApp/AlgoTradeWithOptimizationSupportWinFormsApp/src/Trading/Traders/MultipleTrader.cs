@@ -283,6 +283,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             bool isPozKapatEnabled = false;
             int checkResult = 0;
             _mainTrader.islem_zaman_filtresi_uygula(i, filterMode, ref isTradeEnabled, ref isPozKapatEnabled, ref checkResult);
+            // TODO : islem zaman filtresine göre burası güncellenecek....Unutma
 
             _mainTrader.emir_sonrasi_dongu_foksiyonlarini_calistir(i);
 

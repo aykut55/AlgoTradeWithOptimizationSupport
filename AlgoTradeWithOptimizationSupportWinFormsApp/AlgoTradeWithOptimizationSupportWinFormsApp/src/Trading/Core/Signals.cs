@@ -143,7 +143,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         public bool IsPozKapatEnabled { get; set; }
 
-
         #endregion
 
         #region Constructor

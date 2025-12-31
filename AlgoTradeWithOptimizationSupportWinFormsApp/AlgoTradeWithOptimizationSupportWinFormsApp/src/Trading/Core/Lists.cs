@@ -23,6 +23,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #endregion
 
+        #region Time Filter Data
+
+        public List<int> IsTradeEnabledList { get; set; }
+        public List<int> IsPozKapatEnabledList { get; set; }
+
+        #endregion
+
         #region Profit/Loss Data
 
         public List<double> KarZararPuanList { get; set; }
@@ -130,6 +137,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             YonList = new List<string>();
             SeviyeList = new List<double>();
             SinyalList = new List<double>();
+
+            IsTradeEnabledList = new List<int>();
+            IsPozKapatEnabledList = new List<int>();
 
             KarZararPuanList = new List<double>();
             KarZararFiyatList = new List<double>();
