@@ -221,6 +221,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (strategy is BaseStrategy baseStrategy)
             {
                 baseStrategy.Initialize(Data, Indicators);
+                baseStrategy.SetTrader(this);  // Strategy'ye Trader referansını ver
             }
             else
             {
@@ -1617,12 +1618,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // --------------------------------------------------------------------------------------------------------------------------------------------
             this.StrategySignal = this.Strategy.OnStep(i);
 
-            //KarAl = trader.Signals.KarAlEnabled
-            //KarAl = KarAl and trader.KarAlZararKes.son_fiyata_gore_kar_al_seviye_hesapla(i, 5, 50, 1000) != 0
-
-            //ZararKes = trader.Signals.ZararKesEnabled
-            //ZararKes = ZararKes and trader.KarAlZararKes.son_fiyata_gore_zarar_kes_seviye_hesapla(i, -1, -10, 1000) != 0
-
+            // --------------------------------------------------------------------------------------------------------------------------------------------
             emirleri_setle(i, this.StrategySignal);
 
             // --------------------------------------------------------------------------------------------------------------------------------------------

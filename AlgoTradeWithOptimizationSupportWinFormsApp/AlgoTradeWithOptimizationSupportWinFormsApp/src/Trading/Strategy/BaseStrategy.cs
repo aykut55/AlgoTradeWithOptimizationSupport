@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy
 {
@@ -21,6 +22,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy
 
         /// <summary>Indicator manager</summary>
         protected IndicatorManager Indicators { get; set; }
+
+        /// <summary>Trader instance - allows strategy to access trader's state and methods</summary>
+        protected SingleTrader Trader { get; private set; }
 
         /// <summary>Is initialized?</summary>
         protected bool IsInitialized { get; set; }
@@ -87,6 +91,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy
             if (Parameters.TryGetValue(key, out var value))
                 return (T)value;
             return defaultValue;
+        }
+
+        /// <summary>
+        /// Set trader instance
+        /// Allows strategy to access trader's state, methods, and modules (KarAlZararKes, etc.)
+        /// </summary>
+        public void SetTrader(SingleTrader trader)
+        {
+            Trader = trader;
         }
 
         #endregion
