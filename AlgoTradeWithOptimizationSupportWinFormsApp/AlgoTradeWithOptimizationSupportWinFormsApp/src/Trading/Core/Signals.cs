@@ -11,9 +11,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         public bool Al { get; set; }
         public bool Sat { get; set; }
         public bool FlatOl { get; set; }
-        public bool PasGec { get; set; }
         public bool KarAl { get; set; }
         public bool ZararKes { get; set; }
+        public bool PasGec { get; set; }
 
         #endregion
 

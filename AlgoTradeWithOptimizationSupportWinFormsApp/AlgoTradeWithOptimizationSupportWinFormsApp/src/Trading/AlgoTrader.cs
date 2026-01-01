@@ -787,7 +787,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
             Log("Single Trader - Finalize (~10 ms)");
-            singleTrader.Finalize();
+            singleTrader.Finalize(true);
             this.timeManager.StopTimer("3");
 
             Log("");

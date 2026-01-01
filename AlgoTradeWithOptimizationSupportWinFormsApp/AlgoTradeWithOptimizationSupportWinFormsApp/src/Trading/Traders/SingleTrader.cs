@@ -516,8 +516,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.PasGecEnabled = true;
             this.signals.KarAlEnabled = true;
             this.signals.ZararKesEnabled = true;
-            this.signals.GunSonuPozKapatEnabled = true;
-            this.signals.TimeFilteringEnabled = true;
+            this.signals.GunSonuPozKapatEnabled = true; // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
+            this.signals.TimeFilteringEnabled = true;   // DEFAULT = False, Ek maliyet getirir : 
 
             return this;
         }
@@ -526,21 +526,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         {
             if (!IsInitialized)
                 throw new InvalidOperationException("Trader not initialized");
-/*
-            // Busekilde setlenmesi/resetlenmesi gerekiyor
-            this.signals.AlEnabled = true;
-            this.signals.SatEnabled = true;
-            this.signals.FlatOlEnabled = true;
-            this.signals.PasGecEnabled = true;
-            this.signals.KarAlEnabled = true;
-            this.signals.ZararKesEnabled = true;
-            this.signals.GunSonuPozKapatEnabled = true;
-            this.signals.TimeFilteringEnabled = true;
-            this.signals.IsIslemZamanFiltresiEnabled = false;
-
-            // Re-apply user flags if user wants to override defaults set in Initialize
-            OnApplyUserFlags?.Invoke(this);
-*/
 
             return this;
         }
@@ -548,7 +533,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public void emirleri_resetle(int i)
         {
             //this.NoneSignal = this.BuySignal = this.SellSignal = this.TakeProfitSignal = this.StopLossSignal = this.FlatSignal = this.SkipSignal = false;
-            this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.PasGec = this.signals.KarAl = this.signals.ZararKes = false;
+            this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
             this.signals.Sinyal = "";
         }
         public void dongu_basi_degiskenleri_resetle(int i)
@@ -656,9 +641,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             if (this.signals.PozAcilabilir == false)
             {
-
                 this.signals.PozAcilabilir = true;
                 this.signals.PozAcildi = false;
+
+                this.signals.IsTradeEnabled = true;
             }
         }
         public void emirleri_setle(int i, TradeSignals signal)
@@ -943,46 +929,44 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public bool gun_sonu_poz_kapat(int i, bool gunSonuPozKapatEnabled = true)
         {
-            bool gunSonuPozKapatildi = false;
+            // Optimizasyon: Önce disabled kontrolü yap
+            if (!gunSonuPozKapatEnabled)
+                return false;
 
-            int barCount = GetDataCount();
+            // Optimizasyon: Sınır kontrolü
+            if (i >= Data.Count - 1)
+                return false;
 
-            var dates = GetDates();
-
-            if (gunSonuPozKapatEnabled)
-            {
-                if (i < (barCount-1) && dates[i] != dates[i + 1])
-                {
-                    this.signals.FlatOl = true;
-                    gunSonuPozKapatildi = true;
-                }
-            }
-            return gunSonuPozKapatildi;
+            // Optimizasyon: GetDates() yerine direkt Data'ya eriş
+            // GetDates() her çağrıda 1.8M+ bar iterate ediyor - O(n) maliyeti var!
+            // Direkt erişim O(1) maliyetli
+            return Data[i].Date != Data[i + 1].Date;
         }
 
         public bool gun_sonu_poz_kapat2(int i, bool gunSonuPozKapatEnabled = true, int hour = 18, int minute= 0)
         {
-            bool gunSonuPozKapatildi = false;
+            // Optimizasyon: Önce disabled kontrolü yap
+            if (!gunSonuPozKapatEnabled)
+                return false;
 
-            int barCount = GetDataCount();
+            // Optimizasyon: Sınır kontrolü
+            if (i >= Data.Count)
+                return false;
 
-            var dates = GetDateTimes();
+            // Optimizasyon: GetDateTimes() yerine direkt Data'ya eriş
+            // GetDateTimes() her çağrıda 1.8M+ bar iterate ediyor - O(n) maliyeti var!
+            var currentDateTime = Data[i].DateTime;
 
-            if (gunSonuPozKapatEnabled)
-                {
-                if (dates[i].Hour == hour && dates[i].Minute >= minute)
-                {
-                    this.signals.FlatOl = true;
-                    gunSonuPozKapatildi = true;
-                }
+            if (currentDateTime.Hour == hour && currentDateTime.Minute >= minute)
+            {
+                //this.signals.FlatOl = true;
+                return true;
             }
-            return gunSonuPozKapatildi;
+
+            return false;
         }
         public void emir_sonrasi_dongu_foksiyonlarini_calistir(int i)
         {
-            // TODO : Cok yavas calisiyor...
-            // this.signals.GunSonuPozKapatildi = this.gun_sonu_poz_kapat(i, this.signals.GunSonuPozKapatEnabled);            
-
             // User-provided callback before order application for this bar
             OnBeforeOrdersCallback?.Invoke(this, i);
             
@@ -1624,8 +1608,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 return;
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
-            this.StrategySignal = this.Strategy.OnStep(i);
-
             var isSonYonA = is_son_yon_a();
 
             var isSonYonS = is_son_yon_s();
@@ -1633,13 +1615,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             var isSonYonF = is_son_yon_f();
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
+            this.StrategySignal = this.Strategy.OnStep(i);
+
             //KarAl = trader.Signals.KarAlEnabled
             //KarAl = KarAl and trader.KarAlZararKes.son_fiyata_gore_kar_al_seviye_hesapla(i, 5, 50, 1000) != 0
 
             //ZararKes = trader.Signals.ZararKesEnabled
             //ZararKes = ZararKes and trader.KarAlZararKes.son_fiyata_gore_zarar_kes_seviye_hesapla(i, -1, -10, 1000) != 0
 
-            // --------------------------------------------------------------------------------------------------------------------------------------------
             emirleri_setle(i, this.StrategySignal);
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
@@ -1655,40 +1638,51 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
                 this.signals.IsTradeEnabled = isTradeEnabled;
                 this.signals.IsPozKapatEnabled = isPozKapatEnabled;
-
-                if (isTradeEnabled)
-                {
-                    isTradeEnabled = true;
-                }
-
-                if (isPozKapatEnabled)
-                {
-                    isPozKapatEnabled = true;
-                }
-            }
-            else
-            {
-                this.signals.IsTradeEnabled = true;
-                //this.signals.IsPozKapatEnabled = BURADA ASLA BU FLAG EDITLENMEYECEK
             }
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
-            if (!this.signals.IsTradeEnabled)
+            if (this.signals.IsPozKapatEnabled || this.signals.GunSonuPozKapatEnabled)
             {
-                // Zaman filtresi trade'e izin vermiyor, emirleri iptal et
-                this.signals.None     = true;
-                this.signals.Al       = false;
-                this.signals.Sat      = false;
-                this.signals.KarAl    = false;
-                this.signals.ZararKes = false;
-                this.signals.FlatOl   = false;
-                this.signals.PasGec   = false;
-                this.signals.FlatOl   = false;
+                if (this.signals.IsPozKapatEnabled)
+                {
+                    if (isSonYonF)
+                    {
+                        this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
+                        this.signals.None = true;
+                    }
+                    else
+                    {
+                        this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
+                        this.signals.FlatOl = true;
+                    }
+                }
+                else if (this.signals.GunSonuPozKapatEnabled)
+                {
+                    bool pozKapat = this.gun_sonu_poz_kapat(i, this.signals.GunSonuPozKapatEnabled);
+                    if (pozKapat)
+                    {
+                        if (isSonYonF)
+                        {
+                            this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
+                            this.signals.None = true;
+                        }
+                        else
+                        {
+                            this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
+                            this.signals.FlatOl = true;
+                            this.signals.GunSonuPozKapatildi = true;
+                        }
+                    }
+                }
             }
             else
             {
-                int a = 5;
-                a = 6;
+                if (!this.signals.IsTradeEnabled)
+                {
+                    // Zaman filtresi trade'e izin vermiyor, emirleri iptal et
+                    this.signals.None = this.signals.Al = this.signals.Sat = this.signals.FlatOl = this.signals.KarAl = this.signals.ZararKes = this.signals.PasGec = false;
+                    this.signals.None = true;
+                }
             }
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
