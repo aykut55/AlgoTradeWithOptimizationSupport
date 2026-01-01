@@ -188,6 +188,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             EmirKomutList = new List<double>();
             EmirStatusList = new List<double>();
+
+            IsTradeEnabledList = new List<int>();
+            IsPozKapatEnabledList = new List<int>();
         }
 
         #endregion
@@ -258,6 +261,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
             EmirKomutList?.Clear();
             EmirStatusList?.Clear();
+
+            IsTradeEnabledList?.Clear();
+            IsPozKapatEnabledList?.Clear();
         }
 
         public Lists Init(int barCount)
@@ -347,6 +353,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
                 if (EmirKomutList != null && EmirKomutList.Count == n) EmirKomutList[i] = 0.0;
                 if (EmirStatusList != null && EmirStatusList.Count == n) EmirStatusList[i] = 0.0;
+
+                if (IsTradeEnabledList != null && IsTradeEnabledList.Count == n) IsTradeEnabledList[i] = 0;
+                if (IsPozKapatEnabledList != null && IsPozKapatEnabledList.Count == n) IsPozKapatEnabledList[i] = 0;
             }
         }
         public void CreateLists(int barCount)
@@ -408,6 +417,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
                 EmirKomutList = new List<double>(new double[barCount]);
                 EmirStatusList = new List<double>(new double[barCount]);
+
+                IsTradeEnabledList = new List<int>(new int[barCount]);
+                IsPozKapatEnabledList = new List<int>(new int[barCount]);
 
                 // Initialize string arrays with empty strings (null -> "")
                 for (int i = 0; i < barCount; i++)

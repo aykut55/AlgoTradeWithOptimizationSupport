@@ -640,8 +640,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             if (this.signals.IsTradeEnabled)
                 this.signals.IsTradeEnabled = false;
 
-            //if (this.signals.IsPozKapatEnabled)
-                //this.signals.IsPozKapatEnabled = false;
+            if (this.signals.IsPozKapatEnabled)
+                this.signals.IsPozKapatEnabled = false;
 
             if (this.signals.GunSonuPozKapatildi)
                 this.signals.GunSonuPozKapatildi = false;
@@ -926,6 +926,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         }
         public void time_filter_listesini_guncelle(int i)
         {
+            if (this.signals.IsTradeEnabled)
+            {
+                this.signals.IsTradeEnabled = true;
+            }
+            else
+            {
+                this.signals.IsTradeEnabled = false;
+            }
             this.lists.IsTradeEnabledList[i] = this.signals.IsTradeEnabled ? 1 : 0;
             this.lists.IsPozKapatEnabledList[i] = this.signals.IsPozKapatEnabled ? 1 : 0;
         }
@@ -1640,6 +1648,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
                 this.signals.IsTradeEnabled = isTradeEnabled;
                 this.signals.IsPozKapatEnabled = isPozKapatEnabled;
+
+                if (isTradeEnabled)
+                {
+                    isTradeEnabled = true;
+                }
+
+                if (isPozKapatEnabled)
+                {
+                    isPozKapatEnabled = true;
+                }
             }
             else
             {
@@ -1659,6 +1677,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 this.signals.FlatOl   = false;
                 this.signals.PasGec   = false;
                 this.signals.FlatOl   = false;
+            }
+            else
+            {
+                int a = 5;
+                a = 6;
             }
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
