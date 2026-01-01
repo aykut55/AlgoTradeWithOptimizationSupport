@@ -143,7 +143,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             // Sinyal önceliklendirmesi
             if (skip)
             {
-                return TradeSignals.None;
+                return TradeSignals.Skip;
             }
             else if (flat)
             {
