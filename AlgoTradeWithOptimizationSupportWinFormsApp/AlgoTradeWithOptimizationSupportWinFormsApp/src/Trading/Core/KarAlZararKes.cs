@@ -1,61 +1,20 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Utils;
+using System.Collections.Generic;
+using static SkiaSharp.HarfBuzz.SKShaper;
+
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 {
     /// <summary>
     /// Take Profit and Stop Loss - Manages profit taking and loss cutting levels
     /// Kar Al (Take Profit) and Zarar Kes (Stop Loss) management
+    /// Python'dan C#'a çevrilmiştir
     /// </summary>
     public class KarAlZararKes
     {
-        #region Enable/Disable
+        #region Properties
 
-        public bool KarAlEnabled { get; set; }
-        public bool ZararKesEnabled { get; set; }
-        public bool IzleyenStopEnabled { get; set; }
-
-        #endregion
-
-        #region Take Profit (Kar Al)
-
-        public double KarAlSeviye { get; set; }
-        public double KarAlYuzde { get; set; }
-        public double KarAlPuan { get; set; }
-        public double KarAlFiyat { get; set; }
-
-        #endregion
-
-        #region Stop Loss (Zarar Kes)
-
-        public double ZararKesSeviye { get; set; }
-        public double ZararKesYuzde { get; set; }
-        public double ZararKesPuan { get; set; }
-        public double ZararKesFiyat { get; set; }
-
-        #endregion
-
-        #region Trailing Stop (İzleyen Stop)
-
-        public double IzleyenStopSeviye { get; set; }
-        public double IzleyenStopYuzde { get; set; }
-        public double IzleyenStopPuan { get; set; }
-        public double IzleyenStopFiyat { get; set; }
-        public double IzleyenStopEnYuksekFiyat { get; set; }
-        public double IzleyenStopEnDusukFiyat { get; set; }
-
-        #endregion
-
-        #region Calculation Method
-
-        public bool YuzdeIleHesapla { get; set; }
-        public bool PuanIleHesapla { get; set; }
-        public bool SeviyeIleHesapla { get; set; }
-
-        #endregion
-
-        #region Status
-
-        public bool KarAlindi { get; set; }
-        public bool ZararKesildi { get; set; }
-        public bool IzleyenStopTetiklendi { get; set; }
+        private SingleTrader Trader { get; set; }
 
         #endregion
 
@@ -63,117 +22,603 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         public KarAlZararKes()
         {
-            Reset();
+            Trader = null;
         }
 
         #endregion
 
-        #region Methods
+        #region Initialization Methods
 
-        /// <summary>
-        /// Reset all values to defaults
-        /// </summary>
-        public KarAlZararKes Reset()
+        public KarAlZararKes SetTrader(SingleTrader trader)
         {
-            KarAlEnabled = false;
-            ZararKesEnabled = false;
-            IzleyenStopEnabled = false;
-
-            KarAlSeviye = 0.0;
-            KarAlYuzde = 0.0;
-            KarAlPuan = 0.0;
-            KarAlFiyat = 0.0;
-
-            ZararKesSeviye = 0.0;
-            ZararKesYuzde = 0.0;
-            ZararKesPuan = 0.0;
-            ZararKesFiyat = 0.0;
-
-            IzleyenStopSeviye = 0.0;
-            IzleyenStopYuzde = 0.0;
-            IzleyenStopPuan = 0.0;
-            IzleyenStopFiyat = 0.0;
-            IzleyenStopEnYuksekFiyat = 0.0;
-            IzleyenStopEnDusukFiyat = 0.0;
-
-            YuzdeIleHesapla = false;
-            PuanIleHesapla = false;
-            SeviyeIleHesapla = false;
-
-            KarAlindi = false;
-            ZararKesildi = false;
-            IzleyenStopTetiklendi = false;
-
+            Trader = trader;
             return this;
         }
 
-        /// <summary>
-        /// Initialize - Does nothing currently but returns this for method chaining
-        /// </summary>
-        public KarAlZararKes Init() { return this; }
+        public KarAlZararKes Init()
+        {
+            return this;
+        }
+
+        public KarAlZararKes Reset()
+        {
+            return this;
+        }
 
         public KarAlZararKes InitOrReuse()
         {
-            // No buffers; reuse
             return this;
         }
 
-        /// <summary>
-        /// Set take profit level by percentage
-        /// </summary>
-        public void KarAlYuzdeAyarla(double yuzde)
-        {
-            KarAlYuzde = yuzde;
-            YuzdeIleHesapla = true;
-            KarAlEnabled = true;
-        }
+        #endregion
+
+        #region Kar Al (Take Profit) Methods - Yüzde
 
         /// <summary>
-        /// Set stop loss level by percentage
+        /// Kar al yüzde hesapla
         /// </summary>
-        public void ZararKesYuzdeAyarla(double yuzde)
+        public int KarAlYuzdeHesaplaBakilacak(int barIndex, double karAlYuzdesi, List<double> refList = null)
         {
-            ZararKesYuzde = yuzde;
-            YuzdeIleHesapla = true;
-            ZararKesEnabled = true;
-        }
+            if (refList == null)
+                refList = Trader.lists.KarZararFiyatList;
 
-        /// <summary>
-        /// Set trailing stop by percentage
-        /// </summary>
-        public void IzleyenStopYuzdeAyarla(double yuzde)
-        {
-            IzleyenStopYuzde = yuzde;
-            YuzdeIleHesapla = true;
-            IzleyenStopEnabled = true;
-        }
+            int result = 0;
+            int i = barIndex;
 
-        /// <summary>
-        /// Update trailing stop based on current price
-        /// </summary>
-        public void IzleyenStopGuncelle(double currentPrice, bool isLongPosition)
-        {
-            if (!IzleyenStopEnabled)
-                return;
-
-            if (isLongPosition)
+            if (Trader.flags.KarAlYuzdeHesaplaEnabled)
             {
-                // Long position: track highest price and set stop below it
-                if (currentPrice > IzleyenStopEnYuksekFiyat)
+                Trader.lists.KarAlList[i] = false;
+                // Trader.lists.KarAlList[i] = Sistem.KarAlYuzde(karAlYuzdesi, i);
+                if (!Trader.lists.KarAlList[i])
                 {
-                    IzleyenStopEnYuksekFiyat = currentPrice;
-                    IzleyenStopFiyat = IzleyenStopEnYuksekFiyat * (1 - IzleyenStopYuzde / 100.0);
+                    Trader.lists.KarAlList[i] = false; // Placeholder
+                }
+
+                if (Trader.is_son_yon_a() && (refList[i] > Trader.lists.IzleyenStopList[i]))
+                {
+                    result = 1;
+                }
+                else if (Trader.is_son_yon_s() && (refList[i] < Trader.lists.IzleyenStopList[i]))
+                {
+                    result = -1;
                 }
             }
-            else
+
+            return result;
+        }
+
+        /// <summary>
+        /// Son fiyata göre kar al yüzde hesapla
+        /// </summary>
+        public int SonFiyataGoreKarAlYuzdeHesapla(int barIndex, double karAlYuzdesi = 2.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.KarAlYuzdeHesaplaEnabled)
             {
-                // Short position: track lowest price and set stop above it
-                if (IzleyenStopEnDusukFiyat == 0 || currentPrice < IzleyenStopEnDusukFiyat)
+                if (Trader.is_son_yon_a() &&
+                    (Trader.Data[i].Close > Trader.signals.SonFiyat * (1.0 + karAlYuzdesi * 0.01)))
                 {
-                    IzleyenStopEnDusukFiyat = currentPrice;
-                    IzleyenStopFiyat = IzleyenStopEnDusukFiyat * (1 + IzleyenStopYuzde / 100.0);
+                    result = 1;
+                }
+                else if (Trader.is_son_yon_s() &&
+                         (Trader.Data[i].Close < Trader.signals.SonFiyat * (1.0 - karAlYuzdesi * 0.01)))
+                {
+                    result = -1;
                 }
             }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Son fiyata göre kar al yüzde hesapla - seviyeli
+        /// </summary>
+        public int SonFiyataGoreKarAlYuzdeHesaplaSeviyeli(int barIndex, int seviyeBas = 2, int seviyeSon = 10, double carpan = 0.01)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.KarAlYuzdeHesaplaEnabled)
+            {
+                bool karAl = false;
+
+                if (Trader.is_son_yon_a())
+                {
+                    for (int m = seviyeBas; m < seviyeSon; m++)
+                    {
+                        karAl = karAl || AsagiKestiClose(i, Trader.signals.SonFiyat * (1.0 + m * carpan));
+                        if (karAl)
+                            break;
+                    }
+                    if (karAl) result = 1;
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    for (int m = seviyeBas; m < seviyeSon; m++)
+                    {
+                        karAl = karAl || YukarıKestiClose(i, Trader.signals.SonFiyat * (1.0 - m * carpan));
+                        if (karAl)
+                            break;
+                    }
+                    if (karAl) result = -1;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Zarar Kes (Stop Loss) Methods - Yüzde
+
+        /// <summary>
+        /// Son fiyata göre zarar kes yüzde hesapla
+        /// </summary>
+        public int SonFiyataGoreZararKesYuzdeHesapla(int barIndex, double zararKesYuzdesi = -1.0)
+        {
+            int result = 0;
+            int i = barIndex;
+            double zararKesYuzdesi_ = -1.0 * zararKesYuzdesi;
+
+            if (Trader.flags.ZararKesYuzdeHesaplaEnabled)
+            {
+                if (Trader.is_son_yon_a() &&
+                    (Trader.Data[i].Close < Trader.signals.SonFiyat * (1.0 - zararKesYuzdesi_ * 0.01)))
+                {
+                    result = 1;
+                }
+                else if (Trader.is_son_yon_s() &&
+                         (Trader.Data[i].Close > Trader.signals.SonFiyat * (1.0 + zararKesYuzdesi_ * 0.01)))
+                {
+                    result = -1;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Son fiyata göre zarar kes yüzde hesapla - seviyeli
+        /// </summary>
+        public int SonFiyataGoreZararKesYuzdeHesaplaSeviyeli(int barIndex, int seviyeBas = -2, int seviyeSon = -10, double carpan = 0.01)
+        {
+            int result = 0;
+            int i = barIndex;
+            int seviyeBas_ = -1 * seviyeBas;
+            int seviyeSon_ = -1 * seviyeSon;
+
+            if (Trader.flags.ZararKesYuzdeHesaplaEnabled)
+            {
+                bool zararKes = false;
+
+                if (Trader.is_son_yon_a())
+                {
+                    for (int m = seviyeBas_; m < seviyeSon_; m++)
+                    {
+                        zararKes = zararKes || AsagiKestiClose(i, Trader.signals.SonFiyat * (1.0 - m * carpan));
+                        if (zararKes)
+                            break;
+                    }
+                    if (zararKes) result = 1;
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    for (int m = seviyeBas_; m < seviyeSon_; m++)
+                    {
+                        zararKes = zararKes || YukarıKestiClose(i, Trader.signals.SonFiyat * (1.0 + m * carpan));
+                        if (zararKes)
+                            break;
+                    }
+                    if (zararKes) result = -1;
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Kar Al (Take Profit) Methods - Seviye
+
+        /// <summary>
+        /// Son fiyata göre kar al seviye hesapla
+        /// </summary>
+        public int SonFiyataGoreKarAlSeviyeHesapla(int barIndex, double karAlSeviyesi = 2000.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.KarAlSeviyeHesaplaEnabled)
+            {
+                result = YukarıKestiKarZararFiyat(i, karAlSeviyesi) ? 1 : 0;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Son fiyata göre kar al seviye hesapla - seviyeli
+        /// </summary>
+        public int SonFiyataGoreKarAlSeviyeHesaplaSeviyeli(int barIndex, int seviyeBas = 5, int seviyeSon = 50, int carpan = 1000)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.KarAlSeviyeHesaplaEnabled)
+            {
+                bool karAl = false;
+
+                for (int m = seviyeBas; m < seviyeSon; m++)
+                {
+                    karAl = karAl || AsagiKestiKarZararFiyat(i, m * carpan);
+                    if (karAl)
+                        break;
+                }
+
+                if (karAl) result = 1;
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Zarar Kes (Stop Loss) Methods - Seviye
+
+        /// <summary>
+        /// Son fiyata göre zarar kes seviye hesapla
+        /// </summary>
+        public int SonFiyataGoreZararKesSeviyeHesapla(int barIndex, double zararKesSeviyesi = -1000.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.ZararKesSeviyeHesaplaEnabled)
+            {
+                result = AsagiKestiKarZararFiyat(i, zararKesSeviyesi) ? 1 : 0;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Son fiyata göre zarar kes seviye hesapla - seviyeli
+        /// </summary>
+        public int SonFiyataGoreZararKesSeviyeHesaplaSeviyeli(int barIndex, int seviyeBas = -1, int seviyeSon = -10, int carpan = 1000)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.ZararKesSeviyeHesaplaEnabled)
+            {
+                bool zararKes = false;
+
+                for (int m = seviyeBas; m > seviyeSon; m--)  // Python'da range(SeviyeBas, SeviyeSon, -1)
+                {
+                    zararKes = zararKes || AsagiKestiKarZararFiyat(i, m * carpan);
+                    if (zararKes)
+                        break;
+                }
+
+                if (zararKes) result = 1;
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Trailing Stop (İzleyen Stop) Methods
+
+        /// <summary>
+        /// İzleyen stop yüzde hesapla
+        /// </summary>
+        public int IzleyenStopYuzdeHesaplaBakilacak(int barIndex, double izleyenStopYuzdesi, List<double> refList = null)
+        {
+            if (refList == null)
+                refList = Trader.lists.KarZararFiyatList;
+
+            int result = 0;
+            int i = barIndex;
+
+            if (Trader.flags.IzleyenStopYuzdeHesaplaEnabled)
+            {
+                Trader.lists.IzleyenStopList[i] = 0.0;
+                // Trader.lists.IzleyenStopList[i] = Sistem.IzleyenStopYuzde(izleyenStopYuzdesi, i);
+                if (Trader.lists.IzleyenStopList[i] == 0.0)
+                {
+                    Trader.lists.IzleyenStopList[i] = refList[i];
+                }
+
+                if (Trader.is_son_yon_a() && (refList[i] < Trader.lists.IzleyenStopList[i]))
+                {
+                    result = 1;
+                }
+                else if (Trader.is_son_yon_s() && (refList[i] > Trader.lists.IzleyenStopList[i]))
+                {
+                    result = -1;
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// İzleyen stop güncelle - Trailing stop tracking
+        /// Long pozisyonda en yüksek fiyatı, short pozisyonda en düşük fiyatı takip eder
+        /// Return: 0 = Devam, 1 = Long stop tetiklendi, -1 = Short stop tetiklendi
+        /// </summary>
+        public int IzleyenStopGuncelle(int barIndex, double izleyenStopYuzdesi)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (!Trader.flags.IzleyenStopYuzdeHesaplaEnabled)
+                return result;
+
+            double currentPrice = Trader.Data[i].Close;
+
+            if (Trader.is_son_yon_a())  // Long pozisyon
+            {
+                // Yeni rekor mu? Güncelle
+                if (currentPrice > Trader.signals.IzleyenStopEnYuksekFiyat)
+                {
+                    Trader.signals.IzleyenStopEnYuksekFiyat = currentPrice;
+                }
+
+                // Stop seviyesini hesapla (en yüksek fiyattan yüzde aşağıda)
+                double stopLevel = Trader.signals.IzleyenStopEnYuksekFiyat * (1.0 - izleyenStopYuzdesi / 100.0);
+                Trader.lists.IzleyenStopList[i] = stopLevel;
+
+                // Fiyat stop seviyesinin altına düştü mü?
+                if (currentPrice < stopLevel)
+                {
+                    result = 1;  // Stop tetiklendi!
+                }
+            }
+            else if (Trader.is_son_yon_s())  // Short pozisyon
+            {
+                // İlk kez veya yeni düşük rekor mu? Güncelle
+                if (Trader.signals.IzleyenStopEnDusukFiyat == 0 || currentPrice < Trader.signals.IzleyenStopEnDusukFiyat)
+                {
+                    Trader.signals.IzleyenStopEnDusukFiyat = currentPrice;
+                }
+
+                // Stop seviyesini hesapla (en düşük fiyattan yüzde yukarıda)
+                double stopLevel = Trader.signals.IzleyenStopEnDusukFiyat * (1.0 + izleyenStopYuzdesi / 100.0);
+                Trader.lists.IzleyenStopList[i] = stopLevel;
+
+                // Fiyat stop seviyesinin üstüne çıktı mı?
+                if (currentPrice > stopLevel)
+                {
+                    result = -1;  // Stop tetiklendi!
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Kar Al / Zarar Kes - KarZarar Yüzdesi Bazlı
+
+        /// <summary>
+        /// KarZararFiyatYuzdeList'teki anlık kar yüzdesine göre kar al kontrolü
+        /// Pozisyon açıldıktan sonra anlık kar yüzdesi hedefe ulaştıysa kar al sinyali verir
+        /// </summary>
+        /// <param name="barIndex">Bar index</param>
+        /// <param name="karAlYuzdesi">Hedef kar yüzdesi (örn: 3.0 = %3)</param>
+        /// <returns>0 = Bekle, 1 = Long kar al, -1 = Short kar al</returns>
+        public int KarZararYuzdesindenKarAlHesapla(int barIndex, double karAlYuzdesi = 3.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (!Trader.flags.KarAlYuzdeHesaplaEnabled)
+                return result;
+
+            // Anlık kar yüzdesi hedef kar yüzdesine ulaştı mı?
+            double anlikKarYuzdesi = Trader.lists.KarZararFiyatYuzdeList[i];
+
+            if (anlikKarYuzdesi >= karAlYuzdesi)
+            {
+                if (Trader.is_son_yon_a())
+                {
+                    Trader.lists.KarAlList[i] = false;
+                    result = 1;  // Long pozisyon kar al
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    Trader.lists.KarAlList[i] = false;
+                    result = -1;  // Short pozisyon kar al
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// KarZararFiyatYuzdeList'teki anlık zarar yüzdesine göre zarar kes kontrolü
+        /// Pozisyon açıldıktan sonra anlık zarar yüzdesi hedefe ulaştıysa zarar kes sinyali verir
+        /// </summary>
+        /// <param name="barIndex">Bar index</param>
+        /// <param name="zararKesYuzdesi">Hedef zarar yüzdesi (örn: -2.0 = %-2, yani %2 zarar)</param>
+        /// <returns>0 = Bekle, 1 = Long zarar kes, -1 = Short zarar kes</returns>
+        public int KarZararYuzdesindenZararKesHesapla(int barIndex, double zararKesYuzdesi = -2.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (!Trader.flags.ZararKesYuzdeHesaplaEnabled)
+                return result;
+
+            // Anlık kar/zarar yüzdesi
+            double anlikKarZararYuzdesi = Trader.lists.KarZararFiyatYuzdeList[i];
+
+            // Zarar durumunda (negatif) ve hedef zarara ulaştıysa
+            // Örn: anlikKarZararYuzdesi = -2.5, zararKesYuzdesi = -2.0
+            // -2.5 <= -2.0 → Zarar daha büyük, kes!
+            if (anlikKarZararYuzdesi <= zararKesYuzdesi)
+            {
+                if (Trader.is_son_yon_a())
+                {
+                    Trader.lists.ZararKesList[i] = false;
+                    result = 1;  // Long pozisyon zarar kes
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    Trader.lists.ZararKesList[i] = false;
+                    result = -1;  // Short pozisyon zarar kes
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// KarZararFiyatList'teki anlık kar seviyesine göre kar al kontrolü
+        /// Pozisyon açıldıktan sonra anlık kar seviyesi hedefe ulaştıysa kar al sinyali verir
+        /// </summary>
+        /// <param name="barIndex">Bar index</param>
+        /// <param name="karAlFiyatSeviyesi">Hedef kar seviyesi (örn: 1000.0 = 1000 TL kar)</param>
+        /// <returns>0 = Bekle, 1 = Long kar al, -1 = Short kar al</returns>
+        public int KarZararFiyatSeviyesindenKarAlHesapla(int barIndex, double karAlFiyatSeviyesi = 1000.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (!Trader.flags.KarAlSeviyeHesaplaEnabled)
+                return result;
+
+            // Anlık kar/zarar fiyat seviyesi
+            double anlikKarZararFiyat = Trader.lists.KarZararFiyatList[i];
+
+            // Kar hedefe ulaştıysa
+            if (anlikKarZararFiyat >= karAlFiyatSeviyesi)
+            {
+                if (Trader.is_son_yon_a())
+                {
+                    Trader.lists.KarAlList[i] = false;
+                    result = 1;  // Long pozisyon kar al
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    Trader.lists.KarAlList[i] = false;
+                    result = -1;  // Short pozisyon kar al
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// KarZararFiyatList'teki anlık zarar seviyesine göre zarar kes kontrolü
+        /// Pozisyon açıldıktan sonra anlık zarar seviyesi hedefe ulaştıysa zarar kes sinyali verir
+        /// </summary>
+        /// <param name="barIndex">Bar index</param>
+        /// <param name="zararKesFiyatSeviyesi">Hedef zarar seviyesi (örn: -500.0 = 500 TL zarar)</param>
+        /// <returns>0 = Bekle, 1 = Long zarar kes, -1 = Short zarar kes</returns>
+        public int KarZararFiyatSeviyesindenZararKesHesapla(int barIndex, double zararKesFiyatSeviyesi = -500.0)
+        {
+            int result = 0;
+            int i = barIndex;
+
+            if (!Trader.flags.ZararKesSeviyeHesaplaEnabled)
+                return result;
+
+            // Anlık kar/zarar fiyat seviyesi
+            double anlikKarZararFiyat = Trader.lists.KarZararFiyatList[i];
+
+            // Zarar hedefe ulaştıysa
+            // Örn: anlikKarZararFiyat = -600, zararKesFiyatSeviyesi = -500
+            // -600 <= -500 → Zarar daha büyük, kes!
+            if (anlikKarZararFiyat <= zararKesFiyatSeviyesi)
+            {
+                if (Trader.is_son_yon_a())
+                {
+                    Trader.lists.ZararKesList[i] = false;
+                    result = 1;  // Long pozisyon zarar kes
+                }
+                else if (Trader.is_son_yon_s())
+                {
+                    Trader.lists.ZararKesList[i] = false;
+                    result = -1;  // Short pozisyon zarar kes
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region Helper Methods
+
+        /// <summary>
+        /// Close price'ları array olarak al
+        /// NOT: Performans sorunlarına yol açabilir (2M eleman kopyalama). Mümkünse AsagiKestiClose/YukarıKestiClose kullanın.
+        /// </summary>
+        private double[] GetClosePrices()
+        {
+            double[] closes = new double[Trader.Data.Count];
+            for (int i = 0; i < Trader.Data.Count; i++)
+            {
+                closes[i] = Trader.Data[i].Close;
+            }
+            return closes;
+        }
+
+        /// <summary>
+        /// i barında Close fiyatının bir değeri aşağı kesip kesmediğini kontrol eder
+        /// Performans optimizasyonu: Array oluşturmadan direkt Data listesinden okur
+        /// </summary>
+        private bool AsagiKestiClose(int i, double threshold)
+        {
+            if (i < 1 || i >= Trader.Data.Count)
+                return false;
+
+            // Aşağı kesişim: önceki >= threshold && şimdiki < threshold
+            return Trader.Data[i - 1].Close >= threshold && Trader.Data[i].Close < threshold;
+        }
+
+        /// <summary>
+        /// i barında Close fiyatının bir değeri yukarı kesip kesmediğini kontrol eder
+        /// Performans optimizasyonu: Array oluşturmadan direkt Data listesinden okur
+        /// </summary>
+        private bool YukarıKestiClose(int i, double threshold)
+        {
+            if (i < 1 || i >= Trader.Data.Count)
+                return false;
+
+            // Yukarı kesişim: önceki <= threshold && şimdiki > threshold
+            return Trader.Data[i - 1].Close <= threshold && Trader.Data[i].Close > threshold;
+        }
+
+        /// <summary>
+        /// i barında KarZararFiyatList'in bir değeri aşağı kesip kesmediğini kontrol eder
+        /// Performans optimizasyonu: Array oluşturmadan direkt List'ten okur
+        /// </summary>
+        private bool AsagiKestiKarZararFiyat(int i, double threshold)
+        {
+            if (i < 1 || i >= Trader.lists.KarZararFiyatList.Count)
+                return false;
+
+            // Aşağı kesişim: önceki >= threshold && şimdiki < threshold
+            return Trader.lists.KarZararFiyatList[i - 1] >= threshold && Trader.lists.KarZararFiyatList[i] < threshold;
+        }
+
+        /// <summary>
+        /// i barında KarZararFiyatList'in bir değeri yukarı kesip kesmediğini kontrol eder
+        /// Performans optimizasyonu: Array oluşturmadan direkt List'ten okur
+        /// </summary>
+        private bool YukarıKestiKarZararFiyat(int i, double threshold)
+        {
+            if (i < 1 || i >= Trader.lists.KarZararFiyatList.Count)
+                return false;
+
+            // Yukarı kesişim: önceki <= threshold && şimdiki > threshold
+            return Trader.lists.KarZararFiyatList[i - 1] <= threshold && Trader.lists.KarZararFiyatList[i] > threshold;
         }
 
         #endregion

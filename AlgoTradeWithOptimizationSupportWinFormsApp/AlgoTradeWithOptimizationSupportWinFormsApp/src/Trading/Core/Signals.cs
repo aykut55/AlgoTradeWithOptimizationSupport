@@ -50,6 +50,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #endregion
 
+        #region Trailing Stop Tracking (İzleyen Stop Takibi)
+
+        /// <summary>
+        /// Long pozisyonlarda izleyen stop için en yüksek fiyat takibi
+        /// Pozisyon açıldıktan sonraki en yüksek fiyat
+        /// </summary>
+        public double IzleyenStopEnYuksekFiyat { get; set; }
+
+        /// <summary>
+        /// Short pozisyonlarda izleyen stop için en düşük fiyat takibi
+        /// Pozisyon açıldıktan sonraki en düşük fiyat
+        /// </summary>
+        public double IzleyenStopEnDusukFiyat { get; set; }
+
+        #endregion
+
         #region Current Bar Numbers (Son)
 
         public int SonBarNo { get; set; }
@@ -214,6 +230,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             PrevSFiyat = 0.0;
             PrevFFiyat = 0.0;
             PrevPFiyat = 0.0;
+
+            IzleyenStopEnYuksekFiyat = 0.0;
+            IzleyenStopEnDusukFiyat = 0.0;
 
             SonBarNo = 0;
             SonABarNo = 0;

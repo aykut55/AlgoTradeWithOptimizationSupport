@@ -42,6 +42,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #region Trading Actions
 
         public List<bool> KarAlList { get; set; }
+        public List<bool> ZararKesList { get; set; }
         public List<double> IzleyenStopList { get; set; }
 
         #endregion
@@ -147,6 +148,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             KarZararFiyatYuzdeList = new List<double>();
 
             KarAlList = new List<bool>();
+            ZararKesList = new List<bool>();
             IzleyenStopList = new List<double>();
 
             IslemSayisiList = new List<int>();
@@ -220,6 +222,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             KarZararFiyatYuzdeList?.Clear();
 
             KarAlList?.Clear();
+            ZararKesList?.Clear();
             IzleyenStopList?.Clear();
 
             IslemSayisiList?.Clear();
@@ -312,6 +315,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 if (KarZararFiyatYuzdeList != null && KarZararFiyatYuzdeList.Count == n) KarZararFiyatYuzdeList[i] = 0.0;
 
                 if (KarAlList != null && KarAlList.Count == n) KarAlList[i] = false;
+                if (ZararKesList != null && ZararKesList.Count == n) ZararKesList[i] = false; 
                 if (IzleyenStopList != null && IzleyenStopList.Count == n) IzleyenStopList[i] = 0.0;
 
                 if (IslemSayisiList != null && IslemSayisiList.Count == n) IslemSayisiList[i] = 0;
@@ -376,6 +380,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 KarZararFiyatYuzdeList = new List<double>(new double[barCount]);
 
                 KarAlList = new List<bool>(new bool[barCount]);
+                ZararKesList = new List<bool>(new bool[barCount]);
                 IzleyenStopList = new List<double>(new double[barCount]);
 
                 IslemSayisiList = new List<int>(new int[barCount]);
