@@ -41,8 +41,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
 
         #region Trading Actions
 
-        public List<bool> KarAlList { get; set; }
-        public List<bool> ZararKesList { get; set; }
+        public List<double> KarAlList { get; set; }
+        public List<double> ZararKesList { get; set; }
         public List<double> IzleyenStopList { get; set; }
 
         #endregion
@@ -147,8 +147,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             KarZararPuanYuzdeList = new List<double>();
             KarZararFiyatYuzdeList = new List<double>();
 
-            KarAlList = new List<bool>();
-            ZararKesList = new List<bool>();
+            KarAlList = new List<double>();
+            ZararKesList = new List<double>();
             IzleyenStopList = new List<double>();
 
             IslemSayisiList = new List<int>();
@@ -314,8 +314,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 if (KarZararPuanYuzdeList != null && KarZararPuanYuzdeList.Count == n) KarZararPuanYuzdeList[i] = 0.0;
                 if (KarZararFiyatYuzdeList != null && KarZararFiyatYuzdeList.Count == n) KarZararFiyatYuzdeList[i] = 0.0;
 
-                if (KarAlList != null && KarAlList.Count == n) KarAlList[i] = false;
-                if (ZararKesList != null && ZararKesList.Count == n) ZararKesList[i] = false; 
+                if (KarAlList != null && KarAlList.Count == n) KarAlList[i] = 0.0;
+                if (ZararKesList != null && ZararKesList.Count == n) ZararKesList[i] = 0.0; 
                 if (IzleyenStopList != null && IzleyenStopList.Count == n) IzleyenStopList[i] = 0.0;
 
                 if (IslemSayisiList != null && IslemSayisiList.Count == n) IslemSayisiList[i] = 0;
@@ -379,8 +379,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 KarZararPuanYuzdeList = new List<double>(new double[barCount]);
                 KarZararFiyatYuzdeList = new List<double>(new double[barCount]);
 
-                KarAlList = new List<bool>(new bool[barCount]);
-                ZararKesList = new List<bool>(new bool[barCount]);
+                KarAlList = new List<double>(new double[barCount]);
+                ZararKesList = new List<double>(new double[barCount]);
                 IzleyenStopList = new List<double>(new double[barCount]);
 
                 IslemSayisiList = new List<int>(new int[barCount]);

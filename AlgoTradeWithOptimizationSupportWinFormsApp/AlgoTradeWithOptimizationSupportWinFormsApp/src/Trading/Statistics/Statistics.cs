@@ -900,7 +900,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     $"{"KzFiyat",10} | " +
                     $"{"KzPuan%",10} | " +
                     $"{"KzFiyat%",10} | " +
-                    $"{"KarAl",5} | " +
+                    $"{"KarAl",10} | " +
+                    $"{"ZararKes",10} | " +
                     $"{"IzStop",10} | " +
                     $"{"Islem",6} | " +
                     $"{"Alis",6} | " +
@@ -958,7 +959,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                         $"{Trader.lists.KarZararFiyatList[i],10:F2} | " +
                         $"{Trader.lists.KarZararPuanYuzdeList[i],10:F2} | " +
                         $"{Trader.lists.KarZararFiyatYuzdeList[i],10:F2} | " +
-                        $"{(Trader.lists.KarAlList[i] ? "True" : ""),5} | " +
+                        $"{Trader.lists.KarAlList[i],10:F2} | " +
+                        $"{Trader.lists.ZararKesList[i],10:F2} | " +
                         $"{Trader.lists.IzleyenStopList[i],10:F2} | " +
                         $"{Trader.lists.IslemSayisiList[i],6} | " +
                         $"{Trader.lists.AlisSayisiList[i],6} | " +
@@ -1012,7 +1014,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                     "BarNo;Date;Time;Open;High;Low;Close;Volume;" +
                     "Yon;Seviye;Sinyal;" +
                     "KarZararPuan;KarZararFiyat;KarZararPuanYuzde;KarZararFiyatYuzde;" +
-                    "KarAl;IzleyenStop;" +
+                    "KarAl;ZararKes;IzleyenStop;" +
                     "IslemSayisi;AlisSayisi;SatisSayisi;FlatSayisi;PassSayisi;" +
                     "KontratSayisi;VarlikAdedSayisi;KomisyonVarlikAdedSayisi;KomisyonIslemSayisi;KomisyonFiyat;" +
                     "KardaBarSayisi;ZarardaBarSayisi;" +
@@ -1044,7 +1046,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                         $"{Trader.lists.KarZararFiyatList[i]:F2};" +
                         $"{Trader.lists.KarZararPuanYuzdeList[i]:F2};" +
                         $"{Trader.lists.KarZararFiyatYuzdeList[i]:F2};" +
-                        $"{Trader.lists.KarAlList[i]};" +
+                        $"{Trader.lists.KarAlList[i]:F2};" +
+                        $"{Trader.lists.ZararKesList[i]:F2};" +
                         $"{Trader.lists.IzleyenStopList[i]:F2};" +
                         $"{Trader.lists.IslemSayisiList[i]};" +
                         $"{Trader.lists.AlisSayisiList[i]};" +

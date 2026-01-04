@@ -119,39 +119,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             }
 
             // ÖRNEK: Trader referansını kullanarak kar al / zarar kes hesaplama
-            // Trader property'si BaseStrategy.SetTrader() ile otomatik set edilir
-            //
-            // if (Trader != null && Trader.signals.KarAlEnabled)
-            // {
-            //     takeProfit = Trader.KarAlZararKes.son_fiyata_gore_kar_al_seviye_hesapla(currentIndex, 5, 50, 1000) != 0;
-            // }
-            //
-            // if (Trader != null && Trader.signals.ZararKesEnabled)
-            // {
-            //     stopLoss = Trader.KarAlZararKes.son_fiyata_gore_zarar_kes_seviye_hesapla(currentIndex, -1, -10, 1000) != 0;
-            // }
-
-            if (1 == 2)
+            // Trader property'si BaseStrategy.SetTrader() ile otomatik set edilir            
+            if (Trader != null)
             {
-                takeProfit = true;
+                takeProfit = Trader.karAlZararKes.SonFiyataGoreKarAlSeviyeHesaplaSeviyeli(currentIndex, 5, 50, 1000) != 0;
+            }
+            
+            if (Trader != null)
+            {
+                stopLoss = Trader.karAlZararKes.SonFiyataGoreZararKesSeviyeHesaplaSeviyeli(currentIndex, -1, -10, 1000) != 0;
             }
 
-            if (2 == 3)
-            {
-                stopLoss = true;
-            }
-
-            if (3 == 4)
-            {
-                flat = true;
-            }
-
-            if (4 == 5)
-            {
-                skip = true;
-            }
-
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
             // Sinyal önceliklendirmesi
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
             if (skip)
             {
                 return TradeSignals.Skip;
@@ -176,6 +161,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             {
                 return TradeSignals.Sell;
             }
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
+            // ************************************************************************************************************************
 
             return TradeSignals.None;
         }

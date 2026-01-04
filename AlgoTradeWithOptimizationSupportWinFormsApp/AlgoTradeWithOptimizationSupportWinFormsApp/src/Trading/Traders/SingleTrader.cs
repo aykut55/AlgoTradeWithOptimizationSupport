@@ -311,6 +311,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             timeUtils.SetTrader(this);
             karZarar = new KarZarar(this);
             karAlZararKes = new KarAlZararKes();
+            karAlZararKes.SetTrader(this);
             komisyon = new Komisyon();
             komisyon.SetTrader(this);
             Bakiye = new Bakiye();
@@ -551,7 +552,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.status.KarZararFiyat = 0.0;
             this.status.KarZararPuanYuzde = 0.0;
             this.status.KarZararFiyatYuzde = 0.0;
-            this.lists.KarAlList[i] = false;
+            this.lists.KarAlList[i] = 0.0;
+            this.lists.ZararKesList[i] = 0.0;
             this.lists.IzleyenStopList[i] = 0.0;
             this.lists.IslemSayisiList[i] = 0;
             this.lists.AlisSayisiList[i] = 0;

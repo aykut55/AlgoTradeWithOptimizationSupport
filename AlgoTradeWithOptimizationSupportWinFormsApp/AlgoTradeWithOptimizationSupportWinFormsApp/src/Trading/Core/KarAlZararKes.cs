@@ -55,39 +55,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #region Kar Al (Take Profit) Methods - Yüzde
 
         /// <summary>
-        /// Kar al yüzde hesapla
-        /// </summary>
-        public int KarAlYuzdeHesaplaBakilacak(int barIndex, double karAlYuzdesi, List<double> refList = null)
-        {
-            if (refList == null)
-                refList = Trader.lists.KarZararFiyatList;
-
-            int result = 0;
-            int i = barIndex;
-
-            if (Trader.flags.KarAlYuzdeHesaplaEnabled)
-            {
-                Trader.lists.KarAlList[i] = false;
-                // Trader.lists.KarAlList[i] = Sistem.KarAlYuzde(karAlYuzdesi, i);
-                if (!Trader.lists.KarAlList[i])
-                {
-                    Trader.lists.KarAlList[i] = false; // Placeholder
-                }
-
-                if (Trader.is_son_yon_a() && (refList[i] > Trader.lists.IzleyenStopList[i]))
-                {
-                    result = 1;
-                }
-                else if (Trader.is_son_yon_s() && (refList[i] < Trader.lists.IzleyenStopList[i]))
-                {
-                    result = -1;
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// Son fiyata göre kar al yüzde hesapla
         /// </summary>
         public int SonFiyataGoreKarAlYuzdeHesapla(int barIndex, double karAlYuzdesi = 2.0)
@@ -313,39 +280,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
         #region Trailing Stop (İzleyen Stop) Methods
 
         /// <summary>
-        /// İzleyen stop yüzde hesapla
-        /// </summary>
-        public int IzleyenStopYuzdeHesaplaBakilacak(int barIndex, double izleyenStopYuzdesi, List<double> refList = null)
-        {
-            if (refList == null)
-                refList = Trader.lists.KarZararFiyatList;
-
-            int result = 0;
-            int i = barIndex;
-
-            if (Trader.flags.IzleyenStopYuzdeHesaplaEnabled)
-            {
-                Trader.lists.IzleyenStopList[i] = 0.0;
-                // Trader.lists.IzleyenStopList[i] = Sistem.IzleyenStopYuzde(izleyenStopYuzdesi, i);
-                if (Trader.lists.IzleyenStopList[i] == 0.0)
-                {
-                    Trader.lists.IzleyenStopList[i] = refList[i];
-                }
-
-                if (Trader.is_son_yon_a() && (refList[i] < Trader.lists.IzleyenStopList[i]))
-                {
-                    result = 1;
-                }
-                else if (Trader.is_son_yon_s() && (refList[i] > Trader.lists.IzleyenStopList[i]))
-                {
-                    result = -1;
-                }
-            }
-
-            return result;
-        }
-
-        /// <summary>
         /// İzleyen stop güncelle - Trailing stop tracking
         /// Long pozisyonda en yüksek fiyatı, short pozisyonda en düşük fiyatı takip eder
         /// Return: 0 = Devam, 1 = Long stop tetiklendi, -1 = Short stop tetiklendi
@@ -420,18 +354,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
                 return result;
 
             // Anlık kar yüzdesi hedef kar yüzdesine ulaştı mı?
-            double anlikKarYuzdesi = Trader.lists.KarZararFiyatYuzdeList[i];
+            double anlikKarZararYuzdesi = Trader.lists.KarZararFiyatYuzdeList[i];
 
-            if (anlikKarYuzdesi >= karAlYuzdesi)
+            if (anlikKarZararYuzdesi >= karAlYuzdesi)
             {
+                Trader.lists.KarAlList[i] = anlikKarZararYuzdesi;
+
                 if (Trader.is_son_yon_a())
-                {
-                    Trader.lists.KarAlList[i] = false;
+                {   
                     result = 1;  // Long pozisyon kar al
                 }
                 else if (Trader.is_son_yon_s())
-                {
-                    Trader.lists.KarAlList[i] = false;
+                {                    
                     result = -1;  // Short pozisyon kar al
                 }
             }
@@ -462,14 +396,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             // -2.5 <= -2.0 → Zarar daha büyük, kes!
             if (anlikKarZararYuzdesi <= zararKesYuzdesi)
             {
+                Trader.lists.ZararKesList[i] = anlikKarZararYuzdesi;
+
                 if (Trader.is_son_yon_a())
                 {
-                    Trader.lists.ZararKesList[i] = false;
                     result = 1;  // Long pozisyon zarar kes
                 }
                 else if (Trader.is_son_yon_s())
                 {
-                    Trader.lists.ZararKesList[i] = false;
                     result = -1;  // Short pozisyon zarar kes
                 }
             }
@@ -498,14 +432,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             // Kar hedefe ulaştıysa
             if (anlikKarZararFiyat >= karAlFiyatSeviyesi)
             {
+                Trader.lists.KarAlList[i] = anlikKarZararFiyat;
+
                 if (Trader.is_son_yon_a())
                 {
-                    Trader.lists.KarAlList[i] = false;
                     result = 1;  // Long pozisyon kar al
                 }
                 else if (Trader.is_son_yon_s())
                 {
-                    Trader.lists.KarAlList[i] = false;
                     result = -1;  // Short pozisyon kar al
                 }
             }
@@ -536,14 +470,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core
             // -600 <= -500 → Zarar daha büyük, kes!
             if (anlikKarZararFiyat <= zararKesFiyatSeviyesi)
             {
+                Trader.lists.ZararKesList[i] = anlikKarZararFiyat;
+
                 if (Trader.is_son_yon_a())
                 {
-                    Trader.lists.ZararKesList[i] = false;
                     result = 1;  // Long pozisyon zarar kes
                 }
                 else if (Trader.is_son_yon_s())
                 {
-                    Trader.lists.ZararKesList[i] = false;
                     result = -1;  // Short pozisyon zarar kes
                 }
             }
