@@ -173,6 +173,94 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
             }
         }
 
+        /// <summary>
+        /// Matplotlib test - Basit sin dalgası çizer
+        /// </summary>
+        public bool TestMatplotlibSineWave()
+        {
+            if (!_isInitialized)
+                Initialize();
+
+            using (Py.GIL())
+            {
+                try
+                {
+                    // sys.path'e script dizinini ekle
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(_scriptDirectory);
+
+                    // matplotlib modülünü kontrol et
+                    try
+                    {
+                        Py.Import("matplotlib");
+                        Py.Import("numpy");
+                    }
+                    catch (PythonException)
+                    {
+                        throw new Exception(
+                            "Matplotlib veya NumPy yüklü değil!\n\n" +
+                            "Lütfen şu komutu çalıştırın:\n" +
+                            "pip install matplotlib numpy"
+                        );
+                    }
+
+                    // Test modülünü import et
+                    dynamic testModule = Py.Import("test_matplotlib");
+
+                    // Sin dalgası çiz
+                    dynamic result = testModule.plot_simple_sine_wave();
+
+                    return (bool)result;
+                }
+                catch (PythonException pyEx)
+                {
+                    throw new Exception($"Matplotlib test hatası: {pyEx.Message}\n{pyEx.StackTrace}", pyEx);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Matplotlib test - Trading simülasyonu çizer
+        /// </summary>
+        public bool TestMatplotlibTradingSimulation()
+        {
+            if (!_isInitialized)
+                Initialize();
+
+            using (Py.GIL())
+            {
+                try
+                {
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(_scriptDirectory);
+
+                    // matplotlib kontrol
+                    try
+                    {
+                        Py.Import("matplotlib");
+                        Py.Import("numpy");
+                    }
+                    catch (PythonException)
+                    {
+                        throw new Exception(
+                            "Matplotlib veya NumPy yüklü değil!\n\n" +
+                            "Lütfen şu komutu çalıştırın:\n" +
+                            "pip install matplotlib numpy"
+                        );
+                    }
+
+                    dynamic testModule = Py.Import("test_matplotlib");
+                    dynamic result = testModule.plot_trading_simulation();
+
+                    return (bool)result;
+                }
+                catch (PythonException pyEx)
+                {
+                    throw new Exception($"Trading simulation test hatası: {pyEx.Message}", pyEx);
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (_isInitialized)

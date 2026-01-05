@@ -1675,23 +1675,76 @@ Format           : ";
                 // Python entegrasyonunu test et
                 using (var pythonHelper = new PythonHelper())
                 {
-                    // Test 1: Hello World
-                    string helloMessage = pythonHelper.TestHelloWorld("AlgoTrade");
-
-                    // Test 2: Toplama işlemi
-                    int addResult = pythonHelper.TestAddNumbers(10, 20);
-
-                    // Sonuçları MessageBox ile göster
-                    string resultMessage = $"✅ Python Entegrasyonu Başarılı!\n\n" +
-                                         $"Test 1 - Hello World:\n{helloMessage}\n\n" +
-                                         $"Test 2 - Toplama (10 + 20):\nSonuç = {addResult}";
-
-                    MessageBox.Show(
-                        resultMessage,
-                        "Python Test Sonuçları",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Information
+                    // Kullanıcıya test seçeneği sun
+                    var result = MessageBox.Show(
+                        "Python Test Seçenekleri:\n\n" +
+                        "YES = Basit testler (Hello World + Toplama)\n" +
+                        "NO = Matplotlib testleri (Grafikler)\n" +
+                        "CANCEL = İptal",
+                        "Test Seçimi",
+                        MessageBoxButtons.YesNoCancel,
+                        MessageBoxIcon.Question
                     );
+
+                    if (result == DialogResult.Cancel)
+                        return;
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Basit testler
+                        string helloMessage = pythonHelper.TestHelloWorld("AlgoTrade");
+                        int addResult = pythonHelper.TestAddNumbers(10, 20);
+
+                        string resultMessage = $"✅ Python Entegrasyonu Başarılı!\n\n" +
+                                             $"Test 1 - Hello World:\n{helloMessage}\n\n" +
+                                             $"Test 2 - Toplama (10 + 20):\nSonuç = {addResult}";
+
+                        MessageBox.Show(
+                            resultMessage,
+                            "Python Test Sonuçları",
+                            MessageBoxButtons.OK,
+                            MessageBoxIcon.Information
+                        );
+                    }
+                    else // DialogResult.No
+                    {
+                        // Matplotlib testleri
+                        var plotChoice = MessageBox.Show(
+                            "Matplotlib Test Seçenekleri:\n\n" +
+                            "YES = Sin Dalgası\n" +
+                            "NO = Trading Simülasyonu",
+                            "Grafik Seçimi",
+                            MessageBoxButtons.YesNoCancel,
+                            MessageBoxIcon.Question
+                        );
+
+                        if (plotChoice == DialogResult.Cancel)
+                            return;
+
+                        bool plotResult;
+                        string plotType;
+
+                        if (plotChoice == DialogResult.Yes)
+                        {
+                            plotType = "Sin Dalgası";
+                            plotResult = pythonHelper.TestMatplotlibSineWave();
+                        }
+                        else
+                        {
+                            plotType = "Trading Simülasyonu";
+                            plotResult = pythonHelper.TestMatplotlibTradingSimulation();
+                        }
+
+                        if (plotResult)
+                        {
+                            MessageBox.Show(
+                                $"✅ {plotType} grafiği başarıyla çizildi!",
+                                "Matplotlib Test Başarılı",
+                                MessageBoxButtons.OK,
+                                MessageBoxIcon.Information
+                            );
+                        }
+                    }
                 }
             }
             catch (Exception ex)
@@ -1700,9 +1753,9 @@ Format           : ";
                 string errorMessage = $"❌ Python Test Hatası!\n\n" +
                                     $"Hata: {ex.Message}\n\n" +
                                     $"Kontrol Edilecekler:\n" +
-                                    $"1. Python 3.9+ kurulu mu?\n" +
-                                    $"2. src/Plotting/test_simple.py dosyası var mı?\n" +
-                                    $"3. pythonnet paketi yüklü mü?\n\n" +
+                                    $"1. Python 3.13+ kurulu mu?\n" +
+                                    $"2. src/Plotting/*.py dosyaları var mı?\n" +
+                                    $"3. pip install matplotlib numpy çalıştırıldı mı?\n\n" +
                                     $"Detay: {ex.StackTrace}";
 
                 MessageBox.Show(
