@@ -833,7 +833,11 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 this.timeManager.ResetTimer("3");
                 this.timeManager.StartTimer("3");
                 Log("Single Trader - Finalize (~10 ms)");
-                singleTrader.Finalize(true);
+
+                if (singleTrader.IsStopRequested)
+                    singleTrader.Finalize(false);
+                else
+                    singleTrader.Finalize(true);
                 this.timeManager.StopTimer("3");
 
                 Log("");
@@ -853,13 +857,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.IsRunning = false;
                 singleTrader.IsStopped = true;
                 Log($"SingleTrader finished - IsRunning: {singleTrader.IsRunning}, IsStopped: {singleTrader.IsStopped}");
+
+                // Cleanup
+                singleTrader.Dispose();
             });
 
             // Tekrar Turlar(Optimizasyon için her parametre setinde)
-
-            singleTrader.Dispose();
             singleTrader = null;
-
         }
 
         public async Task RunMultipleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
