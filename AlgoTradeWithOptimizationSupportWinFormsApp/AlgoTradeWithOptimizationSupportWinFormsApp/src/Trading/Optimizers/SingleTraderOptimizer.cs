@@ -612,11 +612,28 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 // Initialize
                 singleTrader.Initialize();
 
+                // Set state flags
+                singleTrader.IsStarted = true;
+                singleTrader.IsRunning = true;
+                singleTrader.IsStopped = false;
+                singleTrader.IsStopRequested = false;
+                // Asagidaki for dongusunde simdilik sonuna kadar çalısmasına izin verdim.
+                // TODO : IsStopRequested oldugunda singleTrader.IsStopRequested = true yapılacak
+                //        ve Asagidaki for dongusunden anlık cıkıs saglanacak....
+
                 // Run SingleTrader
                 for (int i = 0; i < totalBars; i++)
                 {
                     if (i % 1000 == 0)
                         OnSingleTraderProgressCallback?.Invoke(i, totalBars);
+
+                    /*
+                    TODO : Yukarıdaki TODO'ya gore burası acılacak
+                    if (IsStopRequested) {
+                        break;
+                    }
+                    */
+
                     singleTrader.Run(i);
                 }
                 OnSingleTraderProgressCallback?.Invoke(totalBars, totalBars);
@@ -652,6 +669,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     Logger?.Log($"Saving intermediate results at combination {currentCombination} (effective: {effectiveCombinationCount})...");
                     OnSaveResults?.Invoke(Results, currentCombination);
                 }
+
+                // Update state flags
+                singleTrader.IsRunning = false;
+                singleTrader.IsStopped = true;
             }
 
             singleTrader.Dispose();
