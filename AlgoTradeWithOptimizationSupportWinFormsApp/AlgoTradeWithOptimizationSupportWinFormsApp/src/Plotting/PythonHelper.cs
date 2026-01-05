@@ -261,6 +261,201 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
             }
         }
 
+        /// <summary>
+        /// Basit Close plot testi - Sadece Close değerlerini çizer
+        /// </summary>
+        public bool TestPlotSimpleClose(System.Collections.Generic.List<System.DateTime> dates, System.Collections.Generic.List<double> closes)
+        {
+            if (!_isInitialized)
+                Initialize();
+
+            using (Py.GIL())
+            {
+                try
+                {
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(_scriptDirectory);
+
+                    // matplotlib kontrol
+                    try
+                    {
+                        Py.Import("matplotlib");
+                    }
+                    catch (PythonException)
+                    {
+                        throw new Exception(
+                            "Matplotlib yüklü değil!\n\n" +
+                            "Lütfen şu komutu çalıştırın:\n" +
+                            "pip install matplotlib"
+                        );
+                    }
+
+                    // Test modülünü import et
+                    dynamic testModule = Py.Import("test_simple_plot");
+
+                    // Tarihleri string'e çevir
+                    var dateStrings = new System.Collections.Generic.List<string>();
+                    foreach (var dt in dates)
+                    {
+                        dateStrings.Add(dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+
+                    // Python listelerine çevir
+                    using (var pyDates = new PyList())
+                    using (var pyCloses = new PyList())
+                    {
+                        foreach (var date in dateStrings)
+                            pyDates.Append(new PyString(date));
+
+                        foreach (var close in closes)
+                            pyCloses.Append(new PyFloat(close));
+
+                        // Python fonksiyonunu çağır
+                        dynamic result = testModule.plot_close_only(pyDates, pyCloses);
+
+                        return (bool)result;
+                    }
+                }
+                catch (PythonException pyEx)
+                {
+                    throw new Exception($"Simple plot test hatası: {pyEx.Message}\n{pyEx.StackTrace}", pyEx);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 6+ panelli grafik - TÜM trading listeleri
+        /// </summary>
+        public bool TestPlot6Panels(
+            System.Collections.Generic.List<System.DateTime> dates,
+            System.Collections.Generic.List<double> closes,
+            System.Collections.Generic.List<double> volumes,
+            System.Collections.Generic.List<double> sinyalList,
+            System.Collections.Generic.List<double> karZararFiyatList,
+            System.Collections.Generic.List<double> karZararFiyatYuzdeList,
+            System.Collections.Generic.List<double> bakiyeFiyatList,
+            System.Collections.Generic.List<double> getiriFiyatList,
+            System.Collections.Generic.List<double> getiriFiyatYuzdeList,
+            System.Collections.Generic.List<double> komisyonFiyatList,
+            System.Collections.Generic.List<double> getiriFiyatNetList,
+            System.Collections.Generic.List<double> bakiyeFiyatNetList,
+            System.Collections.Generic.List<double> getiriFiyatYuzdeNetList)
+        {
+            if (!_isInitialized)
+                Initialize();
+
+            using (Py.GIL())
+            {
+                try
+                {
+                    dynamic sys = Py.Import("sys");
+                    sys.path.append(_scriptDirectory);
+
+                    // matplotlib kontrol
+                    try
+                    {
+                        Py.Import("matplotlib");
+                    }
+                    catch (PythonException)
+                    {
+                        throw new Exception(
+                            "Matplotlib yüklü değil!\n\n" +
+                            "Lütfen şu komutu çalıştırın:\n" +
+                            "pip install matplotlib"
+                        );
+                    }
+
+                    // Test modülünü import et
+                    dynamic testModule = Py.Import("test_simple_plot");
+
+                    // Tarihleri string'e çevir
+                    var dateStrings = new System.Collections.Generic.List<string>();
+                    foreach (var dt in dates)
+                    {
+                        dateStrings.Add(dt.ToString("yyyy-MM-dd HH:mm:ss"));
+                    }
+
+                    // Python listelerine çevir - TÜM listeleri
+                    using (var pyDates = new PyList())
+                    using (var pyCloses = new PyList())
+                    using (var pyVolumes = new PyList())
+                    using (var pySinyal = new PyList())
+                    using (var pyKarZararFiyat = new PyList())
+                    using (var pyKarZararFiyatYuzde = new PyList())
+                    using (var pyBakiyeFiyat = new PyList())
+                    using (var pyGetiriFiyat = new PyList())
+                    using (var pyGetiriFiyatYuzde = new PyList())
+                    using (var pyKomisyonFiyat = new PyList())
+                    using (var pyGetiriFiyatNet = new PyList())
+                    using (var pyBakiyeFiyatNet = new PyList())
+                    using (var pyGetiriFiyatYuzdeNet = new PyList())
+                    {
+                        foreach (var date in dateStrings)
+                            pyDates.Append(new PyString(date));
+
+                        foreach (var close in closes)
+                            pyCloses.Append(new PyFloat(close));
+
+                        foreach (var vol in volumes)
+                            pyVolumes.Append(new PyFloat(vol));
+
+                        foreach (var sinyal in sinyalList)
+                            pySinyal.Append(new PyFloat(sinyal));
+
+                        foreach (var kz in karZararFiyatList)
+                            pyKarZararFiyat.Append(new PyFloat(kz));
+
+                        foreach (var kzy in karZararFiyatYuzdeList)
+                            pyKarZararFiyatYuzde.Append(new PyFloat(kzy));
+
+                        foreach (var bakiye in bakiyeFiyatList)
+                            pyBakiyeFiyat.Append(new PyFloat(bakiye));
+
+                        foreach (var getiri in getiriFiyatList)
+                            pyGetiriFiyat.Append(new PyFloat(getiri));
+
+                        foreach (var getiriy in getiriFiyatYuzdeList)
+                            pyGetiriFiyatYuzde.Append(new PyFloat(getiriy));
+
+                        foreach (var kom in komisyonFiyatList)
+                            pyKomisyonFiyat.Append(new PyFloat(kom));
+
+                        foreach (var getirin in getiriFiyatNetList)
+                            pyGetiriFiyatNet.Append(new PyFloat(getirin));
+
+                        foreach (var bakiyen in bakiyeFiyatNetList)
+                            pyBakiyeFiyatNet.Append(new PyFloat(bakiyen));
+
+                        foreach (var getiriyn in getiriFiyatYuzdeNetList)
+                            pyGetiriFiyatYuzdeNet.Append(new PyFloat(getiriyn));
+
+                        // Python fonksiyonunu çağır - TÜM parametreleri gönder
+                        dynamic result = testModule.plot_6_panels(
+                            pyDates,
+                            pyCloses,
+                            pyVolumes,
+                            pySinyal,
+                            pyKarZararFiyat,
+                            pyKarZararFiyatYuzde,
+                            pyBakiyeFiyat,
+                            pyGetiriFiyat,
+                            pyGetiriFiyatYuzde,
+                            pyKomisyonFiyat,
+                            pyGetiriFiyatNet,
+                            pyBakiyeFiyatNet,
+                            pyGetiriFiyatYuzdeNet
+                        );
+
+                        return (bool)result;
+                    }
+                }
+                catch (PythonException pyEx)
+                {
+                    throw new Exception($"6 panel plot hatası: {pyEx.Message}\n{pyEx.StackTrace}", pyEx);
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (_isInitialized)

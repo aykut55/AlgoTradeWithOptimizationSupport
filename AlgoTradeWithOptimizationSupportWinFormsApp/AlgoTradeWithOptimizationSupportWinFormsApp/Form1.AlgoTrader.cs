@@ -854,6 +854,47 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     //lblSingleTraderProgress.Text = "Backtest completed!";
                 }
 
+                // Python ile grafik çizdirme (opsiyonel)
+                try
+                {
+                    _singleTraderLogger.Log("Çizim için Python çağrılıyor...");
+
+                    // Kullanıcıya grafik çizdirme seçeneği sun
+                    var result = MessageBox.Show(
+                        "Backtest tamamlandı!\n\n" +
+                        "6 Panelli grafik çizdirmek ister misiniz?\n" +
+                        "(Close, Volume, Sinyal, KarZarar, KarZarar%, GetiriNet)",
+                        "Grafik Çizdirme",
+                        MessageBoxButtons.YesNo,
+                        MessageBoxIcon.Question
+                    );
+
+                    if (result == DialogResult.Yes)
+                    {
+                        // Task.Run ile UI bloğunu önle
+                        await Task.Run(() =>
+                        {
+                            // 6 panelli grafik
+                            //algoTrader.Plot6Panels();
+                            algoTrader.PlotDynamic();
+                        });
+
+                        _singleTraderLogger.Log("✓ Grafik başarıyla çizdirildi!");
+                    }
+                }
+                catch (Exception plotEx)
+                {
+                    _singleTraderLogger.LogWarning($"Grafik çizimi hatası: {plotEx.Message}");
+                    MessageBox.Show(
+                        $"Grafik çiziminde hata:\n{plotEx.Message}\n\n" +
+                        "Python kurulumunu kontrol edin:\n" +
+                        "pip install matplotlib",
+                        "Python Hatası",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
+                }
+
                 //MessageBox.Show("Backtest tamamlandı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)

@@ -1,6 +1,7 @@
 using AlgoTradeWithOptimizationSupportWinFormsApp.DataProvider;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Plotting;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Backtest;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
@@ -12,6 +13,8 @@ using MathNet.Numerics.Distributions;
 using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
 using System.Runtime.ConstrainedExecution;
 using System.Threading.Tasks;
 using Tulip;
@@ -863,7 +866,8 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             });
 
             // Tekrar Turlar(Optimizasyon için her parametre setinde)
-            singleTrader = null;
+            // NOT: singleTrader = null; yapma - plotting için gerekli!
+            // singleTrader = null;
         }
 
         public async Task RunMultipleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
@@ -1360,6 +1364,366 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             else
             {
                 LogWarning("Optimizer not initialized. Call RunSingleTraderOptWithProgressAsync first.");
+            }
+        }
+
+        /// <summary>
+        /// SingleTrader sonuçlarını Python matplotlib ile çizdirir
+        /// </summary>
+        /// <param name="savePath">Grafiği kaydetmek için dosya yolu (opsiyonel)</param>
+        public void PlotSingleTraderResults(string? savePath = null)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (singleTrader == null)
+                throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı. RunSingleTrader() veya RunSingleTraderWithProgressAsync() çalıştırın.");
+
+            try
+            {
+                Log("Plotting SingleTrader results with Python...");
+/*
+                using (var plotter = new PythonPlotter())
+                {
+                    // Verileri topla
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var prices = Data.Select(d => d.Close).ToList();
+
+                    // Al/Sat sinyallerini topla
+                    var buySignals = new List<(int, double)>();
+                    var sellSignals = new List<(int, double)>();
+
+                    foreach (var trade in singleTrader.Trades)
+                    {
+                        if (trade.Type == TradeType.Buy)
+                            buySignals.Add((trade.BarIndex, trade.Price));
+                        else if (trade.Type == TradeType.Sell)
+                            sellSignals.Add((trade.BarIndex, trade.Price));
+                    }
+
+                    // Bakiye ve PnL verilerini al
+                    var balance = singleTrader.BalanceHistory.ToList();
+                    var pnl = singleTrader.CumulativePnLHistory.ToList();
+
+                    // EMA verilerini al (strategy'den)
+                    List<double>? emaFast = null;
+                    List<double>? emaSlow = null;
+                    int fastPeriod = 10;
+                    int slowPeriod = 20;
+
+                    // Strategy'nin EMA'larına erişim (eğer varsa)
+                    if (strategy != null)
+                    {
+                        // Strategy parametrelerinden EMA periyotlarını almayı dene
+                        var strategyParams = strategy.GetParameters();
+                        if (strategyParams.ContainsKey("FastPeriod"))
+                            fastPeriod = Convert.ToInt32(strategyParams["FastPeriod"]);
+                        if (strategyParams.ContainsKey("SlowPeriod"))
+                            slowPeriod = Convert.ToInt32(strategyParams["SlowPeriod"]);
+
+                        // IndicatorManager'dan EMA'ları almayı dene
+                        if (indicators != null)
+                        {
+                            try
+                            {
+                                var emaFastResult = indicators.GetEma(Data, fastPeriod);
+                                var emaSlowResult = indicators.GetEma(Data, slowPeriod);
+
+                                if (emaFastResult != null)
+                                    emaFast = emaFastResult.Select(x => (double)x.Ema).ToList();
+
+                                if (emaSlowResult != null)
+                                    emaSlow = emaSlowResult.Select(x => (double)x.Ema).ToList();
+                            }
+                            catch (Exception ex)
+                            {
+                                LogWarning($"EMA'lar alınamadı: {ex.Message}");
+                            }
+                        }
+                    }
+
+                    // Python plotter'ı çağır
+                    plotter.PlotTradingResults(
+                        dates: dates,
+                        prices: prices,
+                        buySignals: buySignals,
+                        sellSignals: sellSignals,
+                        balance: balance,
+                        pnl: pnl,
+                        emaFast: emaFast,
+                        emaSlow: emaSlow,
+                        fastPeriod: fastPeriod,
+                        slowPeriod: slowPeriod,
+                        savePath: savePath
+                    );
+
+                    Log("✓ Plotting completed successfully!");
+                }
+*/
+            
+            }
+            catch (Exception ex)
+            {
+                LogError($"Plotting error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Equity curve ve drawdown grafiğini çizdirir
+        /// </summary>
+        public void PlotEquityCurve()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (singleTrader == null)
+                throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı");
+
+            try
+            {
+                Log("Plotting equity curve with drawdown...");
+/*
+                using (var plotter = new PythonPlotter())
+                {
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var balance = singleTrader.BalanceHistory.ToList();
+
+                    plotter.PlotEquityCurveWithDrawdown(balance, dates);
+
+                    Log("✓ Equity curve plotting completed!");
+                }
+*/
+            }
+            catch (Exception ex)
+            {
+                LogError($"Equity curve plotting error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Dinamik panel sistemi ile grafik çizimi
+        /// Örnek kullanım:
+        ///   plotter.AddPanel(0, dates, closes, "Close", "blue");
+        ///   plotter.AddPanel(0, dates, ma50, "MA50", "red");
+        ///   plotter.AddPanel(1, dates, volumes, "Volume");
+        ///   plotter.Plot();
+        /// </summary>
+        public void PlotDynamic()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (this.singleTrader == null)
+            {
+                LogError("singleTrader is NULL!");
+                throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı - önce RunSingleTrader() çağırın");
+            }
+
+            if (Data == null || Data.Count == 0)
+                throw new InvalidOperationException("Data yok - Initialize() çalıştırın");
+
+            try
+            {
+                Log("Plotting with dynamic panel system...");
+
+                using (var plotter = new DynamicPlotter())
+                {
+                    // Ortak veriler
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var opens = Data.Select(d => d.Open).ToList();
+                    var highs = Data.Select(d => d.High).ToList();
+                    var lows = Data.Select(d => d.Low).ToList();
+                    var closes = Data.Select(d => d.Close).ToList();
+                    var volumes = Data.Select(d => (double)d.Volume).ToList(); // long -> double cast
+                    var lots = Data.Select(d => d.Size).ToList();
+
+                    // SingleTrader.lists verileri
+                    var sinyalList = singleTrader.lists.SinyalList;
+                    var karZararFiyatList = singleTrader.lists.KarZararFiyatList;
+                    var karZararFiyatYuzdeList = singleTrader.lists.KarZararFiyatYuzdeList;
+                    var bakiyeFiyatList = singleTrader.lists.BakiyeFiyatList;
+                    var getiriFiyatList = singleTrader.lists.GetiriFiyatList;
+                    var getiriFiyatYuzdeList = singleTrader.lists.GetiriFiyatYuzdeList;
+                    var komisyonFiyatList = singleTrader.lists.KomisyonFiyatList;
+                    var getiriFiyatNetList = singleTrader.lists.GetiriFiyatNetList;
+                    var bakiyeFiyatNetList = singleTrader.lists.BakiyeFiyatNetList;
+                    var getiriFiyatYuzdeNetList = singleTrader.lists.GetiriFiyatYuzdeNetList;
+
+                    Log($"Panel sistemi ile çiziliyor - {closes.Count} bar");
+
+                    // PANEL 0: Close
+                    plotter.AddPanel(0, dates, closes, "Close", "blue", "-", 1.5);
+
+                    // PANEL 1: Volume
+                    plotter.AddPanel(1, dates, volumes, "Volume", "gray", "-", 1.0);
+
+                    // PANEL 2: Sinyal
+                    plotter.AddPanel(2, dates, sinyalList, "Sinyal", "green", "-", 1.5);
+
+                    // PANEL 3: Kar/Zarar Fiyat
+                    plotter.AddPanel(3, dates, karZararFiyatList, "Kar/Zarar Fiyat", "purple", "-", 1.5);
+
+                    // PANEL 4: Kar/Zarar Yüzde
+                    plotter.AddPanel(4, dates, karZararFiyatYuzdeList, "Kar/Zarar %", "orange", "-", 1.5);
+
+                    // PANEL 5: Bakiye Fiyat
+                    plotter.AddPanel(5, dates, bakiyeFiyatList, "Bakiye", "darkgreen", "-", 2.0);
+
+                    // PANEL 6: Getiri Fiyat
+                    plotter.AddPanel(6, dates, getiriFiyatList, "Getiri", "steelblue", "-", 1.5);
+
+                    // PANEL 7: Getiri Yüzde
+                    plotter.AddPanel(7, dates, getiriFiyatYuzdeList, "Getiri %", "teal", "-", 1.5);
+
+                    // PANEL 8: Komisyon
+                    plotter.AddPanel(8, dates, komisyonFiyatList, "Komisyon", "red", "-", 1.0);
+
+                    // PANEL 9: Getiri Net
+                    plotter.AddPanel(9, dates, getiriFiyatNetList, "Getiri Net", "navy", "-", 1.5);
+
+                    // ÇİZDİR!
+                    bool result = plotter.Plot(title: "AlgoTrade - Tüm Veriler", savePath: null);
+
+                    if (result)
+                        Log("✓ Dynamic panel plotting completed!");
+                    else
+                        LogWarning("Dynamic panel plotting returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"Dynamic panel plotting error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Basit test - Sadece Close değerlerini çizdirir
+        /// Adım adım ilerleme için minimal plot
+        /// </summary>
+        public void PlotSimpleClose()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (Data == null || Data.Count == 0)
+                throw new InvalidOperationException("Data yok - Initialize() çalıştırın");
+
+            try
+            {
+                Log("Plotting simple close values...");
+
+                using (var pythonHelper = new PythonHelper())
+                {
+                    // Data'dan Close değerlerini ve tarihleri topla
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var closes = Data.Select(d => d.Close).ToList();
+
+                    Log($"Çizdirilecek data: {closes.Count} bar");
+
+                    // Python ile çizdir
+                    bool result = pythonHelper.TestPlotSimpleClose(dates, closes);
+
+                    if (result)
+                        Log("✓ Simple close plotting completed!");
+                    else
+                        LogWarning("Simple close plotting returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"Simple close plotting error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// 6 panelli grafik - Close, Volume, Sinyal, KarZarar, KarZarar%, GetiriNet
+        /// </summary>
+        public void Plot6Panels()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (this.singleTrader == null)
+            {
+                LogError("singleTrader is NULL!");
+                throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı - önce RunSingleTrader() çağırın");
+            }
+
+            if (Data == null || Data.Count == 0)
+                throw new InvalidOperationException("Data yok - Initialize() çalıştırın");
+
+            try
+            {
+                Log("Plotting 6 panels...");
+                Log($"singleTrader null check passed: {this.singleTrader != null}");
+
+                using (var pythonHelper = new PythonHelper())
+                {
+                    // Data'dan verileri topla
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var opens = Data.Select(d => d.Open).ToList();
+                    var highs = Data.Select(d => d.High).ToList();
+                    var lows = Data.Select(d => d.Low).ToList();
+                    var closes = Data.Select(d => d.Close).ToList();
+                    var volumes = Data.Select(d => (double)d.Volume).ToList(); // long -> double cast
+                    var lots = Data.Select(d => d.Size).ToList();
+
+
+                    // SingleTrader.lists'den TÜM verileri topla
+                    var sinyalList = singleTrader.lists.SinyalList;
+                    var karZararFiyatList = singleTrader.lists.KarZararFiyatList;
+                    var karZararFiyatYuzdeList = singleTrader.lists.KarZararFiyatYuzdeList;
+                    var bakiyeFiyatList = singleTrader.lists.BakiyeFiyatList;
+                    var getiriFiyatList = singleTrader.lists.GetiriFiyatList;
+                    var getiriFiyatYuzdeList = singleTrader.lists.GetiriFiyatYuzdeList;
+                    var komisyonFiyatList = singleTrader.lists.KomisyonFiyatList;
+                    var getiriFiyatNetList = singleTrader.lists.GetiriFiyatNetList;
+                    var bakiyeFiyatNetList = singleTrader.lists.BakiyeFiyatNetList;
+                    var getiriFiyatYuzdeNetList = singleTrader.lists.GetiriFiyatYuzdeNetList;
+
+                    Log($"Çizdirilecek data: {closes.Count} bar");
+                    Log($"Sinyal count: {sinyalList.Count}");
+                    Log($"KarZararFiyat count: {karZararFiyatList.Count}");
+                    Log($"KarZararFiyatYuzde count: {karZararFiyatYuzdeList.Count}");
+                    Log($"BakiyeFiyat count: {bakiyeFiyatList.Count}");
+                    Log($"GetiriFiyat count: {getiriFiyatList.Count}");
+                    Log($"GetiriFiyatYuzde count: {getiriFiyatYuzdeList.Count}");
+                    Log($"KomisyonFiyat count: {komisyonFiyatList.Count}");
+                    Log($"GetiriFiyatNet count: {getiriFiyatNetList.Count}");
+                    Log($"BakiyeFiyatNet count: {bakiyeFiyatNetList.Count}");
+                    Log($"GetiriFiyatYuzdeNet count: {getiriFiyatYuzdeNetList.Count}");
+
+                    // Python ile çizdir - TÜM listeleri gönder
+                    bool result = pythonHelper.TestPlot6Panels(
+                        dates,
+                        closes,
+                        volumes,
+                        sinyalList,
+                        karZararFiyatList,
+                        karZararFiyatYuzdeList,
+                        bakiyeFiyatList,
+                        getiriFiyatList,
+                        getiriFiyatYuzdeList,
+                        komisyonFiyatList,
+                        getiriFiyatNetList,
+                        bakiyeFiyatNetList,
+                        getiriFiyatYuzdeNetList
+                    );
+
+                    if (result)
+                        Log("✓ 6 panel plotting completed!");
+                    else
+                        LogWarning("6 panel plotting returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"6 panel plotting error: {ex.Message}");
+                throw;
             }
         }
 
