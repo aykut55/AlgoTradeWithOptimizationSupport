@@ -3,6 +3,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.DataReader;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Plotting;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1667,51 +1668,50 @@ Format           : ";
             }
         }
 
-        private void button6_Click(object sender, EventArgs e)
+        private void btnPythonPlotter_Click(object sender, EventArgs e)
         {
-            /*
-            🔧 Yapılanlar:
+            try
+            {
+                // Python entegrasyonunu test et
+                using (var pythonHelper = new PythonHelper())
+                {
+                    // Test 1: Hello World
+                    string helloMessage = pythonHelper.TestHelloWorld("AlgoTrade");
 
-              1. ✅ src/Plotting klasörü oluşturuldu
-              2. ✅ Basit Python test script (test_simple.py) - 2 fonksiyonla:
-                - hello_from_python(name) - Mesaj döndürür
-                - add_numbers(a, b) - İki sayı toplar
-              3. ✅ pythonnet 3.0.5 NuGet paketi eklendi (.NET 9.0 uyumlu)
-              4. ✅ PythonHelper.cs - Minimal wrapper class:
-                - Otomatik Python DLL algılama
-                - İki basit test methodu
-                - Dispose pattern
-              5. ✅ .csproj'a auto-copy eklendi - Python script'ler otomatik bin'e kopyalanacak
-              6. ✅ Build başarılı - Sadece nullable warning'ler var
+                    // Test 2: Toplama işlemi
+                    int addResult = pythonHelper.TestAddNumbers(10, 20);
 
-              🧪 Kullanım Örneği:
+                    // Sonuçları MessageBox ile göster
+                    string resultMessage = $"✅ Python Entegrasyonu Başarılı!\n\n" +
+                                         $"Test 1 - Hello World:\n{helloMessage}\n\n" +
+                                         $"Test 2 - Toplama (10 + 20):\nSonuç = {addResult}";
 
-              // Form1 veya başka bir yerde test
-              using (var pythonHelper = new PythonHelper())
-              {
-                  // Test 1: Hello World
-                  string message = pythonHelper.TestHelloWorld("AlgoTrade");
-                  // Sonuç: "Hello from Python, AlgoTrade!"
+                    MessageBox.Show(
+                        resultMessage,
+                        "Python Test Sonuçları",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Information
+                    );
+                }
+            }
+            catch (Exception ex)
+            {
+                // Hata durumunda kullanıcıya detaylı bilgi ver
+                string errorMessage = $"❌ Python Test Hatası!\n\n" +
+                                    $"Hata: {ex.Message}\n\n" +
+                                    $"Kontrol Edilecekler:\n" +
+                                    $"1. Python 3.9+ kurulu mu?\n" +
+                                    $"2. src/Plotting/test_simple.py dosyası var mı?\n" +
+                                    $"3. pythonnet paketi yüklü mü?\n\n" +
+                                    $"Detay: {ex.StackTrace}";
 
-                  // Test 2: Toplama
-                  int result = pythonHelper.TestAddNumbers(10, 20);
-                  // Sonuç: 30
-              }
-
-              📋 Sonraki Adımlar (Guide'a Göre):
-
-              Seçenek 1: GUI'ye Test Button Ekle
-              - Form1'e "Test Python" button ekle
-              - PythonHelper.TestHelloWorld() çağır
-              - Python çalışıyor mu kontrol et
-
-              Seçenek 2: Plotting Script Ekle
-              - Guide'daki plot_results.py ekle (basitleştirilmiş)
-              - PythonPlotter.cs class'ını oluştur
-              - SingleTrader sonuçlarını çizdirme testi
-
-              Hangi adımla devam edelim? 
-             */
+                MessageBox.Show(
+                    errorMessage,
+                    "Python Test Hatası",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
         }
     }
 }

@@ -182,7 +182,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             dataGridViewOptimizationResults = new DataGridView();
             tabPagePythonPlotter = new TabPage();
             panel6 = new Panel();
-            button6 = new Button();
+            btnPythonPlotter = new Button();
             richTextBox2 = new RichTextBox();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
@@ -1517,22 +1517,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel6
             // 
-            panel6.Controls.Add(button6);
+            panel6.Controls.Add(btnPythonPlotter);
             panel6.Controls.Add(richTextBox2);
             panel6.Location = new Point(32, 26);
             panel6.Name = "panel6";
             panel6.Size = new Size(1222, 717);
             panel6.TabIndex = 1;
             // 
-            // button6
+            // btnPythonPlotter
             // 
-            button6.Location = new Point(780, 16);
-            button6.Name = "button6";
-            button6.Size = new Size(131, 23);
-            button6.TabIndex = 2;
-            button6.Text = "Read StockData";
-            button6.UseVisualStyleBackColor = true;
-            button6.Click += button6_Click;
+            btnPythonPlotter.Location = new Point(780, 16);
+            btnPythonPlotter.Name = "btnPythonPlotter";
+            btnPythonPlotter.Size = new Size(131, 23);
+            btnPythonPlotter.TabIndex = 2;
+            btnPythonPlotter.Text = "Python Plot";
+            btnPythonPlotter.UseVisualStyleBackColor = true;
+            btnPythonPlotter.Click += btnPythonPlotter_Click;
             // 
             // richTextBox2
             // 
@@ -1764,7 +1764,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button btnStopMultipleTrader;
         private TabPage tabPagePythonPlotter;
         private Panel panel6;
-        private Button button6;
+        private Button btnPythonPlotter;
         private RichTextBox richTextBox2;
     }
 }

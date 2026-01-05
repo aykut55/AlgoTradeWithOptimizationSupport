@@ -35,26 +35,46 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
         /// </summary>
         private string FindPythonDll()
         {
-            // Yaygın Python kurulum yolları
+            // Yaygın Python kurulum yolları (en yeni versiyonlar önce)
             string[] possiblePaths = new[]
             {
+                // Python 3.13
+                @"C:\Program Files\Python313\python313.dll",
+                @"C:\Python313\python313.dll",
+                @"C:\Users\" + Environment.UserName + @"\AppData\Local\Programs\Python\Python313\python313.dll",
+                // Python 3.12
+                @"C:\Program Files\Python312\python312.dll",
+                @"C:\Python312\python312.dll",
+                @"C:\Users\" + Environment.UserName + @"\AppData\Local\Programs\Python\Python312\python312.dll",
+                // Python 3.11
+                @"C:\Program Files\Python311\python311.dll",
                 @"C:\Python311\python311.dll",
-                @"C:\Python310\python310.dll",
-                @"C:\Python39\python39.dll",
                 @"C:\Users\" + Environment.UserName + @"\AppData\Local\Programs\Python\Python311\python311.dll",
+                // Python 3.10
+                @"C:\Program Files\Python310\python310.dll",
+                @"C:\Python310\python310.dll",
                 @"C:\Users\" + Environment.UserName + @"\AppData\Local\Programs\Python\Python310\python310.dll",
+                // Python 3.9
+                @"C:\Program Files\Python39\python39.dll",
+                @"C:\Python39\python39.dll",
                 @"C:\Users\" + Environment.UserName + @"\AppData\Local\Programs\Python\Python39\python39.dll"
             };
 
             foreach (var path in possiblePaths)
             {
                 if (File.Exists(path))
+                {
+                    // Bulunan DLL'i log'la (debug için)
+                    System.Diagnostics.Debug.WriteLine($"Python DLL found: {path}");
                     return path;
+                }
             }
 
             throw new FileNotFoundException(
                 "Python DLL bulunamadı! Lütfen Python 3.9+ kurun.\n" +
-                "İndirme: https://www.python.org/downloads/"
+                "İndirme: https://www.python.org/downloads/\n\n" +
+                "Kontrol edilen yollar:\n" +
+                string.Join("\n", possiblePaths.Take(6))
             );
         }
 
