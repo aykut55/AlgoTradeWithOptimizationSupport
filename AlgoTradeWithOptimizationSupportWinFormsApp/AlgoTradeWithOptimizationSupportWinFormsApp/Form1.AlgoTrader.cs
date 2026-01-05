@@ -862,9 +862,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     // Kullanıcıya grafik çizdirme seçeneği sun
                     var result = MessageBox.Show(
                         "Backtest tamamlandı!\n\n" +
-                        "6 Panelli grafik çizdirmek ister misiniz?\n" +
-                        "(Close, Volume, Sinyal, KarZarar, KarZarar%, GetiriNet)",
-                        "Grafik Çizdirme",
+                        "ImGui/ImPlot ile 5 panelli interaktif grafik çizdirmek ister misiniz?\n\n" +
+                        "Paneller:\n" +
+                        "  • Panel 0: OHLC Candlestick (Price Chart)\n" +
+                        "  • Panel 1: Trade Signals (-1/0/+1)\n" +
+                        "  • Panel 2: PnL (Kar/Zarar)\n" +
+                        "  • Panel 3: Balance (Brüt/Net Getiri)\n" +
+                        "  • Panel 4: Volume\n\n" +
+                        "NOT: pip install imgui-bundle gereklidir",
+                        "ImGui Grafik Çizdirme",
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question
                     );
@@ -874,12 +880,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         // Task.Run ile UI bloğunu önle
                         await Task.Run(() =>
                         {
-                            // 6 panelli grafik
-                            //algoTrader.Plot6Panels();
-                            algoTrader.PlotDynamic();
+                            // ImGui/ImPlot ile 5 panelli grafik
+                            algoTrader.PlotImGuiBundle();
                         });
 
-                        _singleTraderLogger.Log("✓ Grafik başarıyla çizdirildi!");
+                        _singleTraderLogger.Log("✓ ImGui grafik başarıyla çizdirildi!");
                     }
                 }
                 catch (Exception plotEx)
@@ -887,9 +892,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     _singleTraderLogger.LogWarning($"Grafik çizimi hatası: {plotEx.Message}");
                     MessageBox.Show(
                         $"Grafik çiziminde hata:\n{plotEx.Message}\n\n" +
-                        "Python kurulumunu kontrol edin:\n" +
-                        "pip install matplotlib",
-                        "Python Hatası",
+                        "Python kurulumunu ve imgui-bundle paketini kontrol edin:\n\n" +
+                        "pip install imgui-bundle\n\n" +
+                        "Eğer imgui-bundle yüklüyse, Python DLL yolunu kontrol edin.",
+                        "ImGui Plotting Hatası",
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
                     );

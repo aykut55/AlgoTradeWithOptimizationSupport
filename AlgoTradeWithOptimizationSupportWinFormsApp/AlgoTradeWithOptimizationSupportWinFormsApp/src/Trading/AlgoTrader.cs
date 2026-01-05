@@ -1602,6 +1602,71 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         }
 
         /// <summary>
+        /// ImGui/ImPlot ile 5 panelli grafik çizdirir
+        /// AlgoTradeWithPythonWithGemini projesindeki plotDataImgBundle yapısına benzer
+        /// REQUIREMENTS: pip install imgui-bundle
+        /// </summary>
+        public void PlotImGuiBundle()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (this.singleTrader == null)
+            {
+                LogError("singleTrader is NULL!");
+                throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı - önce RunSingleTrader() çağırın");
+            }
+
+            if (Data == null || Data.Count == 0)
+                throw new InvalidOperationException("Data yok - Initialize() çalıştırın");
+
+            try
+            {
+                Log("Plotting with ImGui/ImPlot...");
+
+                using (var plotter = new ImGuiPlotter())
+                {
+                    // Ortak veriler
+                    var dates = Data.Select(d => d.DateTime).ToList();
+                    var opens = Data.Select(d => d.Open).ToList();
+                    var highs = Data.Select(d => d.High).ToList();
+                    var lows = Data.Select(d => d.Low).ToList();
+                    var closes = Data.Select(d => d.Close).ToList();
+                    var volumes = Data.Select(d => d.Volume).ToList(); // long (no cast needed)
+                    var lots = Data.Select(d => d.Size).ToList();      // long (no cast needed)
+
+                    // SingleTrader.lists verileri
+                    var sinyalList = singleTrader.lists.SinyalList;
+                    var karZararFiyatList = singleTrader.lists.KarZararFiyatList;
+                    var bakiyeFiyatList = singleTrader.lists.BakiyeFiyatList;
+                    var getiriFiyatList = singleTrader.lists.GetiriFiyatList;
+                    var getiriFiyatNetList = singleTrader.lists.GetiriFiyatNetList;
+
+                    Log($"ImGui bundle ile çiziliyor - {closes.Count} bar");
+
+                    // ImGui/ImPlot ile çizdir
+                    bool result = plotter.PlotDataBundle(
+                        dates, opens, highs, lows, closes, volumes, lots,
+                        sinyalList, karZararFiyatList, bakiyeFiyatList,
+                        getiriFiyatList, getiriFiyatNetList,
+                        title: SymbolName ?? "AlgoTrade",
+                        periyot: SymbolPeriod ?? "1H"
+                    );
+
+                    if (result)
+                        Log("✓ ImGui plotting completed!");
+                    else
+                        LogWarning("ImGui plotting returned false");
+                }
+            }
+            catch (Exception ex)
+            {
+                LogError($"ImGui plotting error: {ex.Message}");
+                throw;
+            }
+        }
+
+        /// <summary>
         /// Basit test - Sadece Close değerlerini çizdirir
         /// Adım adım ilerleme için minimal plot
         /// </summary>
