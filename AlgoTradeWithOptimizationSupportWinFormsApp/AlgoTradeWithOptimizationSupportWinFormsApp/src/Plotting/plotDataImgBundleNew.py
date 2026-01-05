@@ -104,6 +104,7 @@ def plot_data_img_bundle_new(
 
         # DataPlotterImgBundle oluştur
         plotter = DataPlotterImgBundleNew()
+        print(f"✓ DataPlotterImgBundleNew created successfully")
 
         # Temel verileri ayarla
         plotter.setTimeData(time_data)
@@ -209,9 +210,19 @@ def plot_data_img_bundle_new(
             print(f"  Panel {idx}: {panel.title} ({len(panel.data_items)} data series)")
 
         print("\n🚀 ImGui window açılıyor...")
+        print(f"📊 Window title: {title} {periyot} - Multi Panel Chart")
+        print(f"📊 Window size: 1600x1200")
+        print(f"📊 ImPlot enabled: True")
 
-        # ImGui window'u aç
-        immapp.run(plotter.Plot, with_implot=True, window_size=(1600, 1200))
+        try:
+            # ImGui window'u aç
+            immapp.run(plotter.Plot, with_implot=True, window_size=(1600, 1200))
+            print("✓ immapp.run() completed successfully")
+        except Exception as e:
+            print(f"❌ immapp.run() error: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
 
         print("✓ plot_data_img_bundle_new TAMAMLANDI")
         return True
