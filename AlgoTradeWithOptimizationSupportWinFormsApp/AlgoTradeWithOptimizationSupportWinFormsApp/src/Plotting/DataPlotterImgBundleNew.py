@@ -3003,7 +3003,23 @@ class DataPlotterImgBundleNew:
                 #     except Exception:
                 #         pass
 
-                # Update offset/visible_count from hovered zoom (subplots)\n                try:\n                    if shared_lod.get("hover_limits") is not None:\n                        bar_count = len(self.time_data)\n                        h0, h1 = shared_lod.get("hover_limits")\n                        if h0 is not None and h1 is not None:\n                            if h1 < h0: h0, h1 = h1, h0\n                            start = max(0, min(int(np.floor(h0)), bar_count - 1))\n                            end = min(int(np.ceil(h1)), bar_count)\n                            end = max(start + 1, end)\n                            static.offset = start\n                            static.visible_count = max(1, end - start)\n                            static.needs_update = True\n                except Exception:\n                    pass\n\n                implot.end_subplots()
+                # Update offset/visible_count from hovered zoom (subplots)
+                try:
+                    if shared_lod.get("hover_limits") is not None:
+                        bar_count = len(self.time_data)
+                        h0, h1 = shared_lod.get("hover_limits")
+                        if h0 is not None and h1 is not None:
+                            if h1 < h0: h0, h1 = h1, h0
+                            start = max(0, min(int(np.floor(h0)), bar_count - 1))
+                            end = min(int(np.ceil(h1)), bar_count)
+                            end = max(start + 1, end)
+                            static.offset = start
+                            static.visible_count = max(1, end - start)
+                            static.needs_update = True
+                except Exception:
+                    pass
+
+                implot.end_subplots()
         else:
             # Vertical scroll mode: render each panel with fixed pixel height in a scrollable child (Yaplacak 3)
             if imgui.begin_child("##plots_scroll", imgui.ImVec2(-1, -1), False, imgui.WindowFlags_.no_scroll_with_mouse):
