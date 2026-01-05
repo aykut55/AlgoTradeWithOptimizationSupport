@@ -476,6 +476,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             trader.StopDateStr = stopDateTime.ToString("yyyy.MM.dd");    // "2025.06.02"
             trader.StopTimeStr = stopDateTime.ToString("HH:mm:ss");      // "14:00:00"
         }
+
         private void OnReadOptimizationResultsFile(SingleTraderOptimizer traderOptimizer, SingleTrader trader, int currentCombination)
         {
             // DONE TODO 545 : Optimization sırasında her bir kosum sonrasında callback ile buraya gelinir.
@@ -771,8 +772,21 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             var startTime = System.DateTime.Now;
             await Task.Run(() =>
             {
+                // Set state flags
+                singleTrader.IsStarted = true;
+                singleTrader.IsRunning = true;
+                singleTrader.IsStopped = false;
+                singleTrader.IsStopRequested = false;
+
                 for (int i = 0; i < totalBars; i++)
                 {
+                    // Check if stop is requested
+                    if (singleTrader.IsStopRequested)
+                    {
+                        Log($"SingleTrader stopped by user request at bar {i}/{totalBars}");
+                        break;
+                    }
+
                     singleTrader.Run(i);
 
                     // Report progress every 10 bars or on last bar (more frequent updates)
@@ -802,43 +816,48 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     if (singleTrader.OnProgress != null && (i % 10 == 0 || i == totalBars - 1))
                         singleTrader.OnProgress?.Invoke(singleTrader, i, totalBars);
                 }
+
+                if (singleTrader.OnProgress != null)
+                    singleTrader.OnProgress?.Invoke(singleTrader, totalBars, totalBars);
+
+                Log("");
+
+                this.timeManager.StopTimer("2");
+
+                this.timeManager.StopTimer("0");
+                var t0 = this.timeManager.GetElapsedTime("0");
+                singleTrader.LastExecutionTimeStop = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+                singleTrader.LastExecutionTimeInMSec = t0.ToString();
+
+                // Finalize
+                this.timeManager.ResetTimer("3");
+                this.timeManager.StartTimer("3");
+                Log("Single Trader - Finalize (~10 ms)");
+                singleTrader.Finalize(true);
+                this.timeManager.StopTimer("3");
+
+                Log("");
+
+                var t1 = this.timeManager.GetElapsedTime("1");
+                var t2 = this.timeManager.GetElapsedTime("2");
+                var t3 = this.timeManager.GetElapsedTime("3");
+
+                Log($"t0 = {t0} msec...");
+                Log($"t1 = {t1} msec...");
+                Log($"t2 = {t2} msec...");
+                Log($"t3 = {t3} msec...");
+
+                Log("Single Trader demo completed (Async)");
+
+                // Update state flags
+                singleTrader.IsRunning = false;
+                singleTrader.IsStopped = true;
+                Log($"SingleTrader finished - IsRunning: {singleTrader.IsRunning}, IsStopped: {singleTrader.IsStopped}");
             });
-
-            if (singleTrader.OnProgress != null)
-                singleTrader.OnProgress?.Invoke(singleTrader, totalBars, totalBars);
-
-            Log("");
-
-            this.timeManager.StopTimer("2");
-
-            this.timeManager.StopTimer("0");
-            var t0 = this.timeManager.GetElapsedTime("0");
-            singleTrader.LastExecutionTimeStop = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
-            singleTrader.LastExecutionTimeInMSec = t0.ToString();
-
-            // Finalize
-            this.timeManager.ResetTimer("3");
-            this.timeManager.StartTimer("3");
-            Log("Single Trader - Finalize (~10 ms)");
-            singleTrader.Finalize(true);
-            this.timeManager.StopTimer("3");
-
-            Log("");
-
-            var t1 = this.timeManager.GetElapsedTime("1");
-            var t2 = this.timeManager.GetElapsedTime("2");
-            var t3 = this.timeManager.GetElapsedTime("3");
-
-            Log($"t0 = {t0} msec...");
-            Log($"t1 = {t1} msec...");
-            Log($"t2 = {t2} msec...");
-            Log($"t3 = {t3} msec...");
-
-            Log("Single Trader demo completed (Async)");
 
             // Tekrar Turlar(Optimizasyon için her parametre setinde)
 
-            singleTrader.Dispose(); 
+            singleTrader.Dispose();
             singleTrader = null;
 
         }

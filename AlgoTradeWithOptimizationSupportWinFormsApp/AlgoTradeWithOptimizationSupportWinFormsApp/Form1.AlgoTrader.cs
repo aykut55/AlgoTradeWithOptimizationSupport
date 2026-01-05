@@ -759,10 +759,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         }
 
-        private async void btnTestSingleTrader_Click(object sender, EventArgs e)
+        private async void btnStartSingleTrader_Click(object sender, EventArgs e)
         {
             // Disable button during execution
-            btnTestSingleTrader.Enabled = false;
+            btnStartSingleTrader.Enabled = false;
+            btnStopSingleTrader.Enabled = true;
 
             try
             {
@@ -869,13 +870,45 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             finally
             {
                 // Re-enable button
-                btnTestSingleTrader.Enabled = true;
+                btnStartSingleTrader.Enabled = true;
+                btnStopSingleTrader.Enabled = false;
             }
         }
-        private async void btnTestMultipleTrader_Click(object sender, EventArgs e)
+        private void btnStopSingleTrader_Click(object sender, EventArgs e)
+        {
+            // Run stop logic in background to avoid logger deadlock
+            Task.Run(() =>
+            {
+                _singleTraderLogger?.Log("Stop button clicked - requesting SingleTrader stop...");
+
+                // Stop SingleTrader if running
+                if (algoTrader?.singleTrader != null)
+                {
+                    if (algoTrader.singleTrader.IsRunning)
+                    {
+                        algoTrader.singleTrader.Stop();
+                        _singleTraderLogger?.Log("Stop request sent to SingleTrader");
+                    }
+                    else
+                    {
+                        _singleTraderLogger?.LogWarning("SingleTrader is not running");
+                    }
+                }
+                else
+                {
+                    _singleTraderLogger?.LogWarning("SingleTrader instance not found");
+                }
+            });
+
+            // Disable stop button, enable start button (UI thread)
+            btnStopSingleTrader.Enabled = false;
+            btnStartSingleTrader.Enabled = true;
+        }
+
+        private async void btnStartMultipleTrader_Click(object sender, EventArgs e)
         {
             // Disable button during execution
-            btnTestMultipleTrader.Enabled = false;
+            btnStartMultipleTrader.Enabled = false;
 
             try
             {
@@ -981,9 +1014,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             finally
             {
                 // Re-enable button
-                btnTestMultipleTrader.Enabled = true;
+                btnStartMultipleTrader.Enabled = true;
             }
         }
+        private async void btnStopMultipleTrader_Click(object sender, EventArgs e)
+        {
+
+        }
+
         private async void btnStartSingleTraderOpt_Click(object sender, EventArgs e)
         {
             // Disable button during execution

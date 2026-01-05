@@ -125,6 +125,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public int ExecutionStepNumber { get; set; }
         public bool BakiyeInitialized { get; set; }
         public AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics statistics { get; private set; }
+
+        // State flags
+        public bool IsStarted { get; internal set; }
+        public bool IsRunning { get; internal set; }
+        public bool IsStopped { get; internal set; }
+        public bool IsStopRequested { get; internal set; }
+
         #endregion
 
         #region IDisposable
@@ -464,6 +471,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             this.LastResetTime = DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
 
+            // Reset state flags
+            IsStarted = false;
+            IsRunning = false;
+            IsStopped = false;
+            IsStopRequested = false;
+
             return this;
         }
         public SingleTrader Init()
@@ -479,6 +492,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             return this;
         }
+
+        /// <summary>
+        /// Request stop for currently running trader
+        /// </summary>
+        public void Stop()
+        {
+            if (IsRunning)
+            {
+                IsStopRequested = true;
+                _logger?.Log($"Stop requested for SingleTrader '{Name}' (Id: {Id})");
+            }
+        }
+
         public SingleTrader ConfigureUserFlagsOnce()
         {
             if (_data == null || _data.Count == 0)

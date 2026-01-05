@@ -1188,20 +1188,20 @@ Format           : ";
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
                     return;
                 }
-/*
-                // Kullanıcıya onay sor
-                var result = MessageBox.Show(
-                    $"Are you sure you want to delete all .txt and .csv files in '{logsFolder}' folder?",
-                    "Confirm Delete",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning);
+                /*
+                                // Kullanıcıya onay sor
+                                var result = MessageBox.Show(
+                                    $"Are you sure you want to delete all .txt and .csv files in '{logsFolder}' folder?",
+                                    "Confirm Delete",
+                                    MessageBoxButtons.YesNo,
+                                    MessageBoxIcon.Warning);
 
-                if (result != DialogResult.Yes)
-                {
-                    LogManager.Log("Log files deletion cancelled by user.");
-                    return;
-                }
-*/
+                                if (result != DialogResult.Yes)
+                                {
+                                    LogManager.Log("Log files deletion cancelled by user.");
+                                    return;
+                                }
+                */
                 // TXT dosyalarını bul ve sil
                 var txtFiles = Directory.GetFiles(logsFolder, "*.txt");
                 int txtDeleted = 0;
@@ -1258,11 +1258,11 @@ Format           : ";
                 LogManager.Log("========================================");
                 LogManager.Log(summary.Replace("\n", " "));
                 LogManager.Log("========================================");
-/*
-                MessageBox.Show(summary, "Log Files Cleared",
-                    MessageBoxButtons.OK,
-                    totalFailed > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
-*/
+                /*
+                                MessageBox.Show(summary, "Log Files Cleared",
+                                    MessageBoxButtons.OK,
+                                    totalFailed > 0 ? MessageBoxIcon.Warning : MessageBoxIcon.Information);
+                */
             }
             catch (Exception ex)
             {
@@ -1373,11 +1373,11 @@ Format           : ";
                     lblReadStockDataTime.Text = $"Last StockData Read Time : {currentTime}";
 
                     var grafikSembol = "";
-                    var grafikPeriyot = "0";                    
+                    var grafikPeriyot = "0";
                     if (!stockMetaData.IsEmpty)
                     {
                         grafikSembol = stockMetaData.GetValueOrDefault("GrafikSembol", "N/A");
-                        grafikPeriyot = stockMetaData.GetValueOrDefault("GrafikPeriyot", "N/A");                        
+                        grafikPeriyot = stockMetaData.GetValueOrDefault("GrafikPeriyot", "N/A");
                     }
                     if (algoTrader != null)
                     {
