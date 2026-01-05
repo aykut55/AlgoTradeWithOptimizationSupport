@@ -12,6 +12,7 @@
     <!-- JSON Processing -->
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="Newtonsoft.Json.Bson" Version="1.0.3" />
+    <PackageReference Include="pythonnet" Version="3.0.5" />
 
     <!-- Charting -->
     <PackageReference Include="ScottPlot" Version="5.1.57" />
@@ -33,6 +34,13 @@
   <ItemGroup>
     <!-- Temporarily exclude test files from build -->
     <Compile Remove="src\Trading\Indicators\IndicatorTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Auto-copy Python scripts to output directory -->
+    <None Update="src\Plotting\**\*.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

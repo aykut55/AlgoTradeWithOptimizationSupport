@@ -1666,5 +1666,52 @@ Format           : ";
                 dtp.Value = dateTime;
             }
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            /*
+            🔧 Yapılanlar:
+
+              1. ✅ src/Plotting klasörü oluşturuldu
+              2. ✅ Basit Python test script (test_simple.py) - 2 fonksiyonla:
+                - hello_from_python(name) - Mesaj döndürür
+                - add_numbers(a, b) - İki sayı toplar
+              3. ✅ pythonnet 3.0.5 NuGet paketi eklendi (.NET 9.0 uyumlu)
+              4. ✅ PythonHelper.cs - Minimal wrapper class:
+                - Otomatik Python DLL algılama
+                - İki basit test methodu
+                - Dispose pattern
+              5. ✅ .csproj'a auto-copy eklendi - Python script'ler otomatik bin'e kopyalanacak
+              6. ✅ Build başarılı - Sadece nullable warning'ler var
+
+              🧪 Kullanım Örneği:
+
+              // Form1 veya başka bir yerde test
+              using (var pythonHelper = new PythonHelper())
+              {
+                  // Test 1: Hello World
+                  string message = pythonHelper.TestHelloWorld("AlgoTrade");
+                  // Sonuç: "Hello from Python, AlgoTrade!"
+
+                  // Test 2: Toplama
+                  int result = pythonHelper.TestAddNumbers(10, 20);
+                  // Sonuç: 30
+              }
+
+              📋 Sonraki Adımlar (Guide'a Göre):
+
+              Seçenek 1: GUI'ye Test Button Ekle
+              - Form1'e "Test Python" button ekle
+              - PythonHelper.TestHelloWorld() çağır
+              - Python çalışıyor mu kontrol et
+
+              Seçenek 2: Plotting Script Ekle
+              - Guide'daki plot_results.py ekle (basitleştirilmiş)
+              - PythonPlotter.cs class'ını oluştur
+              - SingleTrader sonuçlarını çizdirme testi
+
+              Hangi adımla devam edelim? 
+             */
+        }
     }
 }

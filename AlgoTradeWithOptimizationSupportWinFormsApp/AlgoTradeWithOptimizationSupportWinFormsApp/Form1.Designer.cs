@@ -149,6 +149,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
+            btnStopMultipleTrader = new Button();
             btnStopSingleTrader = new Button();
             btnStartMultipleTrader = new Button();
             btnStartSingleTrader = new Button();
@@ -179,11 +180,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             label3 = new Label();
             lblOptimizationResults = new Label();
             dataGridViewOptimizationResults = new DataGridView();
+            tabPagePythonPlotter = new TabPage();
+            panel6 = new Panel();
+            button6 = new Button();
+            richTextBox2 = new RichTextBox();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
-            btnStopMultipleTrader = new Button();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -202,6 +206,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel5.SuspendLayout();
             groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).BeginInit();
+            tabPagePythonPlotter.SuspendLayout();
+            panel6.SuspendLayout();
             SuspendLayout();
             // 
             // mainMenuStrip
@@ -726,6 +732,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Controls.Add(tabPageSingleTrader);
             mainTabControl.Controls.Add(tabPageMultipleTraders);
             mainTabControl.Controls.Add(tabPageSingleTraderOptimization);
+            mainTabControl.Controls.Add(tabPagePythonPlotter);
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
             mainTabControl.Name = "mainTabControl";
@@ -1200,6 +1207,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Size = new Size(1222, 717);
             panel4.TabIndex = 0;
             // 
+            // btnStopMultipleTrader
+            // 
+            btnStopMultipleTrader.Location = new Point(917, 221);
+            btnStopMultipleTrader.Name = "btnStopMultipleTrader";
+            btnStopMultipleTrader.Size = new Size(131, 23);
+            btnStopMultipleTrader.TabIndex = 8;
+            btnStopMultipleTrader.Text = "Stop Multiple Trader";
+            btnStopMultipleTrader.UseVisualStyleBackColor = true;
+            btnStopMultipleTrader.Click += btnStopMultipleTrader_Click;
+            // 
             // btnStopSingleTrader
             // 
             btnStopSingleTrader.Location = new Point(917, 103);
@@ -1487,6 +1504,44 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             dataGridViewOptimizationResults.Size = new Size(1264, 451);
             dataGridViewOptimizationResults.TabIndex = 0;
             // 
+            // tabPagePythonPlotter
+            // 
+            tabPagePythonPlotter.Controls.Add(panel6);
+            tabPagePythonPlotter.Location = new Point(4, 24);
+            tabPagePythonPlotter.Name = "tabPagePythonPlotter";
+            tabPagePythonPlotter.Padding = new Padding(3);
+            tabPagePythonPlotter.Size = new Size(1415, 793);
+            tabPagePythonPlotter.TabIndex = 4;
+            tabPagePythonPlotter.Text = "PythonPlotter";
+            tabPagePythonPlotter.UseVisualStyleBackColor = true;
+            // 
+            // panel6
+            // 
+            panel6.Controls.Add(button6);
+            panel6.Controls.Add(richTextBox2);
+            panel6.Location = new Point(32, 26);
+            panel6.Name = "panel6";
+            panel6.Size = new Size(1222, 717);
+            panel6.TabIndex = 1;
+            // 
+            // button6
+            // 
+            button6.Location = new Point(780, 16);
+            button6.Name = "button6";
+            button6.Size = new Size(131, 23);
+            button6.TabIndex = 2;
+            button6.Text = "Read StockData";
+            button6.UseVisualStyleBackColor = true;
+            button6.Click += button6_Click;
+            // 
+            // richTextBox2
+            // 
+            richTextBox2.Location = new Point(24, 16);
+            richTextBox2.Name = "richTextBox2";
+            richTextBox2.Size = new Size(750, 668);
+            richTextBox2.TabIndex = 1;
+            richTextBox2.Text = "";
+            // 
             // openFileDialog1
             // 
             openFileDialog1.FileName = "openFileDialog1";
@@ -1494,16 +1549,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // openFileDialog2
             // 
             openFileDialog2.FileName = "openFileDialog1";
-            // 
-            // btnStopMultipleTrader
-            // 
-            btnStopMultipleTrader.Location = new Point(917, 221);
-            btnStopMultipleTrader.Name = "btnStopMultipleTrader";
-            btnStopMultipleTrader.Size = new Size(131, 23);
-            btnStopMultipleTrader.TabIndex = 8;
-            btnStopMultipleTrader.Text = "Stop Multiple Trader";
-            btnStopMultipleTrader.UseVisualStyleBackColor = true;
-            btnStopMultipleTrader.Click += btnStopMultipleTrader_Click;
             // 
             // Form1
             // 
@@ -1549,6 +1594,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel5.PerformLayout();
             groupBox2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).EndInit();
+            tabPagePythonPlotter.ResumeLayout(false);
+            panel6.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1715,5 +1762,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private TextBox txtMaxIteration;
         private Button btnStopSingleTrader;
         private Button btnStopMultipleTrader;
+        private TabPage tabPagePythonPlotter;
+        private Panel panel6;
+        private Button button6;
+        private RichTextBox richTextBox2;
     }
 }
