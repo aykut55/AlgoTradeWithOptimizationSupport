@@ -18,7 +18,7 @@ import numpy as np
 # AlgoTradeWithPythonWithGemini'deki DataPlotterImgBundle'ı import et
 try:
     # sys.path zaten C# tarafında eklendi
-    from DataPlotterImgBundle import DataPlotterImgBundle, DataType
+    from DataPlotterImgBundleNew import DataPlotterImgBundleNew, DataType
     from imgui_bundle import immapp
     IMPORTS_OK = True
 except ImportError as e:
@@ -103,7 +103,7 @@ def plot_data_img_bundle_new(
         time_data = np.arange(n_bars, dtype=np.float64)
 
         # DataPlotterImgBundle oluştur
-        plotter = DataPlotterImgBundle()
+        plotter = DataPlotterImgBundleNew()
 
         # Temel verileri ayarla
         plotter.setTimeData(time_data)
