@@ -1553,8 +1553,10 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                     Log($"Panel sistemi ile çiziliyor - {closes.Count} bar");
 
-                    // PANEL 0: Close
-                    plotter.AddPanel(0, dates, closes, "Close", "blue", "-", 1.5);
+                    // PANEL 0: OHLC Candlestick + Close Line
+                    // plotter.AddOHLCPanel(0, dates, opens, highs, lows, closes, "OHLC", "black");
+                    // Close çizgisini de ekle (overlay)
+                    plotter.AddPanel(0, dates, closes, "Close", "blue", "-", 1.0);
 
                     // PANEL 1: Volume
                     plotter.AddPanel(1, dates, volumes, "Volume", "gray", "-", 1.0);

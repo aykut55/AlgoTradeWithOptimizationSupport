@@ -1,9 +1,57 @@
 """
 Dinamik panel plotting sistemi
 Esnek panel yapısı - her panelde birden fazla seri olabilir
+Line ve OHLC (candlestick) desteği
 """
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
+
+def plot_candlestick(ax, bar_indices, opens, highs, lows, closes, color='black', alpha=0.8):
+    """
+    Candlestick (OHLC) çizimi
+
+    Parameters:
+    -----------
+    ax : matplotlib axis
+    bar_indices : list of int
+    opens, highs, lows, closes : list of float
+    color : str (default: 'black')
+    alpha : float (default: 0.8)
+    """
+    width = 0.6
+
+    for i, idx in enumerate(bar_indices):
+        open_price = opens[i]
+        high_price = highs[i]
+        low_price = lows[i]
+        close_price = closes[i]
+
+        # Yükseliş (yeşil) veya düşüş (kırmızı)
+        if close_price >= open_price:
+            body_color = 'green'
+            body_bottom = open_price
+            body_height = close_price - open_price
+        else:
+            body_color = 'red'
+            body_bottom = close_price
+            body_height = open_price - close_price
+
+        # High-Low çizgisi (fitil)
+        ax.plot([idx, idx], [low_price, high_price],
+               color=color, linewidth=0.8, alpha=alpha, zorder=1)
+
+        # Body (gövde)
+        if body_height > 0:
+            rect = Rectangle((idx - width/2, body_bottom), width, body_height,
+                           facecolor=body_color, edgecolor=color,
+                           linewidth=0.8, alpha=alpha, zorder=2)
+            ax.add_patch(rect)
+        else:
+            # Doji (açılış = kapanış)
+            ax.plot([idx - width/2, idx + width/2], [open_price, open_price],
+                   color=color, linewidth=1.2, alpha=alpha, zorder=2)
 
 
 def plot_dynamic_panels(panel_data, config):
@@ -90,23 +138,42 @@ def plot_dynamic_panels(panel_data, config):
 
             # Bu paneldeki tüm serileri çiz
             for series in series_list:
-                dates = series['dates']
-                values = series['values']
+                series_type = series.get('type', 'line')
                 label = series.get('label', '')
                 color = series.get('color', 'blue')
-                linestyle = series.get('linestyle', '-')
-                linewidth = series.get('linewidth', 1.5)
 
-                # Bar index kullan (tarih yerine)
-                bar_indices = list(range(len(values)))
+                if series_type == 'line':
+                    # Line grafiği
+                    values = series['values']
+                    linestyle = series.get('linestyle', '-')
+                    linewidth = series.get('linewidth', 1.5)
 
-                # Çiz
-                ax.plot(bar_indices, values,
-                       label=label,
-                       color=color,
-                       linestyle=linestyle,
-                       linewidth=linewidth,
-                       alpha=0.8)
+                    # Bar index kullan (tarih yerine)
+                    bar_indices = list(range(len(values)))
+
+                    # Çiz
+                    ax.plot(bar_indices, values,
+                           label=label,
+                           color=color,
+                           linestyle=linestyle,
+                           linewidth=linewidth,
+                           alpha=0.8)
+
+                elif series_type == 'ohlc':
+                    # Candlestick grafiği
+                    opens = series['opens']
+                    highs = series['highs']
+                    lows = series['lows']
+                    closes = series['closes']
+
+                    bar_indices = list(range(len(opens)))
+
+                    # Candlestick çiz
+                    plot_candlestick(ax, bar_indices, opens, highs, lows, closes,
+                                   color=color, alpha=0.8)
+
+                    # Legend için dummy line ekle
+                    ax.plot([], [], label=label, color=color, linewidth=2)
 
             # Panel başlığı - ilk serinin label'ını kullan veya "Panel X"
             if series_list and series_list[0].get('label'):
@@ -122,10 +189,19 @@ def plot_dynamic_panels(panel_data, config):
             ax.grid(True, alpha=0.3, linestyle='--')
 
             # Y ekseninde sıfır çizgisi ekle (eğer veriler pozitif/negatif geçiş yapıyorsa)
-            y_min = min([min(s['values']) for s in series_list])
-            y_max = max([max(s['values']) for s in series_list])
-            if y_min < 0 < y_max:
-                ax.axhline(y=0, color='black', linestyle='-', linewidth=1, alpha=0.5)
+            y_values = []
+            for s in series_list:
+                if s.get('type', 'line') == 'line':
+                    y_values.extend(s['values'])
+                elif s.get('type', 'line') == 'ohlc':
+                    y_values.extend(s['lows'])
+                    y_values.extend(s['highs'])
+
+            if y_values:
+                y_min = min(y_values)
+                y_max = max(y_values)
+                if y_min < 0 < y_max:
+                    ax.axhline(y=0, color='black', linestyle='-', linewidth=1, alpha=0.5)
 
         # Son panelde X label
         axes[-1].set_xlabel('Bar Index', fontsize=11)

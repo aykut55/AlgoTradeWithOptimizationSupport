@@ -8,20 +8,42 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
     /// <summary>
     /// Panel bazlı esnek plotting sistemi
     /// Kullanım:
-    ///   plotter.AddPanel(0, dates, closes, "Close", "blue");
+    ///   // OHLC candlestick chart
+    ///   plotter.AddOHLCPanel(0, dates, opens, highs, lows, closes, "BTCUSDT");
+    ///   // Line overlay on OHLC
     ///   plotter.AddPanel(0, dates, ma50, "MA50", "red");
+    ///   // Volume in separate panel
     ///   plotter.AddPanel(1, dates, volumes, "Volume", "gray");
     ///   plotter.Plot();
     /// </summary>
     public class DynamicPlotter : IDisposable
     {
         /// <summary>
+        /// Seri tipi
+        /// </summary>
+        public enum SeriesType
+        {
+            Line,      // Normal çizgi grafiği
+            OHLC       // Candlestick (Open-High-Low-Close)
+        }
+
+        /// <summary>
         /// Panel içindeki bir seri verisi
         /// </summary>
         public class PanelSeries
         {
+            public SeriesType Type { get; set; }
             public List<DateTime> Dates { get; set; }
+
+            // Line grafiği için
             public List<double> Values { get; set; }
+
+            // OHLC için
+            public List<double> Opens { get; set; }
+            public List<double> Highs { get; set; }
+            public List<double> Lows { get; set; }
+            public List<double> Closes { get; set; }
+
             public string Label { get; set; }
             public string Color { get; set; }
             public string LineStyle { get; set; }
@@ -29,6 +51,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
 
             public PanelSeries()
             {
+                Type = SeriesType.Line;
                 LineStyle = "-";  // Solid line
                 LineWidth = 1.5;
             }
@@ -137,12 +160,54 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
             // Seriyi ekle
             _panels[panelIndex].Add(new PanelSeries
             {
+                Type = SeriesType.Line,
                 Dates = dates,
                 Values = values,
                 Label = label ?? "",
                 Color = color ?? "blue",
                 LineStyle = lineStyle ?? "-",
                 LineWidth = lineWidth
+            });
+        }
+
+        /// <summary>
+        /// Belirtilen panele OHLC (candlestick) verisi ekler
+        /// </summary>
+        /// <param name="panelIndex">Panel numarası (0'dan başlar)</param>
+        /// <param name="dates">Tarih listesi</param>
+        /// <param name="opens">Open fiyatları</param>
+        /// <param name="highs">High fiyatları</param>
+        /// <param name="lows">Low fiyatları</param>
+        /// <param name="closes">Close fiyatları</param>
+        /// <param name="label">Seri adı (legend için)</param>
+        /// <param name="color">Renk (opsiyonel)</param>
+        public void AddOHLCPanel(int panelIndex, List<DateTime> dates,
+                                List<double> opens, List<double> highs,
+                                List<double> lows, List<double> closes,
+                                string label = "OHLC", string color = null)
+        {
+            if (dates == null || opens == null || highs == null || lows == null || closes == null)
+                throw new ArgumentNullException("OHLC verileri null olamaz");
+
+            int count = dates.Count;
+            if (opens.Count != count || highs.Count != count || lows.Count != count || closes.Count != count)
+                throw new ArgumentException($"Tüm OHLC listeleri aynı boyutta olmalı! dates: {count}, opens: {opens.Count}, highs: {highs.Count}, lows: {lows.Count}, closes: {closes.Count}");
+
+            // Panel yoksa oluştur
+            if (!_panels.ContainsKey(panelIndex))
+                _panels[panelIndex] = new List<PanelSeries>();
+
+            // OHLC serisini ekle
+            _panels[panelIndex].Add(new PanelSeries
+            {
+                Type = SeriesType.OHLC,
+                Dates = dates,
+                Opens = opens,
+                Highs = highs,
+                Lows = lows,
+                Closes = closes,
+                Label = label ?? "OHLC",
+                Color = color ?? "black"
             });
         }
 
@@ -200,6 +265,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                                 {
                                     using (var seriesDict = new PyDict())
                                     {
+                                        // Seri tipini ekle
+                                        seriesDict["type"] = new PyString(series.Type.ToString().ToLower());
+
                                         // Tarihleri string'e çevir
                                         using (var pyDates = new PyList())
                                         {
@@ -209,19 +277,47 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                                             seriesDict["dates"] = pyDates;
                                         }
 
-                                        // Values
-                                        using (var pyValues = new PyList())
+                                        // Tip'e göre veri ekle
+                                        if (series.Type == SeriesType.Line)
                                         {
-                                            foreach (var val in series.Values)
-                                                pyValues.Append(new PyFloat(val));
+                                            // Line grafiği için Values
+                                            using (var pyValues = new PyList())
+                                            {
+                                                foreach (var val in series.Values)
+                                                    pyValues.Append(new PyFloat(val));
 
-                                            seriesDict["values"] = pyValues;
+                                                seriesDict["values"] = pyValues;
+                                            }
+
+                                            seriesDict["linestyle"] = new PyString(series.LineStyle);
+                                            seriesDict["linewidth"] = new PyFloat(series.LineWidth);
+                                        }
+                                        else if (series.Type == SeriesType.OHLC)
+                                        {
+                                            // OHLC için Opens, Highs, Lows, Closes
+                                            using (var pyOpens = new PyList())
+                                            using (var pyHighs = new PyList())
+                                            using (var pyLows = new PyList())
+                                            using (var pyCloses = new PyList())
+                                            {
+                                                foreach (var val in series.Opens)
+                                                    pyOpens.Append(new PyFloat(val));
+                                                foreach (var val in series.Highs)
+                                                    pyHighs.Append(new PyFloat(val));
+                                                foreach (var val in series.Lows)
+                                                    pyLows.Append(new PyFloat(val));
+                                                foreach (var val in series.Closes)
+                                                    pyCloses.Append(new PyFloat(val));
+
+                                                seriesDict["opens"] = pyOpens;
+                                                seriesDict["highs"] = pyHighs;
+                                                seriesDict["lows"] = pyLows;
+                                                seriesDict["closes"] = pyCloses;
+                                            }
                                         }
 
                                         seriesDict["label"] = new PyString(series.Label);
                                         seriesDict["color"] = new PyString(series.Color);
-                                        seriesDict["linestyle"] = new PyString(series.LineStyle);
-                                        seriesDict["linewidth"] = new PyFloat(series.LineWidth);
 
                                         pySeriesList.Append(seriesDict);
                                     }
