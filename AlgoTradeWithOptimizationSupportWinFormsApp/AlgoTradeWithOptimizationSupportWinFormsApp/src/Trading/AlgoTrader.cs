@@ -21,6 +21,11 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
 {
     /// <summary>
+    /// Delegate for creating strategy instances with parameters
+    /// </summary>
+    public delegate IStrategy StrategyFactory(List<StockData> data, IndicatorManager indicators, Dictionary<string, object> parameters);
+
+    /// <summary>
     /// Progress information for backtest execution
     /// </summary>
     public class BacktestProgressInfo
@@ -63,6 +68,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
         public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
+        public StrategyFactory StrategyFactoryMethod { get; private set; }
 
         public TimeManager timeManager { get; private set; }
 
@@ -131,6 +137,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         {
             Logger = logger;
             Logger?.Log("Logger registered to AlgoTrader");
+        }
+
+        /// <summary>
+        /// Set strategy factory method for creating strategy instances with parameters
+        /// </summary>
+        public void SetStrategyFactory(StrategyFactory factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            StrategyFactoryMethod = factory;
         }
 
         #endregion
@@ -654,6 +671,31 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             if (indicators == null)
                 return;
 
+            // ============================================================
+            // STRATEGY CONFIGURATION - Change this section for different strategies
+            // ============================================================
+
+            StrategyFactoryMethod = null;
+
+            // Define parameter combination for SingleTrader (single set, not optimization)
+            var StrategyParams = new Dictionary<string, object>
+            {
+                { "period", 21 },
+                { "percent", 1.0 }
+            };
+
+            //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
+            this.SetStrategyFactory((data, indicators, parameters) =>
+            {
+                int period = Convert.ToInt32(parameters["period"]);
+                double percent = Convert.ToDouble(parameters["percent"]);
+                return new SimpleMostStrategy(data, indicators, period, percent);
+            });
+
+            // ============================================================
+            // END STRATEGY CONFIGURATION
+            // ============================================================
+
             // *****************************************************************************
             // *****************************************************************************
             // *****************************************************************************
@@ -668,26 +710,17 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             // Tekrar Turlar(Optimizasyon için her parametre setinde)
 
-            // Strategy Setup
-/*
-            var strategy1 = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
-            if (strategy1 == null)
-                return;
-            strategy1.OnInit();
-            singleTrader.SetStrategy(strategy1);
-*/
-            var strategy2 = new SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
-            if (strategy2 == null)
-                return;
-            strategy2.OnInit();
-            singleTrader.SetStrategy(strategy2);
-/*
-            var strategy3 = new SimpleSuperTrendStrategy(this.Data, indicators, period: 21, multiplier: 3.0);
-            if (strategy3 == null)
-                return;
-            strategy3.OnInit();
-            singleTrader.SetStrategy(strategy3);
-*/
+            // Validate StrategyFactory is set
+            if (StrategyFactoryMethod == null)
+                throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
+
+            // Create strategy instance using factory (generic!)
+            var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+            strategy.OnInit();
+
+            // Assign strategy
+            singleTrader.SetStrategy(strategy);
+
             // Reset
             singleTrader.Reset();
 
