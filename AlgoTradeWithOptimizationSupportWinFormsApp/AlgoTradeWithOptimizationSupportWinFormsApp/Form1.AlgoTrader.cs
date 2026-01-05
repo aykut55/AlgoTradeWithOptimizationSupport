@@ -1017,7 +1017,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 btnStartMultipleTrader.Enabled = true;
             }
         }
-        private async void btnStopMultipleTrader_Click(object sender, EventArgs e)
+        private void btnStopMultipleTrader_Click(object sender, EventArgs e)
         {
 
         }
@@ -1202,7 +1202,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 btnStartSingleTraderOpt.Enabled = true;
             }
         }
-        private async void btnStopSingleTraderOpt_Click(object sender, EventArgs e)
+        private void btnStopSingleTraderOpt_Click(object sender, EventArgs e)
         {
             _singleTraderOptLogger?.Log("Stop button clicked - requesting optimization stop...");
 
