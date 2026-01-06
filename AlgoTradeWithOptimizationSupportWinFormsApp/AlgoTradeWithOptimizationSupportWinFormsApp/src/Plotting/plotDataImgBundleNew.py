@@ -124,7 +124,7 @@ def plot_data_img_bundle_new(
         plotter.setEnableRangeSlider(True)
 
         # Height ratios (AlgoTrader.py'den)
-        HeightRatioList = [1.0, 0.7, 0.7, 0.7, 1.0]
+        HeightRatioList = [1.5, 0.7, 0.7, 0.7, 1.0]
 
         # ==============================================================================
         # Panel 0: Price Chart (OHLC + Indicators)
@@ -186,14 +186,16 @@ def plot_data_img_bundle_new(
         # ==============================================================================
         # Panel 4: Volume
         # ==============================================================================
-        panel4 = plotter.AddPanel(4)
-        panel4.setTitle("Volume")
-        panel4.setYAxisLabel("Volume")
-        panel4.setHeightRatio(HeightRatioList[4])
-        panel4.setInfoPanelPosition(100, 2)
-        panel4.setInfoPanelOffsets(label_dx=5, value_dx=80)
+        # panel4 = plotter.AddPanel(4)
+        # panel4.setTitle("MOST (21,0.5)")
+        # panel4.setYAxisLabel("MOST")
+        # panel4.setHeightRatio(HeightRatioList[4])
 
-        panel4.setData(0, DataType.Volume, volumes, "Volume", (0.5, 0.5, 0.5, 1.0))  # Gri
+        # # Info panel positioning for Panel 3
+        # panel4.setInfoPanelPosition(100, 2)
+        # panel4.setInfoPanelOffsets(label_dx=5, value_dx=80)
+        # panel4.setData(0, DataType.Line, most, "MOST", (0.6, 0.6, 0.0, 1.0))
+        # panel4.setData(1, DataType.Line, exMov, "EMA", (0.5, 0.2, 0.8, 1.0))
 
         # ==============================================================================
         # Y-axis sync (optional)
