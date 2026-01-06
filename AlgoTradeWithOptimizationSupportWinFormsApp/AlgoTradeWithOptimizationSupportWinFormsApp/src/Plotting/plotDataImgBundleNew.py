@@ -36,6 +36,8 @@ def plot_data_img_bundle_new(
     getiri_fiyat_yuzde_list=None,
     komisyon_fiyat_list=None,
     getiri_fiyat_yuzde_net_list=None,
+    most_list=None,
+    exmov_list=None,
     title="BTCUSDT",
     periyot="1H"
 ):
@@ -186,18 +188,25 @@ def plot_data_img_bundle_new(
         panel3.setData(1, DataType.Line, getiri_fiyat_net_list, "Net Balance", (1.0, 1.0, 0.0, 1.0))  # Sarı
 
         # ==============================================================================
-        # Panel 4: Volume
+        # Panel 4: MOST & EXMOV (Indicators)
         # ==============================================================================
-        # panel4 = plotter.AddPanel(4)
-        # panel4.setTitle("MOST (21,0.5)")
-        # panel4.setYAxisLabel("MOST")
-        # panel4.setHeightRatio(HeightRatioList[4])
+        if most_list is not None or exmov_list is not None:
+            panel4 = plotter.AddPanel(4)
+            panel4.setTitle("MOST & EXMOV Indicators")
+            panel4.setYAxisLabel("Value")
+            panel4.setHeightRatio(HeightRatioList[4])
+            panel4.setInfoPanelPosition(100, 2)
+            panel4.setInfoPanelOffsets(label_dx=5, value_dx=80)
 
-        # # Info panel positioning for Panel 3
-        # panel4.setInfoPanelPosition(100, 2)
-        # panel4.setInfoPanelOffsets(label_dx=5, value_dx=80)
-        # panel4.setData(0, DataType.Line, most, "MOST", (0.6, 0.6, 0.0, 1.0))
-        # panel4.setData(1, DataType.Line, exMov, "EMA", (0.5, 0.2, 0.8, 1.0))
+            # MOST indikatörü (varsa)
+            if most_list is not None:
+                most_arr = np.array(most_list, dtype=np.float64)
+                panel4.setData(0, DataType.Line, most_arr, "MOST", (1.0, 1.0, 0.0, 1.0))  # Sarı
+
+            # EXMOV (EMA) indikatörü (varsa)
+            if exmov_list is not None:
+                exmov_arr = np.array(exmov_list, dtype=np.float64)
+                panel4.setData(1, DataType.Line, exmov_arr, "EXMOV", (0.2, 0.8, 1.0, 1.0))  # Cyan
 
         # ==============================================================================
         # Y-axis sync (optional)

@@ -162,6 +162,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
         /// <param name="bakiyeFiyatList">Bakiye listesi</param>
         /// <param name="getiriFiyatList">Brüt getiri listesi</param>
         /// <param name="getiriFiyatNetList">Net getiri listesi</param>
+        /// <param name="mostList">MOST indikatör değerleri (opsiyonel)</param>
+        /// <param name="exmovList">EXMOV (EMA) indikatör değerleri (opsiyonel)</param>
         /// <param name="title">Grafik başlığı (opsiyonel)</param>
         /// <param name="periyot">Periyot bilgisi (opsiyonel)</param>
         /// <returns>True if successful</returns>
@@ -178,6 +180,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
             List<double> bakiyeFiyatList,
             List<double> getiriFiyatList,
             List<double> getiriFiyatNetList,
+            List<double>? mostList = null,
+            List<double>? exmovList = null,
             string title = "AlgoTrade",
             string periyot = "1H")
         {
@@ -239,6 +243,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                     using (var pyBakiye = new PyList())
                     using (var pyGetiri = new PyList())
                     using (var pyGetiriNet = new PyList())
+                    using (var pyMost = new PyList())
+                    using (var pyExmov = new PyList())
                     {
                         // Tarihleri ekle
                         foreach (var date in dateStrings)
@@ -261,6 +267,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         foreach (var val in getiriFiyatList) pyGetiri.Append(new PyFloat(val));
                         foreach (var val in getiriFiyatNetList) pyGetiriNet.Append(new PyFloat(val));
 
+                        // MOST ve EXMOV indikatörleri (varsa)
+                        if (mostList != null && mostList.Count > 0)
+                        {
+                            foreach (var val in mostList) pyMost.Append(new PyFloat(val));
+                        }
+                        if (exmovList != null && exmovList.Count > 0)
+                        {
+                            foreach (var val in exmovList) pyExmov.Append(new PyFloat(val));
+                        }
+
                         // Python stdout'u yakala
                         dynamic io = Py.Import("io");
                         dynamic stdout = io.StringIO();
@@ -271,6 +287,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         try
                         {
                             // Python fonksiyonunu çağır
+                            // MOST ve EXMOV: null ise boş liste gönder (Python None yerine)
+                            dynamic pyMostParam = (mostList != null && mostList.Count > 0) ? pyMost : null;
+                            dynamic pyExmovParam = (exmovList != null && exmovList.Count > 0) ? pyExmov : null;
+
                             dynamic result = plotModule.plot_data_img_bundle_new(
                                 pyDates,
                                 pyOpens,
@@ -289,6 +309,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                                 getiri_fiyat_yuzde_list: null,    // Optional
                                 komisyon_fiyat_list: null,        // Optional
                                 getiri_fiyat_yuzde_net_list: null,// Optional
+                                most_list: pyMostParam,           // MOST indikatörü
+                                exmov_list: pyExmovParam,         // EXMOV (EMA) indikatörü
                                 title: title,
                                 periyot: periyot
                             );

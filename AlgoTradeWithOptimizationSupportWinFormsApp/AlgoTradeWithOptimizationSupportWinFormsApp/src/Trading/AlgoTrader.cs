@@ -1642,6 +1642,24 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     var getiriFiyatList = singleTrader.lists.GetiriFiyatList;
                     var getiriFiyatNetList = singleTrader.lists.GetiriFiyatNetList;
 
+                    // Strategy'den MOST ve EXMOV verilerini al (SimpleMostStrategy için)
+                    List<double>? mostList = null;
+                    List<double>? exmovList = null;
+
+                    if (singleTrader.Strategy is SimpleMostStrategy mostStrategy)
+                    {
+                        var mostArray = mostStrategy.GetMOST();
+                        var exmovArray = mostStrategy.GetEXMOV();
+
+                        if (mostArray != null && mostArray.Length > 0)
+                            mostList = mostArray.ToList();
+
+                        if (exmovArray != null && exmovArray.Length > 0)
+                            exmovList = exmovArray.ToList();
+
+                        Log($"MOST ve EXMOV verileri alındı: MOST={mostList?.Count ?? 0}, EXMOV={exmovList?.Count ?? 0}");
+                    }
+
                     Log($"ImGui bundle ile çiziliyor - {closes.Count} bar");
 
                     // ImGui/ImPlot ile çizdir
@@ -1649,6 +1667,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                         dates, opens, highs, lows, closes, volumes, lots,
                         sinyalList, karZararFiyatList, bakiyeFiyatList,
                         getiriFiyatList, getiriFiyatNetList,
+                        mostList, exmovList,
                         title: SymbolName ?? "AlgoTrade",
                         periyot: SymbolPeriod ?? "1H"
                     );

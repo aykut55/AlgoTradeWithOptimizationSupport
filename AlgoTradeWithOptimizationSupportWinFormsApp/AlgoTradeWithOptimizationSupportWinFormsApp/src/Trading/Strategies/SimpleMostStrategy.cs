@@ -96,18 +96,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (_most == null || _most.Length == 0)
                 return TradeSignals.None;
 
+            // EXMOV implement edilmemişse sinyal üretme
+            if (_exmov == null || _exmov.Length == 0)
+                return TradeSignals.None;
+
             // Geçerli ve önceki değerler
             double currentPrice = Data[currentIndex].Close;
             double prevPrice = Data[currentIndex - 1].Close;
             double currentMost = _most[currentIndex];
             double prevMost = _most[currentIndex - 1];
+            double currentExmov = _exmov[currentIndex];
+            double prevExmov = _exmov[currentIndex - 1];
 
             // MOST AL Sinyali: Fiyat MOST'u yukarı kırıyor (trend değişimi: düşüşten yükselişe)
             // Önceki bar: fiyat <= MOST
             // Şimdiki bar: fiyat > MOST
             if (prevPrice <= prevMost && currentPrice > currentMost)
             {
-                buy = true;
+                //buy = true;
             }
 
             // MOST SAT Sinyali: Fiyat MOST'u aşağı kırıyor (trend değişimi: yükselişten düşüşe)
@@ -115,11 +121,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             // Şimdiki bar: fiyat < MOST
             if (prevPrice >= prevMost && currentPrice < currentMost)
             {
+                //sell = true;
+            }
+
+
+            // ExMov, MOST çizgisini yukarı kestiğinde BUY
+            // (EXMOV alttan yukarı doğru MOST'u geçer: MOST üstte → EXMOV üstte)
+            // Önceki bar: MOST >= EXMOV
+            // Şimdiki bar: MOST < EXMOV
+            if (prevMost >= prevExmov && currentMost < currentExmov)
+            {
+                buy = true;
+            }
+
+            // ExMov, MOST çizgisini aşağı kestiğinde SELL
+            // (EXMOV üstten aşağı doğru MOST'u geçer: EXMOV üstte → MOST üstte)
+            // Önceki bar: MOST <= EXMOV
+            // Şimdiki bar: MOST > EXMOV
+            if (prevMost <= prevExmov && currentMost > currentExmov)
+            {
                 sell = true;
             }
 
             // ÖRNEK: Trader referansını kullanarak kar al / zarar kes hesaplama
-            // Trader property'si BaseStrategy.SetTrader() ile otomatik set edilir            
+            // Trader property'si BaseStrategy.SetTrader() ile otomatik set edilir
             if (Trader != null)
             {
                 takeProfit = Trader.karAlZararKes.SonFiyataGoreKarAlSeviyeHesaplaSeviyeli(currentIndex, 5, 50, 1000) != 0;
