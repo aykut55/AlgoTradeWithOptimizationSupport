@@ -1219,8 +1219,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             multipleTrader.IsStopped = true;
             Log($"MultipleTrader finished - IsRunning: {multipleTrader.IsRunning}, IsStopped: {multipleTrader.IsStopped}");
 
-            //multipleTrader.Dispose();
-            multipleTrader = null;
+            // Tekrar Turlar(Optimizasyon için her parametre setinde)
+            // NOT: multipleTrader = null; yapma - plotting için gerekli!
+            // multipleTrader = null;
         }
 
         public async Task RunSingleTraderOptWithProgressAsync(IProgress<BacktestProgressInfo> progressOpt = null, IProgress<BacktestProgressInfo> progressTrader = null)
@@ -1738,15 +1739,32 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
         /// AlgoTradeWithPythonWithGemini projesindeki plotDataImgBundle yapısına benzer
         /// REQUIREMENTS: pip install imgui-bundle
         /// </summary>
+        /// <summary>
+        /// Plot ImGui bundle (for singleTrader - backward compatibility)
+        /// </summary>
         public void PlotImGuiBundle()
         {
-            if (!IsInitialized)
-                throw new InvalidOperationException("AlgoTrader not initialized");
-
             if (this.singleTrader == null)
             {
                 LogError("singleTrader is NULL!");
                 throw new InvalidOperationException("SingleTrader henüz çalıştırılmadı - önce RunSingleTrader() çağırın");
+            }
+
+            PlotImGuiBundle(this.singleTrader);
+        }
+
+        /// <summary>
+        /// Plot ImGui bundle (generic version - accepts SingleTrader)
+        /// </summary>
+        public void PlotImGuiBundle(SingleTrader trader)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized");
+
+            if (trader == null)
+            {
+                LogError("trader is NULL!");
+                throw new InvalidOperationException("Trader henüz çalıştırılmadı");
             }
 
             if (Data == null || Data.Count == 0)
@@ -1767,18 +1785,18 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     var volumes = Data.Select(d => d.Volume).ToList(); // long (no cast needed)
                     var lots = Data.Select(d => d.Size).ToList();      // long (no cast needed)
 
-                    // SingleTrader.lists verileri
-                    var sinyalList = singleTrader.lists.SinyalList;
-                    var karZararFiyatList = singleTrader.lists.KarZararFiyatList;
-                    var bakiyeFiyatList = singleTrader.lists.BakiyeFiyatList;
-                    var getiriFiyatList = singleTrader.lists.GetiriFiyatList;
-                    var getiriFiyatNetList = singleTrader.lists.GetiriFiyatNetList;
+                    // Trader.lists verileri
+                    var sinyalList = trader.lists.SinyalList;
+                    var karZararFiyatList = trader.lists.KarZararFiyatList;
+                    var bakiyeFiyatList = trader.lists.BakiyeFiyatList;
+                    var getiriFiyatList = trader.lists.GetiriFiyatList;
+                    var getiriFiyatNetList = trader.lists.GetiriFiyatNetList;
 
                     // Strategy'den MOST ve EXMOV verilerini al (SimpleMostStrategy için)
                     List<double>? mostList = null;
                     List<double>? exmovList = null;
 
-                    if (singleTrader.Strategy is SimpleMostStrategy mostStrategy)
+                    if (trader.Strategy is SimpleMostStrategy mostStrategy)
                     {
                         var mostArray = mostStrategy.GetMOST();
                         var exmovArray = mostStrategy.GetEXMOV();
