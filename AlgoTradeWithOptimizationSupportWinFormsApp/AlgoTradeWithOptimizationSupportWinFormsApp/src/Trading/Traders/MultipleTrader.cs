@@ -29,6 +29,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public bool IsInitialized { get; private set; }
         public int CurrentIndex { get; private set; }
 
+        // State flags (similar to SingleTrader)
+        public bool IsStarted { get; internal set; }
+        public bool IsRunning { get; internal set; }
+        public bool IsStopped { get; internal set; }
+        public bool IsStopRequested { get; internal set; }
+
         private SingleTrader _mainTrader;
 
         /// <summary>
@@ -112,6 +118,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             {
 
             }
+
+            // Reset state flags
+            IsStarted = false;
+            IsRunning = false;
+            IsStopped = false;
+            IsStopRequested = false;
         }
         public void Init()
         {
@@ -424,6 +436,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             foreach (var trader in Traders)
             {
                 trader.SetCallbacks(onReset, onInit, onRun, onFinal, onBeforeOrders, onNotifySignal, onAfterOrders, onProgress, onApplyUserFlags);
+            }
+        }
+
+        /// <summary>
+        /// Request stop for currently running MultipleTrader
+        /// </summary>
+        public void Stop()
+        {
+            if (IsRunning)
+            {
+                IsStopRequested = true;
+                Logger?.Log($"Stop requested for MultipleTrader (Id: {Id})");
             }
         }
 

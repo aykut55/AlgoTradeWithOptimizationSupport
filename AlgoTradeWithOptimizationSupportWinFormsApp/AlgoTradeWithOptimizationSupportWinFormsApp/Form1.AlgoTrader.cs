@@ -21,6 +21,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         // ====================================================================
 
         private SingleTraderLogger? _singleTraderLogger = null;
+        private MultipleTraderLogger? _multipleTraderLogger = null;
         private SingleTraderOptLogger? _singleTraderOptLogger = null;
         private AlgoTrader? algoTrader = null;
 
@@ -31,6 +32,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private void CreateObjects()
         {
             _singleTraderLogger = new SingleTraderLogger(richTextBoxSingleTrader);
+            _multipleTraderLogger = new MultipleTraderLogger(richTextBoxMultipleTrader);
             _singleTraderOptLogger = new SingleTraderOptLogger(richTextBoxSingleTraderOptimization);
 
             algoTrader = new AlgoTrader();
@@ -40,6 +42,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             algoTrader.OnOptimizationResultsUpdated = OnOptimizationResultsUpdated;
 
             _singleTraderLogger.Log("=== AlgoTrader Objects Created ===");
+            _multipleTraderLogger.Log("=== AlgoTrader Objects Created ===");
             _singleTraderOptLogger.Log("=== AlgoTrader Objects Created ===");
         }
 
@@ -475,6 +478,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _singleTraderLogger?.Dispose();
             _singleTraderLogger = null;
 
+            _multipleTraderLogger?.Dispose();
+            _multipleTraderLogger = null;
+
             // AlgoTrader'ı temizle
             algoTrader?.Reset();
             algoTrader = null;
@@ -488,11 +494,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         {
             // Logger'ı temizle
             _singleTraderLogger?.Clear();
+            _multipleTraderLogger?.Clear();
 
             // AlgoTrader'ı sıfırla
             algoTrader?.Reset();
 
             _singleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
+            _multipleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
         }
 
         /// <summary>
@@ -597,6 +605,106 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         }
 
         /// <summary>
+        /// MultipleTrader için local logger
+        /// </summary>
+        private class MultipleTraderLogger : IAlgoTraderLogger, IDisposable
+        {
+            private readonly RichTextBox _richTextBox;
+            private readonly FileSink _fileSink;
+            private readonly object _lockObject = new object();
+            private bool _isDisposed = false;
+
+            public MultipleTraderLogger(RichTextBox richTextBox)
+            {
+                _richTextBox = richTextBox;
+                _fileSink = new FileSink("logs", "multipleTraderLog.txt", appendMode: false);
+            }
+
+            public void Log(params object[] args)
+            {
+                WriteLog("INFO", args);
+            }
+
+            public void LogWarning(params object[] args)
+            {
+                WriteLog("WARNING", args);
+            }
+
+            public void LogError(params object[] args)
+            {
+                WriteLog("ERROR", args);
+            }
+
+            public void Clear()
+            {
+                if (_richTextBox.InvokeRequired)
+                {
+                    _richTextBox.Invoke(() => _richTextBox.Clear());
+                }
+                else
+                {
+                    _richTextBox.Clear();
+                }
+
+                // Dosyayı da temizle
+                _fileSink?.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    _fileSink?.Dispose();
+                }
+            }
+
+            private void WriteLog(string level, params object[] args)
+            {
+                if (args == null || args.Length == 0)
+                    return;
+
+                lock (_lockObject)
+                {
+                    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    var message = string.Join(" ", args);
+                    var logLine = $"[{timestamp}] [{level}] {message}";
+
+                    // RichTextBox'a yaz
+                    if (_richTextBox.InvokeRequired)
+                    {
+                        _richTextBox.Invoke(() =>
+                        {
+                            _richTextBox.AppendText(logLine + Environment.NewLine);
+                            _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                            _richTextBox.ScrollToCaret();
+                        });
+                    }
+                    else
+                    {
+                        _richTextBox.AppendText(logLine + Environment.NewLine);
+                        _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                        _richTextBox.ScrollToCaret();
+                    }
+
+                    // Dosyaya yaz
+                    if (!_isDisposed && _fileSink != null)
+                    {
+                        var logLevel = level switch
+                        {
+                            "WARNING" => LogLevel.Warning,
+                            "ERROR" => LogLevel.Error,
+                            _ => LogLevel.Info
+                        };
+
+                        var logEntry = new LogEntry(logLevel, message, "MultipleTrader");
+                        _fileSink.Write(logEntry);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// SingleTrader tab için local logger'ı başlat (sadece ilk kez)
         /// </summary>
         private void InitializeSingleTraderLogger()
@@ -610,6 +718,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             {
                 _singleTraderLogger.Clear();
                 _singleTraderLogger.Log("=== SingleTrader Logger Cleared ===");
+            }
+        }
+
+        /// <summary>
+        /// MultipleTrader tab için local logger'ı başlat (sadece ilk kez)
+        /// </summary>
+        private void InitializeMultipleTraderLogger()
+        {
+            if (_multipleTraderLogger == null)
+            {
+                _multipleTraderLogger = new MultipleTraderLogger(richTextBoxMultipleTrader);
+                _multipleTraderLogger.Log("=== MultipleTrader Logger Initialized ===");
+            }
+            else
+            {
+                _multipleTraderLogger.Clear();
+                _multipleTraderLogger.Log("=== MultipleTrader Logger Cleared ===");
             }
         }
 
@@ -750,14 +875,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         // ====================================================================
         // ALGOTRADER - BUTTON EVENT HANDLERS
         // ====================================================================
-
-        /// <summary>
-        /// AlgoTrader test butonu click event (ASYNC VERSION)
-        /// </summary>
-        private async void btnTestAlgoTrader_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private async void btnStartSingleTrader_Click(object sender, EventArgs e)
         {
@@ -961,11 +1078,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         {
             // Disable button during execution
             btnStartMultipleTrader.Enabled = false;
+            btnStopMultipleTrader.Enabled = true;
 
             try
             {
                 // Null check - objeler oluşturulmuş mu?
-                if (_singleTraderLogger == null || algoTrader == null)
+                if (_multipleTraderLogger == null || algoTrader == null)
                 {
                     MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -973,43 +1091,43 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
 
                 // Logger'ı temizle veya oluştur
-                InitializeSingleTraderLogger();
+                InitializeMultipleTraderLogger();
 
                 // AlgoTrader zaten initialize edilmişse reset et
                 if (algoTrader.IsInitialized)
                 {
-                    _singleTraderLogger.Log("Resetting existing AlgoTrader...");
+                    _multipleTraderLogger.Log("Resetting existing AlgoTrader...");
                     algoTrader.Reset();
                 }
 
                 // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
-                algoTrader.RegisterLogger(_singleTraderLogger);
+                algoTrader.RegisterLogger(_multipleTraderLogger);
 
-                _singleTraderLogger.Log("=== AlgoTrader Test Started ===");
+                _multipleTraderLogger.Log("=== AlgoTrader Test Started ===");
 
                 // Stock data kontrolü
                 if (stockDataList == null || stockDataList.Count == 0)
                 {
-                    _singleTraderLogger.LogWarning("Stock data yüklü değil!");
+                    _multipleTraderLogger.LogWarning("Stock data yüklü değil!");
                     MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
-                _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
+                _multipleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
 
                 // Initialize with stock data
                 algoTrader.Initialize(stockDataList);
 
                 if (algoTrader.IsInitialized)
                 {
-                    _singleTraderLogger.Log("AlgoTrader initialized with stock data.");
-                    _singleTraderLogger.Log(algoTrader.GetDataInfo());
-                    _singleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
+                    _multipleTraderLogger.Log("AlgoTrader initialized with stock data.");
+                    _multipleTraderLogger.Log(algoTrader.GetDataInfo());
+                    _multipleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
                 }
                 else
                 {
-                    _singleTraderLogger.LogError("AlgoTrader initialization failed!");
+                    _multipleTraderLogger.LogError("AlgoTrader initialization failed!");
                     MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
@@ -1023,55 +1141,80 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     {
                         UpdateUIControl(() =>
                         {
-                            if (progressBarSingleTrader != null)
+                            if (progressBarMultipleTrader != null)
                             {
-                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                                progressBarMultipleTrader.Value = (int)progressInfo.PercentComplete;
                             }
 
-                            if (lblSingleTraderProgress != null)
+                            if (label5 != null)
                             {
-                                // Programı kilitledigi icin simdilik kapalı
-                                //lblSingleTraderProgress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
-                                //lblSingleTraderProgress.Refresh(); // Force immediate redraw for fast updates
+                                label5.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
                             }
                         });
                     }
                     catch (Exception ex)
                     {
-                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
+                        _multipleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
                     }
                 });
 
                 // Run MultipleTrader with progress (ASYNC)
                 await algoTrader.RunMultipleTraderWithProgressAsync(progress);
 
-                if (lblSingleTraderProgress != null)
+                if (label5 != null)
                 {
-                    //lblSingleTraderProgress.Text = "Backtest completed!";
+                    label5.Text = "Backtest completed!";
                 }
 
                 //MessageBox.Show("Backtest tamamlandı!", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
-                _singleTraderLogger?.LogError("AlgoTrader test hatası:", ex.Message, ex.StackTrace);
+                _multipleTraderLogger?.LogError("AlgoTrader test hatası:", ex.Message, ex.StackTrace);
                 MessageBox.Show($"Hata: {ex.Message}", "Hata",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                if (lblSingleTraderProgress != null)
+                if (label5 != null)
                 {
-                    lblSingleTraderProgress.Text = "Error occurred";
+                    label5.Text = "Error occurred";
                 }
             }
             finally
             {
                 // Re-enable button
                 btnStartMultipleTrader.Enabled = true;
+                btnStopMultipleTrader.Enabled = false;
             }
         }
         private void btnStopMultipleTrader_Click(object sender, EventArgs e)
         {
+            // Run stop logic in background to avoid logger deadlock
+            Task.Run(() =>
+            {
+                _multipleTraderLogger?.Log("Stop button clicked - requesting MultipleTrader stop...");
 
+                // Stop MultipleTrader if running
+                if (algoTrader?.multipleTrader != null)
+                {
+                    if (algoTrader.multipleTrader.IsRunning)
+                    {
+                        algoTrader.multipleTrader.Stop();
+                        _multipleTraderLogger?.Log("Stop request sent to MultipleTrader");
+                    }
+                    else
+                    {
+                        _multipleTraderLogger?.LogWarning("MultipleTrader is not running");
+                    }
+                }
+                else
+                {
+                    _multipleTraderLogger?.LogWarning("MultipleTrader instance not found");
+                }
+            });
+
+            // Disable stop button, enable start button (UI thread)
+            btnStopMultipleTrader.Enabled = false;
+            btnStartMultipleTrader.Enabled = true;
         }
 
         private async void btnStartSingleTraderOpt_Click(object sender, EventArgs e)

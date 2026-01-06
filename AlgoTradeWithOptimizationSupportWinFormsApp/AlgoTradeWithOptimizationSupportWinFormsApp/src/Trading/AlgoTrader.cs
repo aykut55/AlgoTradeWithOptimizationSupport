@@ -888,6 +888,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             if (indicators == null)
                 return;
 
+            // ============================================================
+            // STRATEGY CONFIGURATION - Change this section for different strategies
+            // ============================================================
+
+
+            // ============================================================
+            // END STRATEGY CONFIGURATION
+            // ============================================================
 
             // *****************************************************************************
             // *****************************************************************************
@@ -921,8 +929,33 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             mainTrader.Init();
 
             {
-                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
-                strategy.OnInit();
+                // ============================================================
+                // STRATEGY CONFIGURATION - Change this section for different strategies
+                // ============================================================
+
+                StrategyFactoryMethod = null;
+
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                var StrategyParams = new Dictionary<string, object>
+                {
+                    { "fastPeriod", 10 },
+                    { "slowPeriod", 20 }
+                };
+
+                //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                    int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                    return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
+                });
+
+                //var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                //strategy.OnInit();
+
+                // ============================================================
+                // END STRATEGY CONFIGURATION
+                // ============================================================
 
                 var singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
 
@@ -931,6 +964,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                 singleTrader.CreateModules();
 
+                // Validate StrategyFactory is set
+                if (StrategyFactoryMethod == null)
+                    throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
+
+                // Create strategy instance using factory (generic!)
+                var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+                strategy.OnInit();
+
+                // Assign strategy
                 singleTrader.SetStrategy(strategy);
 
                 singleTrader.Reset();
@@ -952,8 +994,32 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 multipleTrader.AddTrader(singleTrader);
             }
             {
-                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
-                strategy.OnInit();
+                // ============================================================
+                // STRATEGY CONFIGURATION - Change this section for different strategies
+                // ============================================================
+
+                StrategyFactoryMethod = null;
+
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                var StrategyParams = new Dictionary<string, object>
+                {
+                    { "fastPeriod", 10 },
+                    { "slowPeriod", 20 }
+                };
+
+                //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                    int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                    return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
+                });
+
+                //var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                //strategy.OnInit();
+
+                // ============================================================
+                // END STRATEGY CONFIGURATION
 
                 var singleTrader = new SingleTrader(1, "singleTrader", this.Data, indicators, Logger);
 
@@ -962,6 +1028,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                 singleTrader.CreateModules();
 
+                // Validate StrategyFactory is set
+                if (StrategyFactoryMethod == null)
+                    throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
+
+                // Create strategy instance using factory (generic!)
+                var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+                strategy.OnInit();
+
+                // Assign strategy
                 singleTrader.SetStrategy(strategy);
 
                 singleTrader.Reset();
@@ -983,8 +1058,32 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 multipleTrader.AddTrader(singleTrader);
             }
             {
-                var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
-                strategy.OnInit();
+                // ============================================================
+                // STRATEGY CONFIGURATION - Change this section for different strategies
+                // ============================================================
+
+                StrategyFactoryMethod = null;
+
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                var StrategyParams = new Dictionary<string, object>
+                {
+                    { "fastPeriod", 10 },
+                    { "slowPeriod", 20 }
+                };
+
+                //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                    int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                    return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
+                });
+
+                //var strategy = new SimpleMAStrategy(this.Data, indicators, fastPeriod: 10, slowPeriod: 20);
+                //strategy.OnInit();
+
+                // ============================================================
+                // END STRATEGY CONFIGURATION
 
                 var singleTrader = new SingleTrader(2, "singleTrader", this.Data, indicators, Logger);
 
@@ -993,6 +1092,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                 singleTrader.CreateModules();
 
+                // Validate StrategyFactory is set
+                if (StrategyFactoryMethod == null)
+                    throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
+
+                // Create strategy instance using factory (generic!)
+                var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+                strategy.OnInit();
+
+                // Assign strategy
                 singleTrader.SetStrategy(strategy);
 
                 singleTrader.Reset();
@@ -1029,10 +1137,24 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             this.timeManager.ResetTimer("2");
             this.timeManager.StartTimer("2");
+
             await Task.Run(() =>
             {
+                // Set state flags
+                multipleTrader.IsStarted = true;
+                multipleTrader.IsRunning = true;
+                multipleTrader.IsStopped = false;
+                multipleTrader.IsStopRequested = false;
+
                 for (int i = 0; i < totalBars; i++)
                 {
+                    // Check if stop is requested
+                    if (multipleTrader.IsStopRequested)
+                    {
+                        Log($"MultipleTrader stopped by user request at bar {i}/{totalBars}");
+                        break;
+                    }
+
                     multipleTrader.Run(i);
 
                     // Report progress every 10 bars or on last bar (more frequent updates)
@@ -1070,7 +1192,12 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
-            multipleTrader.Finalize();
+
+            if (multipleTrader.IsStopRequested)
+                multipleTrader.Finalize(false);
+            else
+                multipleTrader.Finalize(true);
+
             this.timeManager.StopTimer("3");
 
             Log("");
@@ -1086,6 +1213,11 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("");
 
             Log("Multiple Trader demo completed (Async)");
+
+            // Update state flags
+            multipleTrader.IsRunning = false;
+            multipleTrader.IsStopped = true;
+            Log($"MultipleTrader finished - IsRunning: {multipleTrader.IsRunning}, IsStopped: {multipleTrader.IsStopped}");
 
             //multipleTrader.Dispose();
             multipleTrader = null;

@@ -1767,5 +1767,10 @@ Format           : ";
                 );
             }
         }
+
+        private void btnTestAlgoTrader_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }
