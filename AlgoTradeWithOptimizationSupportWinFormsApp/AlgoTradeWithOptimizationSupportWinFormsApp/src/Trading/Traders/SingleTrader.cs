@@ -544,8 +544,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.PasGecEnabled = true;
             this.signals.KarAlEnabled = true;
             this.signals.ZararKesEnabled = true;
-            this.signals.GunSonuPozKapatEnabled = true; // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
-            this.signals.TimeFilteringEnabled = true;   // DEFAULT = False, Ek maliyet getirir : 
+            this.signals.GunSonuPozKapatEnabled = false; // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
+            this.signals.TimeFilteringEnabled = false;   // DEFAULT = False, Ek maliyet getirir : 
 
             return this;
         }
@@ -672,9 +672,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             {
                 this.signals.PozAcilabilir = true;
                 this.signals.PozAcildi = false;
-
-                this.signals.IsTradeEnabled = true;
             }
+
+            this.signals.IsTradeEnabled = true;
         }
         public void emirleri_setle(int i, TradeSignals signal)
         {

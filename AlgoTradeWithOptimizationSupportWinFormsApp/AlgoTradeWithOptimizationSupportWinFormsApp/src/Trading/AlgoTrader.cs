@@ -685,7 +685,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             var StrategyParams = new Dictionary<string, object>
             {
                 { "period", 21 },
-                { "percent", 1.0 }
+                { "percent", 0.5 }
             };
 
             //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
