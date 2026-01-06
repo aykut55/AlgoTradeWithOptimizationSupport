@@ -2912,8 +2912,16 @@ class DataPlotterImgBundleNew:
             try:
                 ratios = [max(0.01, float(self.panels[idx].height_ratio)) for idx in sorted_indices]
                 total = sum(ratios)
-                row_col_ratios = [r/total for r in ratios] if total > 0 else None
-            except Exception:
+                row_ratios_list = [r/total for r in ratios] if total > 0 else None
+
+                # Create SubplotsRowColRatios object if ratios are available
+                if row_ratios_list is not None:
+                    row_col_ratios = implot.SubplotsRowColRatios()
+                    row_col_ratios.set_row_ratios(row_ratios_list)
+                else:
+                    row_col_ratios = None
+            except Exception as e:
+                print(f"[DEBUG] Failed to create row_col_ratios: {e}")
                 row_col_ratios = None
 
             # FitToScreen calculation (if pending)
@@ -2921,7 +2929,7 @@ class DataPlotterImgBundleNew:
                 # Will compute after subplot begins
                 pass
 
-            if implot.begin_subplots("##subplots", num_panels, 1, size, flags_int, None):  # row_col_ratios disabled
+            if implot.begin_subplots("##subplots", num_panels, 1, size, flags_int, row_col_ratios):  # row_col_ratios enabled
                 # FitToScreen calculation (inside subplot context)
                 if hasattr(static, "pending_fit") and static.pending_fit:
                     plot_width = plot_width_pixels
