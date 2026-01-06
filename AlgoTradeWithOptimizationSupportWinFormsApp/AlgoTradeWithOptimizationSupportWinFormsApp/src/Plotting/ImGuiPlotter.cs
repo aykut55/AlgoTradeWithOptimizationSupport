@@ -23,6 +23,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
         private readonly string _pythonDllPath;
         private readonly string _scriptDirectory;
 
+        // Global Python initialization state (singleton pattern)
+        private static bool _globalPythonInitialized = false;
+        private static readonly object _pythonInitLock = new object();
+
         public ImGuiPlotter(string pythonDllPath = null, string scriptDirectory = null)
         {
             _pythonDllPath = pythonDllPath ?? FindPythonDll();
@@ -67,61 +71,78 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
 
         private void InitializePython()
         {
+            // Check local instance state first (fast path)
             if (_isInitialized) return;
 
-            try
+            // Thread-safe global initialization (only once per application lifetime)
+            lock (_pythonInitLock)
             {
-                if (!File.Exists(_pythonDllPath))
+                // Double-check pattern: another thread might have initialized while we were waiting
+                if (_globalPythonInitialized)
                 {
-                    throw new FileNotFoundException($"Python DLL bulunamadı: {_pythonDllPath}");
+                    _isInitialized = true;
+                    return;
                 }
 
-                if (!Directory.Exists(_scriptDirectory))
+                try
                 {
-                    Directory.CreateDirectory(_scriptDirectory);
-                }
-
-                Runtime.PythonDLL = _pythonDllPath;
-                PythonEngine.Initialize();
-                PythonEngine.BeginAllowThreads();
-
-                // AlgoTradeWithPythonWithGemini projesinin venv'ini kullan (eğer varsa)
-                using (Py.GIL())
-                {
-                    dynamic sys = Py.Import("sys");
-
-                    // 1. Venv site-packages yolu ekle
-                    string[] venvPaths = new[]
+                    if (!File.Exists(_pythonDllPath))
                     {
-                        @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\venv\Lib\site-packages",
-                        @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\.venv\Lib\site-packages",
-                        @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\Aykut\venv\Lib\site-packages",
-                    };
+                        throw new FileNotFoundException($"Python DLL bulunamadı: {_pythonDllPath}");
+                    }
 
-                    foreach (var venvPath in venvPaths)
+                    if (!Directory.Exists(_scriptDirectory))
                     {
-                        if (Directory.Exists(venvPath))
+                        Directory.CreateDirectory(_scriptDirectory);
+                    }
+
+                    // Initialize Python engine ONLY ONCE per application lifetime
+                    Runtime.PythonDLL = _pythonDllPath;
+                    PythonEngine.Initialize();
+                    PythonEngine.BeginAllowThreads();
+
+                    // AlgoTradeWithPythonWithGemini projesinin venv'ini kullan (eğer varsa)
+                    using (Py.GIL())
+                    {
+                        dynamic sys = Py.Import("sys");
+
+                        // 1. Venv site-packages yolu ekle
+                        string[] venvPaths = new[]
                         {
-                            sys.path.insert(0, venvPath);
-                            System.Diagnostics.Debug.WriteLine($"✓ Venv site-packages eklendi: {venvPath}");
-                            break;
+                            @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\venv\Lib\site-packages",
+                            @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\.venv\Lib\site-packages",
+                            @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\Aykut\venv\Lib\site-packages",
+                        };
+
+                        foreach (var venvPath in venvPaths)
+                        {
+                            if (Directory.Exists(venvPath))
+                            {
+                                sys.path.insert(0, venvPath);
+                                System.Diagnostics.Debug.WriteLine($"✓ Venv site-packages eklendi: {venvPath}");
+                                break;
+                            }
+                        }
+
+                        // 2. AlgoTradeWithPythonWithGemini/src yolu ekle (DataPlotterImgBundle.py için)
+                        string srcPath = @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\src";
+                        if (Directory.Exists(srcPath))
+                        {
+                            sys.path.insert(0, srcPath);
+                            System.Diagnostics.Debug.WriteLine($"✓ AlgoTradeWithPythonWithGemini/src eklendi: {srcPath}");
                         }
                     }
 
-                    // 2. AlgoTradeWithPythonWithGemini/src yolu ekle (DataPlotterImgBundle.py için)
-                    string srcPath = @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\src";
-                    if (Directory.Exists(srcPath))
-                    {
-                        sys.path.insert(0, srcPath);
-                        System.Diagnostics.Debug.WriteLine($"✓ AlgoTradeWithPythonWithGemini/src eklendi: {srcPath}");
-                    }
-                }
+                    // Mark as globally initialized
+                    _globalPythonInitialized = true;
+                    _isInitialized = true;
 
-                _isInitialized = true;
-            }
-            catch (Exception ex)
-            {
-                throw new Exception($"Python initialization failed: {ex.Message}", ex);
+                    System.Diagnostics.Debug.WriteLine("✓ Python Engine initialized successfully (global singleton)");
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Python initialization failed: {ex.Message}", ex);
+                }
             }
         }
 
@@ -299,17 +320,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
 
         public void Dispose()
         {
+            // IMPORTANT: Do NOT call PythonEngine.Shutdown() here!
+            // Python engine is managed as a singleton and should remain initialized
+            // for the application lifetime. Multiple ImGuiPlotter instances can be created
+            // and disposed, but the Python engine should only be initialized once.
+
+            // Simply mark this instance as disposed
             if (_isInitialized)
             {
-                try
-                {
-                    PythonEngine.Shutdown();
-                }
-                catch
-                {
-                    // Ignore shutdown errors
-                }
                 _isInitialized = false;
+                System.Diagnostics.Debug.WriteLine("ImGuiPlotter instance disposed (Python engine remains active)");
             }
         }
     }

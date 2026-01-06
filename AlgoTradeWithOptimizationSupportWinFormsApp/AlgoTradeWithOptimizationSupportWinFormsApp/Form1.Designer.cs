@@ -1080,6 +1080,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             txtFilterValue2.Name = "txtFilterValue2";
             txtFilterValue2.Size = new Size(100, 23);
             txtFilterValue2.TabIndex = 9;
+            txtFilterValue2.Text = "100000";
             // 
             // lblFilterValue2
             // 
@@ -1096,6 +1097,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             txtFilterValue1.Name = "txtFilterValue1";
             txtFilterValue1.Size = new Size(100, 23);
             txtFilterValue1.TabIndex = 7;
+            txtFilterValue1.Text = "100000";
             // 
             // lblFilterValue1
             // 

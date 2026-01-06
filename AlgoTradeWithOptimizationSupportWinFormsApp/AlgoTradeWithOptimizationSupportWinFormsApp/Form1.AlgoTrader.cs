@@ -860,32 +860,37 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     _singleTraderLogger.Log("Çizim için Python çağrılıyor...");
 
                     // Kullanıcıya grafik çizdirme seçeneği sun
+                    string msg = "Backtest tamamlandı!\n\n" +
+                                 "ImGui/ImPlot ile 5 panelli interaktif grafik çizdirmek ister misiniz?\n\n" +
+                                 "Paneller:\n" +
+                                 "  • Panel 0: OHLC Candlestick (Price Chart)\n" +
+                                 "  • Panel 1: Trade Signals (-1/0/+1)\n" +
+                                 "  • Panel 2: PnL (Kar/Zarar)\n" +
+                                 "  • Panel 3: Balance (Brüt/Net Getiri)\n" +
+                                 "  • Panel 4: Volume\n\n" +
+                                 "NOT: pip install imgui-bundle gereklidir";
+                    _singleTraderLogger.Log("\n" + msg + "\n");
+                    /*
                     var result = MessageBox.Show(
-                        "Backtest tamamlandı!\n\n" +
-                        "ImGui/ImPlot ile 5 panelli interaktif grafik çizdirmek ister misiniz?\n\n" +
-                        "Paneller:\n" +
-                        "  • Panel 0: OHLC Candlestick (Price Chart)\n" +
-                        "  • Panel 1: Trade Signals (-1/0/+1)\n" +
-                        "  • Panel 2: PnL (Kar/Zarar)\n" +
-                        "  • Panel 3: Balance (Brüt/Net Getiri)\n" +
-                        "  • Panel 4: Volume\n\n" +
-                        "NOT: pip install imgui-bundle gereklidir",
-                        "ImGui Grafik Çizdirme",
-                        MessageBoxButtons.YesNo,
-                        MessageBoxIcon.Question
+                       msg,
+                       "ImGui Grafik Çizdirme",
+                       MessageBoxButtons.YesNo,
+                       MessageBoxIcon.Question
                     );
 
                     if (result == DialogResult.Yes)
                     {
                         // Task.Run ile UI bloğunu önle
-                        await Task.Run(() =>
-                        {
-                            // ImGui/ImPlot ile 5 panelli grafik
-                            algoTrader.PlotImGuiBundle();
-                        });
-
-                        _singleTraderLogger.Log("✓ ImGui grafik başarıyla çizdirildi!");
                     }
+                    */
+                    // Task.Run ile UI bloğunu önle
+                    await Task.Run(() =>
+                    {
+                        // ImGui/ImPlot ile 5 panelli grafik
+                        algoTrader.PlotImGuiBundle();
+                    });
+
+                    _singleTraderLogger.Log("✓ ImGui grafik başarıyla çizdirildi!");
                 }
                 catch (Exception plotEx)
                 {

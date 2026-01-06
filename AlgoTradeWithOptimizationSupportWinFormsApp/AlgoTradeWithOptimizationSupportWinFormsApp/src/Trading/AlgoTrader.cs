@@ -466,7 +466,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 // 1 id'li trader icin
             }
 
-            var dateTimes = new string[] { "2025.05.25 14:30:00", "2025.06.02 14:00:00" };
+            var dateTimes = new string[] { "2025.05.25 09:35:00", "2025.06.02 17:55:00" };
 
             trader.StartDateTimeStr = dateTimes[0];
             trader.StopDateTimeStr  = dateTimes[1];
