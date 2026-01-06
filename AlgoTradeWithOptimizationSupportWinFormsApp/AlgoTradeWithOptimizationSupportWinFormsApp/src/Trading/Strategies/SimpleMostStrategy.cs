@@ -108,40 +108,47 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             double currentExmov = _exmov[currentIndex];
             double prevExmov = _exmov[currentIndex - 1];
 
-            // MOST AL Sinyali: Fiyat MOST'u yukarı kırıyor (trend değişimi: düşüşten yükselişe)
-            // Önceki bar: fiyat <= MOST
-            // Şimdiki bar: fiyat > MOST
-            if (prevPrice <= prevMost && currentPrice > currentMost)
+            // ************************************************************************************************************************
+            int choice = 1;     // 0 : Fiyat MOST kırılımı, 1 : EXMOV-MOST kesişimi
+            if (choice == 0)
             {
-                //buy = true;
-            }
+                // MOST AL Sinyali: Fiyat MOST'u yukarı kırıyor (trend değişimi: düşüşten yükselişe)
+                // Önceki bar: fiyat <= MOST
+                // Şimdiki bar: fiyat > MOST
+                if (prevPrice <= prevMost && currentPrice > currentMost)
+                {
+                    //buy = true;
+                }
 
-            // MOST SAT Sinyali: Fiyat MOST'u aşağı kırıyor (trend değişimi: yükselişten düşüşe)
-            // Önceki bar: fiyat >= MOST
-            // Şimdiki bar: fiyat < MOST
-            if (prevPrice >= prevMost && currentPrice < currentMost)
+                // MOST SAT Sinyali: Fiyat MOST'u aşağı kırıyor (trend değişimi: yükselişten düşüşe)
+                // Önceki bar: fiyat >= MOST
+                // Şimdiki bar: fiyat < MOST
+                if (prevPrice >= prevMost && currentPrice < currentMost)
+                {
+                    //sell = true;
+                }
+            }
+            else
             {
-                //sell = true;
-            }
+                // ExMov, MOST çizgisini yukarı kestiğinde BUY
+                // (EXMOV alttan yukarı doğru MOST'u geçer: MOST üstte → EXMOV üstte)
+                // Önceki bar: MOST >= EXMOV
+                // Şimdiki bar: MOST < EXMOV
+                if (prevMost >= prevExmov && currentMost < currentExmov)
+                {
+                    buy = true;
+                }
 
-
-            // ExMov, MOST çizgisini yukarı kestiğinde BUY
-            // (EXMOV alttan yukarı doğru MOST'u geçer: MOST üstte → EXMOV üstte)
-            // Önceki bar: MOST >= EXMOV
-            // Şimdiki bar: MOST < EXMOV
-            if (prevMost >= prevExmov && currentMost < currentExmov)
-            {
-                buy = true;
+                // ExMov, MOST çizgisini aşağı kestiğinde SELL
+                // (EXMOV üstten aşağı doğru MOST'u geçer: EXMOV üstte → MOST üstte)
+                // Önceki bar: MOST <= EXMOV
+                // Şimdiki bar: MOST > EXMOV
+                if (prevMost <= prevExmov && currentMost > currentExmov)
+                {
+                    sell = true;
+                }
             }
-
-            // ExMov, MOST çizgisini aşağı kestiğinde SELL
-            // (EXMOV üstten aşağı doğru MOST'u geçer: EXMOV üstte → MOST üstte)
-            // Önceki bar: MOST <= EXMOV
-            // Şimdiki bar: MOST > EXMOV
-            if (prevMost <= prevExmov && currentMost > currentExmov)
-            {
-                sell = true;
-            }
+            // ************************************************************************************************************************
 
             // ÖRNEK: Trader referansını kullanarak kar al / zarar kes hesaplama
             // Trader property'si BaseStrategy.SetTrader() ile otomatik set edilir
@@ -154,6 +161,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             {
                 stopLoss = Trader.karAlZararKes.SonFiyataGoreZararKesSeviyeHesaplaSeviyeli(currentIndex, -1, -10, 1000) != 0;
             }
+            // ************************************************************************************************************************
+
 
             // ************************************************************************************************************************
             // ************************************************************************************************************************
