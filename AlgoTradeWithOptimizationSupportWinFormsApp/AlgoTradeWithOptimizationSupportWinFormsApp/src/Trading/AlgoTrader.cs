@@ -903,6 +903,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             multipleTrader = new MultipleTrader(0, this.Data, indicators, Logger);
 
             multipleTrader.Reset();
+
             var mainTrader = multipleTrader.GetMainTrader();
             // Assign callbacks
             mainTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
@@ -925,7 +926,6 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 mainTrader.pozisyonBuyuklugu.MaxPositionSizeEnabled = true;     // false -> Sınırsız
                 mainTrader.pozisyonBuyuklugu.MaxPositionSize = 10.0;            // Max 10 lot
             }
-
             mainTrader.Init();
 
             {
