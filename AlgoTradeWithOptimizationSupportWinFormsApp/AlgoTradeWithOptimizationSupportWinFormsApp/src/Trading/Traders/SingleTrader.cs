@@ -511,41 +511,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
                 throw new ArgumentException("Data cannot be null or empty");
 
             // First All Reset
-            this.signals.AlEnabled = false;
-            this.signals.SatEnabled = false;
-            this.signals.FlatOlEnabled = false;
-            this.signals.PasGecEnabled = false;
-            this.signals.KarAlEnabled = false;
-            this.signals.ZararKesEnabled = false;
-            this.signals.Alindi = false;
-            this.signals.Satildi = false;
-            this.signals.FlatOlundu = false;
-            this.signals.PasGecildi = false;
-            this.signals.KarAlindi = false;
-            this.signals.ZararKesildi = false;
-            this.signals.PozAcilabilir = false;
-            this.signals.PozAcildi = false;
-            this.signals.PozKapatilabilir = false;
-            this.signals.PozKapatildi = false;
-            this.signals.PozAcilabilirAlis = false;
-            this.signals.PozAcilabilirSatis = false;
-            this.signals.PozAcildiAlis = false;
-            this.signals.PozAcildiSatis = false;
+            this.signals.AlEnabled              = false;
+            this.signals.SatEnabled             = false;
+            this.signals.FlatOlEnabled          = false;
+            this.signals.PasGecEnabled          = false;
+            this.signals.KarAlEnabled           = false;
+            this.signals.ZararKesEnabled        = false;
+            this.signals.Alindi                 = false;
+            this.signals.Satildi                = false;
+            this.signals.FlatOlundu             = false;
+            this.signals.PasGecildi             = false;
+            this.signals.KarAlindi              = false;
+            this.signals.ZararKesildi           = false;
+            this.signals.PozAcilabilir          = false;
+            this.signals.PozAcildi              = false;
+            this.signals.PozKapatilabilir       = false;
+            this.signals.PozKapatildi           = false;
+            this.signals.PozAcilabilirAlis      = false;
+            this.signals.PozAcilabilirSatis     = false;
+            this.signals.PozAcildiAlis          = false;
+            this.signals.PozAcildiSatis         = false;
             this.signals.GunSonuPozKapatEnabled = false;
-            this.signals.GunSonuPozKapatildi = false;
-            this.signals.TimeFilteringEnabled = false;
-            this.signals.IsTradeEnabled = false;
-            this.signals.IsPozKapatEnabled = false;
+            this.signals.GunSonuPozKapatildi    = false;
+            this.signals.TimeFilteringEnabled   = false;
+            this.signals.IsTradeEnabled         = false;
+            this.signals.IsPozKapatEnabled      = false;
 
             // Then Needed Set
-            this.signals.AlEnabled = true;
-            this.signals.SatEnabled = true;
-            this.signals.FlatOlEnabled = true;
-            this.signals.PasGecEnabled = true;
-            this.signals.KarAlEnabled = true;
-            this.signals.ZararKesEnabled = true;
+            this.signals.AlEnabled              = true;
+            this.signals.SatEnabled             = true;
+            this.signals.FlatOlEnabled          = true;
+            this.signals.PasGecEnabled          = false;
+            this.signals.KarAlEnabled           = false;
+            this.signals.ZararKesEnabled        = false;
             this.signals.GunSonuPozKapatEnabled = false; // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
-            this.signals.TimeFilteringEnabled = false;   // DEFAULT = False, Ek maliyet getirir : 
+            this.signals.TimeFilteringEnabled   = false; // DEFAULT = False, Ek maliyet getirir : 
 
             return this;
         }
