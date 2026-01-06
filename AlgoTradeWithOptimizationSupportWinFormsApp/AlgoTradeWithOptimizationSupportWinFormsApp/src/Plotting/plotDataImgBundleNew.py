@@ -126,7 +126,7 @@ def plot_data_img_bundle_new(
         # Height ratios (AlgoTrader.py'den)
         # Panel 0: Price Chart (1.5 = %35), Panel 1: Signals (0.7 = %16),
         # Panel 2: PnL (0.7 = %16), Panel 3: Balance (0.7 = %16), Panel 4: Volume (1.0 = %23)
-        HeightRatioList = [1.5, 0.7, 0.7, 0.7, 1.0]
+        HeightRatioList = [1.5, 1.0, 1.5, 1.0, 1.0]
 
         # ==============================================================================
         # Panel 0: Price Chart (OHLC + Indicators)
