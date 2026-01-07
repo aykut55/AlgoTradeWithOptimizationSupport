@@ -1540,9 +1540,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // lblOptimizationResult
             // 
-            lblOptimizationResult.Location = new Point(155, 162);
+            lblOptimizationResult.Location = new Point(140, 162);
             lblOptimizationResult.Name = "lblOptimizationResult";
-            lblOptimizationResult.Size = new Size(1024, 15);
+            lblOptimizationResult.Size = new Size(1039, 15);
             lblOptimizationResult.TabIndex = 3;
             lblOptimizationResult.Text = "..........";
             // 

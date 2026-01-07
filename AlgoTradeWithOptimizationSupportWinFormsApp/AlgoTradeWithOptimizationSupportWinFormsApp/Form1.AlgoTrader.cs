@@ -213,6 +213,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (IsNumericColumn(header))
                         {
                             column.ValueType = typeof(double);
+
+                            // percent sütunu için özel format (2 ondalık basamak)
+                            if (header.Equals("percent", StringComparison.OrdinalIgnoreCase))
+                            {
+                                column.DefaultCellStyle.Format = "F2";
+                            }
                         }
                         else
                         {
@@ -401,6 +407,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (IsNumericColumn(header))
                         {
                             column.ValueType = typeof(double);
+
+                            // percent sütunu için özel format (2 ondalık basamak)
+                            if (header.Equals("percent", StringComparison.OrdinalIgnoreCase))
+                            {
+                                column.DefaultCellStyle.Format = "F2";
+                            }
                         }
                         else
                         {
@@ -1690,7 +1702,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             if (IsNumericColumn(headerName))
             {
                 if (double.TryParse(value, out double doubleVal))
+                {
+                    // percent sütunu için floating point precision sorununu çöz
+                    if (headerName.Equals("percent", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return Math.Round(doubleVal, 2);
+                    }
                     return doubleVal;
+                }
                 return value; // Parse edilemezse string olarak dön
             }
 
