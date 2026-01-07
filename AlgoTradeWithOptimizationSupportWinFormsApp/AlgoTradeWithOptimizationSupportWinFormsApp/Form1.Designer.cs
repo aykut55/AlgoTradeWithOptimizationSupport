@@ -1224,7 +1224,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnPlotSingleTraderData.Text = "Plot Single Trader Data";
             btnPlotSingleTraderData.UseVisualStyleBackColor = true;
             btnPlotSingleTraderData.Click += btnPlotSingleTraderData_Click;
-            //
+            // 
             // btnStopSingleTrader
             // 
             btnStopSingleTrader.Location = new Point(917, 103);
@@ -1314,7 +1314,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnPlotMultipleTraderData.Text = "Plot Multiple Trader Data";
             btnPlotMultipleTraderData.UseVisualStyleBackColor = true;
             btnPlotMultipleTraderData.Click += btnPlotMultipleTraderData_Click;
-            //
+            // 
             // btnStopMultipleTrader
             // 
             btnStopMultipleTrader.Location = new Point(917, 103);
@@ -1542,7 +1542,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             lblOptimizationResult.Location = new Point(155, 162);
             lblOptimizationResult.Name = "lblOptimizationResult";
-            lblOptimizationResult.Size = new Size(533, 15);
+            lblOptimizationResult.Size = new Size(1024, 15);
             lblOptimizationResult.TabIndex = 3;
             lblOptimizationResult.Text = "..........";
             // 

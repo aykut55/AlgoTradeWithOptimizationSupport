@@ -7,6 +7,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
 {
@@ -40,6 +41,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             // TODO 545 : Optimization results güncelleme callback'ini bağla
             algoTrader.OnOptimizationResultsUpdated = OnOptimizationResultsUpdated;
+            algoTrader.OnLastCombinationCompleted = OnLastCombinationCompleted;
 
             _singleTraderLogger.Log("=== AlgoTrader Objects Created ===");
             _multipleTraderLogger.Log("=== AlgoTrader Objects Created ===");
@@ -118,6 +120,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             System.IO.File.AppendAllText(debugFile, $"OnOptimizationResultsUpdated exiting\n");
             _singleTraderOptLogger?.Log($"[DEBUG] OnOptimizationResultsUpdated exiting");
+        }
+
+        /// <summary>
+        /// Son tamamlanan kombinasyonun bilgilerini lblOptimizationResult'a yazar
+        /// </summary>
+        private void OnLastCombinationCompleted(int currentCombination, OptimizationResult result)
+        {
+            // Thread-safe UI update
+            UpdateUIControl(() =>
+            {
+                try
+                {
+                    // Extract parameters
+                    double period = result.Parameters.ContainsKey("period") ? Convert.ToDouble(result.Parameters["period"]) : 0;
+                    double percent = result.Parameters.ContainsKey("percent") ? Convert.ToDouble(result.Parameters["percent"]) : 0;
+
+                    // Format label text
+                    string labelText = $"{currentCombination} ; " +
+                                      $"({period:F0},{percent:F2}) ; " +
+                                      $"{result.IlkBakiyeFiyat:F2} ; " +
+                                      $"{result.BakiyeFiyat:F2} ; " +
+                                      $"{result.GetiriFiyat:F2} ; " +
+                                      $"{result.GetiriFiyatYuzde:F2} ; " +
+                                      $"{result.KomisyonFiyat:F2} ; " +
+                                      $"{result.BakiyeFiyatNet:F2} ; " +
+                                      $"{result.GetiriFiyatNet:F2} ; " +
+                                      $"{result.GetiriFiyatYuzdeNet:F2} ";
+
+                    lblOptimizationResult.Text = labelText;
+                }
+                catch (Exception ex)
+                {
+                    _singleTraderOptLogger?.LogError($"Error updating lblOptimizationResult: {ex.Message}");
+                }
+            });
         }
 
         /// <summary>

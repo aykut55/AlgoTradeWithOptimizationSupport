@@ -84,6 +84,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
 
         // Optimization log file paths (for TODO 544)
         public Action<string, bool>? OnOptimizationResultsUpdated { get; set; }  // (filePath, useCsv)
+        public Action<int, OptimizationResult>? OnLastCombinationCompleted { get; set; }  // (currentCombination, result)
 
         // Optimization file type preference for reading (CSV or TXT)
         private bool _preferCsvForReading = false;  // Default: TXT
@@ -520,6 +521,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Form1 will read the file, sort it, and update the DataGridView
             bool useCsv = optimizationLogFilePath.EndsWith(".csv", StringComparison.OrdinalIgnoreCase);
             OnOptimizationResultsUpdated?.Invoke(optimizationLogFilePath, useCsv);
+
+            // Trigger callback to update lblOptimizationResult with last combination info
+            if (traderOptimizer != null && traderOptimizer.Results != null && traderOptimizer.Results.Count > 0)
+            {
+                var lastResult = traderOptimizer.Results[traderOptimizer.Results.Count - 1];
+                OnLastCombinationCompleted?.Invoke(currentCombination, lastResult);
+            }
         }
 
         /// <summary>
