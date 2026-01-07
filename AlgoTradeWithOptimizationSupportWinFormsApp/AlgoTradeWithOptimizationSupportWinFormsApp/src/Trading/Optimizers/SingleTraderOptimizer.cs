@@ -599,6 +599,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
                 // Reset
                 singleTrader.Reset();
+                /*
+                //Debug amacli yazdım...sonrasında silinecek
+                singleTrader.signals.AlEnabled = true;
+                singleTrader.signals.SatEnabled = true;
+                singleTrader.signals.FlatOlEnabled = true;
+                singleTrader.signals.PasGecEnabled = false;
+                singleTrader.signals.KarAlEnabled = false;
+                singleTrader.signals.ZararKesEnabled = false;
+                singleTrader.signals.GunSonuPozKapatEnabled = false;    // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
+                singleTrader.signals.TimeFilteringEnabled = false;      // DEFAULT = False, Ek maliyet getirir : 
+                */
 
                 // Configure position sizing
                 singleTrader.pozisyonBuyuklugu.Reset()

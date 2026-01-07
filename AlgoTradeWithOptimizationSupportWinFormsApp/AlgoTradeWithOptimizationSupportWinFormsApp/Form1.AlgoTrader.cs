@@ -145,8 +145,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                                       $"{result.GetiriFiyatYuzde:F2} ; " +
                                       $"{result.KomisyonFiyat:F2} ; " +
                                       $"{result.BakiyeFiyatNet:F2} ; " +
-                                      $"{result.GetiriFiyatNet:F2} ; " +
-                                      $"{result.GetiriFiyatYuzdeNet:F2} ";
+                                      $"NetGetiri : {result.GetiriFiyatNet:F2} ; " +
+                                      $"NetGetiri % : {result.GetiriFiyatYuzdeNet:F2} => " +
+                                      $"IslemSayisi : {result.IslemSayisi:F0} ; " +
+                                      $"ProfitFactor : {result.ProfitFactor:F2} ; " +
+                                      $"KarliIslemOrani : {result.KarliIslemOrani:F0} ";
 
                     lblOptimizationResult.Text = labelText;
                 }

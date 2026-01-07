@@ -117,7 +117,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 // Şimdiki bar: fiyat > MOST
                 if (prevPrice <= prevMost && currentPrice > currentMost)
                 {
-                    //buy = true;
+                    buy = true;
                 }
 
                 // MOST SAT Sinyali: Fiyat MOST'u aşağı kırıyor (trend değişimi: yükselişten düşüşe)
@@ -125,7 +125,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 // Şimdiki bar: fiyat < MOST
                 if (prevPrice >= prevMost && currentPrice < currentMost)
                 {
-                    //sell = true;
+                    sell = true;
                 }
             }
             else
