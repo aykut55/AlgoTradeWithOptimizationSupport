@@ -79,9 +79,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 cmbFilterMode.Items.Add(mode);
             }
 
+            cmbFilterMode.SelectedItem = StockDataReader.FilterMode.LastN;
+
             // Varsayılan olarak "All" seçili olsun
             cmbFilterMode.SelectedItem = StockDataReader.FilterMode.All;
-            cmbFilterMode.SelectedItem = StockDataReader.FilterMode.LastN;
 
             // ComboBox değiştiğinde ilgili kontrollerin görünürlüğünü ayarla
             cmbFilterMode.SelectedIndexChanged += CmbFilterMode_SelectedIndexChanged;

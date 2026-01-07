@@ -1186,7 +1186,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                                      "  • Panel 1: Trade Signals (-1/0/+1)\n" +
                                      "  • Panel 2: PnL (Kar/Zarar)\n" +
                                      "  • Panel 3: Balance (Brüt/Net Getiri)\n" +
-                                     "  • Panel 4: MOST & EXMOV Indicators\n\n" +
                                      "NOT: pip install imgui-bundle gereklidir";
                         _multipleTraderLogger.Log("\n" + msg + "\n");
 
