@@ -2423,9 +2423,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
         public void Dispose()
         {
-            // Cleanup
+            // Cleanup collections
             Results?.Clear();
             ParameterRanges?.Clear();
+
+            // Detach callbacks to prevent memory leaks
+            OnOptimizationProgress = null;
+            OnSingleTraderProgressCallback = null;
+            OnReadOptimizationResultsFile = null;
+            OnSaveResults = null;
         }
 
         #endregion

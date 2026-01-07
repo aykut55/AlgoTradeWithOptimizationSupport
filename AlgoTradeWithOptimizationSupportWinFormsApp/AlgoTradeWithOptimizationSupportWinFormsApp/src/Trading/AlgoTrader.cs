@@ -701,7 +701,18 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // ============================================================
 
             // *****************************************************************************
+            // CLEANUP PREVIOUS RUN (if exists) - Dispose old singleTrader before creating new one
+            // This allows plotting after run completes, while preventing memory leaks on subsequent runs
             // *****************************************************************************
+            if (singleTrader != null)
+            {
+                Log("Disposing previous singleTrader instance...");
+                singleTrader.Dispose();
+                singleTrader = null;
+            }
+
+            // *****************************************************************************
+            // CREATE NEW SINGLETRADER
             // *****************************************************************************
             singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
             if (singleTrader == null) return;
@@ -861,13 +872,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.IsStopped = true;
                 Log($"SingleTrader finished - IsRunning: {singleTrader.IsRunning}, IsStopped: {singleTrader.IsStopped}");
 
-                // Cleanup
-                singleTrader.Dispose();
+                // NOTE: Do NOT dispose here - singleTrader data is needed for plotting
+                // Disposal will happen at the start of next run (see cleanup section above)
+                // This allows user to re-plot the results anytime before next run
             });
 
-            // Tekrar Turlar(Optimizasyon için her parametre setinde)
-            // NOT: singleTrader = null; yapma - plotting için gerekli!
-            // singleTrader = null;
+            // NOTE: singleTrader object remains alive for plotting purposes
+            // It will be disposed automatically when next run starts
         }
 
         public async Task RunMultipleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
@@ -898,7 +909,18 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // ============================================================
 
             // *****************************************************************************
+            // CLEANUP PREVIOUS RUN (if exists) - Dispose old multipleTrader before creating new one
+            // This allows plotting after run completes, while preventing memory leaks on subsequent runs
             // *****************************************************************************
+            if (multipleTrader != null)
+            {
+                Log("Disposing previous multipleTrader instance...");
+                multipleTrader.Dispose();
+                multipleTrader = null;
+            }
+
+            // *****************************************************************************
+            // CREATE NEW MULTIPLETRADER
             // *****************************************************************************
             multipleTrader = new MultipleTrader(0, this.Data, indicators, Logger);
 
@@ -1219,9 +1241,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             multipleTrader.IsStopped = true;
             Log($"MultipleTrader finished - IsRunning: {multipleTrader.IsRunning}, IsStopped: {multipleTrader.IsStopped}");
 
-            // Tekrar Turlar(Optimizasyon için her parametre setinde)
-            // NOT: multipleTrader = null; yapma - plotting için gerekli!
-            // multipleTrader = null;
+            // NOTE: Do NOT dispose here - multipleTrader data is needed for plotting
+            // Disposal will happen at the start of next run (see cleanup section above)
+            // This allows user to re-plot the results anytime before next run
         }
 
         public async Task RunSingleTraderOptWithProgressAsync(IProgress<BacktestProgressInfo> progressOpt = null, IProgress<BacktestProgressInfo> progressTrader = null)
@@ -1245,7 +1267,20 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 Log("IndicatorManager created");
             }
 
-            // Optimizer oluştur
+            // *****************************************************************************
+            // CLEANUP PREVIOUS RUN (if exists) - Dispose old optimizer before creating new one
+            // This allows plotting after run completes, while preventing memory leaks on subsequent runs
+            // *****************************************************************************
+            if (singleTraderOptimizer != null)
+            {
+                Log("Disposing previous singleTraderOptimizer instance...");
+                singleTraderOptimizer.Dispose();
+                singleTraderOptimizer = null;
+            }
+
+            // *****************************************************************************
+            // CREATE NEW OPTIMIZER
+            // *****************************************************************************
             singleTraderOptimizer = new SingleTraderOptimizer(0, this.Data, indicators, Logger);
             if (singleTraderOptimizer == null)
                 return;
@@ -1419,8 +1454,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("Optimization completed!");
             Log($"Total combinations tested: {singleTraderOptimizer.Results.Count}");
 
-            singleTraderOptimizer.Dispose();
-            singleTraderOptimizer = null;
+            // NOTE: Do NOT dispose here - optimizer data is needed for plotting and analysis
+            // Disposal will happen at the start of next run (see cleanup section above)
+            // This allows user to access optimization results anytime before next run
         }
 
         /// <summary>

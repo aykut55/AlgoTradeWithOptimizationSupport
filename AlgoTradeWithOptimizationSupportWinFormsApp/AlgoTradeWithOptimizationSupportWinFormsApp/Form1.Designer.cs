@@ -192,6 +192,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
+            btnPlotSingleTraderData = new Button();
+            btnPlotMultipleTraderData = new Button();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -1201,6 +1203,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel4
             // 
+            panel4.Controls.Add(btnPlotSingleTraderData);
             panel4.Controls.Add(btnStopSingleTrader);
             panel4.Controls.Add(btnStartSingleTrader);
             panel4.Controls.Add(progressBarSingleTrader);
@@ -1280,6 +1283,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel7
             // 
+            panel7.Controls.Add(btnPlotMultipleTraderData);
             panel7.Controls.Add(btnStopMultipleTrader);
             panel7.Controls.Add(btnStartMultipleTrader);
             panel7.Controls.Add(progressBarMultipleTrader);
@@ -1594,6 +1598,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             openFileDialog2.FileName = "openFileDialog1";
             // 
+            // btnPlotSingleTraderData
+            // 
+            btnPlotSingleTraderData.Location = new Point(780, 132);
+            btnPlotSingleTraderData.Name = "btnPlotSingleTraderData";
+            btnPlotSingleTraderData.Size = new Size(268, 23);
+            btnPlotSingleTraderData.TabIndex = 8;
+            btnPlotSingleTraderData.Text = "Plot Single Trader Data";
+            btnPlotSingleTraderData.UseVisualStyleBackColor = true;
+            // 
+            // btnPlotMultipleTraderData
+            // 
+            btnPlotMultipleTraderData.Location = new Point(780, 132);
+            btnPlotMultipleTraderData.Name = "btnPlotMultipleTraderData";
+            btnPlotMultipleTraderData.Size = new Size(268, 23);
+            btnPlotMultipleTraderData.TabIndex = 9;
+            btnPlotMultipleTraderData.Text = "Plot Multiple Trader Data";
+            btnPlotMultipleTraderData.UseVisualStyleBackColor = true;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -1817,5 +1839,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Label label5;
         private Button button6;
         private RichTextBox richTextBoxMultipleTrader;
+        private Button btnPlotSingleTraderData;
+        private Button btnPlotMultipleTraderData;
     }
 }
