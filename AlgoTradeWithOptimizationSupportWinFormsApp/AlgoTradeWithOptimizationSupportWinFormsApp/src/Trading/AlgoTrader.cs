@@ -300,6 +300,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("=== Running Single Trader Demo ===");
             Log($"Processing {Data.Count} bars...");
 
+            // Dispose old indicators before creating new one
+            if (indicators != null)
+            {
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
+            }
+
             indicators = new IndicatorManager(this.Data);
             if (indicators == null)
                 return;
@@ -671,6 +679,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("=== Running Single Trader Demo (Async) ===");
             Log($"Processing {totalBars} bars total...");
 
+            // Dispose old indicators before creating new one
+            if (indicators != null)
+            {
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
+            }
+
             indicators = new IndicatorManager(this.Data);
             if (indicators == null)
                 return;
@@ -894,6 +910,14 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("");
             Log("=== Running Multiple Trader Demo (Async) ===");
             Log($"Processing {totalBars} bars total...");
+
+            // Dispose old indicators before creating new one
+            if (indicators != null)
+            {
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
+            }
 
             indicators = new IndicatorManager(this.Data);
             if (indicators == null)
@@ -1260,12 +1284,16 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("=== Running Single Trader Optimization (Async) ===");
             Log($"Processing {totalBars} bars total...");
 
-            // Indicators oluştur
-            if (indicators == null)
+            // Dispose old indicators before creating new one
+            if (indicators != null)
             {
-                indicators = new IndicatorManager(Data);
-                Log("IndicatorManager created");
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
             }
+
+            indicators = new IndicatorManager(Data);
+            Log("IndicatorManager created");
 
             // *****************************************************************************
             // CLEANUP PREVIOUS RUN (if exists) - Dispose old optimizer before creating new one

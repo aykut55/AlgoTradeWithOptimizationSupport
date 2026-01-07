@@ -487,9 +487,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             ParameterRanges.Clear();
 
             // Setup parameters and strategy
-            this.AddParameterRange("period", 10, 30, 10);      // 3 değer: 10, 20, 30
-            this.AddParameterRange("percent", 0.5, 2.0, 0.5);  // 4 değer: 0.5, 1.0, 1.5, 2.0
-            //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0); // 3 değer: 1.0, 2.0, 3.0
+            this.AddParameterRange("period", 5, 605, 5);            // 3 değer: 10, 20, 30
+            this.AddParameterRange("percent", 0.1, 5.1, 0.1);    // 4 değer: 0.5, 1.0, 1.5, 2.0
+            //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0);  // 3 değer: 1.0, 2.0, 3.0
 
             this.SetStrategyFactory((data, indicators, parameters) =>
             {
