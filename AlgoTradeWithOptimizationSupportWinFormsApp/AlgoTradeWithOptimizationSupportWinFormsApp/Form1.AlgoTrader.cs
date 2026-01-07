@@ -1754,5 +1754,108 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             }
         }
 
+        // ====================================================================
+        // PLOT BUTTONS - Re-plot last run data using Python ImGui
+        // ====================================================================
+
+        /// <summary>
+        /// Plot SingleTrader data button click event
+        /// Re-plots the last SingleTrader run using Python ImGui/ImPlot
+        /// </summary>
+        private async void btnPlotSingleTraderData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Null check - AlgoTrader ve singleTrader oluşturulmuş mu?
+                if (algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader instance yok!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (algoTrader.singleTrader == null)
+                {
+                    MessageBox.Show("SingleTrader verisi yok!\n\nÖnce SingleTrader'ı çalıştırın.", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _singleTraderLogger?.Log("");
+                _singleTraderLogger?.Log("Re-plotting SingleTrader data with Python ImGui...");
+
+                // Task.Run ile UI bloğunu önle
+                await Task.Run(() =>
+                {
+                    // ImGui/ImPlot ile 5 panelli grafik
+                    algoTrader.PlotImGuiBundle(algoTrader.singleTrader);
+                });
+
+                _singleTraderLogger?.Log("✓ SingleTrader grafik başarıyla çizdirildi!");
+            }
+            catch (Exception ex)
+            {
+                _singleTraderLogger?.LogError($"Grafik çizimi hatası: {ex.Message}");
+                MessageBox.Show(
+                    $"Grafik çiziminde hata:\n{ex.Message}\n\n" +
+                    "Python kurulumunu ve imgui-bundle paketini kontrol edin:\n\n" +
+                    "pip install imgui-bundle",
+                    "ImGui Plotting Hatası",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+            }
+        }
+
+        /// <summary>
+        /// Plot MultipleTrader data button click event
+        /// Re-plots the last MultipleTrader run using Python ImGui/ImPlot
+        /// </summary>
+        private async void btnPlotMultipleTraderData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Null check - AlgoTrader ve multipleTrader oluşturulmuş mu?
+                if (algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader instance yok!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (algoTrader.multipleTrader == null)
+                {
+                    MessageBox.Show("MultipleTrader verisi yok!\n\nÖnce MultipleTrader'ı çalıştırın.", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _multipleTraderLogger?.Log("");
+                _multipleTraderLogger?.Log("Re-plotting MultipleTrader data with Python ImGui...");
+
+                // Task.Run ile UI bloğunu önle
+                await Task.Run(() =>
+                {
+                    // MultipleTrader'ın mainTrader'ını kullanarak çizdir
+                    var mainTrader = algoTrader.multipleTrader.GetMainTrader();
+                    algoTrader.PlotImGuiBundle(mainTrader);
+                });
+
+                _multipleTraderLogger?.Log("✓ MultipleTrader grafik başarıyla çizdirildi!");
+            }
+            catch (Exception ex)
+            {
+                _multipleTraderLogger?.LogError($"Grafik çizimi hatası: {ex.Message}");
+                MessageBox.Show(
+                    $"Grafik çiziminde hata:\n{ex.Message}\n\n" +
+                    "Python kurulumunu ve imgui-bundle paketini kontrol edin:\n\n" +
+                    "pip install imgui-bundle",
+                    "ImGui Plotting Hatası",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+            }
+        }
+
     }
 }
