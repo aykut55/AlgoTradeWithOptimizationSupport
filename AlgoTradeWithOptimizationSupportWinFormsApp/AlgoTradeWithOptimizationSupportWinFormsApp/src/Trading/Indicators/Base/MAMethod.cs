@@ -190,15 +190,48 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Base
         {
             return method switch
             {
-                // Implemented MAs
+                // Basic MAs
                 MAMethod.SIMPLE or MAMethod.EMA or MAMethod.WMA or
                 MAMethod.HULL or MAMethod.DEMA or MAMethod.TEMA or
-                MAMethod.VWMA or MAMethod.LSMA or MAMethod.KAMA or
-                MAMethod.VIDYA or MAMethod.ZLEMA or MAMethod.T3 or
-                MAMethod.ALMA or MAMethod.JMA or MAMethod.TRIANGULAR or
+                MAMethod.VWMA or MAMethod.LSMA or MAMethod.TRIANGULAR or
                 MAMethod.WILDER or MAMethod.SMMA => true,
 
-                // Not yet implemented
+                // Advanced MAs
+                MAMethod.KAMA or MAMethod.VIDYA or MAMethod.ZLEMA or
+                MAMethod.T3 or MAMethod.ALMA or MAMethod.JMA => true,
+
+                // Compound MAs (Double)
+                MAMethod.DSMA or MAMethod.DWMA or MAMethod.DVWMA or
+                MAMethod.DHULL or MAMethod.DZLEMA or MAMethod.DSMMA or
+                MAMethod.DSSMA => true,
+
+                // Compound MAs (Triple)
+                MAMethod.TSMA or MAMethod.TWMA or MAMethod.TVWMA or
+                MAMethod.THULL or MAMethod.TZLEMA or MAMethod.TSMMA or
+                MAMethod.TSSMA => true,
+
+                // Statistical MAs
+                MAMethod.MEDIAN or MAMethod.GMA or MAMethod.ZSMA => true,
+
+                // Specialized MAs
+                MAMethod.SRWMA or MAMethod.SWMA or MAMethod.EVWMA or
+                MAMethod.REGMA or MAMethod.REMA or MAMethod.REPMA or
+                MAMethod.RSIMA or MAMethod.ETMA or MAMethod.TREMA or
+                MAMethod.TRSMA or MAMethod.THMA => true,
+
+                // Advanced2 MAs
+                MAMethod.COVWMA or MAMethod.COVWEMA or MAMethod.FAMA or
+                MAMethod.TIME_SERIES => true,
+
+                // Exotic MAs
+                MAMethod.FRAMA or MAMethod.MAMA or MAMethod.MCGINLEY or
+                MAMethod.VAMA or MAMethod.ADEMA or MAMethod.EDMA or
+                MAMethod.EDSMA or MAMethod.AHMA or MAMethod.EHMA or
+                MAMethod.ALSMA or MAMethod.AARMA or MAMethod.MCMA or
+                MAMethod.LEOMA or MAMethod.CMA or MAMethod.CORMA or
+                MAMethod.AUTOL or MAMethod.XEMA => true,
+
+                // Not implemented
                 _ => false
             };
         }

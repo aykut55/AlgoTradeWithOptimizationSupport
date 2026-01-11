@@ -10,6 +10,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Momentum;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volume;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistance;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Utils;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Timer;
@@ -80,6 +81,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
         /// <summary>Price Action Indicators (HH/LL, Swing Points, ZigZag, etc.)</summary>
         public PriceActionIndicators PriceAction { get; }
 
+        /// <summary>Support/Resistance Indicators (Pivot Points, Fibonacci, etc.)</summary>
+        public SupportResistanceIndicators SupportResistance { get; }
+
         /// <summary>Utility functions (HHV, LLV, StdDev, Sum, etc.)</summary>
         public PriceUtils Utils { get; }
 
@@ -117,6 +121,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
             Volatility = new VolatilityIndicators(this, _config);
             VolumeInd = new VolumeIndicators(this, _config);
             PriceAction = new PriceActionIndicators(this, _config);
+            SupportResistance = new SupportResistanceIndicators(this, _config);
             Utils = new PriceUtils(_config.EnableDebugLogging);
 
             _logManager?.WriteLog("All sub-managers initialized successfully");

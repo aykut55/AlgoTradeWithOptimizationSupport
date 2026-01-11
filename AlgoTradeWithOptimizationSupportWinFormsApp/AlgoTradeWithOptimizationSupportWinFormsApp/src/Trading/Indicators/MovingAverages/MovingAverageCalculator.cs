@@ -35,6 +35,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.MovingAverages
             {
                 return method switch
                 {
+                    // Basic MAs
                     MAMethod.SIMPLE => SMA(source, period),
                     MAMethod.EMA => EMA(source, period),
                     MAMethod.WMA => WMA(source, period),
@@ -43,15 +44,79 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.MovingAverages
                     MAMethod.TEMA => TEMA(source, period),
                     MAMethod.VWMA => VWMA(source, period),
                     MAMethod.LSMA => LSMA(source, period),
+                    MAMethod.TRIANGULAR => Triangular(source, period),
+                    MAMethod.WILDER => Wilder(source, period),
+                    MAMethod.SMMA => SMMA(source, period),
+
+                    // Advanced MAs
                     MAMethod.KAMA => KAMA(source, period),
                     MAMethod.VIDYA => VIDYA(source, period),
                     MAMethod.ZLEMA => ZLEMA(source, period),
                     MAMethod.T3 => T3(source, period),
                     MAMethod.ALMA => ALMA(source, period),
                     MAMethod.JMA => JMA(source, period),
-                    MAMethod.TRIANGULAR => Triangular(source, period),
-                    MAMethod.WILDER => Wilder(source, period),
-                    MAMethod.SMMA => SMMA(source, period),
+
+                    // Compound MAs (Double)
+                    MAMethod.DSMA => DSMA(source, period),
+                    MAMethod.DWMA => DWMA(source, period),
+                    MAMethod.DVWMA => DVWMA(source, period),
+                    MAMethod.DHULL => DHULL(source, period),
+                    MAMethod.DZLEMA => DZLEMA(source, period),
+                    MAMethod.DSMMA => DSMMA(source, period),
+                    MAMethod.DSSMA => DSSMA(source, period),
+
+                    // Compound MAs (Triple)
+                    MAMethod.TSMA => TSMA(source, period),
+                    MAMethod.TWMA => TWMA(source, period),
+                    MAMethod.TVWMA => TVWMA(source, period),
+                    MAMethod.THULL => THULL(source, period),
+                    MAMethod.TZLEMA => TZLEMA(source, period),
+                    MAMethod.TSMMA => TSMMA(source, period),
+                    MAMethod.TSSMA => TSSMA(source, period),
+
+                    // Statistical MAs
+                    MAMethod.MEDIAN => MEDIAN(source, period),
+                    MAMethod.GMA => GMA(source, period),
+                    MAMethod.ZSMA => ZSMA(source, period),
+
+                    // Specialized MAs
+                    MAMethod.SRWMA => SRWMA(source, period),
+                    MAMethod.SWMA => SWMA(source, period),
+                    MAMethod.EVWMA => EVWMA(source, period),
+                    MAMethod.REGMA => REGMA(source, period),
+                    MAMethod.REMA => REMA(source, period),
+                    MAMethod.REPMA => REPMA(source, period),
+                    MAMethod.RSIMA => RSIMA(source, period),
+                    MAMethod.ETMA => ETMA(source, period),
+                    MAMethod.TREMA => TREMA(source, period),
+                    MAMethod.TRSMA => TRSMA(source, period),
+                    MAMethod.THMA => THMA(source, period),
+
+                    // Advanced2 MAs
+                    MAMethod.COVWMA => COVWMA(source, period),
+                    MAMethod.COVWEMA => COVWEMA(source, period),
+                    MAMethod.FAMA => FAMA(source, period),
+                    MAMethod.TIME_SERIES => TIME_SERIES(source, period),
+
+                    // Exotic MAs
+                    MAMethod.FRAMA => FRAMA(source, period),
+                    MAMethod.MAMA => MAMA(source),
+                    MAMethod.MCGINLEY => MCGINLEY(source, period),
+                    MAMethod.VAMA => VAMA(source, period),
+                    MAMethod.ADEMA => ADEMA(source, period),
+                    MAMethod.EDMA => EDMA(source, period),
+                    MAMethod.EDSMA => EDSMA(source, period),
+                    MAMethod.AHMA => AHMA(source, period),
+                    MAMethod.EHMA => EHMA(source, period),
+                    MAMethod.ALSMA => ALSMA(source, period),
+                    MAMethod.AARMA => AARMA(source, period),
+                    MAMethod.MCMA => MCMA(source, period),
+                    MAMethod.LEOMA => LEOMA(source, period),
+                    MAMethod.CMA => CMA(source, period),
+                    MAMethod.CORMA => CORMA(source, period),
+                    MAMethod.AUTOL => AUTOL(source, period),
+                    MAMethod.XEMA => XEMA(source, period),
+
                     _ => throw new NotImplementedException($"MA method '{method}' not yet implemented")
                 };
             });
