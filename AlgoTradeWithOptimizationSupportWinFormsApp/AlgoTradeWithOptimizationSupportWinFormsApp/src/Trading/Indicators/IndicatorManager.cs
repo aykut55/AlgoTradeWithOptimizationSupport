@@ -276,39 +276,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators
 }
 
 /*
-  📊 Implement Edilmemiş Indicator'lar
+  ✅ All Priority Indicators Implemented
 
-  1️⃣ Trend Indicators (TrendIndicators.cs)
-
-  - ❌ SuperTrend - SuperTrend(period, multiplier)
-  - ❌ MOST - MOST(period, percent) - Moving Stop Loss
-  - ❌ ADX - ADX(period) - Average Directional Index
-  - ❌ Parabolic SAR - ParabolicSAR(step, max)
-
-  2️⃣ Momentum Indicators (MomentumIndicators.cs)
-
-  - ❌ RSI - RSI(source, period) - Relative Strength Index
-  - ❌ MACD - MACD(source, fastPeriod, slowPeriod, signalPeriod)
-  - ❌ Stochastic - Stochastic(kPeriod, dPeriod)
-  - ❌ CCI - CCI(period) - Commodity Channel Index
-  - ❌ Williams %R - WilliamsR(period)
-
-  3️⃣ Volatility Indicators (VolatilityIndicators.cs)
-
-  - ❌ ATR - ATR(period) - Average True Range
-  - ❌ Bollinger Bands - BollingerBands(source, period, stdDev)
-  - ❌ Keltner Channel - KeltnerChannel(period, multiplier)
-
-  4️⃣ Volume Indicators (VolumeIndicators.cs)
-
-  - ❌ OBV - OBV() - On Balance Volume
-  - ❌ VWAP - VWAP() - Volume Weighted Average Price
-  - ❌ MFI - MFI(period) - Money Flow Index
-  - ❌ CMF - CMF(period) - Chaikin Money Flow
-
-  5️⃣ Price Action Indicators (PriceActionIndicators.cs)
-
-  - ❌ HH/LL Pattern - HigherHighLowerLow() - Higher High / Lower Low
-  - ❌ Swing Points - SwingPoints(leftBars, rightBars)
-  - ❌ ZigZag - ZigZag(deviation)
+  1️⃣ Trend Indicators (TrendIndicators.cs) - SuperTrend, MOST, ADX, Parabolic SAR, Aroon, Vortex, Ichimoku
+  2️⃣ Momentum Indicators (MomentumIndicators.cs) - RSI, MACD, Stochastic, CCI, Williams%R, ROC
+  3️⃣ Volatility Indicators (VolatilityIndicators.cs) - ATR, Bollinger Bands, Keltner Channel, Donchian Channel
+  4️⃣ Volume Indicators (VolumeIndicators.cs) - OBV, VWAP, MFI, CMF
+  5️⃣ Price Action Indicators (PriceActionIndicators.cs) - HH/LL, Swing Points, ZigZag, Fractals
+  6️⃣ Support/Resistance (SupportResistanceIndicators.cs) - Pivot Points, Fibonacci
 */
