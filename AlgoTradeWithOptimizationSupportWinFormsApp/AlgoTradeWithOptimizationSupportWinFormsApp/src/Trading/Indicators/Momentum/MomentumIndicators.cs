@@ -166,7 +166,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Momentum
         /// %D = SMA of %K
         /// Values range from 0-100 (overbought >80, oversold <20)
         /// </summary>
-        public (double[] k, double[] d) Stochastic(int kPeriod = 14, int dPeriod = 3)
+        public StochasticResult Stochastic(int kPeriod = 14, int dPeriod = 3)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -206,7 +206,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Momentum
             // Calculate %D (SMA of %K)
             var d = _manager.MA.SMA(k, dPeriod);
 
-            return (k, d);
+            return new StochasticResult(k, d, kPeriod, dPeriod);
         }
 
         /// <summary>

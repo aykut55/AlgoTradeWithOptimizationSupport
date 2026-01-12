@@ -16,6 +16,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Momentum.Result
         /// <summary>Oversold signals (RSI < 30)</summary>
         public bool[] Oversold { get; set; } = new bool[0];
 
+        /// <summary>Period used for calculation</summary>
+        public int Period { get; set; }
+
         /// <summary>Current RSI value (last element)</summary>
         public double Current => Values.Length > 0 ? Values[^1] : double.NaN;
 
@@ -30,5 +33,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Momentum.Result
 
         /// <summary>Number of data points</summary>
         public int Length => Values.Length;
+
+        /// <summary>
+        /// Constructor for RSIResult
+        /// </summary>
+        public RSIResult(double[] values, int period)
+        {
+            Values = values;
+            Period = period;
+
+            // Initialize Overbought and Oversold arrays
+            Overbought = new bool[values.Length];
+            Oversold = new bool[values.Length];
+
+            // Populate based on standard thresholds (70 for overbought, 30 for oversold)
+            for (int i = 0; i < values.Length; i++)
+            {
+                Overbought[i] = values[i] > 70;
+                Oversold[i] = values[i] < 30;
+            }
+        }
+
+        /// <summary>
+        /// Parameterless constructor
+        /// </summary>
+        public RSIResult()
+        {
+        }
     }
 }

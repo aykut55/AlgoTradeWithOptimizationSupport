@@ -1,5 +1,6 @@
 using System;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Base;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction.Results;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
 {
@@ -27,7 +28,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
         /// - Lower Low (LL): Current low < Previous low (bearish)
         /// Used to identify trend continuation (HH+HL = uptrend, LL+LH = downtrend)
         /// </summary>
-        public (bool[] higherHigh, bool[] lowerHigh, bool[] higherLow, bool[] lowerLow) HigherHighLowerLow()
+        public HigherHighLowerLowResult HigherHighLowerLow()
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -42,7 +43,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
             var lowerLow = new bool[length];
 
             if (length < 2)
-                return (higherHigh, lowerHigh, higherLow, lowerLow);
+                return new HigherHighLowerLowResult(higherHigh, lowerHigh, higherLow, lowerLow);
 
             // First bar has no comparison
             higherHigh[0] = false;
@@ -66,7 +67,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
                 lowerLow[i] = lows[i] < lows[i - 1];
             }
 
-            return (higherHigh, lowerHigh, higherLow, lowerLow);
+            return new HigherHighLowerLowResult(higherHigh, lowerHigh, higherLow, lowerLow);
         }
 
         /// <summary>
@@ -78,8 +79,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
         /// </summary>
         /// <param name="leftBars">Number of bars to the left (default: 5)</param>
         /// <param name="rightBars">Number of bars to the right (default: 5)</param>
-        /// <returns>Boolean arrays indicating swing high/low at each bar</returns>
-        public (bool[] swingHighs, bool[] swingLows) SwingPoints(int leftBars = 5, int rightBars = 5)
+        /// <returns>SwingPointsResult containing swing high and low boolean arrays</returns>
+        public SwingPointsResult SwingPoints(int leftBars = 5, int rightBars = 5)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -100,7 +101,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
             if (maxIndex < minIndex)
             {
                 // Not enough data
-                return (swingHighs, swingLows);
+                return new SwingPointsResult(swingHighs, swingLows, leftBars, rightBars);
             }
 
             // Check each potential swing point
@@ -131,7 +132,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
                 swingLows[i] = isSwingLow;
             }
 
-            return (swingHighs, swingLows);
+            return new SwingPointsResult(swingHighs, swingLows, leftBars, rightBars);
         }
 
         /// <summary>
@@ -143,8 +144,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
         /// - Shows clearer trend structure
         /// </summary>
         /// <param name="deviation">Minimum price change percentage to register (default: 5.0%)</param>
-        /// <returns>Tuple of (zigzag values, pivot types: 1=high, -1=low, 0=none)</returns>
-        public (double[] zigzag, int[] pivots) ZigZag(double deviation = 5.0)
+        /// <returns>ZigZagResult containing zigzag values and pivot types</returns>
+        public ZigZagResult ZigZag(double deviation = 5.0)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -167,7 +168,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
             }
 
             if (length < 3)
-                return (zigzag, pivots);
+                return new ZigZagResult(zigzag, pivots, deviation);
 
             // Start with first bar
             int lastPivotIndex = 0;
@@ -257,7 +258,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
                 pivots[lastPivotIndex] = direction;
             }
 
-            return (zigzag, pivots);
+            return new ZigZagResult(zigzag, pivots, deviation);
         }
 
         /// <summary>
@@ -267,8 +268,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
         /// - Fractal Low: Low with 2 higher lows on each side
         /// Classic Bill Williams indicator for support/resistance
         /// </summary>
-        /// <returns>Boolean arrays indicating fractal highs and lows at each bar</returns>
-        public (bool[] fractalHighs, bool[] fractalLows) Fractals()
+        /// <returns>FractalsResult containing fractal high and low boolean arrays</returns>
+        public FractalsResult Fractals()
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -282,7 +283,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
 
             // Need at least 5 bars (2 on each side + center)
             if (length < 5)
-                return (fractalHighs, fractalLows);
+                return new FractalsResult(fractalHighs, fractalLows);
 
             // Check each bar (except first 2 and last 2)
             for (int i = 2; i < length - 2; i++)
@@ -303,7 +304,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
                 fractalLows[i] = isFractalLow;
             }
 
-            return (fractalHighs, fractalLows);
+            return new FractalsResult(fractalHighs, fractalLows);
         }
     }
 }

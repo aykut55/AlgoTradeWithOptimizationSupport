@@ -1,5 +1,6 @@
 using System;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Base;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistance.Results;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistance
 {
@@ -31,9 +32,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
         /// Used for intraday trading to identify potential reversal points
         /// </summary>
         /// <param name="useDaily">If true, uses previous day's data for each calculation (default: true)</param>
-        /// <returns>Tuple of (pivot, R1, R2, R3, S1, S2, S3) arrays</returns>
-        public (double[] pivot, double[] r1, double[] r2, double[] r3, double[] s1, double[] s2, double[] s3)
-            PivotPoints(bool useDaily = true)
+        /// <returns>PivotPointsResult containing pivot and support/resistance levels</returns>
+        public PivotPointsResult PivotPoints(bool useDaily = true)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -64,7 +64,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
                     s2[i] = double.NaN;
                     s3[i] = double.NaN;
                 }
-                return (pivot, r1, r2, r3, s1, s2, s3);
+                return new PivotPointsResult(pivot, r1, r2, r3, s1, s2, s3);
             }
 
             // First bar uses its own values
@@ -85,7 +85,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
                     out s1[i], out s2[i], out s3[i]);
             }
 
-            return (pivot, r1, r2, r3, s1, s2, s3);
+            return new PivotPointsResult(pivot, r1, r2, r3, s1, s2, s3);
         }
 
         /// <summary>
@@ -118,10 +118,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
         /// <param name="high">High price for the move</param>
         /// <param name="low">Low price for the move</param>
         /// <param name="isUptrend">True if calculating for uptrend (retracement from top), false for downtrend</param>
-        /// <returns>Dictionary of Fibonacci levels (key: percentage, value: price level)</returns>
-        public (double level_0, double level_236, double level_382, double level_50,
-                double level_618, double level_786, double level_100)
-            FibonacciRetracement(double high, double low, bool isUptrend = true)
+        /// <returns>FibonacciRetracementResult containing all Fibonacci levels</returns>
+        public FibonacciRetracementResult FibonacciRetracement(double high, double low, bool isUptrend = true)
         {
             if (high <= low)
                 throw new ArgumentException("High must be greater than low");
@@ -131,27 +129,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
             if (isUptrend)
             {
                 // Retracement from high (downward levels)
-                return (
+                return new FibonacciRetracementResult(
                     level_0: high,                          // 0% - High
                     level_236: high - (range * 0.236),      // 23.6%
                     level_382: high - (range * 0.382),      // 38.2%
                     level_50: high - (range * 0.50),        // 50%
                     level_618: high - (range * 0.618),      // 61.8%
                     level_786: high - (range * 0.786),      // 78.6%
-                    level_100: low                          // 100% - Low
+                    level_100: low,                         // 100% - Low
+                    high: high,
+                    low: low,
+                    isUptrend: isUptrend
                 );
             }
             else
             {
                 // Retracement from low (upward levels)
-                return (
+                return new FibonacciRetracementResult(
                     level_0: low,                           // 0% - Low
                     level_236: low + (range * 0.236),       // 23.6%
                     level_382: low + (range * 0.382),       // 38.2%
                     level_50: low + (range * 0.50),         // 50%
                     level_618: low + (range * 0.618),       // 61.8%
                     level_786: low + (range * 0.786),       // 78.6%
-                    level_100: high                         // 100% - High
+                    level_100: high,                        // 100% - High
+                    high: high,
+                    low: low,
+                    isUptrend: isUptrend
                 );
             }
         }
@@ -161,10 +165,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
         /// Automatically finds the high and low from a specified period and calculates Fibonacci levels
         /// </summary>
         /// <param name="period">Lookback period to find high/low (default: 100)</param>
-        /// <returns>Arrays of Fibonacci levels for each bar</returns>
-        public (double[] level_0, double[] level_236, double[] level_382, double[] level_50,
-                double[] level_618, double[] level_786, double[] level_100)
-            FibonacciRetracementAuto(int period = 100)
+        /// <returns>FibonacciRetracementAutoResult containing arrays of Fibonacci levels for each bar</returns>
+        public FibonacciRetracementAutoResult FibonacciRetracementAuto(int period = 100)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -217,16 +219,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.SupportResistan
                 // Calculate Fibonacci levels
                 var levels = FibonacciRetracement(periodHigh, periodLow, isUptrend);
 
-                level_0[i] = levels.level_0;
-                level_236[i] = levels.level_236;
-                level_382[i] = levels.level_382;
-                level_50[i] = levels.level_50;
-                level_618[i] = levels.level_618;
-                level_786[i] = levels.level_786;
-                level_100[i] = levels.level_100;
+                level_0[i] = levels.Level_0;
+                level_236[i] = levels.Level_236;
+                level_382[i] = levels.Level_382;
+                level_50[i] = levels.Level_50;
+                level_618[i] = levels.Level_618;
+                level_786[i] = levels.Level_786;
+                level_100[i] = levels.Level_100;
             }
 
-            return (level_0, level_236, level_382, level_50, level_618, level_786, level_100);
+            return new FibonacciRetracementAutoResult(level_0, level_236, level_382, level_50, level_618, level_786, level_100, period);
         }
     }
 }

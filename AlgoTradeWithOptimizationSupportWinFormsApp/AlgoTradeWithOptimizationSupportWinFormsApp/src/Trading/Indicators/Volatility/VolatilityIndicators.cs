@@ -37,7 +37,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility
             var closes = _manager.GetClosePrices();
 
             // Calculate True Range for each bar
-            var tr = _manager.Utils.TrueRange();
+            var tr = _manager.Utils.TrueRange(highs, lows, closes);
 
             // Apply Wilder's smoothing to True Range
             var atr = _manager.MA.Wilder(tr, period);
@@ -107,7 +107,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility
         /// Lower = EMA - (ATR * multiplier)
         /// Similar to Bollinger Bands but uses ATR instead of standard deviation
         /// </summary>
-        public (double[] upper, double[] middle, double[] lower) KeltnerChannel(int period = 20, double multiplier = 2.0)
+        public KeltnerChannelResult KeltnerChannel(int period = 20, double multiplier = 2.0)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -142,7 +142,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility
                 }
             }
 
-            return (upper, middle, lower);
+            return new KeltnerChannelResult(upper, middle, lower, period, multiplier);
         }
 
         /// <summary>
@@ -153,7 +153,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility
         /// Middle = (Upper + Lower) / 2
         /// Breakout indicator - price above upper = buy signal, below lower = sell signal
         /// </summary>
-        public (double[] upper, double[] middle, double[] lower) DonchianChannel(int period = 20)
+        public DonchianChannelResult DonchianChannel(int period = 20)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -183,7 +183,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Volatility
                 }
             }
 
-            return (upper, middle, lower);
+            return new DonchianChannelResult(upper, middle, lower, period);
         }
     }
 }

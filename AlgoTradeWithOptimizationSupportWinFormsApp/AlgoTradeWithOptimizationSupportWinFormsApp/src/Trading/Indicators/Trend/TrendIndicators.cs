@@ -169,12 +169,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// </summary>
         /// <param name="period">EMA period (default: 21)</param>
         /// <param name="percent">Band percentage (default: 1.0)</param>
-        /// <returns>Tuple of (most, exmov) arrays</returns>
-        public (double[] most, double[] exmov) MOST(int period = 21, double percent = 1.0)
+        /// <returns>MOSTResult containing most and exmov arrays</returns>
+        public MOSTResult MOST(int period = 21, double percent = 1.0)
         {
             int barCount = _manager.BarCount;
             if (barCount == 0)
-                return (new double[0], new double[0]);
+                return new MOSTResult(new double[0], new double[0], period, percent);
 
             // Get close prices
             double[] closes = _manager.GetClosePrices();
@@ -233,7 +233,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                 most[i] = trend[i] == 1 ? trendUp[i] : trendDown[i];
             }
 
-            return (most, exmov);
+            return new MOSTResult(most, exmov, period, percent);
         }
 
         /// <summary>
@@ -244,8 +244,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// </summary>
         public double[] ADX(int period = 14)
         {
-            var (adx, _, _) = ADXWithDI(period);
-            return adx;
+            var result = ADXWithDI(period);
+            return result.ADX;
         }
 
         /// <summary>
@@ -253,7 +253,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// Returns ADX along with +DI and -DI for complete directional analysis
         /// +DI > -DI = uptrend, -DI > +DI = downtrend
         /// </summary>
-        public (double[] adx, double[] plusDI, double[] minusDI) ADXWithDI(int period = 14)
+        public ADXResult ADXWithDI(int period = 14)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -277,7 +277,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                     plusDI[i] = double.NaN;
                     minusDI[i] = double.NaN;
                 }
-                return (adx, plusDI, minusDI);
+                return new ADXResult(adx, plusDI, minusDI, period);
             }
 
             // Calculate True Range and Directional Movements
@@ -370,7 +370,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                 }
             }
 
-            return (adx, plusDI, minusDI);
+            return new ADXResult(adx, plusDI, minusDI, period);
         }
 
         /// <summary>
@@ -381,8 +381,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// </summary>
         /// <param name="step">Acceleration factor step (default: 0.02)</param>
         /// <param name="max">Maximum acceleration factor (default: 0.2)</param>
-        /// <returns>Tuple of (sar values, trend: true=up/false=down)</returns>
-        public (double[] sar, bool[] trend) ParabolicSAR(double step = 0.02, double max = 0.2)
+        /// <returns>ParabolicSARResult containing sar values and trend direction</returns>
+        public ParabolicSARResult ParabolicSAR(double step = 0.02, double max = 0.2)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -406,7 +406,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                     sar[0] = closes[0];
                     trend[0] = true;
                 }
-                return (sar, trend);
+                return new ParabolicSARResult(sar, trend, step, max);
             }
 
             // Initialize
@@ -486,7 +486,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                 }
             }
 
-            return (sar, trend);
+            return new ParabolicSARResult(sar, trend, step, max);
         }
 
         /// <summary>
@@ -500,8 +500,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// - Both near 50 = consolidation/weak trend
         /// </summary>
         /// <param name="period">Lookback period (default: 25)</param>
-        /// <returns>Tuple of (aroon up, aroon down)</returns>
-        public (double[] aroonUp, double[] aroonDown) Aroon(int period = 25)
+        /// <returns>AroonResult containing aroon up and aroon down values</returns>
+        public AroonResult Aroon(int period = 25)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -522,7 +522,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                     aroonUp[i] = double.NaN;
                     aroonDown[i] = double.NaN;
                 }
-                return (aroonUp, aroonDown);
+                return new AroonResult(aroonUp, aroonDown, period);
             }
 
             // Initialize result with NaN for warmup period
@@ -564,7 +564,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                 aroonDown[i] = ((double)(period - periodsSinceLow) / period) * 100.0;
             }
 
-            return (aroonUp, aroonDown);
+            return new AroonResult(aroonUp, aroonDown, period);
         }
 
         /// <summary>
@@ -578,8 +578,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// - VI+ > VI- = uptrend, VI- > VI+ = downtrend
         /// </summary>
         /// <param name="period">Lookback period (default: 14)</param>
-        /// <returns>Tuple of (VI+, VI-)</returns>
-        public (double[] viPlus, double[] viMinus) Vortex(int period = 14)
+        /// <returns>VortexResult containing VI+ and VI- values</returns>
+        public VortexResult Vortex(int period = 14)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -601,7 +601,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                     viPlus[i] = double.NaN;
                     viMinus[i] = double.NaN;
                 }
-                return (viPlus, viMinus);
+                return new VortexResult(viPlus, viMinus, period);
             }
 
             // Calculate Vortex Movements and True Range
@@ -665,7 +665,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                 }
             }
 
-            return (viPlus, viMinus);
+            return new VortexResult(viPlus, viMinus, period);
         }
 
         /// <summary>
@@ -687,9 +687,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
         /// <param name="kijunPeriod">Kijun-sen period (default: 26)</param>
         /// <param name="senkouPeriod">Senkou Span B period (default: 52)</param>
         /// <param name="displacement">Cloud displacement (default: 26)</param>
-        /// <returns>Tuple of (tenkan, kijun, senkouA, senkouB, chikou)</returns>
-        public (double[] tenkan, double[] kijun, double[] senkouA, double[] senkouB, double[] chikou)
-            Ichimoku(int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52, int displacement = 26)
+        /// <returns>IchimokuResult containing all components</returns>
+        public IchimokuResult Ichimoku(int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52, int displacement = 26)
         {
             if (!_manager.IsInitialized)
                 throw new InvalidOperationException("Manager not initialized with data");
@@ -790,7 +789,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.Trend
                     chikou[i] = double.NaN;
             }
 
-            return (tenkan, kijun, senkouA, senkouB, chikou);
+            return new IchimokuResult(tenkan, kijun, senkouA, senkouB, chikou,
+                tenkanPeriod, kijunPeriod, senkouPeriod, displacement);
         }
     }
 }
