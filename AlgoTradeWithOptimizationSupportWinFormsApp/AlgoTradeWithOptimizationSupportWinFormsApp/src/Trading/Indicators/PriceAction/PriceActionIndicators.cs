@@ -306,5 +306,55 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Indicators.PriceAction
 
             return new FractalsResult(fractalHighs, fractalLows);
         }
+
+        /// <summary>
+        /// Highest High Value (HHV) and Lowest Low Value (LLV)
+        /// Calculates the highest high and lowest low values over a specified period
+        /// - HHV: Highest value in the last N periods (includes current bar)
+        /// - LLV: Lowest value in the last N periods (includes current bar)
+        /// Commonly used for:
+        /// - Donchian Channel calculation
+        /// - Breakout detection
+        /// - Support/Resistance identification
+        /// </summary>
+        /// <param name="source">Source data (e.g., close prices, highs, lows)</param>
+        /// <param name="period">Lookback period (default: 20)</param>
+        /// <returns>HHVLLVResult containing HHV and LLV arrays</returns>
+        public HHVLLVResult HHVLLV(double[] source, int period = 20)
+        {
+            if (source == null || source.Length == 0)
+                throw new ArgumentException("Source array cannot be null or empty", nameof(source));
+            if (period <= 0)
+                throw new ArgumentException("Period must be positive", nameof(period));
+
+            var hhv = _manager.Utils.HHV(source, period);
+            var llv = _manager.Utils.LLV(source, period);
+
+            return new HHVLLVResult(hhv, llv, period);
+        }
+
+        /// <summary>
+        /// Highest High Value (HHV) only
+        /// Wrapper method for direct access to HHV calculation
+        /// </summary>
+        /// <param name="source">Source data</param>
+        /// <param name="period">Lookback period</param>
+        /// <returns>Array of HHV values</returns>
+        public double[] HHV(double[] source, int period = 20)
+        {
+            return _manager.Utils.HHV(source, period);
+        }
+
+        /// <summary>
+        /// Lowest Low Value (LLV) only
+        /// Wrapper method for direct access to LLV calculation
+        /// </summary>
+        /// <param name="source">Source data</param>
+        /// <param name="period">Lookback period</param>
+        /// <returns>Array of LLV values</returns>
+        public double[] LLV(double[] source, int period = 20)
+        {
+            return _manager.Utils.LLV(source, period);
+        }
     }
 }
