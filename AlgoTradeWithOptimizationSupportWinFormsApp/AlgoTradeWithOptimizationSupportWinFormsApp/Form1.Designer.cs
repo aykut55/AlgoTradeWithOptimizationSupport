@@ -190,6 +190,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel6 = new Panel();
             btnPythonPlotter = new Button();
             richTextBox2 = new RichTextBox();
+            // ConfirmingSingleTrader Tab Controls
+            tabPageConfirmingSingleTrader = new TabPage();
+            panelConfirmingSingleTrader = new Panel();
+            groupBoxConfirmationSettings = new GroupBox();
+            chkConfirmationModeEnabled = new CheckBox();
+            lblKarEsigi = new Label();
+            txtKarEsigi = new TextBox();
+            lblZararEsigi = new Label();
+            txtZararEsigi = new TextBox();
+            lblTetikleyici = new Label();
+            cmbTetikleyici = new ComboBox();
+            btnStartConfirmingSingleTrader = new Button();
+            btnStopConfirmingSingleTrader = new Button();
+            btnPlotConfirmingSingleTraderData = new Button();
+            progressBarConfirmingSingleTrader = new ProgressBar();
+            lblConfirmingSingleTraderProgress = new Label();
+            btnReadStockDataConfirming = new Button();
+            richTextBoxConfirmingSingleTrader = new RichTextBox();
             openFileDialog1 = new OpenFileDialog();
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
@@ -216,6 +234,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).BeginInit();
             tabPagePythonPlotter.SuspendLayout();
             panel6.SuspendLayout();
+            tabPageConfirmingSingleTrader.SuspendLayout();
+            panelConfirmingSingleTrader.SuspendLayout();
+            groupBoxConfirmationSettings.SuspendLayout();
             SuspendLayout();
             // 
             // mainMenuStrip
@@ -740,6 +761,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             mainTabControl.Controls.Add(tabPageSingleTrader);
             mainTabControl.Controls.Add(tabPageMultipleTraders);
             mainTabControl.Controls.Add(tabPageSingleTraderOptimization);
+            mainTabControl.Controls.Add(tabPageConfirmingSingleTrader);
             mainTabControl.Controls.Add(tabPagePythonPlotter);
             mainTabControl.Dock = DockStyle.Fill;
             mainTabControl.Location = new Point(0, 0);
@@ -1609,9 +1631,183 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBox2.Size = new Size(750, 668);
             richTextBox2.TabIndex = 1;
             richTextBox2.Text = "";
-            // 
+            //
+            // tabPageConfirmingSingleTrader
+            //
+            tabPageConfirmingSingleTrader.BackColor = Color.White;
+            tabPageConfirmingSingleTrader.Controls.Add(panelConfirmingSingleTrader);
+            tabPageConfirmingSingleTrader.Location = new Point(4, 24);
+            tabPageConfirmingSingleTrader.Name = "tabPageConfirmingSingleTrader";
+            tabPageConfirmingSingleTrader.Padding = new Padding(3);
+            tabPageConfirmingSingleTrader.Size = new Size(1415, 793);
+            tabPageConfirmingSingleTrader.TabIndex = 5;
+            tabPageConfirmingSingleTrader.Text = "ConfirmingSingleTrader";
+            //
+            // panelConfirmingSingleTrader
+            //
+            panelConfirmingSingleTrader.Controls.Add(groupBoxConfirmationSettings);
+            panelConfirmingSingleTrader.Controls.Add(btnPlotConfirmingSingleTraderData);
+            panelConfirmingSingleTrader.Controls.Add(btnStopConfirmingSingleTrader);
+            panelConfirmingSingleTrader.Controls.Add(btnStartConfirmingSingleTrader);
+            panelConfirmingSingleTrader.Controls.Add(progressBarConfirmingSingleTrader);
+            panelConfirmingSingleTrader.Controls.Add(lblConfirmingSingleTraderProgress);
+            panelConfirmingSingleTrader.Controls.Add(btnReadStockDataConfirming);
+            panelConfirmingSingleTrader.Controls.Add(richTextBoxConfirmingSingleTrader);
+            panelConfirmingSingleTrader.Location = new Point(32, 26);
+            panelConfirmingSingleTrader.Name = "panelConfirmingSingleTrader";
+            panelConfirmingSingleTrader.Size = new Size(1222, 717);
+            panelConfirmingSingleTrader.TabIndex = 0;
+            //
+            // groupBoxConfirmationSettings
+            //
+            groupBoxConfirmationSettings.Controls.Add(chkConfirmationModeEnabled);
+            groupBoxConfirmationSettings.Controls.Add(lblKarEsigi);
+            groupBoxConfirmationSettings.Controls.Add(txtKarEsigi);
+            groupBoxConfirmationSettings.Controls.Add(lblZararEsigi);
+            groupBoxConfirmationSettings.Controls.Add(txtZararEsigi);
+            groupBoxConfirmationSettings.Controls.Add(lblTetikleyici);
+            groupBoxConfirmationSettings.Controls.Add(cmbTetikleyici);
+            groupBoxConfirmationSettings.Location = new Point(780, 132);
+            groupBoxConfirmationSettings.Name = "groupBoxConfirmationSettings";
+            groupBoxConfirmationSettings.Size = new Size(405, 130);
+            groupBoxConfirmationSettings.TabIndex = 9;
+            groupBoxConfirmationSettings.TabStop = false;
+            groupBoxConfirmationSettings.Text = "Confirmation Mode Settings";
+            //
+            // chkConfirmationModeEnabled
+            //
+            chkConfirmationModeEnabled.AutoSize = true;
+            chkConfirmationModeEnabled.Checked = true;
+            chkConfirmationModeEnabled.CheckState = CheckState.Checked;
+            chkConfirmationModeEnabled.Location = new Point(15, 25);
+            chkConfirmationModeEnabled.Name = "chkConfirmationModeEnabled";
+            chkConfirmationModeEnabled.Size = new Size(178, 19);
+            chkConfirmationModeEnabled.TabIndex = 0;
+            chkConfirmationModeEnabled.Text = "Confirmation Mode Enabled";
+            chkConfirmationModeEnabled.UseVisualStyleBackColor = true;
+            //
+            // lblKarEsigi
+            //
+            lblKarEsigi.AutoSize = true;
+            lblKarEsigi.Location = new Point(15, 55);
+            lblKarEsigi.Name = "lblKarEsigi";
+            lblKarEsigi.Size = new Size(102, 15);
+            lblKarEsigi.TabIndex = 1;
+            lblKarEsigi.Text = "Kar Esigi (puan):";
+            //
+            // txtKarEsigi
+            //
+            txtKarEsigi.Location = new Point(130, 52);
+            txtKarEsigi.Name = "txtKarEsigi";
+            txtKarEsigi.Size = new Size(60, 23);
+            txtKarEsigi.TabIndex = 2;
+            txtKarEsigi.Text = "10.0";
+            txtKarEsigi.TextAlign = HorizontalAlignment.Center;
+            //
+            // lblZararEsigi
+            //
+            lblZararEsigi.AutoSize = true;
+            lblZararEsigi.Location = new Point(15, 85);
+            lblZararEsigi.Name = "lblZararEsigi";
+            lblZararEsigi.Size = new Size(111, 15);
+            lblZararEsigi.TabIndex = 3;
+            lblZararEsigi.Text = "Zarar Esigi (puan):";
+            //
+            // txtZararEsigi
+            //
+            txtZararEsigi.Location = new Point(130, 82);
+            txtZararEsigi.Name = "txtZararEsigi";
+            txtZararEsigi.Size = new Size(60, 23);
+            txtZararEsigi.TabIndex = 4;
+            txtZararEsigi.Text = "5.0";
+            txtZararEsigi.TextAlign = HorizontalAlignment.Center;
+            //
+            // lblTetikleyici
+            //
+            lblTetikleyici.AutoSize = true;
+            lblTetikleyici.Location = new Point(210, 55);
+            lblTetikleyici.Name = "lblTetikleyici";
+            lblTetikleyici.Size = new Size(62, 15);
+            lblTetikleyici.TabIndex = 5;
+            lblTetikleyici.Text = "Tetikleyici:";
+            //
+            // cmbTetikleyici
+            //
+            cmbTetikleyici.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbTetikleyici.FormattingEnabled = true;
+            cmbTetikleyici.Items.AddRange(new object[] { "Both", "KarOnly", "ZararOnly" });
+            cmbTetikleyici.Location = new Point(280, 52);
+            cmbTetikleyici.Name = "cmbTetikleyici";
+            cmbTetikleyici.Size = new Size(110, 23);
+            cmbTetikleyici.TabIndex = 6;
+            //
+            // btnStartConfirmingSingleTrader
+            //
+            btnStartConfirmingSingleTrader.Location = new Point(780, 103);
+            btnStartConfirmingSingleTrader.Name = "btnStartConfirmingSingleTrader";
+            btnStartConfirmingSingleTrader.Size = new Size(131, 23);
+            btnStartConfirmingSingleTrader.TabIndex = 5;
+            btnStartConfirmingSingleTrader.Text = "Start Confirming ST";
+            btnStartConfirmingSingleTrader.UseVisualStyleBackColor = true;
+            btnStartConfirmingSingleTrader.Click += btnStartConfirmingSingleTrader_Click;
+            //
+            // btnStopConfirmingSingleTrader
+            //
+            btnStopConfirmingSingleTrader.Location = new Point(917, 103);
+            btnStopConfirmingSingleTrader.Name = "btnStopConfirmingSingleTrader";
+            btnStopConfirmingSingleTrader.Size = new Size(131, 23);
+            btnStopConfirmingSingleTrader.TabIndex = 7;
+            btnStopConfirmingSingleTrader.Text = "Stop Confirming ST";
+            btnStopConfirmingSingleTrader.UseVisualStyleBackColor = true;
+            btnStopConfirmingSingleTrader.Click += btnStopConfirmingSingleTrader_Click;
+            //
+            // btnPlotConfirmingSingleTraderData
+            //
+            btnPlotConfirmingSingleTraderData.Location = new Point(1054, 103);
+            btnPlotConfirmingSingleTraderData.Name = "btnPlotConfirmingSingleTraderData";
+            btnPlotConfirmingSingleTraderData.Size = new Size(131, 23);
+            btnPlotConfirmingSingleTraderData.TabIndex = 8;
+            btnPlotConfirmingSingleTraderData.Text = "Plot Confirming ST";
+            btnPlotConfirmingSingleTraderData.UseVisualStyleBackColor = true;
+            btnPlotConfirmingSingleTraderData.Click += btnPlotConfirmingSingleTraderData_Click;
+            //
+            // progressBarConfirmingSingleTrader
+            //
+            progressBarConfirmingSingleTrader.Location = new Point(780, 74);
+            progressBarConfirmingSingleTrader.Name = "progressBarConfirmingSingleTrader";
+            progressBarConfirmingSingleTrader.Size = new Size(268, 23);
+            progressBarConfirmingSingleTrader.Style = ProgressBarStyle.Continuous;
+            progressBarConfirmingSingleTrader.TabIndex = 4;
+            //
+            // lblConfirmingSingleTraderProgress
+            //
+            lblConfirmingSingleTraderProgress.AutoSize = true;
+            lblConfirmingSingleTraderProgress.Location = new Point(1054, 78);
+            lblConfirmingSingleTraderProgress.Name = "lblConfirmingSingleTraderProgress";
+            lblConfirmingSingleTraderProgress.Size = new Size(48, 15);
+            lblConfirmingSingleTraderProgress.TabIndex = 3;
+            lblConfirmingSingleTraderProgress.Text = "Ready...";
+            //
+            // btnReadStockDataConfirming
+            //
+            btnReadStockDataConfirming.Location = new Point(780, 16);
+            btnReadStockDataConfirming.Name = "btnReadStockDataConfirming";
+            btnReadStockDataConfirming.Size = new Size(131, 23);
+            btnReadStockDataConfirming.TabIndex = 2;
+            btnReadStockDataConfirming.Text = "Read StockData";
+            btnReadStockDataConfirming.UseVisualStyleBackColor = true;
+            btnReadStockDataConfirming.Click += BtnReadStockData_Click;
+            //
+            // richTextBoxConfirmingSingleTrader
+            //
+            richTextBoxConfirmingSingleTrader.Location = new Point(24, 16);
+            richTextBoxConfirmingSingleTrader.Name = "richTextBoxConfirmingSingleTrader";
+            richTextBoxConfirmingSingleTrader.Size = new Size(750, 668);
+            richTextBoxConfirmingSingleTrader.TabIndex = 1;
+            richTextBoxConfirmingSingleTrader.Text = "";
+            //
             // openFileDialog1
-            // 
+            //
             openFileDialog1.FileName = "openFileDialog1";
             // 
             // openFileDialog2
@@ -1667,6 +1863,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             ((System.ComponentModel.ISupportInitialize)dataGridViewOptimizationResults).EndInit();
             tabPagePythonPlotter.ResumeLayout(false);
             panel6.ResumeLayout(false);
+            groupBoxConfirmationSettings.ResumeLayout(false);
+            groupBoxConfirmationSettings.PerformLayout();
+            panelConfirmingSingleTrader.ResumeLayout(false);
+            panelConfirmingSingleTrader.PerformLayout();
+            tabPageConfirmingSingleTrader.ResumeLayout(false);
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1687,6 +1888,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private TabPage tabPageSingleTrader;
         private TabPage tabPageMultipleTraders;
         private TabPage tabPageSingleTraderOptimization;
+        private TabPage tabPageConfirmingSingleTrader;
 
         // Menu Items
         private ToolStripMenuItem fileToolStripMenuItem;
@@ -1843,5 +2045,23 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private RichTextBox richTextBoxMultipleTrader;
         private Button btnPlotSingleTraderData;
         private Button btnPlotMultipleTraderData;
+
+        // ConfirmingSingleTrader Tab Controls
+        private Panel panelConfirmingSingleTrader;
+        private GroupBox groupBoxConfirmationSettings;
+        private CheckBox chkConfirmationModeEnabled;
+        private Label lblKarEsigi;
+        private TextBox txtKarEsigi;
+        private Label lblZararEsigi;
+        private TextBox txtZararEsigi;
+        private Label lblTetikleyici;
+        private ComboBox cmbTetikleyici;
+        private Button btnStartConfirmingSingleTrader;
+        private Button btnStopConfirmingSingleTrader;
+        private Button btnPlotConfirmingSingleTraderData;
+        private ProgressBar progressBarConfirmingSingleTrader;
+        private Label lblConfirmingSingleTraderProgress;
+        private Button btnReadStockDataConfirming;
+        private RichTextBox richTextBoxConfirmingSingleTrader;
     }
 }
