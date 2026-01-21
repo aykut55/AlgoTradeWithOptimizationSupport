@@ -25,6 +25,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private MultipleTraderLogger? _multipleTraderLogger = null;
         private SingleTraderOptLogger? _singleTraderOptLogger = null;
         private ConfirmingSingleTraderLogger? _confirmingSingleTraderLogger = null;
+        private ConfirmingMultipleTraderLogger? _confirmingMultipleTraderLogger = null;
         private AlgoTrader? algoTrader = null;
 
         /// <summary>
@@ -50,8 +51,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _singleTraderOptLogger.Log("=== AlgoTrader Objects Created ===");
             _confirmingSingleTraderLogger.Log("=== AlgoTrader Objects Created ===");
 
+            _confirmingMultipleTraderLogger = new ConfirmingMultipleTraderLogger(richTextBoxConfirmingMultipleTrader);
+            _confirmingMultipleTraderLogger.Log("=== AlgoTrader Objects Created ===");
+
             // ConfirmingSingleTrader Tab - Tetikleyici ComboBox default değer
             cmbTetikleyici.SelectedIndex = 0; // "Both"
+            cmbTetikleyiciMulti.SelectedIndex = 0; // "Both"
         }
 
         /// <summary>
@@ -542,6 +547,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _confirmingSingleTraderLogger?.Dispose();
             _confirmingSingleTraderLogger = null;
 
+            _confirmingMultipleTraderLogger?.Dispose();
+            _confirmingMultipleTraderLogger = null;
+
             // AlgoTrader'ı temizle
             algoTrader?.Reset();
             algoTrader = null;
@@ -557,6 +565,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _singleTraderLogger?.Clear();
             _multipleTraderLogger?.Clear();
             _confirmingSingleTraderLogger?.Clear();
+            _confirmingMultipleTraderLogger?.Clear();
 
             // AlgoTrader'ı sıfırla
             algoTrader?.Reset();
@@ -564,6 +573,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _singleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
             _multipleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
             _confirmingSingleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
+            _confirmingMultipleTraderLogger?.Log("=== AlgoTrader Objects Reset ===");
         }
 
         /// <summary>
@@ -2204,6 +2214,342 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         };
 
                         var logEntry = new LogEntry(logLevel, message, "ConfirmingSingleTrader");
+                        _fileSink.Write(logEntry);
+                    }
+                }
+            }
+        }
+
+        // ====================================================================
+        // CONFIRMING MULTIPLE TRADER - BUTTON EVENT HANDLERS
+        // ====================================================================
+
+        private async void btnStartConfirmingMultipleTrader_Click(object sender, EventArgs e)
+        {
+            // Disable button during execution
+            btnStartConfirmingMultipleTrader.Enabled = false;
+            btnStopConfirmingMultipleTrader.Enabled = true;
+
+            try
+            {
+                // Null check - objeler oluşturulmuş mu?
+                if (_confirmingMultipleTraderLogger == null || algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Logger'ı temizle veya oluştur
+                InitializeConfirmingMultipleTraderLogger();
+
+                // AlgoTrader zaten initialize edilmişse reset et
+                if (algoTrader.IsInitialized)
+                {
+                    _confirmingMultipleTraderLogger.Log("Resetting existing AlgoTrader...");
+                    algoTrader.Reset();
+                }
+
+                // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
+                algoTrader.RegisterLogger(_confirmingMultipleTraderLogger);
+
+                _confirmingMultipleTraderLogger.Log("=== ConfirmingMultipleTrader Test Started ===");
+
+                // Stock data kontrolü
+                if (stockDataList == null || stockDataList.Count == 0)
+                {
+                    _confirmingMultipleTraderLogger.LogWarning("Stock data yüklü değil!");
+                    MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _confirmingMultipleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
+
+                // Initialize with stock data
+                algoTrader.Initialize(stockDataList);
+
+                if (algoTrader.IsInitialized)
+                {
+                    _confirmingMultipleTraderLogger.Log("AlgoTrader initialized with stock data.");
+                    _confirmingMultipleTraderLogger.Log(algoTrader.GetDataInfo());
+                    _confirmingMultipleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
+                }
+                else
+                {
+                    _confirmingMultipleTraderLogger.LogError("AlgoTrader initialization failed!");
+                    MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // ═══════════════════════════════════════════════════════════════
+                // CONFIRMATION MODE AYARLARINI OKU
+                // ═══════════════════════════════════════════════════════════════
+                bool confirmationEnabled = chkConfirmationModeEnabledMulti.Checked;
+                double karEsigi = 10.0;
+                double zararEsigi = 5.0;
+                string tetikleyici = cmbTetikleyiciMulti.SelectedItem?.ToString() ?? "Both";
+
+                if (double.TryParse(txtKarEsigiMulti.Text, out double karVal))
+                    karEsigi = karVal;
+
+                if (double.TryParse(txtZararEsigiMulti.Text, out double zararVal))
+                    zararEsigi = zararVal;
+
+                _confirmingMultipleTraderLogger.Log($"Confirmation Mode: {confirmationEnabled}");
+                _confirmingMultipleTraderLogger.Log($"Kar Esigi: {karEsigi}, Zarar Esigi: {zararEsigi}, Tetikleyici: {tetikleyici}");
+
+                // TODO: Bu ayarları MultipleTrader'daki SingleTrader'lara aktaracağız (ConfirmationMode implementasyonundan sonra)
+                _confirmingMultipleTraderLogger.Log("(NOT: ConfirmationMode henuz SingleTrader'a eklenmedi - normal mod calisacak)");
+
+                // Progress reporter oluştur
+                var progress = new Progress<BacktestProgressInfo>(progressInfo =>
+                {
+                    // UI kontrollerini güvenli şekilde güncelle
+                    try
+                    {
+                        UpdateUIControl(() =>
+                        {
+                            if (progressBarConfirmingMultipleTrader != null)
+                            {
+                                progressBarConfirmingMultipleTrader.Value = (int)progressInfo.PercentComplete;
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _confirmingMultipleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
+                    }
+                });
+
+                // Run MultipleTrader with progress (ASYNC)
+                await algoTrader.RunMultipleTraderWithProgressAsync(progress);
+
+                // Python ile grafik çizdirme (opsiyonel)
+                try
+                {
+                    _confirmingMultipleTraderLogger.Log("Çizim için Python çağrılıyor...");
+
+                    // Task.Run ile UI bloğunu önle
+                    await Task.Run(() =>
+                    {
+                        // ImGui/ImPlot ile 5 panelli grafik (mainTrader)
+                        if (algoTrader.multipleTrader != null)
+                        {
+                            algoTrader.PlotImGuiBundle(algoTrader.multipleTrader.GetMainTrader());
+                        }
+                    });
+
+                    _confirmingMultipleTraderLogger.Log("✓ ImGui grafik başarıyla çizdirildi!");
+                }
+                catch (Exception plotEx)
+                {
+                    _confirmingMultipleTraderLogger.LogWarning($"Grafik çizimi hatası: {plotEx.Message}");
+                }
+            }
+            catch (Exception ex)
+            {
+                _confirmingMultipleTraderLogger?.LogError("ConfirmingMultipleTrader test hatası:", ex.Message, ex.StackTrace);
+                MessageBox.Show($"Hata: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                // Re-enable button
+                btnStartConfirmingMultipleTrader.Enabled = true;
+                btnStopConfirmingMultipleTrader.Enabled = false;
+            }
+        }
+
+        private void btnStopConfirmingMultipleTrader_Click(object sender, EventArgs e)
+        {
+            // Run stop logic in background to avoid logger deadlock
+            Task.Run(() =>
+            {
+                _confirmingMultipleTraderLogger?.Log("Stop button clicked - requesting ConfirmingMultipleTrader stop...");
+
+                // Stop MultipleTrader if running
+                if (algoTrader?.multipleTrader != null)
+                {
+                    if (algoTrader.multipleTrader.IsRunning)
+                    {
+                        algoTrader.multipleTrader.Stop();
+                        _confirmingMultipleTraderLogger?.Log("Stop request sent to MultipleTrader");
+                    }
+                    else
+                    {
+                        _confirmingMultipleTraderLogger?.LogWarning("MultipleTrader is not running");
+                    }
+                }
+                else
+                {
+                    _confirmingMultipleTraderLogger?.LogWarning("MultipleTrader instance not found");
+                }
+            });
+
+            // Disable stop button, enable start button (UI thread)
+            btnStopConfirmingMultipleTrader.Enabled = false;
+            btnStartConfirmingMultipleTrader.Enabled = true;
+        }
+
+        private async void btnPlotConfirmingMultipleTraderData_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Null check - AlgoTrader ve multipleTrader oluşturulmuş mu?
+                if (algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader instance yok!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (algoTrader.multipleTrader == null)
+                {
+                    MessageBox.Show("MultipleTrader verisi yok!\n\nÖnce ConfirmingMultipleTrader'ı çalıştırın.", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _confirmingMultipleTraderLogger?.Log("");
+                _confirmingMultipleTraderLogger?.Log("Re-plotting ConfirmingMultipleTrader data with Python ImGui...");
+
+                // Task.Run ile UI bloğunu önle
+                await Task.Run(() =>
+                {
+                    // ImGui/ImPlot ile 5 panelli grafik (mainTrader)
+                    algoTrader.PlotImGuiBundle(algoTrader.multipleTrader.GetMainTrader());
+                });
+
+                _confirmingMultipleTraderLogger?.Log("✓ ConfirmingMultipleTrader grafik başarıyla çizdirildi!");
+            }
+            catch (Exception ex)
+            {
+                _confirmingMultipleTraderLogger?.LogError($"Grafik çizimi hatası: {ex.Message}");
+                MessageBox.Show(
+                    $"Grafik çiziminde hata:\n{ex.Message}\n\n" +
+                    "Python kurulumunu ve imgui-bundle paketini kontrol edin:\n\n" +
+                    "pip install imgui-bundle",
+                    "ImGui Plotting Hatası",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+            }
+        }
+
+        /// <summary>
+        /// ConfirmingMultipleTrader tab için local logger'ı başlat (sadece ilk kez)
+        /// </summary>
+        private void InitializeConfirmingMultipleTraderLogger()
+        {
+            if (_confirmingMultipleTraderLogger == null)
+            {
+                _confirmingMultipleTraderLogger = new ConfirmingMultipleTraderLogger(richTextBoxConfirmingMultipleTrader);
+                _confirmingMultipleTraderLogger.Log("=== ConfirmingMultipleTraderLogger Initialized ===");
+            }
+            else
+            {
+                _confirmingMultipleTraderLogger.Clear();
+                _confirmingMultipleTraderLogger.Log("=== ConfirmingMultipleTraderLogger Cleared ===");
+            }
+        }
+
+        /// <summary>
+        /// ConfirmingMultipleTrader tab için local logger
+        /// Implements IAlgoTraderLogger interface
+        /// </summary>
+        private class ConfirmingMultipleTraderLogger : IAlgoTraderLogger, IDisposable
+        {
+            private readonly RichTextBox _richTextBox;
+            private readonly FileSink _fileSink;
+            private readonly object _lockObject = new object();
+            private bool _isDisposed = false;
+
+            public ConfirmingMultipleTraderLogger(RichTextBox richTextBox)
+            {
+                _richTextBox = richTextBox;
+                _fileSink = new FileSink("logs", "confirmingMultipleTraderLog.txt", appendMode: false);
+            }
+
+            public void Log(params object[] args)
+            {
+                WriteLog("INFO", args);
+            }
+
+            public void LogWarning(params object[] args)
+            {
+                WriteLog("WARNING", args);
+            }
+
+            public void LogError(params object[] args)
+            {
+                WriteLog("ERROR", args);
+            }
+
+            public void Clear()
+            {
+                if (_richTextBox.InvokeRequired)
+                {
+                    _richTextBox.Invoke(() => _richTextBox.Clear());
+                }
+                else
+                {
+                    _richTextBox.Clear();
+                }
+
+                // Dosyayı da temizle
+                _fileSink?.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    _fileSink?.Dispose();
+                }
+            }
+
+            private void WriteLog(string level, params object[] args)
+            {
+                if (args == null || args.Length == 0)
+                    return;
+
+                lock (_lockObject)
+                {
+                    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    var message = string.Join(" ", args);
+                    var logLine = $"[{timestamp}] [{level}] {message}";
+
+                    // RichTextBox'a yaz
+                    if (_richTextBox.InvokeRequired)
+                    {
+                        _richTextBox.Invoke(() =>
+                        {
+                            _richTextBox.AppendText(logLine + Environment.NewLine);
+                            _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                            _richTextBox.ScrollToCaret();
+                        });
+                    }
+                    else
+                    {
+                        _richTextBox.AppendText(logLine + Environment.NewLine);
+                        _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                        _richTextBox.ScrollToCaret();
+                    }
+
+                    // Dosyaya yaz
+                    if (!_isDisposed && _fileSink != null)
+                    {
+                        var logLevel = level switch
+                        {
+                            "WARNING" => LogLevel.Warning,
+                            "ERROR" => LogLevel.Error,
+                            _ => LogLevel.Info
+                        };
+
+                        var logEntry = new LogEntry(logLevel, message, "ConfirmingMultipleTrader");
                         _fileSink.Write(logEntry);
                     }
                 }
