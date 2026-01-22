@@ -126,6 +126,55 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public bool BakiyeInitialized { get; set; }
         public AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics statistics { get; private set; }
 
+        // ═══════════════════════════════════════════════════════════════════════
+        // CONFIRMATION MODE - Sanal Sinyal ve Geciktirilmis Gercek Sinyal Sistemi
+        // ═══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Confirmation Mode aktif mi?
+        /// true: Strateji sinyalleri once sanal uygulanir, P/L'ye gore gercek sinyal uretilir
+        /// false: Normal mod - strateji sinyalleri direkt uygulanir
+        /// </summary>
+        public bool ConfirmationModeEnabled { get; set; } = false;
+
+        /// <summary>
+        /// Kar konfirmasyon esigi (puan)
+        /// Sanal pozisyon bu kadar kar yazinca gercek sinyal uretilir
+        /// Ornek: 10.0 = 10 puan kar yazinca konfirme
+        /// </summary>
+        public double KarKonfirmasyonEsigi { get; set; } = 10.0;
+
+        /// <summary>
+        /// Zarar konfirmasyon esigi (puan) - POZITIF deger girilmeli
+        /// Sanal pozisyon bu kadar zarar yazinca gercek sinyal uretilir
+        /// Ornek: 5.0 = 5 puan zarar yazinca konfirme
+        /// </summary>
+        public double ZararKonfirmasyonEsigi { get; set; } = 5.0;
+
+        /// <summary>
+        /// Konfirmasyon tetikleyici modu
+        /// KarOnly: Sadece kar esiginde konfirme (trend onay)
+        /// ZararOnly: Sadece zarar esiginde konfirme (reversal)
+        /// Both: Her ikisinde de konfirme
+        /// </summary>
+        public ConfirmationTrigger KonfirmasyonTetikleyici { get; set; } = ConfirmationTrigger.Both;
+
+        /// <summary>
+        /// Konfirme edilmis sinyal (readonly)
+        /// ConfirmationMode aktifken bu sinyal gercek emirlere gonderilir
+        /// </summary>
+        public TradeSignals ConfirmedSignal { get; private set; } = TradeSignals.None;
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // CONFIRMATION MODE - Private Sanal Pozisyon Takibi
+        // ═══════════════════════════════════════════════════════════════════════
+
+        private string _sanalYon = "F";              // Sanal pozisyon yonu: "A"=Long, "S"=Short, "F"=Flat
+        private double _sanalGirisFiyati = 0;        // Sanal giris fiyati
+        private int _sanalGirisBarNo = 0;            // Sanal giris bar numarasi
+        private double _sanalKarZarar = 0;           // Sanal anlik kar/zarar (puan)
+        private bool _bekleyenKonfirmasyon = false;  // Konfirmasyon bekliyor mu?
+
         // State flags
         public bool IsStarted { get; internal set; }
         public bool IsRunning { get; internal set; }
@@ -462,6 +511,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             // Reset internal modules (state only)
             ResetModules();
+
+            // Reset Confirmation Mode state
+            ResetConfirmationMode();
 
             // Re-apply user-defined flags after internal resets
             OnApplyUserFlags?.Invoke(this);
@@ -1646,8 +1698,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // --------------------------------------------------------------------------------------------------------------------------------------------
             this.StrategySignal = this.Strategy.OnStep(i);
 
-            // --------------------------------------------------------------------------------------------------------------------------------------------
-            emirleri_setle(i, this.StrategySignal);
+            // ═══════════════════════════════════════════════════════════════
+            // CONFIRMATION MODE KONTROLU
+            // ═══════════════════════════════════════════════════════════════
+            if (ConfirmationModeEnabled)
+            {
+                // Sanal islem ve konfirmasyon kontrolu
+                ProcessConfirmationMode(i, this.StrategySignal);
+
+                // Gercek emirlere SADECE konfirme edilmis sinyali gonder
+                emirleri_setle(i, this.ConfirmedSignal);
+            }
+            else
+            {
+                // Normal mod - strateji sinyalini direkt uygula
+                emirleri_setle(i, this.StrategySignal);
+            }
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
             bool useTimeFiltering = this.signals.TimeFilteringEnabled;
@@ -1714,6 +1780,151 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
             OnRun?.Invoke(this, 1);
+        }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // CONFIRMATION MODE - Islem Metodlari
+        // ═══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Confirmation Mode ana isleme metodu
+        /// Strateji sinyalini sanal pozisyona uygular ve konfirmasyon kontrolu yapar
+        /// </summary>
+        private void ProcessConfirmationMode(int i, TradeSignals strategySignal)
+        {
+            double currentPrice = Data[i].Close;
+
+            // 1. Sanal pozisyonu guncelle (yeni sinyal varsa)
+            UpdateSanalPozisyon(i, strategySignal, currentPrice);
+
+            // 2. Sanal P/L hesapla
+            UpdateSanalKarZarar(currentPrice);
+
+            // 3. Konfirmasyon kontrolu yap
+            ConfirmedSignal = CheckConfirmation();
+        }
+
+        /// <summary>
+        /// Sanal pozisyonu gunceller
+        /// Strateji sinyaline gore sanal Long/Short/Flat pozisyon acar
+        /// </summary>
+        private void UpdateSanalPozisyon(int i, TradeSignals signal, double price)
+        {
+            // ─────────────────────────────────────────────────────────────────
+            // FLAT SINYALI - Direkt gecis (beklemeden)
+            // ─────────────────────────────────────────────────────────────────
+            if (signal == TradeSignals.Flat)
+            {
+                if (_sanalYon != "F")
+                {
+                    _sanalYon = "F";
+                    _sanalKarZarar = 0;
+                    _bekleyenKonfirmasyon = false;
+                    ConfirmedSignal = TradeSignals.Flat;  // FLAT direkt konfirme edilir
+                }
+                return;
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // BUY SINYALI - Sanal Long pozisyon ac
+            // ─────────────────────────────────────────────────────────────────
+            if (signal == TradeSignals.Buy && _sanalYon != "A")
+            {
+                // Eski sanal pozisyonu kapat (varsa)
+                _sanalYon = "A";
+                _sanalGirisFiyati = price;
+                _sanalGirisBarNo = i;
+                _sanalKarZarar = 0;
+                _bekleyenKonfirmasyon = true;
+                ConfirmedSignal = TradeSignals.None;  // Henuz konfirme degil, bekle
+            }
+
+            // ─────────────────────────────────────────────────────────────────
+            // SELL SINYALI - Sanal Short pozisyon ac
+            // ─────────────────────────────────────────────────────────────────
+            if (signal == TradeSignals.Sell && _sanalYon != "S")
+            {
+                // Eski sanal pozisyonu kapat (varsa)
+                _sanalYon = "S";
+                _sanalGirisFiyati = price;
+                _sanalGirisBarNo = i;
+                _sanalKarZarar = 0;
+                _bekleyenKonfirmasyon = true;
+                ConfirmedSignal = TradeSignals.None;  // Henuz konfirme degil, bekle
+            }
+        }
+
+        /// <summary>
+        /// Sanal pozisyonun anlik kar/zararini hesaplar
+        /// </summary>
+        private void UpdateSanalKarZarar(double currentPrice)
+        {
+            if (_sanalYon == "A")
+            {
+                // Long pozisyon: Fiyat artarsa kar
+                _sanalKarZarar = currentPrice - _sanalGirisFiyati;
+            }
+            else if (_sanalYon == "S")
+            {
+                // Short pozisyon: Fiyat duserse kar
+                _sanalKarZarar = _sanalGirisFiyati - currentPrice;
+            }
+            else
+            {
+                _sanalKarZarar = 0;
+            }
+        }
+
+        /// <summary>
+        /// Konfirmasyon kontrolu yapar
+        /// Esik degerlerine gore gercek sinyal uretir veya None doner
+        /// </summary>
+        private TradeSignals CheckConfirmation()
+        {
+            // Bekleyen konfirmasyon yoksa None don
+            if (!_bekleyenKonfirmasyon)
+                return TradeSignals.None;
+
+            // Esik kontrolu
+            bool karTetiklendi = _sanalKarZarar >= KarKonfirmasyonEsigi;
+            bool zararTetiklendi = _sanalKarZarar <= -ZararKonfirmasyonEsigi;
+
+            // Tetikleyici moduna gore kontrol
+            bool konfirmeEt = KonfirmasyonTetikleyici switch
+            {
+                ConfirmationTrigger.KarOnly => karTetiklendi,
+                ConfirmationTrigger.ZararOnly => zararTetiklendi,
+                ConfirmationTrigger.Both => karTetiklendi || zararTetiklendi,
+                _ => false
+            };
+
+            // Konfirme edildi mi?
+            if (konfirmeEt)
+            {
+                _bekleyenKonfirmasyon = false;  // Artik bekleme yok
+
+                // Sanal yonu gercek sinyale cevir
+                if (_sanalYon == "A")
+                    return TradeSignals.Buy;
+                if (_sanalYon == "S")
+                    return TradeSignals.Sell;
+            }
+
+            return TradeSignals.None;  // Henuz konfirme olmadi
+        }
+
+        /// <summary>
+        /// Confirmation Mode durumunu sifirlar
+        /// Reset veya yeni backtest baslatildiginda cagrilir
+        /// </summary>
+        public void ResetConfirmationMode()
+        {
+            _sanalYon = "F";
+            _sanalGirisFiyati = 0;
+            _sanalGirisBarNo = 0;
+            _sanalKarZarar = 0;
+            _bekleyenKonfirmasyon = false;
+            ConfirmedSignal = TradeSignals.None;
         }
 
         public void Finalize(bool saveStatisticsToFile = true)

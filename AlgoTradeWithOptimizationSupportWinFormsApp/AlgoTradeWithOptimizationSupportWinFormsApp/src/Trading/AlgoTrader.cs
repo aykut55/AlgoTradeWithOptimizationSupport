@@ -154,6 +154,26 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
             StrategyFactoryMethod = factory;
         }
 
+        /// <summary>
+        /// Configure Confirmation Mode settings for SingleTrader
+        /// Must be called before RunSingleTraderWithProgressAsync
+        /// </summary>
+        public void ConfigureConfirmationMode(bool enabled, double karEsigi, double zararEsigi, ConfirmationTrigger trigger)
+        {
+            _confirmationModeEnabled = enabled;
+            _karKonfirmasyonEsigi = karEsigi;
+            _zararKonfirmasyonEsigi = zararEsigi;
+            _konfirmasyonTetikleyici = trigger;
+
+            Log($"Confirmation Mode configured: Enabled={enabled}, KarEsigi={karEsigi}, ZararEsigi={zararEsigi}, Trigger={trigger}");
+        }
+
+        // Confirmation Mode private fields
+        private bool _confirmationModeEnabled = false;
+        private double _karKonfirmasyonEsigi = 10.0;
+        private double _zararKonfirmasyonEsigi = 5.0;
+        private ConfirmationTrigger _konfirmasyonTetikleyici = ConfirmationTrigger.Both;
+
         #endregion
 
         #region Logging
@@ -762,6 +782,17 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             // Reset
             singleTrader.Reset();
+
+            // Apply Confirmation Mode settings (if configured)
+            singleTrader.ConfirmationModeEnabled = _confirmationModeEnabled;
+            singleTrader.KarKonfirmasyonEsigi = _karKonfirmasyonEsigi;
+            singleTrader.ZararKonfirmasyonEsigi = _zararKonfirmasyonEsigi;
+            singleTrader.KonfirmasyonTetikleyici = _konfirmasyonTetikleyici;
+
+            if (_confirmationModeEnabled)
+            {
+                Log($"✓ Confirmation Mode aktif - Kar: {_karKonfirmasyonEsigi}, Zarar: {_zararKonfirmasyonEsigi}, Trigger: {_konfirmasyonTetikleyici}");
+            }
 
             singleTrader.SymbolName             = this.SymbolName;
             singleTrader.SymbolPeriod           = this.SymbolPeriod;

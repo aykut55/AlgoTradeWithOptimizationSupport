@@ -1967,8 +1967,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 _confirmingSingleTraderLogger.Log($"Confirmation Mode: {confirmationEnabled}");
                 _confirmingSingleTraderLogger.Log($"Kar Esigi: {karEsigi}, Zarar Esigi: {zararEsigi}, Tetikleyici: {tetikleyici}");
 
-                // TODO: Bu ayarları SingleTrader'a aktaracağız (ConfirmationMode implementasyonundan sonra)
-                _confirmingSingleTraderLogger.Log("(NOT: ConfirmationMode henuz SingleTrader'a eklenmedi - normal mod calisacak)");
+                // Confirmation Mode ayarlarını parse et
+                ConfirmationTrigger trigger = tetikleyici switch
+                {
+                    "KarOnly" => ConfirmationTrigger.KarOnly,
+                    "ZararOnly" => ConfirmationTrigger.ZararOnly,
+                    "Both" => ConfirmationTrigger.Both,
+                    _ => ConfirmationTrigger.Both
+                };
+
+                _confirmingSingleTraderLogger.Log($"Parsed Trigger: {trigger}");
+
+                // AlgoTrader'a Confirmation Mode ayarlarını gönder
+                algoTrader.ConfigureConfirmationMode(confirmationEnabled, karEsigi, zararEsigi, trigger);
 
                 // Progress reporter oluştur
                 var progress = new Progress<BacktestProgressInfo>(progressInfo =>
