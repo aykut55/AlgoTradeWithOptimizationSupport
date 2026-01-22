@@ -950,6 +950,13 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             Log("=== Running Multiple Trader Demo (Async) ===");
             Log($"Processing {totalBars} bars total...");
 
+            if (_confirmationModeEnabled)
+            {
+                Log($"✓ Confirmation Mode aktif - Her trader için:");
+                Log($"  Kar Eşiği: {_karKonfirmasyonEsigi}, Zarar Eşiği: {_zararKonfirmasyonEsigi}");
+                Log($"  Tetikleyici: {_konfirmasyonTetikleyici}");
+            }
+
             // Dispose old indicators before creating new one
             if (indicators != null)
             {
@@ -1062,6 +1069,12 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                 singleTrader.Reset();
 
+                // Apply Confirmation Mode settings (if configured)
+                singleTrader.ConfirmationModeEnabled = _confirmationModeEnabled;
+                singleTrader.KarKonfirmasyonEsigi = _karKonfirmasyonEsigi;
+                singleTrader.ZararKonfirmasyonEsigi = _zararKonfirmasyonEsigi;
+                singleTrader.KonfirmasyonTetikleyici = _konfirmasyonTetikleyici;
+
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsFxParite(lotSayisi: 0.01)
@@ -1126,6 +1139,12 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
                 singleTrader.Reset();
 
+                // Apply Confirmation Mode settings (if configured)
+                singleTrader.ConfirmationModeEnabled = _confirmationModeEnabled;
+                singleTrader.KarKonfirmasyonEsigi = _karKonfirmasyonEsigi;
+                singleTrader.ZararKonfirmasyonEsigi = _zararKonfirmasyonEsigi;
+                singleTrader.KonfirmasyonTetikleyici = _konfirmasyonTetikleyici;
+
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
                     .SetKontratParamsFxParite(lotSayisi: 0.01)
@@ -1189,6 +1208,12 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.SetStrategy(strategy);
 
                 singleTrader.Reset();
+
+                // Apply Confirmation Mode settings (if configured)
+                singleTrader.ConfirmationModeEnabled = _confirmationModeEnabled;
+                singleTrader.KarKonfirmasyonEsigi = _karKonfirmasyonEsigi;
+                singleTrader.ZararKonfirmasyonEsigi = _zararKonfirmasyonEsigi;
+                singleTrader.KonfirmasyonTetikleyici = _konfirmasyonTetikleyici;
 
                 singleTrader.pozisyonBuyuklugu.Reset()
                     .SetBakiyeParams(ilkBakiye: 100000.0)
