@@ -160,6 +160,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public ConfirmationTrigger KonfirmasyonTetikleyici { get; set; } = ConfirmationTrigger.Both;
 
         /// <summary>
+        /// Esik tipi - Değer mi Yüzde mi?
+        /// false: Değer bazlı (örn: 5000 puan kar, -3000 puan zarar)
+        /// true: Yüzde bazlı (örn: %4 kar, %-2.5 zarar)
+        /// </summary>
+        public bool EsikTipiYuzde { get; set; } = false;
+
+        /// <summary>
         /// Konfirme edilmis sinyal (readonly)
         /// ConfirmationMode aktifken bu sinyal gercek emirlere gonderilir
         /// </summary>
@@ -1701,10 +1708,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             // ═══════════════════════════════════════════════════════════════
             // CONFIRMATION MODE KONTROLU
             // ═══════════════════════════════════════════════════════════════
-            if (ConfirmationModeEnabled)
+            /*if (ConfirmationModeEnabled)
             {
                 // Sanal islem ve konfirmasyon kontrolu
-                ProcessConfirmationMode(i, this.StrategySignal);
+                ProcessConfirmationModeNew(i, this.StrategySignal);
 
                 // Gercek emirlere SADECE konfirme edilmis sinyali gonder
                 emirleri_setle(i, this.ConfirmedSignal);
@@ -1713,7 +1720,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             {
                 // Normal mod - strateji sinyalini direkt uygula
                 emirleri_setle(i, this.StrategySignal);
-            }
+            }*/
+
+            // --------------------------------------------------------------------------------------------------------------------------------------------
+            // Normal mod - strateji sinyalini direkt uygula
+            emirleri_setle(i, this.StrategySignal);
 
             // --------------------------------------------------------------------------------------------------------------------------------------------
             bool useTimeFiltering = this.signals.TimeFilteringEnabled;
@@ -1785,6 +1796,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         // ═══════════════════════════════════════════════════════════════════════
         // CONFIRMATION MODE - Islem Metodlari
         // ═══════════════════════════════════════════════════════════════════════
+
+        private void ProcessConfirmationModeNew(int i, TradeSignals strategySignal)
+        {
+            double currentPrice = Data[i].Close;
+
+            // 1. Sanal pozisyonu guncelle (yeni sinyal varsa)
+            UpdateSanalPozisyon(i, strategySignal, currentPrice);
+        }
 
         /// <summary>
         /// Confirmation Mode ana isleme metodu

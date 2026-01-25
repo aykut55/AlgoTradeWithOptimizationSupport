@@ -25,6 +25,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private MultipleTraderLogger? _multipleTraderLogger = null;
         private SingleTraderOptLogger? _singleTraderOptLogger = null;
         private ConfirmingSingleTraderLogger? _confirmingSingleTraderLogger = null;
+        private ConfirmingSingleTrader2Logger? _confirmingSingleTrader2Logger = null;
         private ConfirmingMultipleTraderLogger? _confirmingMultipleTraderLogger = null;
         private AlgoTrader? algoTrader = null;
 
@@ -51,11 +52,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             _singleTraderOptLogger.Log("=== AlgoTrader Objects Created ===");
             _confirmingSingleTraderLogger.Log("=== AlgoTrader Objects Created ===");
 
+            _confirmingSingleTrader2Logger = new ConfirmingSingleTrader2Logger(richTextBoxConfirmingSingleTrader2);
+            _confirmingSingleTrader2Logger.Log("=== AlgoTrader Objects Created ===");
+
             _confirmingMultipleTraderLogger = new ConfirmingMultipleTraderLogger(richTextBoxConfirmingMultipleTrader);
             _confirmingMultipleTraderLogger.Log("=== AlgoTrader Objects Created ===");
 
             // ConfirmingSingleTrader Tab - Tetikleyici ComboBox default değer
             cmbTetikleyici.SelectedIndex = 0; // "Both"
+            cmbTetikleyici2.SelectedIndex = 0; // "Both"
+            cmbEsikTipi2.SelectedIndex = 0; // "Deger"
             cmbTetikleyiciMulti.SelectedIndex = 0; // "Both"
         }
 
@@ -2575,6 +2581,338 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         _fileSink.Write(logEntry);
                     }
                 }
+            }
+        }
+
+        // ====================================================================
+        // CONFIRMINGSINGLETRADER2 - EVENT HANDLERS & LOGGER
+        // ====================================================================
+
+        /// <summary>
+        /// ConfirmingSingleTrader2 logger'ı initialize et veya temizle
+        /// </summary>
+        private void InitializeConfirmingSingleTrader2Logger()
+        {
+            if (_confirmingSingleTrader2Logger == null)
+            {
+                _confirmingSingleTrader2Logger = new ConfirmingSingleTrader2Logger(richTextBoxConfirmingSingleTrader2);
+                _confirmingSingleTrader2Logger.Log("=== ConfirmingSingleTrader2Logger Initialized ===");
+            }
+            else
+            {
+                _confirmingSingleTrader2Logger.Clear();
+                _confirmingSingleTrader2Logger.Log("=== ConfirmingSingleTrader2Logger Cleared ===");
+            }
+        }
+
+        /// <summary>
+        /// ConfirmingSingleTrader2 tab için local logger
+        /// Implements IAlgoTraderLogger interface
+        /// </summary>
+        private class ConfirmingSingleTrader2Logger : IAlgoTraderLogger, IDisposable
+        {
+            private readonly RichTextBox _richTextBox;
+            private readonly FileSink _fileSink;
+            private readonly object _lockObject = new object();
+            private bool _isDisposed = false;
+
+            public ConfirmingSingleTrader2Logger(RichTextBox richTextBox)
+            {
+                _richTextBox = richTextBox;
+                _fileSink = new FileSink("logs", "confirmingSingleTrader2Log.txt", appendMode: false);
+            }
+
+            public void Log(params object[] args)
+            {
+                WriteLog("INFO", args);
+            }
+
+            public void LogWarning(params object[] args)
+            {
+                WriteLog("WARNING", args);
+            }
+
+            public void LogError(params object[] args)
+            {
+                WriteLog("ERROR", args);
+            }
+
+            public void Clear()
+            {
+                if (_richTextBox.InvokeRequired)
+                {
+                    _richTextBox.Invoke(() => _richTextBox.Clear());
+                }
+                else
+                {
+                    _richTextBox.Clear();
+                }
+
+                // Dosyayı da temizle
+                _fileSink?.Clear();
+            }
+
+            public void Dispose()
+            {
+                if (!_isDisposed)
+                {
+                    _isDisposed = true;
+                    _fileSink?.Dispose();
+                }
+            }
+
+            private void WriteLog(string level, params object[] args)
+            {
+                if (args == null || args.Length == 0)
+                    return;
+
+                lock (_lockObject)
+                {
+                    var timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    var message = string.Join(" ", args);
+                    var logLine = $"[{timestamp}] [{level}] {message}";
+
+                    // RichTextBox'a yaz
+                    if (_richTextBox.InvokeRequired)
+                    {
+                        _richTextBox.Invoke(() =>
+                        {
+                            _richTextBox.AppendText(logLine + Environment.NewLine);
+                            _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                            _richTextBox.ScrollToCaret();
+                        });
+                    }
+                    else
+                    {
+                        _richTextBox.AppendText(logLine + Environment.NewLine);
+                        _richTextBox.SelectionStart = _richTextBox.Text.Length;
+                        _richTextBox.ScrollToCaret();
+                    }
+
+                    // Dosyaya yaz
+                    if (!_isDisposed && _fileSink != null)
+                    {
+                        var logLevel = level switch
+                        {
+                            "WARNING" => LogLevel.Warning,
+                            "ERROR" => LogLevel.Error,
+                            _ => LogLevel.Info
+                        };
+
+                        var logEntry = new LogEntry(logLevel, message, "ConfirmingSingleTrader2");
+                        _fileSink.Write(logEntry);
+                    }
+                }
+            }
+        }
+
+        private async void btnStartConfirmingSingleTrader2_Click(object sender, EventArgs e)
+        {
+            // Disable button during execution
+            btnStartConfirmingSingleTrader2.Enabled = false;
+            btnStopConfirmingSingleTrader2.Enabled = true;
+
+            try
+            {
+                // Null check - objeler oluşturulmuş mu?
+                if (_confirmingSingleTrader2Logger == null || algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Logger'ı temizle veya oluştur
+                InitializeConfirmingSingleTrader2Logger();
+
+                // AlgoTrader zaten initialize edilmişse reset et
+                if (algoTrader.IsInitialized)
+                {
+                    _confirmingSingleTrader2Logger.Log("Resetting existing AlgoTrader...");
+                    algoTrader.Reset();
+                }
+
+                // Logger'ı AlgoTrader'a tekrar kaydet (reset sonrası gerekli)
+                algoTrader.RegisterLogger(_confirmingSingleTrader2Logger);
+
+                _confirmingSingleTrader2Logger.Log("=== ConfirmingSingleTrader2 Test Started ===");
+
+                // Stock data kontrolü
+                if (stockDataList == null || stockDataList.Count == 0)
+                {
+                    _confirmingSingleTrader2Logger.LogWarning("Stock data yüklü değil!");
+                    MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _confirmingSingleTrader2Logger.Log($"Data loaded: {stockDataList.Count} bars");
+
+                // Initialize with stock data
+                algoTrader.Initialize(stockDataList);
+
+                if (algoTrader.IsInitialized)
+                {
+                    _confirmingSingleTrader2Logger.Log("AlgoTrader initialized with stock data.");
+                    _confirmingSingleTrader2Logger.Log(algoTrader.GetDataInfo());
+                    _confirmingSingleTrader2Logger.Log("=== AlgoTrader Initialized Successfully ===");
+                }
+                else
+                {
+                    _confirmingSingleTrader2Logger.LogError("AlgoTrader initialization failed!");
+                    MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // GUI'den Confirmation Mode ayarlarını oku
+                bool confirmationEnabled = chkConfirmationModeEnabled2.Checked;
+                double karEsigi = double.TryParse(txtKarEsigi2.Text, out var k) ? k : 5000.0;
+                double zararEsigi = double.TryParse(txtZararEsigi2.Text, out var z) ? z : -3000.0;
+                bool esikTipiYuzde = cmbEsikTipi2.SelectedItem?.ToString() == "Yuzde";
+
+                // Tetikleyici'yi parse et
+                ConfirmationTrigger tetikleyici = ConfirmationTrigger.Both;
+                string selectedTrigger = cmbTetikleyici2.SelectedItem?.ToString() ?? "Both";
+                if (selectedTrigger == "KarOnly") tetikleyici = ConfirmationTrigger.KarOnly;
+                else if (selectedTrigger == "ZararOnly") tetikleyici = ConfirmationTrigger.ZararOnly;
+
+                // Confirmation Mode'u yapılandır
+                algoTrader.ConfigureConfirmationMode(confirmationEnabled, karEsigi, zararEsigi, tetikleyici, esikTipiYuzde);
+
+                _confirmingSingleTrader2Logger.Log($"Confirmation Mode: Enabled={confirmationEnabled}");
+                _confirmingSingleTrader2Logger.Log($"  Eşik Tipi: {(esikTipiYuzde ? "Yüzde" : "Değer")}");
+                _confirmingSingleTrader2Logger.Log($"  Kar Eşiği: {karEsigi}, Zarar Eşiği: {zararEsigi}");
+                _confirmingSingleTrader2Logger.Log($"  Tetikleyici: {tetikleyici}");
+
+                // Progress reporter oluştur
+                var progress = new Progress<BacktestProgressInfo>(progressInfo =>
+                {
+                    // UI kontrollerini güvenli şekilde güncelle
+                    try
+                    {
+                        UpdateUIControl(() =>
+                        {
+                            if (progressBarConfirmingSingleTrader2 != null)
+                            {
+                                progressBarConfirmingSingleTrader2.Value = (int)progressInfo.PercentComplete;
+                            }
+
+                            if (lblConfirmingSingleTrader2Progress != null)
+                            {
+                                lblConfirmingSingleTrader2Progress.Text = $"{progressInfo.CurrentBar}/{progressInfo.TotalBars} - {progressInfo.PercentComplete:F1}%";
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _confirmingSingleTrader2Logger?.LogWarning($"Progress update failed: {ex.Message}");
+                    }
+                });
+
+                // Run MultipleTrader with progress (ASYNC) - MultipleTraders tabındaki gibi
+                await algoTrader.RunConfirmingSingleTraderWithProgressAsync(progress);
+
+                if (lblConfirmingSingleTrader2Progress != null)
+                {
+                    lblConfirmingSingleTrader2Progress.Text = "Backtest completed!";
+                }
+
+                _confirmingSingleTrader2Logger.Log("=== ConfirmingSingleTrader2 Test Completed ===");
+            }
+            catch (Exception ex)
+            {
+                _confirmingSingleTrader2Logger?.LogError("ConfirmingSingleTrader2 test hatası:", ex.Message, ex.StackTrace);
+                MessageBox.Show($"Hata: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (lblConfirmingSingleTrader2Progress != null)
+                {
+                    lblConfirmingSingleTrader2Progress.Text = "Error occurred";
+                }
+            }
+            finally
+            {
+                // Re-enable button
+                btnStartConfirmingSingleTrader2.Enabled = true;
+                btnStopConfirmingSingleTrader2.Enabled = false;
+            }
+        }
+
+        private void btnStopConfirmingSingleTrader2_Click(object sender, EventArgs e)
+        {
+            // Run stop logic in background to avoid logger deadlock
+            Task.Run(() =>
+            {
+                _confirmingSingleTrader2Logger?.Log("Stop button clicked - requesting ConfirmingSingleTrader2 stop...");
+
+                // Stop MultipleTrader if running
+                if (algoTrader?.multipleTrader != null)
+                {
+                    if (algoTrader.multipleTrader.IsRunning)
+                    {
+                        algoTrader.multipleTrader.Stop();
+                        _confirmingSingleTrader2Logger?.Log("Stop request sent to MultipleTrader");
+                    }
+                    else
+                    {
+                        _confirmingSingleTrader2Logger?.LogWarning("MultipleTrader is not running");
+                    }
+                }
+                else
+                {
+                    _confirmingSingleTrader2Logger?.LogWarning("MultipleTrader instance not found");
+                }
+            });
+
+            // Disable stop button, enable start button (UI thread)
+            btnStopConfirmingSingleTrader2.Enabled = false;
+            btnStartConfirmingSingleTrader2.Enabled = true;
+        }
+
+        private async void btnPlotConfirmingSingleTrader2Data_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                // Null check - AlgoTrader ve multipleTrader oluşturulmuş mu?
+                if (algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader instance yok!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                if (algoTrader.multipleTrader == null)
+                {
+                    MessageBox.Show("MultipleTrader verisi yok!\n\nÖnce ConfirmingSingleTrader2'yi çalıştırın.", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _confirmingSingleTrader2Logger?.Log("");
+                _confirmingSingleTrader2Logger?.Log("Re-plotting ConfirmingSingleTrader2 data with Python ImGui...");
+
+                // Task.Run ile UI bloğunu önle
+                await Task.Run(() =>
+                {
+                    // MultipleTrader'ın mainTrader'ını kullanarak çizdir
+                    var mainTrader = algoTrader.multipleTrader.GetMainTrader();
+                    algoTrader.PlotImGuiBundle(mainTrader);
+                });
+
+                _confirmingSingleTrader2Logger?.Log("✓ ConfirmingSingleTrader2 grafik başarıyla çizdirildi!");
+            }
+            catch (Exception ex)
+            {
+                _confirmingSingleTrader2Logger?.LogError($"Grafik çizimi hatası: {ex.Message}");
+                MessageBox.Show(
+                    $"Grafik çiziminde hata:\n{ex.Message}\n\n" +
+                    "Python kurulumunu ve imgui-bundle paketini kontrol edin:\n\n" +
+                    "pip install imgui-bundle",
+                    "ImGui Plotting Hatası",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
             }
         }
 

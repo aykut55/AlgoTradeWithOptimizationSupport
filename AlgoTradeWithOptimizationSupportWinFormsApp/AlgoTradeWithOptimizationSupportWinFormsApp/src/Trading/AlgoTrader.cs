@@ -68,6 +68,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         private IAlgoTraderLogger? Logger { get; set; }
         public SingleTrader singleTrader { get; private set; }
         public MultipleTrader multipleTrader { get; private set; }
+        public ConfirmingSingleTrader confirmingSingleTrader { get; private set; }
         public IndicatorManager indicators { get; private set; }
         public BaseStrategy strategy { get; private set; }
         public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
@@ -158,14 +159,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         /// Configure Confirmation Mode settings for SingleTrader
         /// Must be called before RunSingleTraderWithProgressAsync
         /// </summary>
-        public void ConfigureConfirmationMode(bool enabled, double karEsigi, double zararEsigi, ConfirmationTrigger trigger)
+        public void ConfigureConfirmationMode(bool enabled, double karEsigi, double zararEsigi, ConfirmationTrigger trigger, bool esikTipiYuzde = false)
         {
             _confirmationModeEnabled = enabled;
             _karKonfirmasyonEsigi = karEsigi;
             _zararKonfirmasyonEsigi = zararEsigi;
             _konfirmasyonTetikleyici = trigger;
+            _esikTipiYuzde = esikTipiYuzde;
 
-            Log($"Confirmation Mode configured: Enabled={enabled}, KarEsigi={karEsigi}, ZararEsigi={zararEsigi}, Trigger={trigger}");
+            Log($"Confirmation Mode configured: Enabled={enabled}, EsikTipi={(_esikTipiYuzde ? "Yüzde" : "Değer")}, KarEsigi={karEsigi}, ZararEsigi={zararEsigi}, Trigger={trigger}");
         }
 
         // Confirmation Mode private fields
@@ -173,6 +175,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         private double _karKonfirmasyonEsigi = 10.0;
         private double _zararKonfirmasyonEsigi = 5.0;
         private ConfirmationTrigger _konfirmasyonTetikleyici = ConfirmationTrigger.Both;
+        private bool _esikTipiYuzde = false; // false = Değer, true = Yüzde
 
         #endregion
 
@@ -1549,6 +1552,211 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // NOTE: Do NOT dispose here - optimizer data is needed for plotting and analysis
             // Disposal will happen at the start of next run (see cleanup section above)
             // This allows user to access optimization results anytime before next run
+        }
+
+        public async Task RunConfirmingSingleTraderWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
+        {
+            if (!IsInitialized)
+            {
+                LogError("AlgoTrader not initialized!");
+                throw new InvalidOperationException("AlgoTrader not initialized");
+            }
+
+            int totalBars = Data.Count;
+
+            Log("");
+            Log("=== Running ConfirmingSingleTrader2 Demo (Async) ===");
+            Log($"Processing {totalBars} bars total...");
+
+            Log($"✓ Confirmation Mode Ayarları:");
+            Log($"  Eşik Tipi: {(_esikTipiYuzde ? "Yüzde" : "Değer")}");
+            Log($"  Kar Eşiği: {_karKonfirmasyonEsigi}, Zarar Eşiği: {_zararKonfirmasyonEsigi}");
+            Log($"  Tetikleyici: {_konfirmasyonTetikleyici}");
+
+            // Dispose old indicators before creating new one
+            if (indicators != null)
+            {
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
+            }
+
+            indicators = new IndicatorManager(this.Data);
+            if (indicators == null)
+                return;
+
+            // *****************************************************************************
+            // CLEANUP PREVIOUS RUN (if exists)
+            // *****************************************************************************
+            if (confirmingSingleTrader != null)
+            {
+                Log("Disposing previous confirmingSingleTrader instance...");
+                confirmingSingleTrader.Dispose();
+                confirmingSingleTrader = null;
+            }
+
+            // *****************************************************************************
+            // CREATE NEW CONFIRMINGSINGLETRADER
+            // *****************************************************************************
+            confirmingSingleTrader = new ConfirmingSingleTrader(0, this.Data, indicators, Logger);
+            confirmingSingleTrader.Reset();
+
+            // Eşik ayarlarını ConfirmingSingleTrader'a aktar
+            confirmingSingleTrader.EsikTipiYuzde = _esikTipiYuzde;
+            confirmingSingleTrader.KarEsigi = _karKonfirmasyonEsigi;
+            confirmingSingleTrader.ZararEsigi = _zararKonfirmasyonEsigi;
+            confirmingSingleTrader.Tetikleyici = _konfirmasyonTetikleyici;
+
+            // *****************************************************************************
+            // MAIN TRADER - Gerçek AL/SAT sinyallerini üretecek
+            // *****************************************************************************
+            var mainTrader = confirmingSingleTrader.GetMainTrader();
+            mainTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+            mainTrader.CreateModules();
+            mainTrader.Reset();
+            mainTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsViopEndex(kontratSayisi: 1)
+                .SetKomisyonParams(komisyonCarpan: 20.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
+            confirmingSingleTrader.DynamicPositionSizeEnabled = false;
+            mainTrader.pozisyonBuyuklugu.PyramidingEnabled = false;
+            mainTrader.Init();
+
+            // *****************************************************************************
+            // SIGNAL TRADER - Sinyal üretecek trader (kar/zararına bakılacak)
+            // *****************************************************************************
+            {
+                StrategyFactoryMethod = null;
+
+                var StrategyParams = new Dictionary<string, object>
+                {
+                    { "fastPeriod", 10 },
+                    { "slowPeriod", 20 }
+                };
+
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                    int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                    return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
+                });
+
+                var signalTrader = new SingleTrader(0, "signalTrader", this.Data, indicators, Logger);
+                signalTrader.SetCallbacks(OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal, OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder, OnSingleTraderProgress, OnApplyUserFlags);
+                signalTrader.CreateModules();
+
+                if (StrategyFactoryMethod == null)
+                    throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
+
+                var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+                strategy.OnInit();
+                signalTrader.SetStrategy(strategy);
+                signalTrader.Reset();
+
+                signalTrader.pozisyonBuyuklugu.Reset()
+                    .SetBakiyeParams(ilkBakiye: 100000.0)
+                    .SetKontratParamsViopEndex(kontratSayisi: 1)
+                    .SetKomisyonParams(komisyonCarpan: 20.0)
+                    .SetKaymaParams(kaymaMiktari: 0.5);
+
+                signalTrader.Init();
+                confirmingSingleTrader.AddTrader(signalTrader);
+
+                Log($"SignalTrader oluşturuldu - Kar/Zararına bakılacak");
+            }
+
+            confirmingSingleTrader.Init();
+
+            // *****************************************************************************
+            // RUN BACKTEST
+            // *****************************************************************************
+            this.timeManager.ResetTimer("1");
+            this.timeManager.StartTimer("1");
+            confirmingSingleTrader.Initialize();
+            this.timeManager.StopTimer("1");
+
+            var startTime = System.DateTime.Now;
+
+            this.timeManager.ResetTimer("2");
+            this.timeManager.StartTimer("2");
+
+            await Task.Run(() =>
+            {
+                confirmingSingleTrader.IsStarted = true;
+                confirmingSingleTrader.IsRunning = true;
+                confirmingSingleTrader.IsStopped = false;
+                confirmingSingleTrader.IsStopRequested = false;
+
+                for (int i = 0; i < totalBars; i++)
+                {
+                    if (confirmingSingleTrader.IsStopRequested)
+                    {
+                        Log($"ConfirmingSingleTrader2 stopped by user request at bar {i}/{totalBars}");
+                        break;
+                    }
+
+                    confirmingSingleTrader.Run(i);
+
+                    // Report progress every 10 bars or on last bar
+                    if (progress != null && (i % 10 == 0 || i == totalBars - 1))
+                    {
+                        var elapsed = System.DateTime.Now - startTime;
+                        double percentComplete = (double)(i + 1) / totalBars * 100.0;
+                        double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
+                        int remainingBars = totalBars - (i + 1);
+                        TimeSpan estimatedRemaining = barsPerSecond > 0
+                            ? TimeSpan.FromSeconds(remainingBars / barsPerSecond)
+                            : TimeSpan.Zero;
+
+                        var progressInfo = new BacktestProgressInfo
+                        {
+                            CurrentBar = i + 1,
+                            TotalBars = totalBars,
+                            PercentComplete = percentComplete,
+                            StatusMessage = $"Processing bar {i + 1}/{totalBars}",
+                            ElapsedTime = elapsed,
+                            EstimatedTimeRemaining = estimatedRemaining
+                        };
+
+                        progress.Report(progressInfo);
+                    }
+
+                    if (confirmingSingleTrader.OnProgress != null && (i % 10 == 0 || i == totalBars - 1))
+                        confirmingSingleTrader.OnProgress?.Invoke(confirmingSingleTrader, i, totalBars);
+                }
+            });
+            this.timeManager.StopTimer("2");
+
+            if (confirmingSingleTrader.OnProgress != null)
+                confirmingSingleTrader.OnProgress?.Invoke(confirmingSingleTrader, totalBars, totalBars);
+
+            this.timeManager.ResetTimer("3");
+            this.timeManager.StartTimer("3");
+
+            if (confirmingSingleTrader.IsStopRequested)
+                confirmingSingleTrader.Finalize(false);
+            else
+                confirmingSingleTrader.Finalize(true);
+
+            this.timeManager.StopTimer("3");
+
+            Log("");
+
+            var t1 = this.timeManager.GetElapsedTime("1");
+            var t2 = this.timeManager.GetElapsedTime("2");
+            var t3 = this.timeManager.GetElapsedTime("3");
+
+            Log($"t1 = {t1} msec...");
+            Log($"t2 = {t2} msec...");
+            Log($"t3 = {t3} msec...");
+
+            Log("");
+            Log("ConfirmingSingleTrader2 demo completed (Async)");
+
+            confirmingSingleTrader.IsRunning = false;
+            confirmingSingleTrader.IsStopped = true;
+            Log($"ConfirmingSingleTrader2 finished - IsRunning: {confirmingSingleTrader.IsRunning}, IsStopped: {confirmingSingleTrader.IsStopped}");
         }
 
         /// <summary>
