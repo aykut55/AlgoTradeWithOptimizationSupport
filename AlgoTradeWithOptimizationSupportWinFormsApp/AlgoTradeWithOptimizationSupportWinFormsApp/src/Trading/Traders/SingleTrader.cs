@@ -89,6 +89,61 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
         public Action<SingleTrader, int, int>? OnProgress; // assign from outside: trader.Callback = (t, i) => { /* ... */ };
 
         public TradeSignals StrategySignal { get; set; }
+
+        // ═══════════════════════════════════════════════════════════════════════
+        // SCREENING (TARAMA) PROPERTIES - Son sinyal ve açık pozisyon bilgileri
+        // Mevcut signals ve lists yapısından türetilir
+        // ═══════════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Son yön: "A" (Al/Long), "S" (Sat/Short), "F" (Flat)
+        /// signals.SonYon'dan alınır
+        /// </summary>
+        public string SonYon => signals?.SonYon ?? "F";
+
+        /// <summary>
+        /// Son sinyalin geldiği bar index'i
+        /// signals.SonBarNo'dan alınır
+        /// </summary>
+        public int SonSinyalBarIndex => signals?.SonBarNo ?? -1;
+
+        /// <summary>
+        /// Son sinyalden bu yana kaç bar geçti (0 = bu bar'da sinyal geldi)
+        /// </summary>
+        public int SonSinyaldenBeriBarSayisi => signals?.SonBarNo >= 0 ? (Data.Count - 1 - signals.SonBarNo) : -1;
+
+        /// <summary>
+        /// Açık pozisyon var mı? (A veya S durumunda)
+        /// </summary>
+        public bool AcikPozisyonVar => SonYon == "A" || SonYon == "S";
+
+        /// <summary>
+        /// Son bar için Kar/Zarar (fiyat olarak - puan)
+        /// lists.KarZararFiyatList'ten alınır
+        /// </summary>
+        public double SonKarZararFiyat => (lists?.KarZararFiyatList != null && Data.Count > 0)
+            ? lists.KarZararFiyatList[Data.Count - 1] : 0.0;
+
+        /// <summary>
+        /// Son bar için Kar/Zarar (yüzde olarak)
+        /// lists.KarZararPuanYuzdeList'ten alınır
+        /// </summary>
+        public double SonKarZararYuzde => (lists?.KarZararPuanYuzdeList != null && Data.Count > 0)
+            ? lists.KarZararPuanYuzdeList[Data.Count - 1] : 0.0;
+
+        /// <summary>
+        /// Son sinyal fiyatı (giriş fiyatı)
+        /// signals.SonFiyat'tan alınır
+        /// </summary>
+        public double SonSinyalFiyati => signals?.SonFiyat ?? 0.0;
+
+        /// <summary>
+        /// Tarama özet bilgisi - tek satırda tüm bilgiler
+        /// </summary>
+        public string TaramaOzeti => $"{SonYon} | Bar:{SonSinyaldenBeriBarSayisi} | KZ:{SonKarZararFiyat:F2} | %:{SonKarZararYuzde:F2}";
+
+        // ═══════════════════════════════════════════════════════════════════════
+
         //public bool NoneSignal { get; private set; }
         //public bool BuySignal { get; private set; }
         //public bool SellSignal { get; private set; }

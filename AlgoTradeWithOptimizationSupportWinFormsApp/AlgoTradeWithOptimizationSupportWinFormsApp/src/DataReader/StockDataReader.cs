@@ -148,10 +148,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
                         DateTime = dateTime,
                         Date = dateTime.Date,
                         Time = dateTime.TimeOfDay,
-                        Open = double.Parse(parts[2], culture),
-                        High = double.Parse(parts[3], culture),
-                        Low = double.Parse(parts[4], culture),
-                        Close = double.Parse(parts[5], culture),
+                        Open = double.Parse(parts[2], CultureInfo.InvariantCulture),
+                        High = double.Parse(parts[3], CultureInfo.InvariantCulture),
+                        Low = double.Parse(parts[4], CultureInfo.InvariantCulture),
+                        Close = double.Parse(parts[5], CultureInfo.InvariantCulture),
                         Volume = long.Parse(parts[6], NumberStyles.Any, culture), // Changed to long.Parse
                         Size = int.Parse(parts[7], NumberStyles.Any, culture)
                     };
@@ -220,10 +220,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
                             DateTime = dateTime,
                             Date = dateTime.Date,
                             Time = dateTime.TimeOfDay,
-                            Open = double.Parse(parts[2], culture),
-                            High = double.Parse(parts[3], culture),
-                            Low = double.Parse(parts[4], culture),
-                            Close = double.Parse(parts[5], culture),
+                            Open = double.Parse(parts[2], CultureInfo.InvariantCulture),
+                            High = double.Parse(parts[3], CultureInfo.InvariantCulture),
+                            Low = double.Parse(parts[4], CultureInfo.InvariantCulture),
+                            Close = double.Parse(parts[5], CultureInfo.InvariantCulture),
                             Volume = long.Parse(parts[6], NumberStyles.Any, culture),
                             Size = long.Parse(parts[7], NumberStyles.Any, culture)
                         };
@@ -275,10 +275,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.DataReader
                 DateTime = dateTime,
                 Date = dateTime.Date,
                 Time = dateTime.TimeOfDay,
-                Open = double.Parse(normalizedParts[2], culture),
-                High = double.Parse(normalizedParts[3], culture),
-                Low = double.Parse(normalizedParts[4], culture),
-                Close = double.Parse(normalizedParts[5], culture),
+                Open = double.Parse(normalizedParts[2], CultureInfo.InvariantCulture),
+                High = double.Parse(normalizedParts[3], CultureInfo.InvariantCulture),
+                Low = double.Parse(normalizedParts[4], CultureInfo.InvariantCulture),
+                Close = double.Parse(normalizedParts[5], CultureInfo.InvariantCulture),
                 Volume = long.Parse(normalizedParts[6], NumberStyles.Any, culture),
                 Size = long.Parse(normalizedParts[7], NumberStyles.Any, culture)
             };

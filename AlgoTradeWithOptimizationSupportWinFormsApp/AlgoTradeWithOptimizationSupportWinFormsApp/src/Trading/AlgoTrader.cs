@@ -729,7 +729,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             StrategyFactoryMethod = null;
             Dictionary<string, object>? StrategyParams = null;
 
-            int strategyId = 1;
+            int strategyId = 2;
             if (strategyId == 0)
             {
                 // Define parameter combination for SingleTrader (single set, not optimization)
@@ -747,8 +747,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     return new SimpleMostStrategy(data, indicators, period, percent);
                 });
             }
-            else
-            if (strategyId == 1)
+            else if (strategyId == 1)
             {
                 // Define parameter combination for SingleTrader (single set, not optimization)
                 StrategyParams = new Dictionary<string, object>
@@ -762,6 +761,22 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     int period = Convert.ToInt32(parameters["period"]);
                     double multiplier = Convert.ToDouble(parameters["multiplier"]);
                     return new SimpleSuperTrendStrategy(data, indicators, period, multiplier);
+                });
+            }
+            else if (strategyId == 2)
+            {
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                StrategyParams = new Dictionary<string, object>
+                {
+                    { "fastPeriod", 10 },
+                    { "slowPeriod", 20 }
+                };
+
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                    int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                    return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
                 });
             }
 
@@ -923,15 +938,27 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 singleTrader.LastExecutionTimeStop = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
                 singleTrader.LastExecutionTimeInMSec = t0.ToString();
 
+                // Tarama bilgileri: (Finalize gerek kalmadan alinabilir)
+                var yon           = singleTrader.SonYon;                    // "A"
+                var kacBarOnce    = singleTrader.SonSinyaldenBeriBarSayisi; // 5
+                var karZarar      = singleTrader.SonKarZararFiyat;          // 125.50
+                var karZararYuzde = singleTrader.SonKarZararYuzde;          // 0.85
+                var ozet          = singleTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
+
                 // Finalize
                 this.timeManager.ResetTimer("3");
                 this.timeManager.StartTimer("3");
                 Log("Single Trader - Finalize (~10 ms)");
 
                 if (singleTrader.IsStopRequested)
+                { 
                     singleTrader.Finalize(false);
+                }
                 else
+                {
                     singleTrader.Finalize(true);
+                }
+
                 this.timeManager.StopTimer("3");
 
                 Log("");
