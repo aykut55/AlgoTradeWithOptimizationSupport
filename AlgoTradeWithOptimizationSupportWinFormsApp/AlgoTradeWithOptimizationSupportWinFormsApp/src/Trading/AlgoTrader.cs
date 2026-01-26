@@ -727,21 +727,43 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // ============================================================
 
             StrategyFactoryMethod = null;
+            Dictionary<string, object>? StrategyParams = null;
 
-            // Define parameter combination for SingleTrader (single set, not optimization)
-            var StrategyParams = new Dictionary<string, object>
+            int strategyId = 1;
+            if (strategyId == 0)
             {
-                { "period", 21 },
-                { "percent", 0.5 }
-            };
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                StrategyParams = new Dictionary<string, object>
+                {
+                    { "period", 21 },
+                    { "percent", 0.5 }
+                };
 
-            //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
-            this.SetStrategyFactory((data, indicators, parameters) =>
+                //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int period = Convert.ToInt32(parameters["period"]);
+                    double percent = Convert.ToDouble(parameters["percent"]);
+                    return new SimpleMostStrategy(data, indicators, period, percent);
+                });
+            }
+            else
+            if (strategyId == 1)
             {
-                int period = Convert.ToInt32(parameters["period"]);
-                double percent = Convert.ToDouble(parameters["percent"]);
-                return new SimpleMostStrategy(data, indicators, period, percent);
-            });
+                // Define parameter combination for SingleTrader (single set, not optimization)
+                StrategyParams = new Dictionary<string, object>
+                {
+                    { "period", 21 },
+                    { "multiplier", 0.5 }
+                };
+
+                this.SetStrategyFactory((data, indicators, parameters) =>
+                {
+                    int period = Convert.ToInt32(parameters["period"]);
+                    double multiplier = Convert.ToDouble(parameters["multiplier"]);
+                    return new SimpleSuperTrendStrategy(data, indicators, period, multiplier);
+                });
+            }
 
             // ============================================================
             // END STRATEGY CONFIGURATION
@@ -2128,32 +2150,32 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     var getiriFiyatList = trader.lists.GetiriFiyatList;
                     var getiriFiyatNetList = trader.lists.GetiriFiyatNetList;
 
-                    // Strategy'den MOST ve EXMOV verilerini al (SimpleMostStrategy için)
-                    List<double>? mostList = null;
-                    List<double>? exmovList = null;
+                    // Strategy'den dinamik olarak indicator'ları al
+                    Log($"Strategy Type: {trader.Strategy?.GetType().Name ?? "NULL"}");
 
-                    if (trader.Strategy is SimpleMostStrategy mostStrategy)
+                    var strategyIndicators = trader.Strategy?.GetPlotIndicators();
+
+                    if (strategyIndicators != null && strategyIndicators.Count > 0)
                     {
-                        var mostArray = mostStrategy.GetMOST();
-                        var exmovArray = mostStrategy.GetEXMOV();
-
-                        if (mostArray != null && mostArray.Length > 0)
-                            mostList = mostArray.ToList();
-
-                        if (exmovArray != null && exmovArray.Length > 0)
-                            exmovList = exmovArray.ToList();
-
-                        Log($"MOST ve EXMOV verileri alındı: MOST={mostList?.Count ?? 0}, EXMOV={exmovList?.Count ?? 0}");
+                        Log($"Strategy indicators alındı: {string.Join(", ", strategyIndicators.Keys)} (Total: {strategyIndicators.Count})");
+                        foreach (var kvp in strategyIndicators)
+                        {
+                            Log($"  - {kvp.Key}: {kvp.Value?.Length ?? 0} değer");
+                        }
+                    }
+                    else
+                    {
+                        Log($"⚠️ Strategy'de plot edilecek indicator yok");
                     }
 
                     Log($"ImGui bundle ile çiziliyor - {closes.Count} bar");
 
-                    // ImGui/ImPlot ile çizdir
+                    // ImGui/ImPlot ile çizdir (artık dictionary geçiyoruz)
                     bool result = plotter.PlotDataBundle(
                         dates, opens, highs, lows, closes, volumes, lots,
                         sinyalList, karZararFiyatList, bakiyeFiyatList,
                         getiriFiyatList, getiriFiyatNetList,
-                        mostList, exmovList,
+                        strategyIndicators,  // ← Dictionary<string, double[]> geçiyoruz
                         title: SymbolName ?? "AlgoTrade",
                         periyot: SymbolPeriod ?? "1H"
                     );

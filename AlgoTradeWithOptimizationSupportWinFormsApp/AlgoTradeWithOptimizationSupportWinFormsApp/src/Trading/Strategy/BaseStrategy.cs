@@ -102,6 +102,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy
             Trader = trader;
         }
 
+        /// <summary>
+        /// Get indicators for plotting (default implementation returns null)
+        /// Override in derived classes to provide strategy-specific indicators
+        /// </summary>
+        public virtual Dictionary<string, double[]>? GetPlotIndicators()
+        {
+            return null;
+        }
+
         #endregion
     }
 }

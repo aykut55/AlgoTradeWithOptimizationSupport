@@ -221,5 +221,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         /// Percent parametresini al
         /// </summary>
         public double Percent => _percent;
+
+        /// <summary>
+        /// Get indicators for plotting (IStrategy implementation)
+        /// </summary>
+        public override Dictionary<string, double[]>? GetPlotIndicators()
+        {
+            var indicators = new Dictionary<string, double[]>();
+
+            if (_most != null && _most.Length > 0)
+                indicators["MOST"] = _most;
+
+            if (_exmov != null && _exmov.Length > 0)
+                indicators["EXMOV"] = _exmov;
+
+            return indicators.Count > 0 ? indicators : null;
+        }
     }
 }

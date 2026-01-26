@@ -36,8 +36,7 @@ def plot_data_img_bundle_new(
     getiri_fiyat_yuzde_list=None,
     komisyon_fiyat_list=None,
     getiri_fiyat_yuzde_net_list=None,
-    most_list=None,
-    exmov_list=None,
+    strategy_indicators=None,
     title="BTCUSDT",
     periyot="1H"
 ):
@@ -188,25 +187,34 @@ def plot_data_img_bundle_new(
         panel3.setData(1, DataType.Line, getiri_fiyat_net_list, "Net Balance", (1.0, 1.0, 0.0, 1.0))  # Sarı
 
         # ==============================================================================
-        # Panel 4: MOST & EXMOV (Indicators)
+        # Panel 4: Strategy Indicators (Dinamik)
         # ==============================================================================
-        if most_list is not None or exmov_list is not None:
+        if strategy_indicators is not None and len(strategy_indicators) > 0:
             panel4 = plotter.AddPanel(4)
-            panel4.setTitle("MOST & EXMOV Indicators")
+            panel4.setTitle("Strategy Indicators")
             panel4.setYAxisLabel("Value")
             panel4.setHeightRatio(HeightRatioList[4])
             panel4.setInfoPanelPosition(100, 2)
             panel4.setInfoPanelOffsets(label_dx=5, value_dx=80)
 
-            # MOST indikatörü (varsa)
-            if most_list is not None:
-                most_arr = np.array(most_list, dtype=np.float64)
-                panel4.setData(0, DataType.Line, most_arr, "MOST", (1.0, 1.0, 0.0, 1.0))  # Sarı
+            # Her indicator için farklı renk
+            colors = [
+                (1.0, 1.0, 0.0, 1.0),  # Sarı
+                (0.2, 0.8, 1.0, 1.0),  # Cyan
+                (1.0, 0.5, 0.0, 1.0),  # Turuncu
+                (0.5, 1.0, 0.5, 1.0),  # Açık yeşil
+                (1.0, 0.2, 0.8, 1.0),  # Pembe
+                (0.5, 0.5, 1.0, 1.0),  # Açık mavi
+            ]
 
-            # EXMOV (EMA) indikatörü (varsa)
-            if exmov_list is not None:
-                exmov_arr = np.array(exmov_list, dtype=np.float64)
-                panel4.setData(1, DataType.Line, exmov_arr, "EXMOV", (0.2, 0.8, 1.0, 1.0))  # Cyan
+            data_idx = 0
+            for indicator_name, indicator_values in strategy_indicators.items():
+                if indicator_values is not None:
+                    indicator_arr = np.array(indicator_values, dtype=np.float64)
+                    color = colors[data_idx % len(colors)]
+                    panel4.setData(data_idx, DataType.Line, indicator_arr, indicator_name, color)
+                    print(f"✓ Indicator '{indicator_name}' plot edildi ({len(indicator_arr)} değer)")
+                    data_idx += 1
 
         # ==============================================================================
         # Y-axis sync (optional)

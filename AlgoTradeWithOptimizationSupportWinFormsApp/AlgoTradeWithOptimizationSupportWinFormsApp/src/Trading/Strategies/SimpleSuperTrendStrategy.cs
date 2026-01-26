@@ -188,5 +188,34 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         /// Şu anki trend bearish mi?
         /// </summary>
         public bool IsBearish => _superTrendResult?.IsBearish ?? false;
+
+        /// <summary>
+        /// Get indicators for plotting (IStrategy implementation)
+        /// </summary>
+        public override Dictionary<string, double[]>? GetPlotIndicators()
+        {
+            var indicators = new Dictionary<string, double[]>();
+
+            // Close fiyatlarını ekle
+            var closes = Indicators.GetClosePrices();
+            if (closes != null && closes.Length > 0)
+                indicators["Close"] = closes;
+
+            if (_superTrendResult?.SuperTrend != null && _superTrendResult.SuperTrend.Length > 0)
+                indicators["SuperTrend"] = _superTrendResult.SuperTrend;
+
+            // Direction'ı double[] olarak dönüştür (int[] -> double[])
+            if (_superTrendResult?.Direction != null && _superTrendResult.Direction.Length > 0)
+            {
+                var directionAsDouble = new double[_superTrendResult.Direction.Length];
+                for (int i = 0; i < _superTrendResult.Direction.Length; i++)
+                {
+                    directionAsDouble[i] = _superTrendResult.Direction[i];
+                }
+                //indicators["Direction"] = directionAsDouble;
+            }
+
+            return indicators.Count > 0 ? indicators : null;
+        }
     }
 }

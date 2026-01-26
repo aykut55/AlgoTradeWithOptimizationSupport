@@ -139,5 +139,21 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
             return TradeSignals.None;
         }
+
+        /// <summary>
+        /// Get indicators for plotting (IStrategy implementation)
+        /// </summary>
+        public override Dictionary<string, double[]>? GetPlotIndicators()
+        {
+            var indicators = new Dictionary<string, double[]>();
+
+            if (_fastMA != null && _fastMA.Length > 0)
+                indicators[$"Fast MA ({_fastPeriod})"] = _fastMA;
+
+            if (_slowMA != null && _slowMA.Length > 0)
+                indicators[$"Slow MA ({_slowPeriod})"] = _slowMA;
+
+            return indicators.Count > 0 ? indicators : null;
+        }
     }
 }

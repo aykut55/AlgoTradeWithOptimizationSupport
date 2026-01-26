@@ -162,8 +162,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
         /// <param name="bakiyeFiyatList">Bakiye listesi</param>
         /// <param name="getiriFiyatList">Brüt getiri listesi</param>
         /// <param name="getiriFiyatNetList">Net getiri listesi</param>
-        /// <param name="mostList">MOST indikatör değerleri (opsiyonel)</param>
-        /// <param name="exmovList">EXMOV (EMA) indikatör değerleri (opsiyonel)</param>
+        /// <param name="strategyIndicators">Strategy'den gelen dinamik indicator'lar (Dictionary: key=indicator adı, value=değerler)</param>
         /// <param name="title">Grafik başlığı (opsiyonel)</param>
         /// <param name="periyot">Periyot bilgisi (opsiyonel)</param>
         /// <returns>True if successful</returns>
@@ -180,8 +179,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
             List<double> bakiyeFiyatList,
             List<double> getiriFiyatList,
             List<double> getiriFiyatNetList,
-            List<double>? mostList = null,
-            List<double>? exmovList = null,
+            Dictionary<string, double[]>? strategyIndicators = null,
             string title = "AlgoTrade",
             string periyot = "1H")
         {
@@ -267,14 +265,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         foreach (var val in getiriFiyatList) pyGetiri.Append(new PyFloat(val));
                         foreach (var val in getiriFiyatNetList) pyGetiriNet.Append(new PyFloat(val));
 
-                        // MOST ve EXMOV indikatörleri (varsa)
-                        if (mostList != null && mostList.Count > 0)
+                        // Strategy indicators (dinamik) - Python dict olarak geçeceğiz
+                        dynamic pyIndicators = new PyDict();
+
+                        if (strategyIndicators != null && strategyIndicators.Count > 0)
                         {
-                            foreach (var val in mostList) pyMost.Append(new PyFloat(val));
-                        }
-                        if (exmovList != null && exmovList.Count > 0)
-                        {
-                            foreach (var val in exmovList) pyExmov.Append(new PyFloat(val));
+                            foreach (var kvp in strategyIndicators)
+                            {
+                                if (kvp.Value != null && kvp.Value.Length > 0)
+                                {
+                                    // Her indicator için Python listesi oluştur
+                                    dynamic pyList = new PyList();
+                                    foreach (var val in kvp.Value)
+                                    {
+                                        pyList.Append(new PyFloat(val));
+                                    }
+                                    pyIndicators[kvp.Key] = pyList;
+                                    Console.WriteLine($"✓ Indicator '{kvp.Key}' Python'a gönderiliyor ({kvp.Value.Length} değer)");
+                                }
+                            }
                         }
 
                         // Python stdout'u yakala
@@ -287,10 +296,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         try
                         {
                             // Python fonksiyonunu çağır
-                            // MOST ve EXMOV: null ise boş liste gönder (Python None yerine)
-                            dynamic pyMostParam = (mostList != null && mostList.Count > 0) ? pyMost : null;
-                            dynamic pyExmovParam = (exmovList != null && exmovList.Count > 0) ? pyExmov : null;
-
                             dynamic result = plotModule.plot_data_img_bundle_new(
                                 pyDates,
                                 pyOpens,
@@ -309,8 +314,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                                 getiri_fiyat_yuzde_list: null,    // Optional
                                 komisyon_fiyat_list: null,        // Optional
                                 getiri_fiyat_yuzde_net_list: null,// Optional
-                                most_list: pyMostParam,           // MOST indikatörü
-                                exmov_list: pyExmovParam,         // EXMOV (EMA) indikatörü
+                                strategy_indicators: pyIndicators, // ← Dictionary olarak gönderiyoruz
                                 title: title,
                                 periyot: periyot
                             );
@@ -322,9 +326,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                                 System.Diagnostics.Debug.WriteLine("=== PYTHON OUTPUT ===");
                                 System.Diagnostics.Debug.WriteLine(pythonOutput);
                                 System.Diagnostics.Debug.WriteLine("=== END PYTHON OUTPUT ===");
+
+                                // Console'a da yazdır
+                                Console.WriteLine("=== PYTHON OUTPUT ===");
+                                Console.WriteLine(pythonOutput);
+                                Console.WriteLine("=== END PYTHON OUTPUT ===");
                             }
 
-                            return (bool)result;
+                            bool success = (bool)result;
+                            if (!success)
+                            {
+                                Console.WriteLine("❌ Python plot_data_img_bundle_new returned False!");
+                            }
+                            return success;
                         }
                         finally
                         {

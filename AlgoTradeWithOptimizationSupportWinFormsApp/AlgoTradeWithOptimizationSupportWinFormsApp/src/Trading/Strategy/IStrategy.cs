@@ -34,5 +34,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy
         /// Reset strategy to initial state
         /// </summary>
         void Reset();
+
+        /// <summary>
+        /// Get indicators for plotting
+        /// Returns dictionary where key is indicator name, value is indicator data
+        /// Example: { "MOST": mostArray, "EXMOV": exmovArray }
+        /// Returns null if strategy has no indicators to plot
+        /// </summary>
+        Dictionary<string, double[]>? GetPlotIndicators();
     }
 }
