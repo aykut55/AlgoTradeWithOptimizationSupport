@@ -2819,6 +2819,22 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 }
 
                 _confirmingSingleTrader2Logger.Log("=== ConfirmingSingleTrader2 Test Completed ===");
+
+                // Plot sonuçlarını otomatik olarak çizdir
+                if (algoTrader?.confirmingSingleTrader != null)
+                {
+                    _confirmingSingleTrader2Logger.Log("Plotting results...");
+                    await Task.Run(() =>
+                    {
+                        var mainTrader = algoTrader.confirmingSingleTrader.GetMainTrader();
+                        algoTrader.PlotImGuiBundle(mainTrader);
+                    });
+                    _confirmingSingleTrader2Logger.Log("Plot completed.");
+                }
+
+                // Test başarıyla tamamlandı - butonları aktif hale getir
+                btnStartConfirmingSingleTrader2.Enabled = true;
+                btnStopConfirmingSingleTrader2.Enabled = false;
             }
             catch (Exception ex)
             {
@@ -2830,10 +2846,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 {
                     lblConfirmingSingleTrader2Progress.Text = "Error occurred";
                 }
-            }
-            finally
-            {
-                // Re-enable button
+
+                // Hata durumunda da butonları aktif hale getir
                 btnStartConfirmingSingleTrader2.Enabled = true;
                 btnStopConfirmingSingleTrader2.Enabled = false;
             }
