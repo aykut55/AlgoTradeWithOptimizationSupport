@@ -149,6 +149,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
+            txtStrategyConfigInfo = new TextBox();
+            dgvStrategyParameters = new DataGridView();
+            lblStrategyVersion = new Label();
+            cmbStrategyVersion = new ComboBox();
+            lblStrategySelector = new Label();
+            cmbStrategySelector = new ComboBox();
             btnPlotSingleTraderData = new Button();
             btnStopSingleTrader = new Button();
             btnStartSingleTrader = new Button();
@@ -188,6 +194,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             dataGridViewOptimizationResults = new DataGridView();
             tabPageConfirmingSingleTrader = new TabPage();
             panelConfirmingSingleTrader = new Panel();
+            label7 = new Label();
             groupBoxConfirmationSettings = new GroupBox();
             chkConfirmationModeEnabled = new CheckBox();
             lblKarEsigi = new Label();
@@ -248,7 +255,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             saveFileDialog1 = new SaveFileDialog();
             openFileDialog2 = new OpenFileDialog();
             saveFileDialog2 = new SaveFileDialog();
-            label7 = new Label();
             mainMenuStrip.SuspendLayout();
             mainToolStrip1.SuspendLayout();
             mainToolStrip2.SuspendLayout();
@@ -263,6 +269,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.SuspendLayout();
             tabPageSingleTrader.SuspendLayout();
             panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).BeginInit();
             tabPageMultipleTraders.SuspendLayout();
             panel7.SuspendLayout();
             tabPageSingleTraderOptimization.SuspendLayout();
@@ -1270,6 +1277,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // panel4
             // 
+            panel4.Controls.Add(txtStrategyConfigInfo);
+            panel4.Controls.Add(dgvStrategyParameters);
+            panel4.Controls.Add(lblStrategyVersion);
+            panel4.Controls.Add(cmbStrategyVersion);
+            panel4.Controls.Add(lblStrategySelector);
+            panel4.Controls.Add(cmbStrategySelector);
             panel4.Controls.Add(btnPlotSingleTraderData);
             panel4.Controls.Add(btnStopSingleTrader);
             panel4.Controls.Add(btnStartSingleTrader);
@@ -1282,9 +1295,73 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Size = new Size(1222, 717);
             panel4.TabIndex = 0;
             // 
+            // txtStrategyConfigInfo
+            // 
+            txtStrategyConfigInfo.BackColor = Color.WhiteSmoke;
+            txtStrategyConfigInfo.Font = new Font("Consolas", 9F);
+            txtStrategyConfigInfo.Location = new Point(24, 272);
+            txtStrategyConfigInfo.Multiline = true;
+            txtStrategyConfigInfo.Name = "txtStrategyConfigInfo";
+            txtStrategyConfigInfo.ReadOnly = true;
+            txtStrategyConfigInfo.ScrollBars = ScrollBars.Vertical;
+            txtStrategyConfigInfo.Size = new Size(750, 145);
+            txtStrategyConfigInfo.TabIndex = 14;
+            // 
+            // dgvStrategyParameters
+            // 
+            dgvStrategyParameters.AllowUserToAddRows = false;
+            dgvStrategyParameters.AllowUserToDeleteRows = false;
+            dgvStrategyParameters.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dgvStrategyParameters.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            dgvStrategyParameters.Location = new Point(24, 16);
+            dgvStrategyParameters.MultiSelect = false;
+            dgvStrategyParameters.Name = "dgvStrategyParameters";
+            dgvStrategyParameters.RowHeadersWidth = 51;
+            dgvStrategyParameters.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            dgvStrategyParameters.Size = new Size(750, 250);
+            dgvStrategyParameters.TabIndex = 13;
+            // 
+            // lblStrategyVersion
+            // 
+            lblStrategyVersion.AutoSize = true;
+            lblStrategyVersion.Location = new Point(780, 47);
+            lblStrategyVersion.Name = "lblStrategyVersion";
+            lblStrategyVersion.Size = new Size(82, 15);
+            lblStrategyVersion.TabIndex = 11;
+            lblStrategyVersion.Text = "Select Version:";
+            // 
+            // cmbStrategyVersion
+            // 
+            cmbStrategyVersion.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbStrategyVersion.FormattingEnabled = true;
+            cmbStrategyVersion.Location = new Point(880, 44);
+            cmbStrategyVersion.Name = "cmbStrategyVersion";
+            cmbStrategyVersion.Size = new Size(305, 23);
+            cmbStrategyVersion.TabIndex = 12;
+            cmbStrategyVersion.SelectedIndexChanged += cmbStrategyVersion_SelectedIndexChanged;
+            // 
+            // lblStrategySelector
+            // 
+            lblStrategySelector.AutoSize = true;
+            lblStrategySelector.Location = new Point(780, 18);
+            lblStrategySelector.Name = "lblStrategySelector";
+            lblStrategySelector.Size = new Size(87, 15);
+            lblStrategySelector.TabIndex = 9;
+            lblStrategySelector.Text = "Select Strategy:";
+            // 
+            // cmbStrategySelector
+            // 
+            cmbStrategySelector.DropDownStyle = ComboBoxStyle.DropDownList;
+            cmbStrategySelector.FormattingEnabled = true;
+            cmbStrategySelector.Location = new Point(880, 15);
+            cmbStrategySelector.Name = "cmbStrategySelector";
+            cmbStrategySelector.Size = new Size(305, 23);
+            cmbStrategySelector.TabIndex = 10;
+            cmbStrategySelector.SelectedIndexChanged += cmbStrategySelector_SelectedIndexChanged;
+            // 
             // btnPlotSingleTraderData
             // 
-            btnPlotSingleTraderData.Location = new Point(1054, 103);
+            btnPlotSingleTraderData.Location = new Point(1054, 160);
             btnPlotSingleTraderData.Name = "btnPlotSingleTraderData";
             btnPlotSingleTraderData.Size = new Size(131, 23);
             btnPlotSingleTraderData.TabIndex = 8;
@@ -1294,7 +1371,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnStopSingleTrader
             // 
-            btnStopSingleTrader.Location = new Point(917, 103);
+            btnStopSingleTrader.Location = new Point(917, 160);
             btnStopSingleTrader.Name = "btnStopSingleTrader";
             btnStopSingleTrader.Size = new Size(131, 23);
             btnStopSingleTrader.TabIndex = 7;
@@ -1304,7 +1381,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnStartSingleTrader
             // 
-            btnStartSingleTrader.Location = new Point(780, 103);
+            btnStartSingleTrader.Location = new Point(780, 160);
             btnStartSingleTrader.Name = "btnStartSingleTrader";
             btnStartSingleTrader.Size = new Size(131, 23);
             btnStartSingleTrader.TabIndex = 5;
@@ -1314,7 +1391,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // progressBarSingleTrader
             // 
-            progressBarSingleTrader.Location = new Point(780, 74);
+            progressBarSingleTrader.Location = new Point(780, 131);
             progressBarSingleTrader.Name = "progressBarSingleTrader";
             progressBarSingleTrader.Size = new Size(268, 23);
             progressBarSingleTrader.Style = ProgressBarStyle.Continuous;
@@ -1323,7 +1400,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // lblSingleTraderProgress
             // 
             lblSingleTraderProgress.AutoSize = true;
-            lblSingleTraderProgress.Location = new Point(1047, 82);
+            lblSingleTraderProgress.Location = new Point(1047, 139);
             lblSingleTraderProgress.Name = "lblSingleTraderProgress";
             lblSingleTraderProgress.Size = new Size(48, 15);
             lblSingleTraderProgress.TabIndex = 3;
@@ -1331,19 +1408,20 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // button1
             // 
-            button1.Location = new Point(780, 16);
+            button1.Location = new Point(1070, 652);
             button1.Name = "button1";
             button1.Size = new Size(131, 23);
             button1.TabIndex = 2;
             button1.Text = "Read StockData";
             button1.UseVisualStyleBackColor = true;
+            button1.Visible = false;
             button1.Click += BtnReadStockData_Click;
             // 
             // richTextBoxSingleTrader
             // 
-            richTextBoxSingleTrader.Location = new Point(24, 16);
+            richTextBoxSingleTrader.Location = new Point(24, 423);
             richTextBoxSingleTrader.Name = "richTextBoxSingleTrader";
-            richTextBoxSingleTrader.Size = new Size(750, 668);
+            richTextBoxSingleTrader.Size = new Size(750, 261);
             richTextBoxSingleTrader.TabIndex = 1;
             richTextBoxSingleTrader.Text = "";
             // 
@@ -1665,6 +1743,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panelConfirmingSingleTrader.Name = "panelConfirmingSingleTrader";
             panelConfirmingSingleTrader.Size = new Size(1222, 717);
             panelConfirmingSingleTrader.TabIndex = 0;
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Location = new Point(863, 311);
+            label7.Name = "label7";
+            label7.Size = new Size(135, 15);
+            label7.TabIndex = 11;
+            label7.Text = "BU KISIM ÇALIŞMIYOR...";
             // 
             // groupBoxConfirmationSettings
             // 
@@ -2239,15 +2326,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             openFileDialog2.FileName = "openFileDialog1";
             // 
-            // label7
-            // 
-            label7.AutoSize = true;
-            label7.Location = new Point(863, 311);
-            label7.Name = "label7";
-            label7.Size = new Size(135, 15);
-            label7.TabIndex = 11;
-            label7.Text = "BU KISIM ÇALIŞMIYOR...";
-            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -2287,6 +2365,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTrader.ResumeLayout(false);
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).EndInit();
             tabPageMultipleTraders.ResumeLayout(false);
             panel7.ResumeLayout(false);
             panel7.PerformLayout();
@@ -2453,6 +2532,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Panel panel4;
         private RichTextBox richTextBoxSingleTrader;
         private Button button1;
+        private ComboBox cmbStrategySelector;
+        private ComboBox cmbStrategyVersion;
+        private DataGridView dgvStrategyParameters;
+        private Label lblStrategySelector;
+        private Label lblStrategyVersion;
+        private TextBox txtStrategyConfigInfo;
         private Label lblSingleTraderProgress;
         private ProgressBar progressBarSingleTrader;
         private Button btnStartMultipleTrader;

@@ -73,6 +73,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public BaseStrategy strategy { get; private set; }
         public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
         public StrategyFactory StrategyFactoryMethod { get; private set; }
+        private Dictionary<string, object>? _currentStrategyParams;
 
         public TimeManager timeManager { get; private set; }
 
@@ -153,6 +154,59 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                 throw new ArgumentNullException(nameof(factory));
 
             StrategyFactoryMethod = factory;
+        }
+
+        /// <summary>
+        /// Configure strategy dynamically from GUI selection
+        /// </summary>
+        public void ConfigureStrategy(string strategyName, Dictionary<string, object> parameters)
+        {
+            if (string.IsNullOrWhiteSpace(strategyName))
+                throw new ArgumentException("Strategy name cannot be null or empty", nameof(strategyName));
+
+            if (parameters == null)
+                throw new ArgumentNullException(nameof(parameters));
+
+            Log($"Configuring strategy: {strategyName}");
+
+            // Store parameters for later use
+            _currentStrategyParams = new Dictionary<string, object>(parameters);
+
+            // Create factory method based on strategy name
+            switch (strategyName)
+            {
+                case "SimpleMostStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double percent = Convert.ToDouble(parameters["percent"]);
+                        return new SimpleMostStrategy(data, indicators, period, percent);
+                    });
+                    break;
+
+                case "SimpleSuperTrendStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double multiplier = Convert.ToDouble(parameters["multiplier"]);
+                        return new SimpleSuperTrendStrategy(data, indicators, period, multiplier);
+                    });
+                    break;
+
+                case "SimpleMAStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                        int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                        return new SimpleMAStrategy(data, indicators, fastPeriod, slowPeriod);
+                    });
+                    break;
+
+                default:
+                    throw new ArgumentException($"Unknown strategy: {strategyName}");
+            }
+
+            Log($"Strategy {strategyName} configured successfully with parameters: {string.Join(", ", parameters.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
         }
 
         /// <summary>
@@ -723,50 +777,15 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 return;
 
             // ============================================================
-            // STRATEGY CONFIGURATION - Change this section for different strategies
+            // STRATEGY CONFIGURATION - Dynamic configuration from GUI
             // ============================================================
 
-            StrategyFactoryMethod = null;
-            Dictionary<string, object>? StrategyParams = null;
-
-            int strategyId = 2;
-            if (strategyId == 0)
+            // This will be configured from Form1 via ConfigureStrategy() method
+            // Default fallback if no strategy is configured
+            if (StrategyFactoryMethod == null)
             {
-                // Define parameter combination for SingleTrader (single set, not optimization)
-                StrategyParams = new Dictionary<string, object>
-                {
-                    { "period", 21 },
-                    { "percent", 0.5 }
-                };
-
-                //SimpleMostStrategy(this.Data, indicators, period: 21, percent: 1.0);
-                this.SetStrategyFactory((data, indicators, parameters) =>
-                {
-                    int period = Convert.ToInt32(parameters["period"]);
-                    double percent = Convert.ToDouble(parameters["percent"]);
-                    return new SimpleMostStrategy(data, indicators, period, percent);
-                });
-            }
-            else if (strategyId == 1)
-            {
-                // Define parameter combination for SingleTrader (single set, not optimization)
-                StrategyParams = new Dictionary<string, object>
-                {
-                    { "period", 21 },
-                    { "multiplier", 0.5 }
-                };
-
-                this.SetStrategyFactory((data, indicators, parameters) =>
-                {
-                    int period = Convert.ToInt32(parameters["period"]);
-                    double multiplier = Convert.ToDouble(parameters["multiplier"]);
-                    return new SimpleSuperTrendStrategy(data, indicators, period, multiplier);
-                });
-            }
-            else if (strategyId == 2)
-            {
-                // Define parameter combination for SingleTrader (single set, not optimization)
-                StrategyParams = new Dictionary<string, object>
+                Log("WARNING: No strategy configured. Using default SimpleMAStrategy.");
+                _currentStrategyParams = new Dictionary<string, object>
                 {
                     { "fastPeriod", 10 },
                     { "slowPeriod", 20 }
@@ -814,7 +833,7 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 throw new InvalidOperationException("StrategyFactory must be set before running. Use SetStrategyFactory().");
 
             // Create strategy instance using factory (generic!)
-            var strategy = StrategyFactoryMethod(this.Data, indicators, StrategyParams);
+            var strategy = StrategyFactoryMethod(this.Data, indicators, _currentStrategyParams);
             strategy.OnInit();
 
             // Assign strategy

@@ -4,6 +4,7 @@ using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Plotting;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
@@ -21,6 +22,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private StockDataReader stockDataReader;
         private ConcurrentDictionary<string, string> stockMetaData;
+
+        // Strategy configuration
+        private StrategyConfigLoader _strategyConfigLoader;
+        private StrategyConfiguration? _selectedStrategyConfig;
+        private bool _isUpdatingSelection = false; // Prevent circular updates
 
         // Data management
         private List<StockData> stockDataList;        // Data read from file (filtered or full) - source data for processing
@@ -65,6 +71,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             currentPageDataList = new List<StockData>();
 
             txtDataFileName.Text = @"C:\data\csvFiles\VIP\\01\VIP-X030-T.csv";
+
+            // Strategy configuration loader
+            InitializeStrategyConfiguration();
 
             // AlgoTrader objelerini oluştur (Form1.AlgoTrader.cs)
             CreateObjects();
@@ -1772,6 +1781,341 @@ Format           : ";
         private void btnTestAlgoTrader_Click(object sender, EventArgs e)
         {
 
+        }
+
+        // ============================================================
+        // STRATEGY CONFIGURATION METHODS
+        // ============================================================
+
+        private void InitializeStrategyConfiguration()
+        {
+            try
+            {
+                // Try multiple possible paths (relative to working directory and bin directory)
+                string[] possiblePaths = new[]
+                {
+                    // Relative to working directory (when running from project root)
+                    Path.Combine("inputs", "StrategyConfig.txt"),
+
+                    // Relative to bin/Debug or bin/Release
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "inputs", "StrategyConfig.txt"),
+
+                    // Go up from bin/Debug/net9.0-windows to project root
+                    Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "..", "..", "..", "inputs", "StrategyConfig.txt"),
+                };
+
+                string? configPath = null;
+                foreach (var path in possiblePaths)
+                {
+                    var normalizedPath = Path.GetFullPath(path);
+                    if (File.Exists(normalizedPath))
+                    {
+                        configPath = normalizedPath;
+                        break;
+                    }
+                }
+
+                if (configPath == null)
+                {
+                    throw new FileNotFoundException(
+                        $"StrategyConfig.txt could not be found. Searched paths:\n" +
+                        string.Join("\n", possiblePaths.Select(p => $"  - {Path.GetFullPath(p)}"))
+                    );
+                }
+
+                _strategyConfigLoader = new StrategyConfigLoader(configPath);
+                _strategyConfigLoader.LoadFromFile();
+
+                // Load config file content to TextBox for reference
+                LoadStrategyConfigFileContent(configPath);
+
+                // Load strategy names to ComboBox
+                LoadStrategyNamesToComboBox();
+
+                // Setup DataGridView columns
+                SetupStrategyParametersDataGridView();
+
+                // Load all configurations to DataGridView
+                LoadAllConfigurationsToDataGridView();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Strategy configuration could not be loaded:\n\n{ex.Message}",
+                    "Strategy Configuration Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error
+                );
+            }
+        }
+
+        private void LoadStrategyNamesToComboBox()
+        {
+            var strategyNames = _strategyConfigLoader.GetUniqueStrategyNames();
+            cmbStrategySelector.Items.Clear();
+
+            foreach (var name in strategyNames)
+            {
+                cmbStrategySelector.Items.Add(name);
+            }
+
+            // Select first strategy by default
+            if (cmbStrategySelector.Items.Count > 0)
+            {
+                cmbStrategySelector.SelectedIndex = 0;
+            }
+        }
+
+        private void SetupStrategyParametersDataGridView()
+        {
+            dgvStrategyParameters.Columns.Clear();
+            dgvStrategyParameters.AllowUserToAddRows = false;
+            dgvStrategyParameters.AllowUserToDeleteRows = false;
+            dgvStrategyParameters.ReadOnly = false; // Make editable
+            dgvStrategyParameters.EditMode = DataGridViewEditMode.EditOnEnter;
+
+            // Add fixed columns
+            var colStrategy = new DataGridViewTextBoxColumn
+            {
+                Name = "StrategyName",
+                HeaderText = "Strategy",
+                ReadOnly = true,
+                FillWeight = 25
+            };
+            dgvStrategyParameters.Columns.Add(colStrategy);
+
+            var colVersion = new DataGridViewTextBoxColumn
+            {
+                Name = "Version",
+                HeaderText = "Version",
+                ReadOnly = true,
+                FillWeight = 20
+            };
+            dgvStrategyParameters.Columns.Add(colVersion);
+
+            // Find max number of parameters across all strategies
+            var allConfigs = _strategyConfigLoader.GetAllConfigurations();
+            int maxParams = allConfigs.Max(c => c.Parameters.Count);
+
+            // Add generic Param1, Param2, Param3... columns
+            for (int i = 1; i <= maxParams; i++)
+            {
+                var col = new DataGridViewTextBoxColumn
+                {
+                    Name = $"Param{i}",
+                    HeaderText = $"Param{i}",
+                    ReadOnly = false, // Editable
+                    FillWeight = 55.0f / maxParams
+                };
+                dgvStrategyParameters.Columns.Add(col);
+            }
+
+            // Handle cell value changed event
+            dgvStrategyParameters.CellValueChanged += DgvStrategyParameters_CellValueChanged;
+
+            // Handle row selection to sync with ComboBoxes
+            dgvStrategyParameters.SelectionChanged += DgvStrategyParameters_SelectionChanged;
+        }
+
+        private void LoadStrategyConfigFileContent(string configPath)
+        {
+            try
+            {
+                var content = File.ReadAllText(configPath);
+                txtStrategyConfigInfo.Text = content;
+                txtStrategyConfigInfo.Select(0, 0); // Scroll to top
+            }
+            catch (Exception ex)
+            {
+                txtStrategyConfigInfo.Text = $"Error loading config file:\n{ex.Message}";
+            }
+        }
+
+        private void LoadAllConfigurationsToDataGridView()
+        {
+            dgvStrategyParameters.Rows.Clear();
+            var allConfigs = _strategyConfigLoader.GetAllConfigurations();
+
+            foreach (var config in allConfigs)
+            {
+                var row = new DataGridViewRow();
+                row.CreateCells(dgvStrategyParameters);
+
+                // Set fixed columns (make readonly but allow copying)
+                row.Cells[0].Value = config.StrategyName;
+                row.Cells[0].ReadOnly = true;
+                row.Cells[1].Value = config.Version;
+                row.Cells[1].ReadOnly = true;
+
+                // Set parameter values - store as strings to preserve format (10.0 stays as 10.0)
+                var paramList = config.Parameters.Values.ToList();
+                for (int i = 0; i < paramList.Count; i++)
+                {
+                    int colIndex = 2 + i; // Start from column 2 (after Strategy and Version)
+                    if (colIndex < dgvStrategyParameters.Columns.Count)
+                    {
+                        var param = paramList[i];
+                        // Convert to string to preserve exact input format
+                        row.Cells[colIndex].Value = param.DefaultValue.ToString();
+                        row.Cells[colIndex].ToolTipText = $"{param.Name} ({param.Type})";
+                    }
+                }
+
+                // Fill remaining columns with "-" and make them readonly
+                for (int i = 2 + paramList.Count; i < dgvStrategyParameters.Columns.Count; i++)
+                {
+                    row.Cells[i].Value = "-";
+                    row.Cells[i].ReadOnly = true;
+                    row.Cells[i].Style.BackColor = System.Drawing.Color.LightGray;
+                }
+
+                // Store config reference in row tag
+                row.Tag = config;
+
+                dgvStrategyParameters.Rows.Add(row);
+            }
+        }
+
+        private void DgvStrategyParameters_CellValueChanged(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex < 0 || e.ColumnIndex < 2) return; // Skip header and fixed columns
+
+            try
+            {
+                var row = dgvStrategyParameters.Rows[e.RowIndex];
+                var config = row.Tag as StrategyConfiguration;
+                if (config == null) return;
+
+                var cellValue = row.Cells[e.ColumnIndex].Value?.ToString();
+                if (string.IsNullOrWhiteSpace(cellValue) || cellValue == "-") return;
+
+                // Get the parameter at this column index
+                var paramList = config.Parameters.Values.ToList();
+                int paramIndex = e.ColumnIndex - 2;
+                if (paramIndex < 0 || paramIndex >= paramList.Count) return;
+
+                var paramInfo = paramList[paramIndex];
+
+                // Just validate it can be parsed, but don't modify the string
+                // This allows users to enter "10.0" and it stays as "10.0"
+                ParameterInfo.ParseValue(paramInfo.Type, cellValue);
+
+                // Store as string to preserve exact format
+                paramInfo.DefaultValue = cellValue;
+
+                // Update selection if this is the currently selected config
+                if (_selectedStrategyConfig == config)
+                {
+                    _selectedStrategyConfig = config;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Invalid parameter value:\n\n{ex.Message}",
+                    "Parameter Error",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning
+                );
+
+                // Revert to original value
+                var row = dgvStrategyParameters.Rows[e.RowIndex];
+                var config = row.Tag as StrategyConfiguration;
+                if (config != null)
+                {
+                    var paramList = config.Parameters.Values.ToList();
+                    int paramIndex = e.ColumnIndex - 2;
+                    if (paramIndex >= 0 && paramIndex < paramList.Count)
+                    {
+                        var param = paramList[paramIndex];
+                        row.Cells[e.ColumnIndex].Value = param.DefaultValue;
+                    }
+                }
+            }
+        }
+
+        private void cmbStrategySelector_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cmbStrategySelector.SelectedItem == null)
+                return;
+
+            string selectedStrategy = cmbStrategySelector.SelectedItem.ToString()!;
+
+            // Load versions for selected strategy
+            var versions = _strategyConfigLoader.GetVersionsForStrategy(selectedStrategy);
+            cmbStrategyVersion.Items.Clear();
+
+            foreach (var version in versions)
+            {
+                cmbStrategyVersion.Items.Add(version);
+            }
+
+            // Select first version by default
+            if (cmbStrategyVersion.Items.Count > 0)
+            {
+                cmbStrategyVersion.SelectedIndex = 0;
+            }
+        }
+
+        private void cmbStrategyVersion_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingSelection) return; // Prevent circular updates
+
+            if (cmbStrategySelector.SelectedItem == null || cmbStrategyVersion.SelectedItem == null)
+                return;
+
+            string selectedStrategy = cmbStrategySelector.SelectedItem.ToString()!;
+            string selectedVersion = cmbStrategyVersion.SelectedItem.ToString()!;
+
+            _isUpdatingSelection = true;
+            try
+            {
+                // Find and select the matching row in GridView
+                for (int i = 0; i < dgvStrategyParameters.Rows.Count; i++)
+                {
+                    var row = dgvStrategyParameters.Rows[i];
+                    if (row.Cells[0].Value?.ToString() == selectedStrategy &&
+                        row.Cells[1].Value?.ToString() == selectedVersion)
+                    {
+                        dgvStrategyParameters.ClearSelection();
+                        row.Selected = true;
+                        dgvStrategyParameters.CurrentCell = row.Cells[0]; // Move caret to the row
+                        dgvStrategyParameters.FirstDisplayedScrollingRowIndex = i;
+
+                        // Update selected config from the row's tag (which has latest edits)
+                        _selectedStrategyConfig = row.Tag as StrategyConfiguration;
+                        break;
+                    }
+                }
+            }
+            finally
+            {
+                _isUpdatingSelection = false;
+            }
+        }
+
+        private void DgvStrategyParameters_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dgvStrategyParameters.SelectedRows.Count == 0)
+                return;
+
+            var selectedRow = dgvStrategyParameters.SelectedRows[0];
+            var config = selectedRow.Tag as StrategyConfiguration;
+            if (config == null)
+                return;
+
+            // Update ComboBoxes to match selected row
+            _isUpdatingSelection = true;
+            try
+            {
+                cmbStrategySelector.SelectedItem = config.StrategyName;
+                cmbStrategyVersion.SelectedItem = config.Version;
+                _selectedStrategyConfig = config;
+            }
+            finally
+            {
+                _isUpdatingSelection = false;
+            }
         }
     }
 }

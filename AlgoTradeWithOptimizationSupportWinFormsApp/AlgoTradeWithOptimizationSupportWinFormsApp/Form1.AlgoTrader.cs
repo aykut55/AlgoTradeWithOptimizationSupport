@@ -997,6 +997,24 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                 _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
 
+                // Configure strategy from GUI selection
+                if (_selectedStrategyConfig == null)
+                {
+                    _singleTraderLogger.LogWarning("No strategy selected! Please select a strategy from the dropdown.");
+                    MessageBox.Show("Lütfen bir strateji seçin!", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _singleTraderLogger.Log($"Selected Strategy: {_selectedStrategyConfig.StrategyName} ({_selectedStrategyConfig.Version})");
+                _singleTraderLogger.Log($"Parameters: {_selectedStrategyConfig.GetParametersDisplayString()}");
+
+                // Configure strategy before initialization
+                algoTrader.ConfigureStrategy(
+                    _selectedStrategyConfig.StrategyName,
+                    _selectedStrategyConfig.GetParameterValues()
+                );
+
                 // Initialize with stock data
                 algoTrader.Initialize(stockDataList);
 

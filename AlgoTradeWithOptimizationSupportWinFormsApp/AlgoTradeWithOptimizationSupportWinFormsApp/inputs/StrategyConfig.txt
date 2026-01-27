@@ -1,0 +1,31 @@
+# Strategy Configuration File
+# Format: StrategyName|Version|ParameterName:Type:DefaultValue|ParameterName:Type:DefaultValue|...
+#
+# Supported Types: int, double, string, bool
+#
+# StrategyName MUST match the actual class name in src/Trading/Strategies/
+# Version can be any string (v1, v2, Aggressive, Conservative, etc.)
+#
+# Example:
+# SimpleMostStrategy|v1|period:int:21|percent:double:1.0
+
+# ============================================================
+# MOST (Moving Stop Loss) Strategy
+# ============================================================
+SimpleMostStrategy|v1-Default|period:int:21|percent:double:1.0
+SimpleMostStrategy|v2-Short|period:int:14|percent:double:0.5
+SimpleMostStrategy|v3-Long|period:int:34|percent:double:1.5
+
+# ============================================================
+# SuperTrend Strategy
+# ============================================================
+SimpleSuperTrendStrategy|v1-Default|period:int:10|multiplier:double:3.0
+SimpleSuperTrendStrategy|v2-Sensitive|period:int:7|multiplier:double:2.0
+SimpleSuperTrendStrategy|v3-Conservative|period:int:14|multiplier:double:4.0
+
+# ============================================================
+# Moving Average Crossover Strategy
+# ============================================================
+SimpleMAStrategy|v1-Default|fastPeriod:int:10|slowPeriod:int:20
+SimpleMAStrategy|v2-Fast|fastPeriod:int:5|slowPeriod:int:15
+SimpleMAStrategy|v3-Slow|fastPeriod:int:20|slowPeriod:int:50
