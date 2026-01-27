@@ -1,0 +1,135 @@
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Indicators;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Core;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategy;
+using System;
+using System.Collections.Generic;
+
+namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
+{
+    /// <summary>
+    /// MFI (Money Flow Index) Stratejisi
+    ///
+    /// MFI Mantığı:
+    /// - Hacim ağırlıklı RSI benzeri indikatör
+    /// - 0-100 arası, 80 üstü: Aşırı alım, 20 altı: Aşırı satım
+    ///
+    /// Trading Logic:
+    /// - AL: MFI 20 seviyesini yukarı kesiyor (aşırı satımdan çıkış)
+    /// - SAT: MFI 80 seviyesini aşağı kesiyor (aşırı alımdan çıkış)
+    ///
+    /// Parametreler:
+    /// - period: MFI periyodu (varsayılan 14)
+    /// - oversold: Aşırı satım seviyesi (varsayılan 20)
+    /// - overbought: Aşırı alım seviyesi (varsayılan 80)
+    /// </summary>
+    public class SimpleMFIStrategy : BaseStrategy
+    {
+        public override string Name => "Simple MFI Strategy";
+
+        private readonly int _period;
+        private readonly double _oversold;
+        private readonly double _overbought;
+        private double[]? _mfi;
+
+        public SimpleMFIStrategy(int period = 14, double oversold = 20, double overbought = 80)
+        {
+            _period = period;
+            _oversold = oversold;
+            _overbought = overbought;
+
+            Parameters["Period"] = period;
+            Parameters["Oversold"] = oversold;
+            Parameters["Overbought"] = overbought;
+        }
+
+        public SimpleMFIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double oversold = 20, double overbought = 80)
+        {
+            _period = period;
+            _oversold = oversold;
+            _overbought = overbought;
+
+            Parameters["Period"] = period;
+            Parameters["Oversold"] = oversold;
+            Parameters["Overbought"] = overbought;
+
+            Initialize(data, indicators);
+        }
+
+        public override void OnInit()
+        {
+            if (!IsInitialized)
+                return;
+
+            _mfi = Indicators.VolumeInd.MFI(_period);
+
+            LogManager.Log($"SimpleMFIStrategy initialized: Period={_period}, Oversold={_oversold}, Overbought={_overbought}");
+        }
+
+        public override TradeSignals OnStep(int currentIndex)
+        {
+            bool buy = false;
+            bool sell = false;
+            bool takeProfit = false;
+            bool stopLoss = false;
+            bool flat = false;
+            bool skip = false;
+
+            if (currentIndex < _period + 1)
+                return TradeSignals.None;
+
+            if (_mfi == null || _mfi.Length == 0)
+                return TradeSignals.None;
+
+            double currentMFI = _mfi[currentIndex];
+            double prevMFI = _mfi[currentIndex - 1];
+
+            if (double.IsNaN(currentMFI) || double.IsNaN(prevMFI))
+                return TradeSignals.None;
+
+            // AL: MFI oversold seviyesini yukarı kesiyor
+            if (prevMFI <= _oversold && currentMFI > _oversold)
+            {
+                buy = true;
+            }
+
+            // SAT: MFI overbought seviyesini aşağı kesiyor
+            if (prevMFI >= _overbought && currentMFI < _overbought)
+            {
+                sell = true;
+            }
+
+            if (Trader != null)
+            {
+                takeProfit = Trader.karAlZararKes.SonFiyataGoreKarAlSeviyeHesaplaSeviyeli(currentIndex, 5, 50, 1000) != 0;
+            }
+
+            if (Trader != null)
+            {
+                stopLoss = Trader.karAlZararKes.SonFiyataGoreZararKesSeviyeHesaplaSeviyeli(currentIndex, -1, -10, 1000) != 0;
+            }
+
+            if (skip) return TradeSignals.Skip;
+            else if (flat) return TradeSignals.Flat;
+            else if (takeProfit) return TradeSignals.TakeProfit;
+            else if (stopLoss) return TradeSignals.StopLoss;
+            else if (buy) return TradeSignals.Buy;
+            else if (sell) return TradeSignals.Sell;
+
+            return TradeSignals.None;
+        }
+
+        public double[]? GetMFI() => _mfi;
+
+        public override Dictionary<string, double[]>? GetPlotIndicators()
+        {
+            var indicators = new Dictionary<string, double[]>();
+
+            if (_mfi != null && _mfi.Length > 0)
+                indicators["MFI"] = _mfi;
+
+            return indicators.Count > 0 ? indicators : null;
+        }
+    }
+}

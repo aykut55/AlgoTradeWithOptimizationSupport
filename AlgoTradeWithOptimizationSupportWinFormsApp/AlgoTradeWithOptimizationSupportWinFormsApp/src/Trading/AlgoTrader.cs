@@ -203,6 +203,203 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                     });
                     break;
 
+                case "SimpleAlphaTrendStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int atrPeriod = Convert.ToInt32(parameters["atrPeriod"]);
+                        double coefficient = Convert.ToDouble(parameters["coefficient"]);
+                        int momentumPeriod = Convert.ToInt32(parameters["momentumPeriod"]);
+                        return new SimpleAlphaTrendStrategy(data, indicators, atrPeriod, coefficient, momentumPeriod);
+                    });
+                    break;
+
+                case "SimpleOTTStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double percent = Convert.ToDouble(parameters["percent"]);
+                        return new SimpleOTTStrategy(data, indicators, period, percent);
+                    });
+                    break;
+
+                case "SimplePMaxStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int atrPeriod = Convert.ToInt32(parameters["atrPeriod"]);
+                        double multiplier = Convert.ToDouble(parameters["multiplier"]);
+                        int maPeriod = Convert.ToInt32(parameters["maPeriod"]);
+                        return new SimplePMaxStrategy(data, indicators, atrPeriod, multiplier, maPeriod);
+                    });
+                    break;
+
+                case "SimpleMavilimWStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int param1 = Convert.ToInt32(parameters["param1"]);
+                        int param2 = Convert.ToInt32(parameters["param2"]);
+                        return new SimpleMavilimWStrategy(data, indicators, param1, param2);
+                    });
+                    break;
+
+                case "SimpleTillsonT3Strategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        return new SimpleTillsonT3Strategy(data, indicators, period);
+                    });
+                    break;
+
+                case "SimpleHHVLLVStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        return new SimpleHHVLLVStrategy(data, indicators, period);
+                    });
+                    break;
+
+                case "SimpleHYLYStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double threshold = Convert.ToDouble(parameters["threshold"]);
+                        return new SimpleHYLYStrategy(data, indicators, period, threshold);
+                    });
+                    break;
+
+                case "SimpleRSIStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double oversold = Convert.ToDouble(parameters["oversold"]);
+                        double overbought = Convert.ToDouble(parameters["overbought"]);
+                        return new SimpleRSIStrategy(data, indicators, period, oversold, overbought);
+                    });
+                    break;
+
+                case "SimpleMACDStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                        int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                        int signalPeriod = Convert.ToInt32(parameters["signalPeriod"]);
+                        return new SimpleMACDStrategy(data, indicators, fastPeriod, slowPeriod, signalPeriod);
+                    });
+                    break;
+
+                case "SimpleStochasticStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int kPeriod = Convert.ToInt32(parameters["kPeriod"]);
+                        int dPeriod = Convert.ToInt32(parameters["dPeriod"]);
+                        double centerLine = Convert.ToDouble(parameters["centerLine"]);
+                        return new SimpleStochasticStrategy(data, indicators, kPeriod, dPeriod, centerLine);
+                    });
+                    break;
+
+                case "SimpleMFIStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double oversold = Convert.ToDouble(parameters["oversold"]);
+                        double overbought = Convert.ToDouble(parameters["overbought"]);
+                        return new SimpleMFIStrategy(data, indicators, period, oversold, overbought);
+                    });
+                    break;
+
+                case "SimpleCMFStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double positiveThreshold = Convert.ToDouble(parameters["positiveThreshold"]);
+                        double negativeThreshold = Convert.ToDouble(parameters["negativeThreshold"]);
+                        return new SimpleCMFStrategy(data, indicators, period, positiveThreshold, negativeThreshold);
+                    });
+                    break;
+
+                case "SimpleMomentumStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double positiveThreshold = Convert.ToDouble(parameters["positiveThreshold"]);
+                        double negativeThreshold = Convert.ToDouble(parameters["negativeThreshold"]);
+                        return new SimpleMomentumStrategy(data, indicators, period, positiveThreshold, negativeThreshold);
+                    });
+                    break;
+
+                case "SimpleADXStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double adxThreshold = Convert.ToDouble(parameters["adxThreshold"]);
+                        return new SimpleADXStrategy(data, indicators, period, adxThreshold);
+                    });
+                    break;
+
+                case "SimpleATRStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int atrPeriod = Convert.ToInt32(parameters["atrPeriod"]);
+                        int maPeriod = Convert.ToInt32(parameters["maPeriod"]);
+                        double multiplier = Convert.ToDouble(parameters["multiplier"]);
+                        return new SimpleATRStrategy(data, indicators, atrPeriod, maPeriod, multiplier);
+                    });
+                    break;
+
+                case "SimpleParabolicSARStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        double step = Convert.ToDouble(parameters["step"]);
+                        double max = Convert.ToDouble(parameters["max"]);
+                        return new SimpleParabolicSARStrategy(data, indicators, step, max);
+                    });
+                    break;
+
+                case "SimpleIchimokuStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int tenkanPeriod = Convert.ToInt32(parameters["tenkanPeriod"]);
+                        int kijunPeriod = Convert.ToInt32(parameters["kijunPeriod"]);
+                        int senkouPeriod = Convert.ToInt32(parameters["senkouPeriod"]);
+                        return new SimpleIchimokuStrategy(data, indicators, tenkanPeriod, kijunPeriod, senkouPeriod);
+                    });
+                    break;
+
+                case "SimpleBollingerStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double multiplier = Convert.ToDouble(parameters["multiplier"]);
+                        return new SimpleBollingerStrategy(data, indicators, period, multiplier);
+                    });
+                    break;
+
+                case "SimpleMACrossStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int fastPeriod = Convert.ToInt32(parameters["fastPeriod"]);
+                        int slowPeriod = Convert.ToInt32(parameters["slowPeriod"]);
+                        return new SimpleMACrossStrategy(data, indicators, fastPeriod, slowPeriod);
+                    });
+                    break;
+
+                case "SimpleKairiStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        double positiveThreshold = Convert.ToDouble(parameters["positiveThreshold"]);
+                        double negativeThreshold = Convert.ToDouble(parameters["negativeThreshold"]);
+                        return new SimpleKairiStrategy(data, indicators, period, positiveThreshold, negativeThreshold);
+                    });
+                    break;
+
+                case "SimpleDIStrategy":
+                    this.SetStrategyFactory((data, indicators, parameters) =>
+                    {
+                        int period = Convert.ToInt32(parameters["period"]);
+                        return new SimpleDIStrategy(data, indicators, period);
+                    });
+                    break;
+
                 default:
                     throw new ArgumentException($"Unknown strategy: {strategyName}");
             }

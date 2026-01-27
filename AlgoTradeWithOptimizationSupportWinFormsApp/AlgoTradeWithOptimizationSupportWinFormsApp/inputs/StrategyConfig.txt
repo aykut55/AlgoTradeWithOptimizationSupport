@@ -31,3 +31,171 @@ SimpleSuperTrendStrategy|v3-Conservative|period:int:14|multiplier:double:4.0
 SimpleMAStrategy|v1-Default|fastPeriod:int:10|slowPeriod:int:20
 SimpleMAStrategy|v2-Fast|fastPeriod:int:5|slowPeriod:int:15
 SimpleMAStrategy|v3-Slow|fastPeriod:int:20|slowPeriod:int:50
+
+# ============================================================
+# AlphaTrend Strategy
+# ATR tabanlı dinamik destek/direnç, MFI/RSI momentum filtresi
+# ============================================================
+SimpleAlphaTrendStrategy|v1-Default|atrPeriod:int:14|coefficient:double:1.0|momentumPeriod:int:14
+SimpleAlphaTrendStrategy|v2-Sensitive|atrPeriod:int:10|coefficient:double:0.5|momentumPeriod:int:10
+SimpleAlphaTrendStrategy|v3-Conservative|atrPeriod:int:20|coefficient:double:1.5|momentumPeriod:int:20
+
+# ============================================================
+# OTT (Optimized Trend Tracker) Strategy
+# MA tabanlı trend takipçisi
+# ============================================================
+SimpleOTTStrategy|v1-Default|period:int:2|percent:double:1.4
+SimpleOTTStrategy|v2-Sensitive|period:int:2|percent:double:0.8
+SimpleOTTStrategy|v3-Conservative|period:int:5|percent:double:2.0
+
+# ============================================================
+# PMax (Profit Maximizer) Strategy
+# MOST + SuperTrend hibrit yapısı
+# ============================================================
+SimplePMaxStrategy|v1-Default|atrPeriod:int:10|multiplier:double:3.0|maPeriod:int:10
+SimplePMaxStrategy|v2-Sensitive|atrPeriod:int:7|multiplier:double:2.0|maPeriod:int:7
+SimplePMaxStrategy|v3-Conservative|atrPeriod:int:14|multiplier:double:4.0|maPeriod:int:14
+
+# ============================================================
+# MavilimW Strategy
+# Fibonacci tabanlı ağırlıklı MA kombinasyonları
+# ============================================================
+SimpleMavilimWStrategy|v1-Default|param1:int:3|param2:int:5
+SimpleMavilimWStrategy|v2-Fast|param1:int:2|param2:int:3
+SimpleMavilimWStrategy|v3-Slow|param1:int:5|param2:int:8
+
+# ============================================================
+# Tillson T3 Strategy
+# Triple exponential smoothing ile düşük gecikmeli MA
+# ============================================================
+SimpleTillsonT3Strategy|v1-Default|period:int:5
+SimpleTillsonT3Strategy|v2-Fast|period:int:3
+SimpleTillsonT3Strategy|v3-Slow|period:int:8
+
+# ============================================================
+# HHV/LLV Breakout Strategy
+# En yüksek/en düşük seviye kırılım stratejisi
+# ============================================================
+SimpleHHVLLVStrategy|v1-Default|period:int:20
+SimpleHHVLLVStrategy|v2-Short|period:int:10
+SimpleHHVLLVStrategy|v3-Long|period:int:50
+
+# ============================================================
+# HY/LY (Relative Distance) Strategy
+# Fiyatın HHV/LLV'ye göreceli mesafesi
+# ============================================================
+SimpleHYLYStrategy|v1-Default|period:int:20|threshold:double:80
+SimpleHYLYStrategy|v2-Sensitive|period:int:14|threshold:double:70
+SimpleHYLYStrategy|v3-Conservative|period:int:30|threshold:double:90
+
+# ============================================================
+# RSI (Relative Strength Index) Strategy
+# Momentum osilatörü, aşırı alım/satım seviyeleri
+# ============================================================
+SimpleRSIStrategy|v1-Default|period:int:14|oversold:double:30|overbought:double:70
+SimpleRSIStrategy|v2-Sensitive|period:int:7|oversold:double:25|overbought:double:75
+SimpleRSIStrategy|v3-Conservative|period:int:21|oversold:double:20|overbought:double:80
+
+# ============================================================
+# MACD Strategy
+# Hareketli ortalama yakınsama/ıraksama
+# ============================================================
+SimpleMACDStrategy|v1-Default|fastPeriod:int:12|slowPeriod:int:26|signalPeriod:int:9
+SimpleMACDStrategy|v2-Fast|fastPeriod:int:8|slowPeriod:int:17|signalPeriod:int:9
+SimpleMACDStrategy|v3-Slow|fastPeriod:int:19|slowPeriod:int:39|signalPeriod:int:9
+
+# ============================================================
+# Stochastic Oscillator Strategy
+# %K-%D kesişim stratejisi
+# ============================================================
+SimpleStochasticStrategy|v1-Default|kPeriod:int:14|dPeriod:int:3|centerLine:double:50
+SimpleStochasticStrategy|v2-Fast|kPeriod:int:9|dPeriod:int:3|centerLine:double:50
+SimpleStochasticStrategy|v3-Slow|kPeriod:int:21|dPeriod:int:5|centerLine:double:50
+
+# ============================================================
+# MFI (Money Flow Index) Strategy
+# Hacim ağırlıklı RSI benzeri indikatör
+# ============================================================
+SimpleMFIStrategy|v1-Default|period:int:14|oversold:double:20|overbought:double:80
+SimpleMFIStrategy|v2-Sensitive|period:int:10|oversold:double:25|overbought:double:75
+SimpleMFIStrategy|v3-Conservative|period:int:20|oversold:double:15|overbought:double:85
+
+# ============================================================
+# CMF (Chaikin Money Flow) Strategy
+# Alım/satım baskısı indikatörü
+# ============================================================
+SimpleCMFStrategy|v1-Default|period:int:20|positiveThreshold:double:0.1|negativeThreshold:double:-0.1
+SimpleCMFStrategy|v2-Sensitive|period:int:10|positiveThreshold:double:0.05|negativeThreshold:double:-0.05
+SimpleCMFStrategy|v3-Conservative|period:int:30|positiveThreshold:double:0.15|negativeThreshold:double:-0.15
+
+# ============================================================
+# Momentum (ROC) Strategy
+# Fiyat değişim oranı
+# ============================================================
+SimpleMomentumStrategy|v1-Default|period:int:12|positiveThreshold:double:0|negativeThreshold:double:0
+SimpleMomentumStrategy|v2-Fast|period:int:6|positiveThreshold:double:0|negativeThreshold:double:0
+SimpleMomentumStrategy|v3-Slow|period:int:21|positiveThreshold:double:0|negativeThreshold:double:0
+
+# ============================================================
+# ADX (Average Directional Index) Strategy
+# Trend gücü ile DI kesişimi
+# ============================================================
+SimpleADXStrategy|v1-Default|period:int:14|adxThreshold:double:25
+SimpleADXStrategy|v2-Sensitive|period:int:10|adxThreshold:double:20
+SimpleADXStrategy|v3-Conservative|period:int:20|adxThreshold:double:30
+
+# ============================================================
+# ATR (Volatility Breakout) Strategy
+# ATR tabanlı kırılım stratejisi
+# ============================================================
+SimpleATRStrategy|v1-Default|atrPeriod:int:14|maPeriod:int:20|multiplier:double:2.0
+SimpleATRStrategy|v2-Sensitive|atrPeriod:int:10|maPeriod:int:14|multiplier:double:1.5
+SimpleATRStrategy|v3-Conservative|atrPeriod:int:20|maPeriod:int:30|multiplier:double:2.5
+
+# ============================================================
+# Parabolic SAR Strategy
+# Trailing stop trend takip indikatörü
+# ============================================================
+SimpleParabolicSARStrategy|v1-Default|step:double:0.02|max:double:0.2
+SimpleParabolicSARStrategy|v2-Sensitive|step:double:0.01|max:double:0.1
+SimpleParabolicSARStrategy|v3-Aggressive|step:double:0.03|max:double:0.3
+
+# ============================================================
+# Ichimoku Cloud Strategy (TK Cross)
+# Tenkan-Kijun kesişim stratejisi
+# ============================================================
+SimpleIchimokuStrategy|v1-Default|tenkanPeriod:int:9|kijunPeriod:int:26|senkouPeriod:int:52
+SimpleIchimokuStrategy|v2-Fast|tenkanPeriod:int:7|kijunPeriod:int:22|senkouPeriod:int:44
+SimpleIchimokuStrategy|v3-Slow|tenkanPeriod:int:13|kijunPeriod:int:34|senkouPeriod:int:65
+
+# ============================================================
+# Bollinger Bands Strategy
+# Volatilite bantları stratejisi
+# ============================================================
+SimpleBollingerStrategy|v1-Default|period:int:20|multiplier:double:2.0
+SimpleBollingerStrategy|v2-Tight|period:int:20|multiplier:double:1.5
+SimpleBollingerStrategy|v3-Wide|period:int:20|multiplier:double:2.5
+
+# ============================================================
+# MA Cross (Golden/Death Cross) Strategy
+# Hareketli ortalama kesişim stratejisi
+# ============================================================
+SimpleMACrossStrategy|v1-Default|fastPeriod:int:10|slowPeriod:int:20
+SimpleMACrossStrategy|v2-Fast|fastPeriod:int:5|slowPeriod:int:13
+SimpleMACrossStrategy|v3-GoldenCross|fastPeriod:int:50|slowPeriod:int:200
+
+# ============================================================
+# Kairi (Relative Index) Strategy
+# MA'dan yüzdesel sapma stratejisi
+# ============================================================
+SimpleKairiStrategy|v1-Default|period:int:20|positiveThreshold:double:5|negativeThreshold:double:-5
+SimpleKairiStrategy|v2-Sensitive|period:int:14|positiveThreshold:double:3|negativeThreshold:double:-3
+SimpleKairiStrategy|v3-Conservative|period:int:30|positiveThreshold:double:8|negativeThreshold:double:-8
+
+# ============================================================
+# DI (Directional Indicators) Strategy
+# +DI/-DI kesişim stratejisi (ADX filtresi olmadan)
+# ============================================================
+SimpleDIStrategy|v1-Default|period:int:14
+SimpleDIStrategy|v2-Fast|period:int:10
+SimpleDIStrategy|v3-Slow|period:int:20
