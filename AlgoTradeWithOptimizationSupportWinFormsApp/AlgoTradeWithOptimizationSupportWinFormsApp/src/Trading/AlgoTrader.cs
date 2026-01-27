@@ -1355,6 +1355,25 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
 
+            var tradersCount = multipleTrader.Traders.Count;
+            for (int i = 0; i < tradersCount; i++)
+            {
+                var singleTrader = multipleTrader.Traders[i];
+                // Tarama bilgileri
+                var _yon           = singleTrader.SonYon;                    // "A"
+                var _kacBarOnce    = singleTrader.SonSinyaldenBeriBarSayisi; // 5
+                var _karZarar      = singleTrader.SonKarZararFiyat;          // 125.50
+                var _karZararYuzde = singleTrader.SonKarZararYuzde;          // 0.85
+                var _ozet          = singleTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
+            }
+
+            // Tarama bilgileri: (Finalize gerek kalmadan alinabilir)
+            var yon           = mainTrader.SonYon;                    // "A"
+            var kacBarOnce    = mainTrader.SonSinyaldenBeriBarSayisi; // 5
+            var karZarar      = mainTrader.SonKarZararFiyat;          // 125.50
+            var karZararYuzde = mainTrader.SonKarZararYuzde;          // 0.85
+            var ozet          = mainTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
+
             if (multipleTrader.IsStopRequested)
                 multipleTrader.Finalize(false);
             else
@@ -1782,6 +1801,25 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
 
             this.timeManager.ResetTimer("3");
             this.timeManager.StartTimer("3");
+
+            var tradersCount = multipleTrader.Traders.Count;
+            for (int i = 0; i < tradersCount; i++)
+            {
+                var singleTrader = multipleTrader.Traders[i];
+                // Tarama bilgileri
+                var _yon           = singleTrader.SonYon;                    // "A"
+                var _kacBarOnce    = singleTrader.SonSinyaldenBeriBarSayisi; // 5
+                var _karZarar      = singleTrader.SonKarZararFiyat;          // 125.50
+                var _karZararYuzde = singleTrader.SonKarZararYuzde;          // 0.85
+                var _ozet          = singleTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
+            }
+
+            // Tarama bilgileri: (Finalize gerek kalmadan alinabilir)
+            var yon           = mainTrader.SonYon;                    // "A"
+            var kacBarOnce    = mainTrader.SonSinyaldenBeriBarSayisi; // 5
+            var karZarar      = mainTrader.SonKarZararFiyat;          // 125.50
+            var karZararYuzde = mainTrader.SonKarZararYuzde;          // 0.85
+            var ozet          = mainTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
 
             if (confirmingSingleTrader.IsStopRequested)
                 confirmingSingleTrader.Finalize(false);
