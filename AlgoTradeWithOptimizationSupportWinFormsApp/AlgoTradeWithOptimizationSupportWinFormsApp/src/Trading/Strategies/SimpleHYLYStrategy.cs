@@ -16,13 +16,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - HY = (Close - LLV) / (HHV - LLV) * 100
     /// - LY = (HHV - Close) / (HHV - LLV) * 100
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: HY belirli bir eşiği yukarı geçerse (örn: 80)
     /// - SAT: LY belirli bir eşiği yukarı geçerse (örn: 80)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: HHV/LLV lookback periyodu (varsayılan 20)
     /// - threshold: Sinyal eşiği (varsayılan 80)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleHYLYStrategy : BaseStrategy
     {
@@ -30,25 +34,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _period;
         private readonly double _threshold;
+        private readonly int _choice;
         private double[]? _hy;
         private double[]? _ly;
 
-        public SimpleHYLYStrategy(int period = 20, double threshold = 80)
+        public SimpleHYLYStrategy(int period = 20, double threshold = 80, int choice = 0)
         {
             _period = period;
             _threshold = threshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Threshold"] = threshold;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleHYLYStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double threshold = 80)
+        public SimpleHYLYStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double threshold = 80, int choice = 0)
         {
             _period = period;
             _threshold = threshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Threshold"] = threshold;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -110,17 +119,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentHY) || double.IsNaN(prevHY) || double.IsNaN(currentLY) || double.IsNaN(prevLY))
                 return TradeSignals.None;
 
-            // AL: HY threshold'u yukarı kesiyor (fiyat yükseğe yaklaşıyor)
-            if (prevHY <= _threshold && currentHY > _threshold)
+            // ************************************************************************************************************************
+            // choice: 0 = HY/LY threshold crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: HY threshold'u yukarı kesiyor (fiyat yükseğe yaklaşıyor)
+                if (prevHY <= _threshold && currentHY > _threshold)
+                {
+                    buy = true;
+                }
 
-            // SAT: LY threshold'u yukarı kesiyor (fiyat düşüğe yaklaşıyor)
-            if (prevLY <= _threshold && currentLY > _threshold)
-            {
-                sell = true;
+                // SAT: LY threshold'u yukarı kesiyor (fiyat düşüğe yaklaşıyor)
+                if (prevLY <= _threshold && currentLY > _threshold)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

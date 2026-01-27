@@ -16,14 +16,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - 0-100 arası momentum osilatörü
     /// - 70 üstü: Aşırı alım, 30 altı: Aşırı satım
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: RSI 30 seviyesini yukarı kesiyor (aşırı satımdan çıkış)
     /// - SAT: RSI 70 seviyesini aşağı kesiyor (aşırı alımdan çıkış)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: RSI periyodu (varsayılan 14)
     /// - oversold: Aşırı satım seviyesi (varsayılan 30)
     /// - overbought: Aşırı alım seviyesi (varsayılan 70)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleRSIStrategy : BaseStrategy
     {
@@ -32,28 +36,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _period;
         private readonly double _oversold;
         private readonly double _overbought;
+        private readonly int _choice;
         private RSIResult? _rsiResult;
 
-        public SimpleRSIStrategy(int period = 14, double oversold = 30, double overbought = 70)
+        public SimpleRSIStrategy(int period = 14, double oversold = 30, double overbought = 70, int choice = 0)
         {
             _period = period;
             _oversold = oversold;
             _overbought = overbought;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Oversold"] = oversold;
             Parameters["Overbought"] = overbought;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleRSIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double oversold = 30, double overbought = 70)
+        public SimpleRSIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double oversold = 30, double overbought = 70, int choice = 0)
         {
             _period = period;
             _oversold = oversold;
             _overbought = overbought;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Oversold"] = oversold;
             Parameters["Overbought"] = overbought;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -90,17 +99,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentRSI) || double.IsNaN(prevRSI))
                 return TradeSignals.None;
 
-            // AL: RSI oversold seviyesini yukarı kesiyor
-            if (prevRSI <= _oversold && currentRSI > _oversold)
+            // ************************************************************************************************************************
+            // choice: 0 = RSI overbought/oversold crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: RSI oversold seviyesini yukarı kesiyor
+                if (prevRSI <= _oversold && currentRSI > _oversold)
+                {
+                    buy = true;
+                }
 
-            // SAT: RSI overbought seviyesini aşağı kesiyor
-            if (prevRSI >= _overbought && currentRSI < _overbought)
-            {
-                sell = true;
+                // SAT: RSI overbought seviyesini aşağı kesiyor
+                if (prevRSI >= _overbought && currentRSI < _overbought)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

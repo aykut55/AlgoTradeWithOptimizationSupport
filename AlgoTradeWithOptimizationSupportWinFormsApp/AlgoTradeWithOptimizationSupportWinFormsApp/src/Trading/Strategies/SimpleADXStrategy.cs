@@ -17,13 +17,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - +DI: Yukarı yönlü hareket
     /// - -DI: Aşağı yönlü hareket
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: +DI, -DI'yı yukarı kesiyor VE ADX > 25
     /// - SAT: -DI, +DI'yı yukarı kesiyor VE ADX > 25
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: ADX periyodu (varsayılan 14)
     /// - adxThreshold: Minimum ADX değeri (varsayılan 25)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleADXStrategy : BaseStrategy
     {
@@ -31,24 +35,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _period;
         private readonly double _adxThreshold;
+        private readonly int _choice;
         private ADXResult? _adxResult;
 
-        public SimpleADXStrategy(int period = 14, double adxThreshold = 25)
+        public SimpleADXStrategy(int period = 14, double adxThreshold = 25, int choice = 0)
         {
             _period = period;
             _adxThreshold = adxThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["ADXThreshold"] = adxThreshold;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleADXStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double adxThreshold = 25)
+        public SimpleADXStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double adxThreshold = 25, int choice = 0)
         {
             _period = period;
             _adxThreshold = adxThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["ADXThreshold"] = adxThreshold;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -87,20 +96,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentADX) || double.IsNaN(currentPlusDI) || double.IsNaN(currentMinusDI))
                 return TradeSignals.None;
 
-            // ADX trend gücü filtresi
-            bool strongTrend = currentADX > _adxThreshold;
-
-            // AL: +DI, -DI'yı yukarı kesiyor VE ADX > threshold
-            if (prevPlusDI <= prevMinusDI && currentPlusDI > currentMinusDI && strongTrend)
+            // ************************************************************************************************************************
+            // choice: 0 = DI crossover with ADX filter, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // ADX trend gücü filtresi
+                bool strongTrend = currentADX > _adxThreshold;
 
-            // SAT: -DI, +DI'yı yukarı kesiyor VE ADX > threshold
-            if (prevMinusDI <= prevPlusDI && currentMinusDI > currentPlusDI && strongTrend)
-            {
-                sell = true;
+                // AL: +DI, -DI'yı yukarı kesiyor VE ADX > threshold
+                if (prevPlusDI <= prevMinusDI && currentPlusDI > currentMinusDI && strongTrend)
+                {
+                    buy = true;
+                }
+
+                // SAT: -DI, +DI'yı yukarı kesiyor VE ADX > threshold
+                if (prevMinusDI <= prevPlusDI && currentMinusDI > currentPlusDI && strongTrend)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

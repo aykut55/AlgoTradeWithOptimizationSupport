@@ -17,14 +17,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Kijun-sen (Base Line): Orta vadeli trend
     /// - TK Cross: Tenkan ve Kijun kesişimi
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Tenkan, Kijun'u yukarı kesiyor (bullish cross)
     /// - SAT: Tenkan, Kijun'u aşağı kesiyor (bearish cross)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - tenkanPeriod: Tenkan-sen periyodu (varsayılan 9)
     /// - kijunPeriod: Kijun-sen periyodu (varsayılan 26)
     /// - senkouPeriod: Senkou Span B periyodu (varsayılan 52)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleIchimokuStrategy : BaseStrategy
     {
@@ -33,28 +37,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _tenkanPeriod;
         private readonly int _kijunPeriod;
         private readonly int _senkouPeriod;
+        private readonly int _choice;
         private IchimokuResult? _ichimokuResult;
 
-        public SimpleIchimokuStrategy(int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52)
+        public SimpleIchimokuStrategy(int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52, int choice = 0)
         {
             _tenkanPeriod = tenkanPeriod;
             _kijunPeriod = kijunPeriod;
             _senkouPeriod = senkouPeriod;
+            _choice = choice;
 
             Parameters["TenkanPeriod"] = tenkanPeriod;
             Parameters["KijunPeriod"] = kijunPeriod;
             Parameters["SenkouPeriod"] = senkouPeriod;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleIchimokuStrategy(List<StockData> data, IndicatorManager indicators, int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52)
+        public SimpleIchimokuStrategy(List<StockData> data, IndicatorManager indicators, int tenkanPeriod = 9, int kijunPeriod = 26, int senkouPeriod = 52, int choice = 0)
         {
             _tenkanPeriod = tenkanPeriod;
             _kijunPeriod = kijunPeriod;
             _senkouPeriod = senkouPeriod;
+            _choice = choice;
 
             Parameters["TenkanPeriod"] = tenkanPeriod;
             Parameters["KijunPeriod"] = kijunPeriod;
             Parameters["SenkouPeriod"] = senkouPeriod;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -93,17 +102,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 double.IsNaN(prevTenkan) || double.IsNaN(prevKijun))
                 return TradeSignals.None;
 
-            // AL: Tenkan, Kijun'u yukarı kesiyor (TK Cross Bullish)
-            if (prevTenkan <= prevKijun && currentTenkan > currentKijun)
+            // ************************************************************************************************************************
+            // choice: 0 = TK Cross, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Tenkan, Kijun'u yukarı kesiyor (TK Cross Bullish)
+                if (prevTenkan <= prevKijun && currentTenkan > currentKijun)
+                {
+                    buy = true;
+                }
 
-            // SAT: Tenkan, Kijun'u aşağı kesiyor (TK Cross Bearish)
-            if (prevTenkan >= prevKijun && currentTenkan < currentKijun)
-            {
-                sell = true;
+                // SAT: Tenkan, Kijun'u aşağı kesiyor (TK Cross Bearish)
+                if (prevTenkan >= prevKijun && currentTenkan < currentKijun)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

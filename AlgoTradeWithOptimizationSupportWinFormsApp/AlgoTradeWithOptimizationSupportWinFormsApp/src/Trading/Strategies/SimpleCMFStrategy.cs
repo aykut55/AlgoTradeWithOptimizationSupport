@@ -16,14 +16,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - -1 ile +1 arası değer alır
     /// - Pozitif: Alım baskısı, Negatif: Satım baskısı
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: CMF pozitif eşiği (0.1) yukarı kesiyor
     /// - SAT: CMF negatif eşiği (-0.1) aşağı kesiyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: CMF periyodu (varsayılan 20)
     /// - positiveThreshold: Pozitif sinyal eşiği (varsayılan 0.1)
     /// - negativeThreshold: Negatif sinyal eşiği (varsayılan -0.1)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleCMFStrategy : BaseStrategy
     {
@@ -32,28 +36,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _period;
         private readonly double _positiveThreshold;
         private readonly double _negativeThreshold;
+        private readonly int _choice;
         private double[]? _cmf;
 
-        public SimpleCMFStrategy(int period = 20, double positiveThreshold = 0.1, double negativeThreshold = -0.1)
+        public SimpleCMFStrategy(int period = 20, double positiveThreshold = 0.1, double negativeThreshold = -0.1, int choice = 0)
         {
             _period = period;
             _positiveThreshold = positiveThreshold;
             _negativeThreshold = negativeThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["PositiveThreshold"] = positiveThreshold;
             Parameters["NegativeThreshold"] = negativeThreshold;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleCMFStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double positiveThreshold = 0.1, double negativeThreshold = -0.1)
+        public SimpleCMFStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double positiveThreshold = 0.1, double negativeThreshold = -0.1, int choice = 0)
         {
             _period = period;
             _positiveThreshold = positiveThreshold;
             _negativeThreshold = negativeThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["PositiveThreshold"] = positiveThreshold;
             Parameters["NegativeThreshold"] = negativeThreshold;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -89,17 +98,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentCMF) || double.IsNaN(prevCMF))
                 return TradeSignals.None;
 
-            // AL: CMF pozitif eşiği yukarı kesiyor
-            if (prevCMF <= _positiveThreshold && currentCMF > _positiveThreshold)
+            // ************************************************************************************************************************
+            // choice: 0 = CMF threshold crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: CMF pozitif eşiği yukarı kesiyor
+                if (prevCMF <= _positiveThreshold && currentCMF > _positiveThreshold)
+                {
+                    buy = true;
+                }
 
-            // SAT: CMF negatif eşiği aşağı kesiyor
-            if (prevCMF >= _negativeThreshold && currentCMF < _negativeThreshold)
-            {
-                sell = true;
+                // SAT: CMF negatif eşiği aşağı kesiyor
+                if (prevCMF >= _negativeThreshold && currentCMF < _negativeThreshold)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

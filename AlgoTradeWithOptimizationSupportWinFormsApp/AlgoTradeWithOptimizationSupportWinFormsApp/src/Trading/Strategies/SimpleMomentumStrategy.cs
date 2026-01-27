@@ -15,14 +15,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Fiyatın belirli periyot öncesine göre yüzdesel değişimi
     /// - ROC (Rate of Change) formülü kullanılır
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Momentum pozitif eşiği yukarı kesiyor
     /// - SAT: Momentum negatif eşiği aşağı kesiyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: Momentum periyodu (varsayılan 12)
     /// - positiveThreshold: Pozitif sinyal eşiği (varsayılan 0)
     /// - negativeThreshold: Negatif sinyal eşiği (varsayılan 0)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleMomentumStrategy : BaseStrategy
     {
@@ -31,28 +35,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _period;
         private readonly double _positiveThreshold;
         private readonly double _negativeThreshold;
+        private readonly int _choice;
         private double[]? _momentum;
 
-        public SimpleMomentumStrategy(int period = 12, double positiveThreshold = 0, double negativeThreshold = 0)
+        public SimpleMomentumStrategy(int period = 12, double positiveThreshold = 0, double negativeThreshold = 0, int choice = 0)
         {
             _period = period;
             _positiveThreshold = positiveThreshold;
             _negativeThreshold = negativeThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["PositiveThreshold"] = positiveThreshold;
             Parameters["NegativeThreshold"] = negativeThreshold;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleMomentumStrategy(List<StockData> data, IndicatorManager indicators, int period = 12, double positiveThreshold = 0, double negativeThreshold = 0)
+        public SimpleMomentumStrategy(List<StockData> data, IndicatorManager indicators, int period = 12, double positiveThreshold = 0, double negativeThreshold = 0, int choice = 0)
         {
             _period = period;
             _positiveThreshold = positiveThreshold;
             _negativeThreshold = negativeThreshold;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["PositiveThreshold"] = positiveThreshold;
             Parameters["NegativeThreshold"] = negativeThreshold;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -89,17 +98,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentMom) || double.IsNaN(prevMom))
                 return TradeSignals.None;
 
-            // AL: Momentum pozitif eşiği yukarı kesiyor
-            if (prevMom <= _positiveThreshold && currentMom > _positiveThreshold)
+            // ************************************************************************************************************************
+            // choice: 0 = Threshold crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Momentum pozitif eşiği yukarı kesiyor
+                if (prevMom <= _positiveThreshold && currentMom > _positiveThreshold)
+                {
+                    buy = true;
+                }
 
-            // SAT: Momentum negatif eşiği aşağı kesiyor
-            if (prevMom >= _negativeThreshold && currentMom < _negativeThreshold)
-            {
-                sell = true;
+                // SAT: Momentum negatif eşiği aşağı kesiyor
+                if (prevMom >= _negativeThreshold && currentMom < _negativeThreshold)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

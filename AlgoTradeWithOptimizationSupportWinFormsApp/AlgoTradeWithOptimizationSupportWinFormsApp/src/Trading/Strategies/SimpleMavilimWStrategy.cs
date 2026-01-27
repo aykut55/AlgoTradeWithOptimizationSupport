@@ -16,13 +16,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Fibonacci tabanlı ağırlıklı hareketli ortalama kombinasyonları
     /// - Hem trend indikatörü hem destek/direnç görevi görür
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Fiyat MavilimW'yi yukarı kesiyor
     /// - SAT: Fiyat MavilimW'yi aşağı kesiyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - param1: Birinci hassasiyet parametresi (varsayılan 3)
     /// - param2: İkinci hassasiyet parametresi (varsayılan 5)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleMavilimWStrategy : BaseStrategy
     {
@@ -30,24 +34,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _param1;
         private readonly int _param2;
+        private readonly int _choice;
         private MavilimWResult? _mavilimWResult;
 
-        public SimpleMavilimWStrategy(int param1 = 3, int param2 = 5)
+        public SimpleMavilimWStrategy(int param1 = 3, int param2 = 5, int choice = 0)
         {
             _param1 = param1;
             _param2 = param2;
+            _choice = choice;
 
             Parameters["Param1"] = param1;
             Parameters["Param2"] = param2;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleMavilimWStrategy(List<StockData> data, IndicatorManager indicators, int param1 = 3, int param2 = 5)
+        public SimpleMavilimWStrategy(List<StockData> data, IndicatorManager indicators, int param1 = 3, int param2 = 5, int choice = 0)
         {
             _param1 = param1;
             _param2 = param2;
+            _choice = choice;
 
             Parameters["Param1"] = param1;
             Parameters["Param2"] = param2;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -87,17 +96,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentMavilim) || double.IsNaN(prevMavilim))
                 return TradeSignals.None;
 
-            // AL: Fiyat MavilimW'yi yukarı kesiyor
-            if (prevPrice <= prevMavilim && currentPrice > currentMavilim)
+            // ************************************************************************************************************************
+            // choice: 0 = Price-MavilimW crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Fiyat MavilimW'yi yukarı kesiyor
+                if (prevPrice <= prevMavilim && currentPrice > currentMavilim)
+                {
+                    buy = true;
+                }
 
-            // SAT: Fiyat MavilimW'yi aşağı kesiyor
-            if (prevPrice >= prevMavilim && currentPrice < currentMavilim)
-            {
-                sell = true;
+                // SAT: Fiyat MavilimW'yi aşağı kesiyor
+                if (prevPrice >= prevMavilim && currentPrice < currentMavilim)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

@@ -17,14 +17,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - MFI/RSI momentum ile filtreleme
     /// - 2-bar offset crossover sinyalleri
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: AlphaTrend[2] crossover AlphaTrend[1] (yukarı kesim)
     /// - SAT: AlphaTrend[2] crossunder AlphaTrend[1] (aşağı kesim)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - atrPeriod: ATR periyodu (varsayılan 14)
     /// - coefficient: ATR çarpanı (varsayılan 1.0)
     /// - momentumPeriod: MFI/RSI periyodu (varsayılan 14)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleAlphaTrendStrategy : BaseStrategy
     {
@@ -33,28 +37,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _atrPeriod;
         private readonly double _coefficient;
         private readonly int _momentumPeriod;
+        private readonly int _choice;
         private AlphaTrendResult? _alphaTrendResult;
 
-        public SimpleAlphaTrendStrategy(int atrPeriod = 14, double coefficient = 1.0, int momentumPeriod = 14)
+        public SimpleAlphaTrendStrategy(int atrPeriod = 14, double coefficient = 1.0, int momentumPeriod = 14, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _coefficient = coefficient;
             _momentumPeriod = momentumPeriod;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["Coefficient"] = coefficient;
             Parameters["MomentumPeriod"] = momentumPeriod;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleAlphaTrendStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 14, double coefficient = 1.0, int momentumPeriod = 14)
+        public SimpleAlphaTrendStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 14, double coefficient = 1.0, int momentumPeriod = 14, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _coefficient = coefficient;
             _momentumPeriod = momentumPeriod;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["Coefficient"] = coefficient;
             Parameters["MomentumPeriod"] = momentumPeriod;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -91,17 +100,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             double at1 = alphaTrend[currentIndex - 1];
             double at2 = alphaTrend[currentIndex - 2];
 
-            // AL: AlphaTrend[2] yukarı kesim (önceki: at2 <= at1, şimdi: at0 > at1)
-            if (at2 <= at1 && at0 > at1)
+            // ************************************************************************************************************************
+            // choice: 0 = 2-bar offset crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: AlphaTrend[2] yukarı kesim (önceki: at2 <= at1, şimdi: at0 > at1)
+                if (at2 <= at1 && at0 > at1)
+                {
+                    buy = true;
+                }
 
-            // SAT: AlphaTrend[2] aşağı kesim (önceki: at2 >= at1, şimdi: at0 < at1)
-            if (at2 >= at1 && at0 < at1)
-            {
-                sell = true;
+                // SAT: AlphaTrend[2] aşağı kesim (önceki: at2 >= at1, şimdi: at0 < at1)
+                if (at2 >= at1 && at0 < at1)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

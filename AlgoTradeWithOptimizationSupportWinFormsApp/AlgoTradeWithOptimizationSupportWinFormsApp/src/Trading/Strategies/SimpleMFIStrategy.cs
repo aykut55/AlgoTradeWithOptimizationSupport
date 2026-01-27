@@ -15,14 +15,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Hacim ağırlıklı RSI benzeri indikatör
     /// - 0-100 arası, 80 üstü: Aşırı alım, 20 altı: Aşırı satım
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: MFI 20 seviyesini yukarı kesiyor (aşırı satımdan çıkış)
     /// - SAT: MFI 80 seviyesini aşağı kesiyor (aşırı alımdan çıkış)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: MFI periyodu (varsayılan 14)
     /// - oversold: Aşırı satım seviyesi (varsayılan 20)
     /// - overbought: Aşırı alım seviyesi (varsayılan 80)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleMFIStrategy : BaseStrategy
     {
@@ -31,28 +35,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _period;
         private readonly double _oversold;
         private readonly double _overbought;
+        private readonly int _choice;
         private double[]? _mfi;
 
-        public SimpleMFIStrategy(int period = 14, double oversold = 20, double overbought = 80)
+        public SimpleMFIStrategy(int period = 14, double oversold = 20, double overbought = 80, int choice = 0)
         {
             _period = period;
             _oversold = oversold;
             _overbought = overbought;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Oversold"] = oversold;
             Parameters["Overbought"] = overbought;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleMFIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double oversold = 20, double overbought = 80)
+        public SimpleMFIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, double oversold = 20, double overbought = 80, int choice = 0)
         {
             _period = period;
             _oversold = oversold;
             _overbought = overbought;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Oversold"] = oversold;
             Parameters["Overbought"] = overbought;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -88,17 +97,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentMFI) || double.IsNaN(prevMFI))
                 return TradeSignals.None;
 
-            // AL: MFI oversold seviyesini yukarı kesiyor
-            if (prevMFI <= _oversold && currentMFI > _oversold)
+            // ************************************************************************************************************************
+            // choice: 0 = MFI overbought/oversold crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: MFI oversold seviyesini yukarı kesiyor
+                if (prevMFI <= _oversold && currentMFI > _oversold)
+                {
+                    buy = true;
+                }
 
-            // SAT: MFI overbought seviyesini aşağı kesiyor
-            if (prevMFI >= _overbought && currentMFI < _overbought)
-            {
-                sell = true;
+                // SAT: MFI overbought seviyesini aşağı kesiyor
+                if (prevMFI >= _overbought && currentMFI < _overbought)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

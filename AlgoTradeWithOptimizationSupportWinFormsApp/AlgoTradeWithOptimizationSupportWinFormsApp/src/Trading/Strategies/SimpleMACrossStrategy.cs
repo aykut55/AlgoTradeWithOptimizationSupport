@@ -16,13 +16,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Golden Cross: Hızlı MA, yavaş MA'yı yukarı kesiyor
     /// - Death Cross: Hızlı MA, yavaş MA'yı aşağı kesiyor
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Golden Cross (hızlı MA > yavaş MA)
     /// - SAT: Death Cross (hızlı MA < yavaş MA)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - fastPeriod: Hızlı MA periyodu (varsayılan 10)
     /// - slowPeriod: Yavaş MA periyodu (varsayılan 20)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleMACrossStrategy : BaseStrategy
     {
@@ -30,25 +34,30 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _fastPeriod;
         private readonly int _slowPeriod;
+        private readonly int _choice;
         private double[]? _fastMA;
         private double[]? _slowMA;
 
-        public SimpleMACrossStrategy(int fastPeriod = 10, int slowPeriod = 20)
+        public SimpleMACrossStrategy(int fastPeriod = 10, int slowPeriod = 20, int choice = 0)
         {
             _fastPeriod = fastPeriod;
             _slowPeriod = slowPeriod;
+            _choice = choice;
 
             Parameters["FastPeriod"] = fastPeriod;
             Parameters["SlowPeriod"] = slowPeriod;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleMACrossStrategy(List<StockData> data, IndicatorManager indicators, int fastPeriod = 10, int slowPeriod = 20)
+        public SimpleMACrossStrategy(List<StockData> data, IndicatorManager indicators, int fastPeriod = 10, int slowPeriod = 20, int choice = 0)
         {
             _fastPeriod = fastPeriod;
             _slowPeriod = slowPeriod;
+            _choice = choice;
 
             Parameters["FastPeriod"] = fastPeriod;
             Parameters["SlowPeriod"] = slowPeriod;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -89,17 +98,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 double.IsNaN(prevFast) || double.IsNaN(prevSlow))
                 return TradeSignals.None;
 
-            // AL: Golden Cross - Hızlı MA, yavaş MA'yı yukarı kesiyor
-            if (prevFast <= prevSlow && currentFast > currentSlow)
+            // ************************************************************************************************************************
+            // choice: 0 = Golden/Death cross, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Golden Cross - Hızlı MA, yavaş MA'yı yukarı kesiyor
+                if (prevFast <= prevSlow && currentFast > currentSlow)
+                {
+                    buy = true;
+                }
 
-            // SAT: Death Cross - Hızlı MA, yavaş MA'yı aşağı kesiyor
-            if (prevFast >= prevSlow && currentFast < currentSlow)
-            {
-                sell = true;
+                // SAT: Death Cross - Hızlı MA, yavaş MA'yı aşağı kesiyor
+                if (prevFast >= prevSlow && currentFast < currentSlow)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

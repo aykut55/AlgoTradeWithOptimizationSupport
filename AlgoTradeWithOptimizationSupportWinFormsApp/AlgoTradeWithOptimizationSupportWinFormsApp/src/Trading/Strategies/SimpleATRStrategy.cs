@@ -15,14 +15,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Piyasa volatilitesini ölçer
     /// - Kırılım seviyeleri için bant oluşturur
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Fiyat üst bandı (MA + ATR*çarpan) yukarı kırıyor
     /// - SAT: Fiyat alt bandı (MA - ATR*çarpan) aşağı kırıyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - atrPeriod: ATR periyodu (varsayılan 14)
     /// - maPeriod: MA periyodu (varsayılan 20)
     /// - multiplier: ATR çarpanı (varsayılan 2.0)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleATRStrategy : BaseStrategy
     {
@@ -31,31 +35,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _atrPeriod;
         private readonly int _maPeriod;
         private readonly double _multiplier;
+        private readonly int _choice;
         private double[]? _atr;
         private double[]? _ma;
         private double[]? _upperBand;
         private double[]? _lowerBand;
 
-        public SimpleATRStrategy(int atrPeriod = 14, int maPeriod = 20, double multiplier = 2.0)
+        public SimpleATRStrategy(int atrPeriod = 14, int maPeriod = 20, double multiplier = 2.0, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _maPeriod = maPeriod;
             _multiplier = multiplier;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["MAPeriod"] = maPeriod;
             Parameters["Multiplier"] = multiplier;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleATRStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 14, int maPeriod = 20, double multiplier = 2.0)
+        public SimpleATRStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 14, int maPeriod = 20, double multiplier = 2.0, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _maPeriod = maPeriod;
             _multiplier = multiplier;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["MAPeriod"] = maPeriod;
             Parameters["Multiplier"] = multiplier;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -116,17 +125,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentUpper) || double.IsNaN(currentLower))
                 return TradeSignals.None;
 
-            // AL: Fiyat üst bandı yukarı kırıyor
-            if (prevClose <= prevUpper && currentClose > currentUpper)
+            // ************************************************************************************************************************
+            // choice: 0 = ATR band breakout, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Fiyat üst bandı yukarı kırıyor
+                if (prevClose <= prevUpper && currentClose > currentUpper)
+                {
+                    buy = true;
+                }
 
-            // SAT: Fiyat alt bandı aşağı kırıyor
-            if (prevClose >= prevLower && currentClose < currentLower)
-            {
-                sell = true;
+                // SAT: Fiyat alt bandı aşağı kırıyor
+                if (prevClose >= prevLower && currentClose < currentLower)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

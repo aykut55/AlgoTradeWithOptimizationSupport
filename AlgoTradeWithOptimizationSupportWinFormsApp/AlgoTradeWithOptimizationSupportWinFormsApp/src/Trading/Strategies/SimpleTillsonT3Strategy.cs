@@ -16,32 +16,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Triple exponential smoothing ile düşük gecikmeli MA
     /// - Tillson'un geliştirdiği özel ağırlıklandırma
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Fiyat T3'ü yukarı kesiyor
     /// - SAT: Fiyat T3'ü aşağı kesiyor
     ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
+    ///
     /// Parametreler:
     /// - period: T3 periyodu (varsayılan 5)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleTillsonT3Strategy : BaseStrategy
     {
         public override string Name => "Simple Tillson T3 Strategy";
 
         private readonly int _period;
+        private readonly int _choice;
         private double[]? _t3;
 
-        public SimpleTillsonT3Strategy(int period = 5)
+        public SimpleTillsonT3Strategy(int period = 5, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleTillsonT3Strategy(List<StockData> data, IndicatorManager indicators, int period = 5)
+        public SimpleTillsonT3Strategy(List<StockData> data, IndicatorManager indicators, int period = 5, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -80,17 +89,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentT3) || double.IsNaN(prevT3))
                 return TradeSignals.None;
 
-            // AL: Fiyat T3'ü yukarı kesiyor
-            if (prevPrice <= prevT3 && currentPrice > currentT3)
+            // ************************************************************************************************************************
+            // choice: 0 = Price-T3 crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Fiyat T3'ü yukarı kesiyor
+                if (prevPrice <= prevT3 && currentPrice > currentT3)
+                {
+                    buy = true;
+                }
 
-            // SAT: Fiyat T3'ü aşağı kesiyor
-            if (prevPrice >= prevT3 && currentPrice < currentT3)
-            {
-                sell = true;
+                // SAT: Fiyat T3'ü aşağı kesiyor
+                if (prevPrice >= prevT3 && currentPrice < currentT3)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

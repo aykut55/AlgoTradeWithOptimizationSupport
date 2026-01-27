@@ -17,14 +17,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Signal Line = MACD'nin EMA'sı
     /// - Histogram = MACD - Signal
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: MACD, Signal Line'ı yukarı kesiyor
     /// - SAT: MACD, Signal Line'ı aşağı kesiyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - fastPeriod: Hızlı EMA periyodu (varsayılan 12)
     /// - slowPeriod: Yavaş EMA periyodu (varsayılan 26)
     /// - signalPeriod: Signal line periyodu (varsayılan 9)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleMACDStrategy : BaseStrategy
     {
@@ -33,28 +37,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _fastPeriod;
         private readonly int _slowPeriod;
         private readonly int _signalPeriod;
+        private readonly int _choice;
         private MACDResult? _macdResult;
 
-        public SimpleMACDStrategy(int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
+        public SimpleMACDStrategy(int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9, int choice = 0)
         {
             _fastPeriod = fastPeriod;
             _slowPeriod = slowPeriod;
             _signalPeriod = signalPeriod;
+            _choice = choice;
 
             Parameters["FastPeriod"] = fastPeriod;
             Parameters["SlowPeriod"] = slowPeriod;
             Parameters["SignalPeriod"] = signalPeriod;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleMACDStrategy(List<StockData> data, IndicatorManager indicators, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9)
+        public SimpleMACDStrategy(List<StockData> data, IndicatorManager indicators, int fastPeriod = 12, int slowPeriod = 26, int signalPeriod = 9, int choice = 0)
         {
             _fastPeriod = fastPeriod;
             _slowPeriod = slowPeriod;
             _signalPeriod = signalPeriod;
+            _choice = choice;
 
             Parameters["FastPeriod"] = fastPeriod;
             Parameters["SlowPeriod"] = slowPeriod;
             Parameters["SignalPeriod"] = signalPeriod;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -93,17 +102,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentMACD) || double.IsNaN(prevMACD) || double.IsNaN(currentSignal) || double.IsNaN(prevSignal))
                 return TradeSignals.None;
 
-            // AL: MACD, Signal'i yukarı kesiyor
-            if (prevMACD <= prevSignal && currentMACD > currentSignal)
+            // ************************************************************************************************************************
+            // choice: 0 = MACD-Signal crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: MACD, Signal'i yukarı kesiyor
+                if (prevMACD <= prevSignal && currentMACD > currentSignal)
+                {
+                    buy = true;
+                }
 
-            // SAT: MACD, Signal'i aşağı kesiyor
-            if (prevMACD >= prevSignal && currentMACD < currentSignal)
-            {
-                sell = true;
+                // SAT: MACD, Signal'i aşağı kesiyor
+                if (prevMACD >= prevSignal && currentMACD < currentSignal)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

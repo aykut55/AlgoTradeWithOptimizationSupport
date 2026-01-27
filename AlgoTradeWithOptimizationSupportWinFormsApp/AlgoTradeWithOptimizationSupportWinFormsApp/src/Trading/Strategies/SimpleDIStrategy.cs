@@ -17,32 +17,41 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - -DI: Aşağı yönlü hareket gücü
     /// - ADX filtresi olmadan sadece DI kesişimleri kullanılır
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: +DI, -DI'yı yukarı kesiyor
     /// - SAT: -DI, +DI'yı yukarı kesiyor
     ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
+    ///
     /// Parametreler:
     /// - period: DI periyodu (varsayılan 14)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleDIStrategy : BaseStrategy
     {
         public override string Name => "Simple DI Strategy";
 
         private readonly int _period;
+        private readonly int _choice;
         private ADXResult? _adxResult;
 
-        public SimpleDIStrategy(int period = 14)
+        public SimpleDIStrategy(int period = 14, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleDIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14)
+        public SimpleDIStrategy(List<StockData> data, IndicatorManager indicators, int period = 14, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -81,17 +90,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
                 double.IsNaN(prevPlusDI) || double.IsNaN(prevMinusDI))
                 return TradeSignals.None;
 
-            // AL: +DI, -DI'yı yukarı kesiyor
-            if (prevPlusDI <= prevMinusDI && currentPlusDI > currentMinusDI)
+            // ************************************************************************************************************************
+            // choice: 0 = DI crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: +DI, -DI'yı yukarı kesiyor
+                if (prevPlusDI <= prevMinusDI && currentPlusDI > currentMinusDI)
+                {
+                    buy = true;
+                }
 
-            // SAT: -DI, +DI'yı yukarı kesiyor
-            if (prevMinusDI <= prevPlusDI && currentMinusDI > currentPlusDI)
-            {
-                sell = true;
+                // SAT: -DI, +DI'yı yukarı kesiyor
+                if (prevMinusDI <= prevPlusDI && currentMinusDI > currentPlusDI)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

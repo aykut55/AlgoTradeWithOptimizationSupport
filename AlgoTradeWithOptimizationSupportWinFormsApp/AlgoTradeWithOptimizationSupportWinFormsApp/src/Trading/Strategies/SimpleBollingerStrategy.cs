@@ -17,13 +17,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Upper Band: Middle + (StdDev * multiplier)
     /// - Lower Band: Middle - (StdDev * multiplier)
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Fiyat alt bandı yukarı kesiyor (oversold'dan çıkış)
     /// - SAT: Fiyat üst bandı aşağı kesiyor (overbought'dan çıkış)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: BB periyodu (varsayılan 20)
     /// - multiplier: StdDev çarpanı (varsayılan 2.0)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleBollingerStrategy : BaseStrategy
     {
@@ -31,24 +35,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _period;
         private readonly double _multiplier;
+        private readonly int _choice;
         private BollingerBandsResult? _bbResult;
 
-        public SimpleBollingerStrategy(int period = 20, double multiplier = 2.0)
+        public SimpleBollingerStrategy(int period = 20, double multiplier = 2.0, int choice = 0)
         {
             _period = period;
             _multiplier = multiplier;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Multiplier"] = multiplier;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleBollingerStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double multiplier = 2.0)
+        public SimpleBollingerStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, double multiplier = 2.0, int choice = 0)
         {
             _period = period;
             _multiplier = multiplier;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Multiplier"] = multiplier;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -89,17 +98,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentUpper) || double.IsNaN(currentLower))
                 return TradeSignals.None;
 
-            // AL: Fiyat alt bandı yukarı kesiyor
-            if (prevClose <= prevLower && currentClose > currentLower)
+            // ************************************************************************************************************************
+            // choice: 0 = Bollinger band crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Fiyat alt bandı yukarı kesiyor
+                if (prevClose <= prevLower && currentClose > currentLower)
+                {
+                    buy = true;
+                }
 
-            // SAT: Fiyat üst bandı aşağı kesiyor
-            if (prevClose >= prevUpper && currentClose < currentUpper)
-            {
-                sell = true;
+                // SAT: Fiyat üst bandı aşağı kesiyor
+                if (prevClose >= prevUpper && currentClose < currentUpper)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

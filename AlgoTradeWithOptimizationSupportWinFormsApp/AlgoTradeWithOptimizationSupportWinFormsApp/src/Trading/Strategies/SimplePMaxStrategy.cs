@@ -16,14 +16,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - MOST + SuperTrend hibrit yapısı
     /// - ATR tabanlı trailing stop ile hareketli ortalama kombinasyonu
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Direction -1'den 1'e değişirse (trend dönüşü)
     /// - SAT: Direction 1'den -1'e değişirse (trend dönüşü)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - atrPeriod: ATR periyodu (varsayılan 10)
     /// - multiplier: ATR çarpanı (varsayılan 3.0)
     /// - maPeriod: MA periyodu (varsayılan 10)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimplePMaxStrategy : BaseStrategy
     {
@@ -32,28 +36,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _atrPeriod;
         private readonly double _multiplier;
         private readonly int _maPeriod;
+        private readonly int _choice;
         private PMaxResult? _pmaxResult;
 
-        public SimplePMaxStrategy(int atrPeriod = 10, double multiplier = 3.0, int maPeriod = 10)
+        public SimplePMaxStrategy(int atrPeriod = 10, double multiplier = 3.0, int maPeriod = 10, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _multiplier = multiplier;
             _maPeriod = maPeriod;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["Multiplier"] = multiplier;
             Parameters["MAPeriod"] = maPeriod;
+            Parameters["Choice"] = choice;
         }
 
-        public SimplePMaxStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 10, double multiplier = 3.0, int maPeriod = 10)
+        public SimplePMaxStrategy(List<StockData> data, IndicatorManager indicators, int atrPeriod = 10, double multiplier = 3.0, int maPeriod = 10, int choice = 0)
         {
             _atrPeriod = atrPeriod;
             _multiplier = multiplier;
             _maPeriod = maPeriod;
+            _choice = choice;
 
             Parameters["ATRPeriod"] = atrPeriod;
             Parameters["Multiplier"] = multiplier;
             Parameters["MAPeriod"] = maPeriod;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -86,17 +95,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             int currentDirection = _pmaxResult.Direction[currentIndex];
             int prevDirection = _pmaxResult.Direction[currentIndex - 1];
 
-            // AL: Direction -1'den 1'e değişiyor
-            if (prevDirection == -1 && currentDirection == 1)
+            // ************************************************************************************************************************
+            // choice: 0 = Direction change, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Direction -1'den 1'e değişiyor
+                if (prevDirection == -1 && currentDirection == 1)
+                {
+                    buy = true;
+                }
 
-            // SAT: Direction 1'den -1'e değişiyor
-            if (prevDirection == 1 && currentDirection == -1)
-            {
-                sell = true;
+                // SAT: Direction 1'den -1'e değişiyor
+                if (prevDirection == 1 && currentDirection == -1)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

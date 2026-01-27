@@ -17,14 +17,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - %D = %K'nın SMA'sı
     /// - 80 üstü: Aşırı alım, 20 altı: Aşırı satım
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: %K, %D'yi yukarı kesiyor ve her ikisi 50'nin altında
     /// - SAT: %K, %D'yi aşağı kesiyor ve her ikisi 50'nin üstünde
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - kPeriod: %K periyodu (varsayılan 14)
     /// - dPeriod: %D periyodu (varsayılan 3)
     /// - centerLine: Merkez çizgi (varsayılan 50)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleStochasticStrategy : BaseStrategy
     {
@@ -33,28 +37,33 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         private readonly int _kPeriod;
         private readonly int _dPeriod;
         private readonly double _centerLine;
+        private readonly int _choice;
         private StochasticResult? _stochResult;
 
-        public SimpleStochasticStrategy(int kPeriod = 14, int dPeriod = 3, double centerLine = 50)
+        public SimpleStochasticStrategy(int kPeriod = 14, int dPeriod = 3, double centerLine = 50, int choice = 0)
         {
             _kPeriod = kPeriod;
             _dPeriod = dPeriod;
             _centerLine = centerLine;
+            _choice = choice;
 
             Parameters["KPeriod"] = kPeriod;
             Parameters["DPeriod"] = dPeriod;
             Parameters["CenterLine"] = centerLine;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleStochasticStrategy(List<StockData> data, IndicatorManager indicators, int kPeriod = 14, int dPeriod = 3, double centerLine = 50)
+        public SimpleStochasticStrategy(List<StockData> data, IndicatorManager indicators, int kPeriod = 14, int dPeriod = 3, double centerLine = 50, int choice = 0)
         {
             _kPeriod = kPeriod;
             _dPeriod = dPeriod;
             _centerLine = centerLine;
+            _choice = choice;
 
             Parameters["KPeriod"] = kPeriod;
             Parameters["DPeriod"] = dPeriod;
             Parameters["CenterLine"] = centerLine;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -92,17 +101,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(currentK) || double.IsNaN(prevK) || double.IsNaN(currentD) || double.IsNaN(prevD))
                 return TradeSignals.None;
 
-            // AL: %K, %D'yi yukarı kesiyor ve her ikisi 50'nin altında
-            if (prevK <= prevD && currentK > currentD && currentK < _centerLine && currentD < _centerLine)
+            // ************************************************************************************************************************
+            // choice: 0 = %K-%D crossover with center filter, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: %K, %D'yi yukarı kesiyor ve her ikisi 50'nin altında
+                if (prevK <= prevD && currentK > currentD && currentK < _centerLine && currentD < _centerLine)
+                {
+                    buy = true;
+                }
 
-            // SAT: %K, %D'yi aşağı kesiyor ve her ikisi 50'nin üstünde
-            if (prevK >= prevD && currentK < currentD && currentK > _centerLine && currentD > _centerLine)
-            {
-                sell = true;
+                // SAT: %K, %D'yi aşağı kesiyor ve her ikisi 50'nin üstünde
+                if (prevK >= prevD && currentK < currentD && currentK > _centerLine && currentD > _centerLine)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

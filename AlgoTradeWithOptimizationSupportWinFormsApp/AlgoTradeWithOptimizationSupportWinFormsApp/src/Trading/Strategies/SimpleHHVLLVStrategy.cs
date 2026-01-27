@@ -15,33 +15,42 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Belirli periyottaki en yüksek ve en düşük seviyeleri izler
     /// - Kırılım stratejisi: seviyeler aşıldığında sinyal üretir
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Fiyat HHV seviyesini yukarı kırıyor (breakout)
     /// - SAT: Fiyat LLV seviyesini aşağı kırıyor (breakdown)
     ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
+    ///
     /// Parametreler:
     /// - period: HHV/LLV lookback periyodu (varsayılan 20)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleHHVLLVStrategy : BaseStrategy
     {
         public override string Name => "Simple HHV/LLV Strategy";
 
         private readonly int _period;
+        private readonly int _choice;
         private double[]? _hhv;
         private double[]? _llv;
 
-        public SimpleHHVLLVStrategy(int period = 20)
+        public SimpleHHVLLVStrategy(int period = 20, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleHHVLLVStrategy(List<StockData> data, IndicatorManager indicators, int period = 20)
+        public SimpleHHVLLVStrategy(List<StockData> data, IndicatorManager indicators, int period = 20, int choice = 0)
         {
             _period = period;
+            _choice = choice;
 
             Parameters["Period"] = period;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -85,17 +94,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             if (double.IsNaN(prevHHV) || double.IsNaN(prevLLV))
                 return TradeSignals.None;
 
-            // AL: Fiyat önceki periyodun HHV'sini yukarı kırıyor
-            if (prevClose <= prevHHV && currentClose > prevHHV)
+            // ************************************************************************************************************************
+            // choice: 0 = HHV/LLV breakout, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Fiyat önceki periyodun HHV'sini yukarı kırıyor
+                if (prevClose <= prevHHV && currentClose > prevHHV)
+                {
+                    buy = true;
+                }
 
-            // SAT: Fiyat önceki periyodun LLV'sini aşağı kırıyor
-            if (prevClose >= prevLLV && currentClose < prevLLV)
-            {
-                sell = true;
+                // SAT: Fiyat önceki periyodun LLV'sini aşağı kırıyor
+                if (prevClose >= prevLLV && currentClose < prevLLV)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

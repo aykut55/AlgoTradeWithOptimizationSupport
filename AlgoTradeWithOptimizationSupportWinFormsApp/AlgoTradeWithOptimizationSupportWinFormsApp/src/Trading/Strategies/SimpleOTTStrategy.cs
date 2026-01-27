@@ -16,13 +16,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Hareketli ortalama tabanlı trend takipçisi
     /// - ATR optimizasyonu ile daha stabil sinyaller
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: MA, OTT'yi yukarı kesiyor
     /// - SAT: MA, OTT'yi aşağı kesiyor
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - period: MA periyodu (varsayılan 2)
     /// - percent: OTT yüzde sapması (varsayılan 1.4)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleOTTStrategy : BaseStrategy
     {
@@ -30,24 +34,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _period;
         private readonly double _percent;
+        private readonly int _choice;
         private OTTResult? _ottResult;
 
-        public SimpleOTTStrategy(int period = 2, double percent = 1.4)
+        public SimpleOTTStrategy(int period = 2, double percent = 1.4, int choice = 0)
         {
             _period = period;
             _percent = percent;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Percent"] = percent;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleOTTStrategy(List<StockData> data, IndicatorManager indicators, int period = 2, double percent = 1.4)
+        public SimpleOTTStrategy(List<StockData> data, IndicatorManager indicators, int period = 2, double percent = 1.4, int choice = 0)
         {
             _period = period;
             _percent = percent;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Percent"] = percent;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -85,17 +94,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             double currentMa = ma[currentIndex];
             double prevMa = ma[currentIndex - 1];
 
-            // AL: MA, OTT'yi yukarı kesiyor
-            if (prevMa <= prevOtt && currentMa > currentOtt)
+            // ************************************************************************************************************************
+            // choice: 0 = MA-OTT crossover, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: MA, OTT'yi yukarı kesiyor
+                if (prevMa <= prevOtt && currentMa > currentOtt)
+                {
+                    buy = true;
+                }
 
-            // SAT: MA, OTT'yi aşağı kesiyor
-            if (prevMa >= prevOtt && currentMa < currentOtt)
-            {
-                sell = true;
+                // SAT: MA, OTT'yi aşağı kesiyor
+                if (prevMa >= prevOtt && currentMa < currentOtt)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {

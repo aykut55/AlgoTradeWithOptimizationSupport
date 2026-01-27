@@ -17,13 +17,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
     /// - Yükseliş trendinde: SAR fiyatın altında
     /// - Düşüş trendinde: SAR fiyatın üstünde
     ///
-    /// Trading Logic:
+    /// Trading Logic (choice=0):
     /// - AL: Trend false'dan true'ya değişirse (SAR fiyatın altına geçer)
     /// - SAT: Trend true'dan false'a değişirse (SAR fiyatın üstüne geçer)
+    ///
+    /// Trading Logic (choice=1):
+    /// - (İleride eklenecek alternatif sinyal mantığı)
     ///
     /// Parametreler:
     /// - step: Hızlanma faktörü adımı (varsayılan 0.02)
     /// - max: Maksimum hızlanma faktörü (varsayılan 0.2)
+    /// - choice: Sinyal mantığı seçimi (varsayılan 0)
     /// </summary>
     public class SimpleParabolicSARStrategy : BaseStrategy
     {
@@ -31,24 +35,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly double _step;
         private readonly double _max;
+        private readonly int _choice;
         private ParabolicSARResult? _sarResult;
 
-        public SimpleParabolicSARStrategy(double step = 0.02, double max = 0.2)
+        public SimpleParabolicSARStrategy(double step = 0.02, double max = 0.2, int choice = 0)
         {
             _step = step;
             _max = max;
+            _choice = choice;
 
             Parameters["Step"] = step;
             Parameters["Max"] = max;
+            Parameters["Choice"] = choice;
         }
 
-        public SimpleParabolicSARStrategy(List<StockData> data, IndicatorManager indicators, double step = 0.02, double max = 0.2)
+        public SimpleParabolicSARStrategy(List<StockData> data, IndicatorManager indicators, double step = 0.02, double max = 0.2, int choice = 0)
         {
             _step = step;
             _max = max;
+            _choice = choice;
 
             Parameters["Step"] = step;
             Parameters["Max"] = max;
+            Parameters["Choice"] = choice;
 
             Initialize(data, indicators);
         }
@@ -81,17 +90,27 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             bool currentTrend = _sarResult.Trend[currentIndex];
             bool prevTrend = _sarResult.Trend[currentIndex - 1];
 
-            // AL: Trend false'dan true'ya değişiyor (düşüşten yükselişe)
-            if (!prevTrend && currentTrend)
+            // ************************************************************************************************************************
+            // choice: 0 = SAR trend change, 1 = (İleride eklenecek)
+            if (_choice == 0)
             {
-                buy = true;
-            }
+                // AL: Trend false'dan true'ya değişiyor (düşüşten yükselişe)
+                if (!prevTrend && currentTrend)
+                {
+                    buy = true;
+                }
 
-            // SAT: Trend true'dan false'a değişiyor (yükselişten düşüşe)
-            if (prevTrend && !currentTrend)
-            {
-                sell = true;
+                // SAT: Trend true'dan false'a değişiyor (yükselişten düşüşe)
+                if (prevTrend && !currentTrend)
+                {
+                    sell = true;
+                }
             }
+            else
+            {
+                // İleride eklenecek alternatif sinyal mantığı
+            }
+            // ************************************************************************************************************************
 
             if (Trader != null)
             {
