@@ -1832,6 +1832,9 @@ Format           : ";
                 // Load strategy names to ComboBox
                 LoadStrategyNamesToComboBox();
 
+                // Populate choice ComboBox with values 0-9
+                PopulateChoiceComboBox();
+
                 // Setup DataGridView columns
                 SetupStrategyParametersDataGridView();
 
@@ -1863,6 +1866,23 @@ Format           : ";
             if (cmbStrategySelector.Items.Count > 0)
             {
                 cmbStrategySelector.SelectedIndex = 0;
+            }
+        }
+
+        private void PopulateChoiceComboBox()
+        {
+            cmbStrategyChoice.Items.Clear();
+
+            // Add choices 0 through 9
+            for (int i = 0; i <= 9; i++)
+            {
+                cmbStrategyChoice.Items.Add(i);
+            }
+
+            // Default to 0
+            if (cmbStrategyChoice.Items.Count > 0)
+            {
+                cmbStrategyChoice.SelectedIndex = 0;
             }
         }
 
@@ -2094,6 +2114,52 @@ Format           : ";
             }
         }
 
+        private void cmbStrategyChoice_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingSelection) return; // Prevent circular updates
+
+            UpdateChoiceParameter();
+        }
+
+        private void cmbStrategyChoice_TextChanged(object sender, EventArgs e)
+        {
+            if (_isUpdatingSelection) return; // Prevent circular updates
+
+            UpdateChoiceParameter();
+        }
+
+        private void UpdateChoiceParameter()
+        {
+            if (_selectedStrategyConfig == null) return;
+
+            // Try to get choice value from Text (supports both dropdown selection and manual entry)
+            string choiceText = cmbStrategyChoice.Text?.Trim() ?? "0";
+
+            // Validate that it's a valid integer
+            if (!int.TryParse(choiceText, out int choiceValue))
+            {
+                // Invalid input, reset to 0
+                choiceValue = 0;
+                cmbStrategyChoice.Text = "0";
+            }
+
+            // Update the choice parameter in the selected config
+            if (_selectedStrategyConfig.Parameters.ContainsKey("choice"))
+            {
+                _selectedStrategyConfig.Parameters["choice"].DefaultValue = choiceValue.ToString();
+            }
+            else
+            {
+                // Add choice parameter if it doesn't exist
+                _selectedStrategyConfig.Parameters["choice"] = new ParameterInfo
+                {
+                    Name = "choice",
+                    Type = "int",
+                    DefaultValue = choiceValue.ToString()
+                };
+            }
+        }
+
         private void DgvStrategyParameters_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvStrategyParameters.SelectedRows.Count == 0)
@@ -2110,6 +2176,21 @@ Format           : ";
             {
                 cmbStrategySelector.SelectedItem = config.StrategyName;
                 cmbStrategyVersion.SelectedItem = config.Version;
+
+                // Update choice ComboBox (always populate with 0-9, default to 0)
+                PopulateChoiceComboBox();
+
+                // Set choice to 0 if not specified
+                int choiceValue = 0;
+                if (config.Parameters.ContainsKey("choice") &&
+                    config.Parameters["choice"].DefaultValue is string strValue &&
+                    int.TryParse(strValue, out int parsed))
+                {
+                    choiceValue = parsed;
+                }
+                // Use Text instead of SelectedItem to support manual entry values (like 100, 999, etc.)
+                cmbStrategyChoice.Text = choiceValue.ToString();
+
                 _selectedStrategyConfig = config;
             }
             finally

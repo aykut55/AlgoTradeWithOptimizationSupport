@@ -151,6 +151,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4 = new Panel();
             txtStrategyConfigInfo = new TextBox();
             dgvStrategyParameters = new DataGridView();
+            lblStrategyChoice = new Label();
+            cmbStrategyChoice = new ComboBox();
             lblStrategyVersion = new Label();
             cmbStrategyVersion = new ComboBox();
             lblStrategySelector = new Label();
@@ -1279,6 +1281,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             panel4.Controls.Add(txtStrategyConfigInfo);
             panel4.Controls.Add(dgvStrategyParameters);
+            panel4.Controls.Add(lblStrategyChoice);
+            panel4.Controls.Add(cmbStrategyChoice);
             panel4.Controls.Add(lblStrategyVersion);
             panel4.Controls.Add(cmbStrategyVersion);
             panel4.Controls.Add(lblStrategySelector);
@@ -1329,17 +1333,37 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblStrategyVersion.Size = new Size(82, 15);
             lblStrategyVersion.TabIndex = 11;
             lblStrategyVersion.Text = "Select Version:";
-            // 
+            //
             // cmbStrategyVersion
-            // 
-            cmbStrategyVersion.DropDownStyle = ComboBoxStyle.DropDownList;
+            //
+            cmbStrategyVersion.DropDownStyle = ComboBoxStyle.DropDown;
             cmbStrategyVersion.FormattingEnabled = true;
             cmbStrategyVersion.Location = new Point(880, 44);
             cmbStrategyVersion.Name = "cmbStrategyVersion";
             cmbStrategyVersion.Size = new Size(305, 23);
             cmbStrategyVersion.TabIndex = 12;
             cmbStrategyVersion.SelectedIndexChanged += cmbStrategyVersion_SelectedIndexChanged;
-            // 
+            //
+            // lblStrategyChoice
+            //
+            lblStrategyChoice.AutoSize = true;
+            lblStrategyChoice.Location = new Point(780, 76);
+            lblStrategyChoice.Name = "lblStrategyChoice";
+            lblStrategyChoice.Size = new Size(48, 15);
+            lblStrategyChoice.TabIndex = 14;
+            lblStrategyChoice.Text = "Choice:";
+            //
+            // cmbStrategyChoice
+            //
+            cmbStrategyChoice.DropDownStyle = ComboBoxStyle.DropDown;
+            cmbStrategyChoice.FormattingEnabled = true;
+            cmbStrategyChoice.Location = new Point(880, 73);
+            cmbStrategyChoice.Name = "cmbStrategyChoice";
+            cmbStrategyChoice.Size = new Size(305, 23);
+            cmbStrategyChoice.TabIndex = 15;
+            cmbStrategyChoice.SelectedIndexChanged += cmbStrategyChoice_SelectedIndexChanged;
+            cmbStrategyChoice.TextChanged += cmbStrategyChoice_TextChanged;
+            //
             // lblStrategySelector
             // 
             lblStrategySelector.AutoSize = true;
@@ -1348,10 +1372,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblStrategySelector.Size = new Size(87, 15);
             lblStrategySelector.TabIndex = 9;
             lblStrategySelector.Text = "Select Strategy:";
-            // 
+            //
             // cmbStrategySelector
-            // 
-            cmbStrategySelector.DropDownStyle = ComboBoxStyle.DropDownList;
+            //
+            cmbStrategySelector.DropDownStyle = ComboBoxStyle.DropDown;
             cmbStrategySelector.FormattingEnabled = true;
             cmbStrategySelector.Location = new Point(880, 15);
             cmbStrategySelector.Name = "cmbStrategySelector";
@@ -2534,9 +2558,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Button button1;
         private ComboBox cmbStrategySelector;
         private ComboBox cmbStrategyVersion;
+        private ComboBox cmbStrategyChoice;
         private DataGridView dgvStrategyParameters;
         private Label lblStrategySelector;
         private Label lblStrategyVersion;
+        private Label lblStrategyChoice;
         private TextBox txtStrategyConfigInfo;
         private Label lblSingleTraderProgress;
         private ProgressBar progressBarSingleTrader;

@@ -11,6 +11,8 @@
 
 # ============================================================
 # MOST (Moving Stop Loss) Strategy
+# Choice seçimi GUI'den yapılır (cmbStrategyChoice ComboBox)
+# choice: 0 = Price-MOST crossover, 1 = EXMOV-MOST crossover
 # ============================================================
 SimpleMostStrategy|v1-Default|period:int:21|percent:double:1.0
 SimpleMostStrategy|v2-Short|period:int:14|percent:double:0.5

@@ -27,27 +27,32 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
 
         private readonly int _period;
         private readonly double _percent;
+        private readonly int _choice; // 0: Price-MOST cross, 1: EXMOV-MOST cross
         private double[]? _most;
         private double[]? _exmov;
 
         // Parametresiz constructor (eski kullanımlar için)
-        public SimpleMostStrategy(int period = 21, double percent = 1.0)
+        public SimpleMostStrategy(int period = 21, double percent = 1.0, int choice = 0)
         {
             _period = period;
             _percent = percent;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Percent"] = percent;
+            Parameters["Choice"] = choice;
         }
 
         // Parametreli constructor (yeni kullanım)
-        public SimpleMostStrategy(List<StockData> data, IndicatorManager indicators, int period = 21, double percent = 1.0)
+        public SimpleMostStrategy(List<StockData> data, IndicatorManager indicators, int period = 21, double percent = 1.0, int choice = 0)
         {
             _period = period;
             _percent = percent;
+            _choice = choice;
 
             Parameters["Period"] = period;
             Parameters["Percent"] = percent;
+            Parameters["Choice"] = choice;
 
             // Initialize base strategy
             Initialize(data, indicators);
@@ -109,8 +114,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
             double prevExmov = _exmov[currentIndex - 1];
 
             // ************************************************************************************************************************
-            int choice = 1;     // 0 : Fiyat MOST kırılımı, 1 : EXMOV-MOST kesişimi
-            if (choice == 0)
+            // choice: 0 = Fiyat MOST kırılımı, 1 = EXMOV-MOST kesişimi (configurable via constructor)
+            if (_choice == 0)
             {
                 // MOST AL Sinyali: Fiyat MOST'u yukarı kırıyor (trend değişimi: düşüşten yükselişe)
                 // Önceki bar: fiyat <= MOST

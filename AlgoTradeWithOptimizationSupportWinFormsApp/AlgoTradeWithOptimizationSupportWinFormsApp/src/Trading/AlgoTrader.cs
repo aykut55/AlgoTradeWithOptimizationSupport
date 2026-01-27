@@ -180,7 +180,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                     {
                         int period = Convert.ToInt32(parameters["period"]);
                         double percent = Convert.ToDouble(parameters["percent"]);
-                        return new SimpleMostStrategy(data, indicators, period, percent);
+                        int choice = parameters.ContainsKey("choice") ? Convert.ToInt32(parameters["choice"]) : 0;
+                        return new SimpleMostStrategy(data, indicators, period, percent, choice);
                     });
                     break;
 
