@@ -149,6 +149,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
+            // SingleTraderScript Tab Controls
+            tabPageSingleTraderScript = new TabPage();
+            panelSingleTraderScript = new Panel();
+            splitContainerScript = new SplitContainer();
+            richTextBoxScriptInput = new RichTextBox();
+            richTextBoxScriptOutput = new RichTextBox();
+            btnExecuteScript = new Button();
+            btnClearScript = new Button();
+            btnStopScript = new Button();
+            lblScriptStatus = new Label();
             txtStrategyConfigInfo = new TextBox();
             dgvStrategyParameters = new DataGridView();
             lblStrategyChoice = new Label();
@@ -271,6 +281,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.SuspendLayout();
             tabPageSingleTrader.SuspendLayout();
             panel4.SuspendLayout();
+            tabPageSingleTraderScript.SuspendLayout();
+            panelSingleTraderScript.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)splitContainerScript).BeginInit();
+            splitContainerScript.Panel1.SuspendLayout();
+            splitContainerScript.Panel2.SuspendLayout();
+            splitContainerScript.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).BeginInit();
             tabPageMultipleTraders.SuspendLayout();
             panel7.SuspendLayout();
@@ -811,6 +827,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             mainTabControl.Controls.Add(tabPageStockDataReader);
             mainTabControl.Controls.Add(tabPageSingleTrader);
+            mainTabControl.Controls.Add(tabPageSingleTraderScript);
             mainTabControl.Controls.Add(tabPageMultipleTraders);
             mainTabControl.Controls.Add(tabPageSingleTraderOptimization);
             mainTabControl.Controls.Add(tabPageConfirmingSingleTrader);
@@ -1448,7 +1465,115 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBoxSingleTrader.Size = new Size(750, 261);
             richTextBoxSingleTrader.TabIndex = 1;
             richTextBoxSingleTrader.Text = "";
-            // 
+            //
+            // tabPageSingleTraderScript
+            //
+            tabPageSingleTraderScript.BackColor = Color.White;
+            tabPageSingleTraderScript.Controls.Add(panelSingleTraderScript);
+            tabPageSingleTraderScript.Location = new Point(4, 24);
+            tabPageSingleTraderScript.Name = "tabPageSingleTraderScript";
+            tabPageSingleTraderScript.Padding = new Padding(3);
+            tabPageSingleTraderScript.Size = new Size(1415, 793);
+            tabPageSingleTraderScript.TabIndex = 8;
+            tabPageSingleTraderScript.Text = "SingleTraderScript";
+            //
+            // panelSingleTraderScript
+            //
+            panelSingleTraderScript.Controls.Add(splitContainerScript);
+            panelSingleTraderScript.Controls.Add(btnExecuteScript);
+            panelSingleTraderScript.Controls.Add(btnClearScript);
+            panelSingleTraderScript.Controls.Add(btnStopScript);
+            panelSingleTraderScript.Controls.Add(lblScriptStatus);
+            panelSingleTraderScript.Dock = DockStyle.Fill;
+            panelSingleTraderScript.Location = new Point(3, 3);
+            panelSingleTraderScript.Name = "panelSingleTraderScript";
+            panelSingleTraderScript.Size = new Size(1409, 787);
+            panelSingleTraderScript.TabIndex = 0;
+            //
+            // splitContainerScript
+            //
+            splitContainerScript.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            splitContainerScript.Location = new Point(10, 45);
+            splitContainerScript.Name = "splitContainerScript";
+            splitContainerScript.Orientation = Orientation.Horizontal;
+            splitContainerScript.Size = new Size(1389, 732);
+            splitContainerScript.SplitterDistance = 450;
+            splitContainerScript.TabIndex = 0;
+            //
+            // splitContainerScript.Panel1
+            //
+            splitContainerScript.Panel1.Controls.Add(richTextBoxScriptInput);
+            //
+            // splitContainerScript.Panel2
+            //
+            splitContainerScript.Panel2.Controls.Add(richTextBoxScriptOutput);
+            //
+            // richTextBoxScriptInput
+            //
+            richTextBoxScriptInput.AcceptsTab = true;
+            richTextBoxScriptInput.Dock = DockStyle.Fill;
+            richTextBoxScriptInput.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point);
+            richTextBoxScriptInput.Location = new Point(0, 0);
+            richTextBoxScriptInput.Name = "richTextBoxScriptInput";
+            richTextBoxScriptInput.Size = new Size(1389, 450);
+            richTextBoxScriptInput.TabIndex = 0;
+            richTextBoxScriptInput.Text = "// C# Script Editor\n// Available: algoTrader, stockData, Log(message)\n\nLog(\"Hello from script!\");\nLog($\"AlgoTrader initialized: {algoTrader?.IsInitialized}\");\nLog($\"Stock data count: {stockData?.Count ?? 0}\");";
+            richTextBoxScriptInput.WordWrap = false;
+            //
+            // richTextBoxScriptOutput
+            //
+            richTextBoxScriptOutput.BackColor = Color.FromArgb(30, 30, 30);
+            richTextBoxScriptOutput.Dock = DockStyle.Fill;
+            richTextBoxScriptOutput.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            richTextBoxScriptOutput.ForeColor = Color.LightGreen;
+            richTextBoxScriptOutput.Location = new Point(0, 0);
+            richTextBoxScriptOutput.Name = "richTextBoxScriptOutput";
+            richTextBoxScriptOutput.ReadOnly = true;
+            richTextBoxScriptOutput.Size = new Size(1389, 278);
+            richTextBoxScriptOutput.TabIndex = 1;
+            richTextBoxScriptOutput.Text = "";
+            //
+            // btnExecuteScript
+            //
+            btnExecuteScript.Location = new Point(10, 10);
+            btnExecuteScript.Name = "btnExecuteScript";
+            btnExecuteScript.Size = new Size(100, 28);
+            btnExecuteScript.TabIndex = 1;
+            btnExecuteScript.Text = "Execute (F5)";
+            btnExecuteScript.UseVisualStyleBackColor = true;
+            btnExecuteScript.Click += btnExecuteScript_Click;
+            //
+            // btnClearScript
+            //
+            btnClearScript.Location = new Point(120, 10);
+            btnClearScript.Name = "btnClearScript";
+            btnClearScript.Size = new Size(100, 28);
+            btnClearScript.TabIndex = 2;
+            btnClearScript.Text = "Clear Output";
+            btnClearScript.UseVisualStyleBackColor = true;
+            btnClearScript.Click += btnClearScript_Click;
+            //
+            // btnStopScript
+            //
+            btnStopScript.Enabled = false;
+            btnStopScript.Location = new Point(230, 10);
+            btnStopScript.Name = "btnStopScript";
+            btnStopScript.Size = new Size(75, 28);
+            btnStopScript.TabIndex = 3;
+            btnStopScript.Text = "Stop";
+            btnStopScript.UseVisualStyleBackColor = true;
+            btnStopScript.Click += btnStopScript_Click;
+            //
+            // lblScriptStatus
+            //
+            lblScriptStatus.AutoSize = true;
+            lblScriptStatus.ForeColor = Color.Green;
+            lblScriptStatus.Location = new Point(320, 17);
+            lblScriptStatus.Name = "lblScriptStatus";
+            lblScriptStatus.Size = new Size(39, 15);
+            lblScriptStatus.TabIndex = 4;
+            lblScriptStatus.Text = "Ready";
+            //
             // tabPageMultipleTraders
             // 
             tabPageMultipleTraders.BackColor = Color.White;
@@ -2390,6 +2515,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).EndInit();
+            splitContainerScript.Panel1.ResumeLayout(false);
+            splitContainerScript.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)splitContainerScript).EndInit();
+            splitContainerScript.ResumeLayout(false);
+            panelSingleTraderScript.ResumeLayout(false);
+            panelSingleTraderScript.PerformLayout();
+            tabPageSingleTraderScript.ResumeLayout(false);
             tabPageMultipleTraders.ResumeLayout(false);
             panel7.ResumeLayout(false);
             panel7.PerformLayout();
@@ -2433,7 +2565,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private TabControl mainTabControl;
         private TabPage tabPageStockDataReader;
         private TabPage tabPageSingleTrader;
+        private TabPage tabPageSingleTraderScript;
         private TabPage tabPageMultipleTraders;
+
+        // SingleTraderScript Tab Controls
+        private Panel panelSingleTraderScript;
+        private SplitContainer splitContainerScript;
+        private RichTextBox richTextBoxScriptInput;
+        private RichTextBox richTextBoxScriptOutput;
+        private Button btnExecuteScript;
+        private Button btnClearScript;
+        private Button btnStopScript;
+        private Label lblScriptStatus;
         private TabPage tabPageSingleTraderOptimization;
         private TabPage tabPageConfirmingSingleTrader;
         private TabPage tabPageConfirmingMultipleTrader;

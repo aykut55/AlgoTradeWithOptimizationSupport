@@ -77,6 +77,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             // AlgoTrader objelerini oluştur (Form1.AlgoTrader.cs)
             CreateObjects();
+
+            // Script Editor'ı başlat (Form1.ScriptEditor.cs)
+            InitializeScriptEditor();
         }
 
         private void InitializeFilterModeComboBox()
@@ -548,30 +551,86 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
         private void cutToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Cut functionality will be implemented here.\n\nThis will cut selected content to clipboard.",
-                "Cut", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            statusLabel.Text = "Cut clicked";
+            var activeControl = GetActiveTextControl();
+            if (activeControl is TextBoxBase textBox && textBox.SelectionLength > 0)
+            {
+                textBox.Cut();
+                statusLabel.Text = "Cut completed";
+            }
+            else if (activeControl is DataGridView dgv && dgv.GetCellCount(DataGridViewElementStates.Selected) > 0)
+            {
+                CopyDataGridViewToClipboard(dgv);
+                statusLabel.Text = "Cut completed (DataGridView - copy only)";
+            }
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Copy functionality will be implemented here.\n\nThis will copy selected content to clipboard.",
-                "Copy", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            statusLabel.Text = "Copy clicked";
+            var activeControl = GetActiveTextControl();
+            if (activeControl is TextBoxBase textBox && textBox.SelectionLength > 0)
+            {
+                textBox.Copy();
+                statusLabel.Text = "Copy completed";
+            }
+            else if (activeControl is DataGridView dgv && dgv.GetCellCount(DataGridViewElementStates.Selected) > 0)
+            {
+                CopyDataGridViewToClipboard(dgv);
+                statusLabel.Text = "Copy completed";
+            }
         }
 
         private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Paste functionality will be implemented here.\n\nThis will paste content from clipboard.",
-                "Paste", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            statusLabel.Text = "Paste clicked";
+            var activeControl = GetActiveTextControl();
+            if (activeControl is TextBoxBase textBox && !textBox.ReadOnly)
+            {
+                textBox.Paste();
+                statusLabel.Text = "Paste completed";
+            }
         }
 
         private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MessageBox.Show("Select All functionality will be implemented here.\n\nThis will select all content.",
-                "Select All", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            statusLabel.Text = "Select All clicked";
+            var activeControl = GetActiveTextControl();
+            if (activeControl is TextBoxBase textBox)
+            {
+                textBox.SelectAll();
+                statusLabel.Text = "Select All completed";
+            }
+            else if (activeControl is DataGridView dgv)
+            {
+                dgv.SelectAll();
+                statusLabel.Text = "Select All completed";
+            }
+        }
+
+        private Control? GetActiveTextControl()
+        {
+            var active = ActiveControl;
+            while (active is ContainerControl container && container.ActiveControl != null)
+            {
+                active = container.ActiveControl;
+            }
+            return active;
+        }
+
+        private void CopyDataGridViewToClipboard(DataGridView dgv)
+        {
+            if (dgv.GetCellCount(DataGridViewElementStates.Selected) > 0)
+            {
+                try
+                {
+                    var content = dgv.GetClipboardContent();
+                    if (content != null)
+                    {
+                        Clipboard.SetDataObject(content);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    statusLabel.Text = $"Copy failed: {ex.Message}";
+                }
+            }
         }
 
         #endregion
