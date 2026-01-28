@@ -1543,7 +1543,12 @@ Log($""TotalBars: {TotalBars}"");
 if (TotalBars == 0) { Log(""HATA: Önce data yükle!""); return; }
 
 // Kısa yol: Setup + RunAll
-Setup(""SimpleRSIStrategy"", new Dictionary<string, object> { { ""Period"", 14 } });
+// RSI: period, oversold, overbought
+Setup(""SimpleRSIStrategy"", new Dictionary<string, object> {
+    { ""period"", 14 },
+    { ""oversold"", 30.0 },
+    { ""overbought"", 70.0 }
+});
 RunAll(10000);  // Her 10000 bar'da progress logla
 
 // Sonuçlar
@@ -1572,8 +1577,13 @@ OnTrade((type, price, bar, pnl) => {
 
 // Manuel yol
 algoTrader.Initialize(stockData);
-var p = new Dictionary<string, object> { { ""Period"", 14 } };
+var p = new Dictionary<string, object> {
+    { ""period"", 14 },
+    { ""oversold"", 30.0 },
+    { ""overbought"", 70.0 }
+};
 algoTrader.ConfigureStrategy(""SimpleRSIStrategy"", p);
+algoTrader.PrepareSingleTrader();  // SingleTrader'ı oluştur!
 
 Log(""Başlıyor..."");
 for (int i = 0; i < TotalBars; i++)

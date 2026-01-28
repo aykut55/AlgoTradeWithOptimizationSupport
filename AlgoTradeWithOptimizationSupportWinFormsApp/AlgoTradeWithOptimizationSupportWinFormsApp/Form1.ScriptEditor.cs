@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using AlgoTradeWithOptimizationSupportWinFormsApp.Definitions;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Scripting;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp
@@ -93,10 +94,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             try
             {
+                // Null check for algoTrader
+                if (algoTrader == null)
+                {
+                    LogToScriptOutput("[ERROR] algoTrader is null - CreateObjects() may not have been called", Color.Red);
+                    return;
+                }
+
                 // Create globals object with access to algoTrader, data, and callbacks
                 _currentScriptGlobals = new ScriptGlobals(
                     algoTrader,
-                    stockDataList,
+                    stockDataList ?? new List<StockData>(),
                     message => LogToScriptOutput(message),
                     (key, value) => HandleScriptResult(key, value)
                 );

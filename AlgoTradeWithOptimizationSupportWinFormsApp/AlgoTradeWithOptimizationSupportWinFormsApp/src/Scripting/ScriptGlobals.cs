@@ -259,7 +259,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Scripting
         }
 
         /// <summary>
-        /// Initialize AlgoTrader with current stockData and configure a strategy.
+        /// Initialize AlgoTrader with current stockData, configure a strategy, and prepare SingleTrader.
+        /// This is the main setup method for script execution.
         /// </summary>
         public void Setup(string strategyName, Dictionary<string, object>? parameters = null)
         {
@@ -275,14 +276,20 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Scripting
                 return;
             }
 
+            // 1. Initialize with data
             algoTrader.Initialize(stockData);
             Log($"AlgoTrader initialized with {stockData.Count} bars");
 
+            // 2. Configure strategy
             if (!string.IsNullOrEmpty(strategyName))
             {
                 algoTrader.ConfigureStrategy(strategyName, parameters ?? new Dictionary<string, object>());
                 Log($"Strategy configured: {strategyName}");
             }
+
+            // 3. Prepare SingleTrader (creates indicators, singleTrader, strategy instance)
+            algoTrader.PrepareSingleTrader();
+            Log("SingleTrader ready");
         }
 
         #endregion

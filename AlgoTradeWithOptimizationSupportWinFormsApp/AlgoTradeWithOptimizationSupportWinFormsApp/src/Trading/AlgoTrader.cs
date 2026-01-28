@@ -157,6 +157,59 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         }
 
         /// <summary>
+        /// Prepare SingleTrader for script execution.
+        /// Creates IndicatorManager, SingleTrader, Strategy and sets up everything.
+        /// Call this after Initialize() and ConfigureStrategy().
+        /// </summary>
+        public void PrepareSingleTrader()
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("AlgoTrader not initialized. Call Initialize() first.");
+
+            if (StrategyFactoryMethod == null)
+                throw new InvalidOperationException("Strategy not configured. Call ConfigureStrategy() first.");
+
+            // Dispose old indicators
+            if (indicators != null)
+            {
+                indicators.Dispose();
+                indicators = null;
+            }
+
+            // Create new indicators
+            indicators = new IndicatorManager(this.Data);
+
+            // Dispose old singleTrader
+            if (singleTrader != null)
+            {
+                singleTrader.Dispose();
+                singleTrader = null;
+            }
+
+            // Create new SingleTrader
+            singleTrader = new SingleTrader(0, "singleTrader", this.Data, indicators, Logger);
+
+            // Assign callbacks
+            singleTrader.SetCallbacks(
+                OnSingleTraderReset, OnSingleTraderInit, OnSingleTraderRun, OnSingleTraderFinal,
+                OnSingleTraderBeforeOrder, OnSingleTraderNotifySignal, OnSingleTraderAfterOrder,
+                OnSingleTraderProgress, OnApplyUserFlags);
+
+            // Setup modules
+            singleTrader.CreateModules();
+
+            // Create and assign strategy
+            var strategy = StrategyFactoryMethod(this.Data, indicators, _currentStrategyParams);
+            strategy.OnInit();
+            singleTrader.SetStrategy(strategy);
+
+            // Reset for fresh run
+            singleTrader.Reset();
+
+            Log("SingleTrader prepared and ready for execution.");
+        }
+
+        /// <summary>
         /// Configure strategy dynamically from GUI selection
         /// </summary>
         public void ConfigureStrategy(string strategyName, Dictionary<string, object> parameters)
