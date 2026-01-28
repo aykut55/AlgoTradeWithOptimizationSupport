@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private ScriptExecutor? _scriptExecutor;
         private CancellationTokenSource? _scriptCancellationToken;
         private bool _isScriptRunning = false;
+        private ScriptGlobals? _currentScriptGlobals;
+
+        // Script results storage - scripts can send data here via SendResult()
+        private Dictionary<string, object> _scriptResults = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Event fired when script sends a result via SendResult()
+        /// </summary>
+        public event Action<string, object>? OnScriptResult;
 
         /// <summary>
         /// Initialize script editor components.
@@ -28,8 +38,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBoxScriptInput.KeyDown += RichTextBoxScriptInput_KeyDown;
 
             LogToScriptOutput("=== C# Script Editor Ready ===");
-            LogToScriptOutput("Available objects: algoTrader, stockData");
-            LogToScriptOutput("Available functions: Log(message), ClearOutput()");
+            LogToScriptOutput("Objects  : algoTrader, stockData, Trader, Equity, TotalBars");
+            LogToScriptOutput("Logging  : Log(msg), ClearOutput()");
+            LogToScriptOutput("Callbacks: SendResult(key, value), SendMessage(msg)");
+            LogToScriptOutput("Events   : OnProgress(callback), OnSignal(callback), OnTrade(callback)");
             LogToScriptOutput("Press F5 or click Execute to run script");
             LogToScriptOutput("");
         }
@@ -81,17 +93,18 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
             try
             {
-                // Create globals object with access to algoTrader and data
-                var globals = new ScriptGlobals(
+                // Create globals object with access to algoTrader, data, and callbacks
+                _currentScriptGlobals = new ScriptGlobals(
                     algoTrader,
                     stockDataList,
-                    message => LogToScriptOutput(message)
+                    message => LogToScriptOutput(message),
+                    (key, value) => HandleScriptResult(key, value)
                 );
 
                 // Execute the script
                 var result = await _scriptExecutor!.ExecuteAsync(
                     code,
-                    globals,
+                    _currentScriptGlobals,
                     _scriptCancellationToken.Token
                 );
 
@@ -131,12 +144,55 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             }
             finally
             {
+                // Cleanup event subscriptions
+                _currentScriptGlobals?.Cleanup();
+                _currentScriptGlobals = null;
+
                 _isScriptRunning = false;
                 _scriptCancellationToken?.Dispose();
                 _scriptCancellationToken = null;
                 UpdateScriptUI(isRunning: false);
                 LogToScriptOutput("========== Script Execution Ended ==========\n");
             }
+        }
+
+        /// <summary>
+        /// Handle results sent from script via SendResult()
+        /// </summary>
+        private void HandleScriptResult(string key, object value)
+        {
+            // Store the result
+            _scriptResults[key] = value;
+
+            // Fire the event (thread-safe)
+            if (InvokeRequired)
+            {
+                BeginInvoke(() => OnScriptResult?.Invoke(key, value));
+            }
+            else
+            {
+                OnScriptResult?.Invoke(key, value);
+            }
+        }
+
+        /// <summary>
+        /// Get a result that was sent from script
+        /// </summary>
+        public T? GetScriptResult<T>(string key)
+        {
+            if (_scriptResults.TryGetValue(key, out var value) && value is T typedValue)
+            {
+                return typedValue;
+            }
+            return default;
+        }
+
+        /// <summary>
+        /// Clear all stored script results
+        /// </summary>
+        public void ClearScriptResults()
+        {
+            _scriptResults.Clear();
         }
 
         /// <summary>

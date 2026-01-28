@@ -1517,7 +1517,74 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBoxScriptInput.Name = "richTextBoxScriptInput";
             richTextBoxScriptInput.Size = new Size(1389, 450);
             richTextBoxScriptInput.TabIndex = 0;
-            richTextBoxScriptInput.Text = "// C# Script Editor\n// Available: algoTrader, stockData, Log(message)\n\nLog(\"Hello from script!\");\nLog($\"AlgoTrader initialized: {algoTrader?.IsInitialized}\");\nLog($\"Stock data count: {stockData?.Count ?? 0}\");";
+            richTextBoxScriptInput.Text = @"// ============================================
+// C# Script Editor - Örnek Kodlar
+// ============================================
+// Objects  : algoTrader, stockData, Trader, Equity, TotalBars
+// Logging  : Log(msg), ClearOutput()
+// Callbacks: SendResult(key, value), SendMessage(msg)
+// Events   : OnProgress(cb), OnSignal(cb), OnTrade(cb)
+// Helpers  : Setup(strategy, params), RunAll(progressInterval)
+// ============================================
+
+// 1. TEMEL TEST - Hemen çalıştırabilirsin
+Log(""=== Temel Bilgiler ==="");
+Log($""AlgoTrader initialized: {algoTrader?.IsInitialized}"");
+Log($""Stock data count: {stockData?.Count ?? 0}"");
+Log($""TotalBars: {TotalBars}"");
+
+/*
+// ============================================
+// 2. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (KISA)
+// Önce: StockDataReader tab'ında data yükle
+// Sonra: Bu kodu çalıştır
+// ============================================
+
+if (TotalBars == 0) { Log(""HATA: Önce data yükle!""); return; }
+
+// Kısa yol: Setup + RunAll
+Setup(""SimpleRSIStrategy"", new Dictionary<string, object> { { ""Period"", 14 } });
+RunAll(10000);  // Her 10000 bar'da progress logla
+
+// Sonuçlar
+Log($""=== Sonuçlar ==="");
+Log($""Equity: {Equity:F2}"");
+Log($""Son Yön: {Trader?.SonYon}"");
+SendResult(""Equity"", Equity);
+*/
+
+/*
+// ============================================
+// 3. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (DETAYLI)
+// Event'lerle birlikte
+// ============================================
+
+if (TotalBars == 0) { Log(""HATA: Önce data yükle!""); return; }
+
+// Event'lere subscribe ol
+OnProgress((current, total) => {
+    Log($""Progress: {current}/{total} ({100.0*current/total:F1}%)"");
+}, 10000);
+
+OnTrade((type, price, bar, pnl) => {
+    Log($""Trade: {type} @ {price:F2} - Bar: {bar}"");
+});
+
+// Manuel yol
+algoTrader.Initialize(stockData);
+var p = new Dictionary<string, object> { { ""Period"", 14 } };
+algoTrader.ConfigureStrategy(""SimpleRSIStrategy"", p);
+
+Log(""Başlıyor..."");
+for (int i = 0; i < TotalBars; i++)
+{
+    algoTrader.singleTrader.Run(i);
+}
+Log(""Bitti!"");
+
+Log($""Equity: {Equity:F2}"");
+*/
+";
             richTextBoxScriptInput.WordWrap = false;
             //
             // richTextBoxScriptOutput
