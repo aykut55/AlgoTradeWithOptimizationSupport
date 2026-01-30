@@ -58,6 +58,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
 
         public IndicatorManager Indicators { get; private set; }
         public IStrategy? Strategy { get; private set; }
+        public Trading.Query.IQuery? Query { get; private set; }
         public Position Position { get; private set; }
         public Bakiye Bakiye { get; private set; }
         public int CurrentIndex { get; private set; }
@@ -345,6 +346,36 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             {
                 //strategy.OnInit();
             }
+        }
+
+        /// <summary>
+        /// Set query
+        /// </summary>
+        public void SetQuery(Trading.Query.IQuery query)
+        {
+            if (!IsInitialized)
+                throw new InvalidOperationException("Trader not initialized. Call Initialize() first.");
+
+            Query = query;
+
+            if (query is Trading.Query.BaseQuery baseQuery)
+            {
+                baseQuery.Initialize(Data, Indicators);
+                baseQuery.SetTrader(this);  // Query'ye Trader referansını ver
+            }
+        }
+
+        /// <summary>
+        /// Get query results for the last bar
+        /// Returns null if no query is set
+        /// </summary>
+        public List<object>? GetQueryResults()
+        {
+            if (Query == null)
+                return null;
+
+            int lastBarIndex = _data.Count - 1;
+            return Query.OnExecute(lastBarIndex);
         }
 
         /// <summary>

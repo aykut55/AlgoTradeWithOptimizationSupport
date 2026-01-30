@@ -29,6 +29,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
     public delegate IStrategy StrategyFactory(List<StockData> data, IndicatorManager indicators, Dictionary<string, object> parameters);
 
     /// <summary>
+    /// Delegate for creating query instances with parameters
+    /// </summary>
+    public delegate Trading.Query.IQuery QueryFactory(List<StockData> data, IndicatorManager indicators, Dictionary<string, object> parameters);
+
+    /// <summary>
     /// Progress information for backtest execution
     /// </summary>
     public class BacktestProgressInfo
@@ -74,6 +79,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
         public SingleTraderOptimizer? singleTraderOptimizer { get; private set; }
         public StrategyFactory StrategyFactoryMethod { get; private set; }
         private Dictionary<string, object>? _currentStrategyParams;
+        public QueryFactory QueryFactoryMethod { get; private set; }
+        private Dictionary<string, object>? _currentQueryParams;
 
         public TimeManager timeManager { get; private set; }
 
@@ -154,6 +161,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading
                 throw new ArgumentNullException(nameof(factory));
 
             StrategyFactoryMethod = factory;
+        }
+
+        /// <summary>
+        /// Set query factory method for creating query instances with parameters
+        /// </summary>
+        public void SetQueryFactory(QueryFactory factory)
+        {
+            if (factory == null)
+                throw new ArgumentNullException(nameof(factory));
+
+            QueryFactoryMethod = factory;
         }
 
         /// <summary>
@@ -2115,6 +2133,338 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             confirmingSingleTrader.IsStopped = true;
             Log($"ConfirmingSingleTrader2 finished - IsRunning: {confirmingSingleTrader.IsRunning}, IsStopped: {confirmingSingleTrader.IsStopped}");
         }
+
+        public async Task RunSingleTraderQueryWithProgressAsync(IProgress<BacktestProgressInfo> progress = null)
+        {
+            bool hasStrategy = false;
+
+            if (!IsInitialized)
+            {
+                LogError("AlgoTrader not initialized!");
+                throw new InvalidOperationException("AlgoTrader not initialized");
+            }
+
+            int totalBars = Data.Count;
+
+            Log("");
+            Log("=== Running Single Trader Query (Async) ===");
+            Log($"Processing {totalBars} bars for query...");
+
+            // Dispose old indicators before creating new one
+            if (indicators != null)
+            {
+                Log("Disposing previous indicators instance...");
+                indicators.Dispose();
+                indicators = null;
+            }
+
+            indicators = new IndicatorManager(this.Data);
+            if (indicators == null)
+                return;
+
+            // ============================================================
+            // QUERY CONFIGURATION - Dynamic configuration from GUI
+            // ============================================================
+
+            // This will be configured from Form1 via ConfigureQuery() method
+            // Default fallback if no query is configured
+            if (QueryFactoryMethod == null)
+            {
+                Log("WARNING: No query configured. Using default SimpleMAQuery.");
+                _currentQueryParams = new Dictionary<string, object>
+                {
+                    { "ma8Period", 8 },
+                    { "ma200Period", 200 }
+                };
+
+                this.SetQueryFactory((data, indicators, parameters) =>
+                {
+                    int ma8Period = Convert.ToInt32(parameters["ma8Period"]);
+                    int ma200Period = Convert.ToInt32(parameters["ma200Period"]);
+                    return new Trading.Queries.SimpleMAQuery(data, indicators, ma8Period, ma200Period);
+                });
+            }
+
+            // ============================================================
+            // END QUERY CONFIGURATION
+            // ============================================================
+
+            // *****************************************************************************
+            // CLEANUP PREVIOUS RUN (if exists) - Dispose old singleTrader before creating new one
+            // This allows plotting after run completes, while preventing memory leaks on subsequent runs
+            // *****************************************************************************
+            if (singleTrader != null)
+            {
+                Log("Disposing previous singleTrader instance...");
+                singleTrader.Dispose();
+                singleTrader = null;
+            }
+
+            // *****************************************************************************
+            // CREATE NEW SINGLETRADER
+            // *****************************************************************************
+            singleTrader = new SingleTrader(0, "singleTraderQuery", this.Data, indicators, Logger);
+            if (singleTrader == null) return;
+
+            // Assign callbacks (minimal for query mode - no finalize callbacks)
+            singleTrader.SetCallbacks(null, null, null, null, null, null, null, OnSingleTraderProgress, null);
+
+            // Setup (order is important)
+            singleTrader.CreateModules();
+
+            // Validate QueryFactory is set
+            if (QueryFactoryMethod == null)
+                throw new InvalidOperationException("QueryFactory must be set before running. Use SetQueryFactory().");
+
+            // Create query instance using factory (generic!)
+            var query = QueryFactoryMethod(this.Data, indicators, _currentQueryParams);
+            query.OnInit();
+
+            // Assign query
+            singleTrader.SetQuery(query);
+
+            // Optional: If strategy is also configured, set it (for combined query+strategy results)
+            if (StrategyFactoryMethod != null && _currentStrategyParams != null)
+            {
+                hasStrategy = true;
+
+                var strategy = StrategyFactoryMethod(this.Data, indicators, _currentStrategyParams);
+                strategy.OnInit();
+                singleTrader.SetStrategy(strategy);                
+            }
+
+            // Reset
+            singleTrader.Reset();
+
+            // Apply Confirmation Mode settings (if configured)
+            singleTrader.ConfirmationModeEnabled = _confirmationModeEnabled;
+            singleTrader.KarKonfirmasyonEsigi = _karKonfirmasyonEsigi;
+            singleTrader.ZararKonfirmasyonEsigi = _zararKonfirmasyonEsigi;
+            singleTrader.KonfirmasyonTetikleyici = _konfirmasyonTetikleyici;
+
+            if (_confirmationModeEnabled)
+            {
+                Log($"✓ Confirmation Mode aktif - Kar: {_karKonfirmasyonEsigi}, Zarar: {_zararKonfirmasyonEsigi}, Trigger: {_konfirmasyonTetikleyici}");
+            }
+
+            singleTrader.SymbolName = this.SymbolName;
+            singleTrader.SymbolPeriod = this.SymbolPeriod;
+            singleTrader.SystemId = this.SystemId = "0";
+            singleTrader.SystemName = this.SystemName = "SystemName";
+            singleTrader.StrategyId = this.StrategyId = "0";
+            singleTrader.StrategyName = this.StrategyName = "StrategyName";
+            singleTrader.LastExecutionTime = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+            singleTrader.LastExecutionTimeStart = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+
+            // Configure position sizing
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsFxParite(lotSayisi: 0.01)
+                .SetKomisyonParams(komisyonCarpan: 3.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
+
+            singleTrader.pozisyonBuyuklugu.Reset()
+                .SetBakiyeParams(ilkBakiye: 100000.0)
+                .SetKontratParamsViopEndex(kontratSayisi: 1)
+                .SetKomisyonParams(komisyonCarpan: 20.0)
+                .SetKaymaParams(kaymaMiktari: 0.5);
+
+            singleTrader.Init();
+            // *****************************************************************************
+            // *****************************************************************************
+            // *****************************************************************************
+
+            if (hasStrategy)
+            {
+                // ============================================================
+                // STRATEGY MODE: Run full backtest loop
+                // ============================================================
+                this.timeManager.ResetTimer("0");
+                this.timeManager.StartTimer("0");
+
+                // Initialize
+                this.timeManager.ResetTimer("1");
+                this.timeManager.StartTimer("1");
+                Log("Single Trader Query (with Strategy) - Initialize (~10 ms)");
+                singleTrader.Initialize();
+                this.timeManager.StopTimer("1");
+
+                Log("");
+
+                // Run with progress reporting
+                this.timeManager.ResetTimer("2");
+                this.timeManager.StartTimer("2");
+                Log("Single Trader Query (with Strategy) - Run (~100 ms)");
+
+                var startTime = System.DateTime.Now;
+                await Task.Run(() =>
+                {
+                    // Set state flags
+                    singleTrader.IsStarted = true;
+                    singleTrader.IsRunning = true;
+                    singleTrader.IsStopped = false;
+                    singleTrader.IsStopRequested = false;
+
+                    for (int i = 0; i < totalBars; i++)
+                    {
+                        // Check if stop is requested
+                        if (singleTrader.IsStopRequested)
+                        {
+                            Log($"SingleTrader stopped by user request at bar {i}/{totalBars}");
+                            break;
+                        }
+
+                        singleTrader.Run(i);
+
+                        // Report progress every 10 bars or on last bar (more frequent updates)
+                        if (progress != null && (i % 10 == 0 || i == totalBars - 1))
+                        {
+                            var elapsed = System.DateTime.Now - startTime;
+                            double percentComplete = (double)(i + 1) / totalBars * 100.0;
+                            double barsPerSecond = (i + 1) / elapsed.TotalSeconds;
+                            int remainingBars = totalBars - (i + 1);
+                            TimeSpan estimatedRemaining = barsPerSecond > 0
+                                ? TimeSpan.FromSeconds(remainingBars / barsPerSecond)
+                                : TimeSpan.Zero;
+
+                            var progressInfo = new BacktestProgressInfo
+                            {
+                                CurrentBar = i + 1,
+                                TotalBars = totalBars,
+                                PercentComplete = percentComplete,
+                                StatusMessage = $"Processing bar {i + 1}/{totalBars}",
+                                ElapsedTime = elapsed,
+                                EstimatedTimeRemaining = estimatedRemaining
+                            };
+
+                            progress.Report(progressInfo);
+                        }
+
+                        if (singleTrader.OnProgress != null && (i % 10 == 0 || i == totalBars - 1))
+                            singleTrader.OnProgress?.Invoke(singleTrader, i, totalBars);
+                    }
+
+                    if (singleTrader.OnProgress != null)
+                        singleTrader.OnProgress?.Invoke(singleTrader, totalBars, totalBars);
+
+                    Log("");
+
+                    this.timeManager.StopTimer("2");
+
+                    this.timeManager.StopTimer("0");
+                    var t0 = this.timeManager.GetElapsedTime("0");
+                    singleTrader.LastExecutionTimeStop = System.DateTime.Now.ToString("yyyy.MM.dd HH:mm:ss");
+                    singleTrader.LastExecutionTimeInMSec = t0.ToString();
+
+                    // Tarama bilgileri: (Finalize gerek kalmadan alinabilir)
+                    var yon = singleTrader.SonYon;                    // "A"
+                    var kacBarOnce = singleTrader.SonSinyaldenBeriBarSayisi; // 5
+                    var karZarar = singleTrader.SonKarZararFiyat;          // 125.50
+                    var karZararYuzde = singleTrader.SonKarZararYuzde;          // 0.85
+                    var ozet = singleTrader.TaramaOzeti;               // "A | Bar:5 | KZ:125.50 | %:0.85"
+
+                    // ===================================================================
+                    // EXECUTE QUERY ON LAST BAR (after strategy processing)
+                    // ===================================================================
+                    this.timeManager.ResetTimer("3");
+                    this.timeManager.StartTimer("3");
+                    Log("Single Trader Query - Executing query on last bar...");
+
+                    var queryResults = singleTrader.GetQueryResults();
+
+                    if (queryResults != null && queryResults.Count > 0)
+                    {
+                        Log($"✓ Query returned {queryResults.Count} results:");
+                        for (int i = 0; i < queryResults.Count; i++)
+                        {
+                            Log($"  Result[{i}] = {queryResults[i]}");
+                        }
+                    }
+                    else
+                    {
+                        LogWarning("Query returned null or empty results");
+                    }
+
+                    this.timeManager.StopTimer("3");
+
+                    Log("");
+
+                    var t1 = this.timeManager.GetElapsedTime("1");
+                    var t2 = this.timeManager.GetElapsedTime("2");
+                    var t3 = this.timeManager.GetElapsedTime("3");
+
+                    Log($"t0 = {t0} msec (total)");
+                    Log($"t1 = {t1} msec (initialize)");
+                    Log($"t2 = {t2} msec (processing)");
+                    Log($"t3 = {t3} msec (query execution)");
+
+                    Log("Single Trader Query (with Strategy) completed");
+
+                    // Update state flags
+                    singleTrader.IsRunning = false;
+                    singleTrader.IsStopped = true;
+                    Log($"SingleTrader finished - IsRunning: {singleTrader.IsRunning}, IsStopped: {singleTrader.IsStopped}");
+
+                    // NOTE: Do NOT dispose here - singleTrader data is needed for results access
+                    // Disposal will happen at the start of next run (see cleanup section above)
+                });
+            }
+            else
+            {
+                // ============================================================
+                // QUERY-ONLY MODE: Skip Run() loop for performance
+                // ============================================================
+                Log("Single Trader Query (NO Strategy) - Fast Mode");
+                Log("Indicators already calculated in query.OnInit() - Skipping Run() loop for performance");
+
+                this.timeManager.ResetTimer("0");
+                this.timeManager.StartTimer("0");
+
+                // Initialize (minimal)
+                singleTrader.Initialize();
+
+                // ===================================================================
+                // EXECUTE QUERY ON LAST BAR (no strategy processing needed)
+                // ===================================================================
+                this.timeManager.ResetTimer("3");
+                this.timeManager.StartTimer("3");
+                Log("Single Trader Query - Executing query on last bar...");
+
+                var queryResults = singleTrader.GetQueryResults();
+
+                if (queryResults != null && queryResults.Count > 0)
+                {
+                    Log($"✓ Query returned {queryResults.Count} results:");
+                    for (int i = 0; i < queryResults.Count; i++)
+                    {
+                        Log($"  Result[{i}] = {queryResults[i]}");
+                    }
+                }
+                else
+                {
+                    LogWarning("Query returned null or empty results");
+                }
+
+                this.timeManager.StopTimer("3");
+                this.timeManager.StopTimer("0");
+
+                var t0 = this.timeManager.GetElapsedTime("0");
+                var t3 = this.timeManager.GetElapsedTime("3");
+
+                Log("");
+                Log($"t0 = {t0} msec (total)");
+                Log($"t3 = {t3} msec (query execution)");
+                Log("Single Trader Query (NO Strategy) completed - FAST MODE");
+
+                // Update state flags
+                singleTrader.IsRunning = false;
+                singleTrader.IsStopped = true;
+            }
+
+            // NOTE: singleTrader object remains alive for query results access
+            // It will be disposed automatically when next run starts
+        }
+
 
         /// <summary>
         /// Set optimization skip iteration settings
