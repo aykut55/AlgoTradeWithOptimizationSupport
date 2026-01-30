@@ -2223,6 +2223,9 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
             // Assign query
             singleTrader.SetQuery(query);
 
+            // TODO : Hızlı prototip yaptıgım icin su anda bir sekilde hasStrategy = true oluyor.
+            //        Bunun düşünülmesi gerek!
+            //        
             // Optional: If strategy is also configured, set it (for combined query+strategy results)
             if (StrategyFactoryMethod != null && _currentStrategyParams != null)
             {
@@ -2371,13 +2374,25 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                     Log("Single Trader Query - Executing query on last bar...");
 
                     var queryResults = singleTrader.GetQueryResults();
+                    var columnNames = singleTrader.Query?.ColumnNames;
 
                     if (queryResults != null && queryResults.Count > 0)
                     {
                         Log($"✓ Query returned {queryResults.Count} results:");
+
+                        // Log column names
+                        if (columnNames != null && columnNames.Count > 0)
+                        {
+                            Log($"  Columns: {string.Join(", ", columnNames)}");
+                        }
+
+                        // Log results with column names
                         for (int i = 0; i < queryResults.Count; i++)
                         {
-                            Log($"  Result[{i}] = {queryResults[i]}");
+                            string columnName = (columnNames != null && i < columnNames.Count)
+                                ? columnNames[i]
+                                : $"Column[{i}]";
+                            Log($"  {columnName} = {queryResults[i]}");
                         }
                     }
                     else
@@ -2431,13 +2446,25 @@ End Date:    {Data[Data.Count - 1].DateTime:yyyy-MM-dd HH:mm:ss}
                 Log("Single Trader Query - Executing query on last bar...");
 
                 var queryResults = singleTrader.GetQueryResults();
+                var columnNames = singleTrader.Query?.ColumnNames;
 
                 if (queryResults != null && queryResults.Count > 0)
                 {
                     Log($"✓ Query returned {queryResults.Count} results:");
+
+                    // Log column names
+                    if (columnNames != null && columnNames.Count > 0)
+                    {
+                        Log($"  Columns: {string.Join(", ", columnNames)}");
+                    }
+
+                    // Log results with column names
                     for (int i = 0; i < queryResults.Count; i++)
                     {
-                        Log($"  Result[{i}] = {queryResults[i]}");
+                        string columnName = (columnNames != null && i < columnNames.Count)
+                            ? columnNames[i]
+                            : $"Column[{i}]";
+                        Log($"  {columnName} = {queryResults[i]}");
                     }
                 }
                 else

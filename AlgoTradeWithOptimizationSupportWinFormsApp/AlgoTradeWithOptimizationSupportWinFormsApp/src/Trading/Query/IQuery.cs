@@ -25,8 +25,14 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Query
         void OnInit();
 
         /// <summary>
+        /// Column names from last OnExecute() call
+        /// </summary>
+        List<string> ColumnNames { get; }
+
+        /// <summary>
         /// Execute query for the last bar
         /// Returns list of results (dynamic columns)
+        /// Also populates ColumnNames property
         /// Example: [Close, MA8, MA200, CrossSignal, DistancePercent, ...]
         /// </summary>
         List<object> OnExecute(int lastBarIndex);

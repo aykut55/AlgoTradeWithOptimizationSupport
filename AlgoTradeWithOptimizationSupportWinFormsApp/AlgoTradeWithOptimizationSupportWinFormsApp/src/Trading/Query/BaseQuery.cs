@@ -17,6 +17,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Query
         public abstract string Name { get; }
         public Dictionary<string, object> Parameters { get; protected set; }
 
+        /// <summary>Column names from last OnExecute() call</summary>
+        public List<string> ColumnNames { get; protected set; }
+
         /// <summary>Market data</summary>
         protected List<StockData> Data { get; set; }
 
@@ -36,6 +39,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Query
         protected BaseQuery()
         {
             Parameters = new Dictionary<string, object>();
+            ColumnNames = new List<string>();
             IsInitialized = false;
         }
 
@@ -65,6 +69,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Query
         /// <summary>
         /// Execute query for the last bar
         /// Returns list of results (must be implemented in derived classes)
+        /// Also populates ColumnNames property
         /// </summary>
         public abstract List<object> OnExecute(int lastBarIndex);
 
@@ -74,6 +79,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Query
         public virtual void Reset()
         {
             IsInitialized = false;
+            ColumnNames.Clear();
         }
 
         /// <summary>

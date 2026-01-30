@@ -66,6 +66,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Queries
         public override List<object> OnExecute(int lastBarIndex)
         {
             var results = new List<object>();
+            ColumnNames.Clear(); // Clear previous column names
 
             // Check if we have enough data
             if (lastBarIndex < _ma200Period)
@@ -74,48 +75,58 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Queries
                 return results;
             }
 
-            // Results[0] = Close[LastBar]
+            // Column: Close
             double lastClose = Data[lastBarIndex].Close;
             results.Add(lastClose);
+            ColumnNames.Add("Close");
 
-            // Results[1] = MA8[LastBar]
+            // Column: MA8
             double lastMA8 = _ma8[lastBarIndex];
             results.Add(lastMA8);
+            ColumnNames.Add($"MA{_ma8Period}");
 
-            // Results[2] = MA200[LastBar]
+            // Column: MA200
             double lastMA200 = _ma200[lastBarIndex];
             results.Add(lastMA200);
+            ColumnNames.Add($"MA{_ma200Period}");
 
-            // Results[3] = CrossSignal: (MA8[LastBar] > MA200[LastBar]) ? 1 : -1
+            // Column: CrossSignal
             int crossSignal = lastMA8 > lastMA200 ? 1 : -1;
             results.Add(crossSignal);
+            ColumnNames.Add("CrossSignal");
 
-            // Results[4] = Distance percentage: (Close - MA200) / MA200 * 100
+            // Column: Distance%
             double distancePercent = (lastClose - lastMA200) / lastMA200 * 100.0;
             results.Add(distancePercent);
+            ColumnNames.Add("Distance%");
 
             // Optional: Add strategy signal if trader has a strategy
             if (Trader?.Strategy != null)
             {
-                // Results[5] = Strategy Signal
+                // Column: StrategySignal
                 var signal = Trader.StrategySignal;
                 results.Add(signal.ToString());
+                ColumnNames.Add("StrategySignal");
             }
 
             // Optional: Add position info if trader has open position
             if (Trader != null)
             {
-                // Results[6] = Last Signal Direction (A/S/F)
+                // Column: LastSignal
                 results.Add(Trader.SonYon ?? "F");
+                ColumnNames.Add("LastSignal");
 
-                // Results[7] = Bars since last signal
+                // Column: BarsSinceSignal
                 results.Add(Trader.SonSinyaldenBeriBarSayisi);
+                ColumnNames.Add("BarsSinceSignal");
 
-                // Results[8] = Current P&L
+                // Column: P&L
                 results.Add(Trader.SonKarZararFiyat);
+                ColumnNames.Add("P&L");
 
-                // Results[9] = Current P&L %
+                // Column: P&L%
                 results.Add(Trader.SonKarZararYuzde);
+                ColumnNames.Add("P&L%");
             }
 
             return results;

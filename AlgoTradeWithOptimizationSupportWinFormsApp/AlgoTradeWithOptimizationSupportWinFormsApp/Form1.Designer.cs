@@ -170,6 +170,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnPlotSingleTraderData = new Button();
             btnStopSingleTrader = new Button();
             btnStartSingleTrader = new Button();
+            btnStartSingleTraderQuery = new Button();
             progressBarSingleTrader = new ProgressBar();
             lblSingleTraderProgress = new Label();
             button1 = new Button();
@@ -1307,6 +1308,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panel4.Controls.Add(btnPlotSingleTraderData);
             panel4.Controls.Add(btnStopSingleTrader);
             panel4.Controls.Add(btnStartSingleTrader);
+            panel4.Controls.Add(btnStartSingleTraderQuery);
             panel4.Controls.Add(progressBarSingleTrader);
             panel4.Controls.Add(lblSingleTraderProgress);
             panel4.Controls.Add(button1);
@@ -1421,7 +1423,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnStopSingleTrader.Click += btnStopSingleTrader_Click;
             // 
             // btnStartSingleTrader
-            // 
+            //
             btnStartSingleTrader.Location = new Point(780, 160);
             btnStartSingleTrader.Name = "btnStartSingleTrader";
             btnStartSingleTrader.Size = new Size(131, 23);
@@ -1429,7 +1431,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnStartSingleTrader.Text = "Start Single Trader";
             btnStartSingleTrader.UseVisualStyleBackColor = true;
             btnStartSingleTrader.Click += btnStartSingleTrader_Click;
-            // 
+            //
+            // btnStartSingleTraderQuery
+            //
+            btnStartSingleTraderQuery.Location = new Point(780, 189);
+            btnStartSingleTraderQuery.Name = "btnStartSingleTraderQuery";
+            btnStartSingleTraderQuery.Size = new Size(131, 23);
+            btnStartSingleTraderQuery.TabIndex = 6;
+            btnStartSingleTraderQuery.Text = "Start SingleTrader Query";
+            btnStartSingleTraderQuery.UseVisualStyleBackColor = true;
+            btnStartSingleTraderQuery.Click += btnStartSingleTraderQuery_Click;
+            //
             // progressBarSingleTrader
             // 
             progressBarSingleTrader.Location = new Point(780, 131);
@@ -2788,6 +2800,7 @@ Log($""Equity: {Equity:F2}"");
         private ProgressBar progressBarSingleTrader;
         private Button btnStartMultipleTrader;
         private Button btnStartSingleTrader;
+        private Button btnStartSingleTraderQuery;
         private Button btnStartSingleTraderOpt;
         private Button btnStopSingleTraderOpt;
         private Panel panel5;

@@ -1140,6 +1140,124 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 btnStopSingleTrader.Enabled = false;
             }
         }
+
+        private async void btnStartSingleTraderQuery_Click(object sender, EventArgs e)
+        {
+            // Disable button during execution
+            btnStartSingleTraderQuery.Enabled = false;
+            btnStopSingleTrader.Enabled = true;
+
+            try
+            {
+                // Null check
+                if (_singleTraderLogger == null || algoTrader == null)
+                {
+                    MessageBox.Show("AlgoTrader objeleri oluşturulamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Logger'ı temizle veya oluştur
+                InitializeSingleTraderLogger();
+
+                // AlgoTrader zaten initialize edilmişse reset et
+                if (algoTrader.IsInitialized)
+                {
+                    _singleTraderLogger.Log("Resetting existing AlgoTrader...");
+                    algoTrader.Reset();
+                }
+
+                // Logger'ı AlgoTrader'a tekrar kaydet
+                algoTrader.RegisterLogger(_singleTraderLogger);
+
+                _singleTraderLogger.Log("=== AlgoTrader Query Test Started ===");
+
+                // Stock data kontrolü
+                if (stockDataList == null || stockDataList.Count == 0)
+                {
+                    _singleTraderLogger.LogWarning("Stock data yüklü değil!");
+                    MessageBox.Show("Önce stock data yükleyin!", "Uyarı",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                _singleTraderLogger.Log($"Data loaded: {stockDataList.Count} bars");
+
+                // Query için strateji OPSIYONEL
+                if (_selectedStrategyConfig != null)
+                {
+                    _singleTraderLogger.Log($"Selected Strategy (optional for query): {_selectedStrategyConfig.StrategyName}");
+                    algoTrader.ConfigureStrategy(
+                        _selectedStrategyConfig.StrategyName,
+                        _selectedStrategyConfig.GetParameterValues()
+                    );
+                }
+                else
+                {
+                    _singleTraderLogger.Log("No strategy selected - Query will run in FAST MODE (indicators only)");
+                }
+
+                // Initialize with stock data
+                algoTrader.Initialize(stockDataList);
+
+                if (!algoTrader.IsInitialized)
+                {
+                    _singleTraderLogger.LogError("AlgoTrader initialization failed!");
+                    MessageBox.Show("AlgoTrader başlatılamadı!", "Hata",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                _singleTraderLogger.Log("=== AlgoTrader Initialized Successfully ===");
+
+                // Progress reporter oluştur
+                var progress = new Progress<BacktestProgressInfo>(progressInfo =>
+                {
+                    try
+                    {
+                        UpdateUIControl(() =>
+                        {
+                            if (progressBarSingleTrader != null)
+                            {
+                                progressBarSingleTrader.Value = (int)progressInfo.PercentComplete;
+                            }
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        _singleTraderLogger?.LogWarning($"Progress update failed: {ex.Message}");
+                    }
+                });
+
+                // Run SingleTrader QUERY with progress (ASYNC)
+                await algoTrader.RunSingleTraderQueryWithProgressAsync(progress);
+
+                if (lblSingleTraderProgress != null)
+                {
+                    lblSingleTraderProgress.Text = "Query completed!";
+                }
+
+                _singleTraderLogger.Log("=== Query Execution Completed ===");
+            }
+            catch (Exception ex)
+            {
+                _singleTraderLogger?.LogError("AlgoTrader Query test hatası:", ex.Message, ex.StackTrace);
+                MessageBox.Show($"Hata: {ex.Message}", "Hata",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                if (lblSingleTraderProgress != null)
+                {
+                    lblSingleTraderProgress.Text = "Error occurred";
+                }
+            }
+            finally
+            {
+                // Re-enable button
+                btnStartSingleTraderQuery.Enabled = true;
+                btnStopSingleTrader.Enabled = false;
+            }
+        }
+
         private void btnStopSingleTrader_Click(object sender, EventArgs e)
         {
             // Run stop logic in background to avoid logger deadlock
