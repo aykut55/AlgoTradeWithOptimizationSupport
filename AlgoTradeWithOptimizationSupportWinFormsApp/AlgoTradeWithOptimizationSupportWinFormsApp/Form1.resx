@@ -129,6 +129,86 @@
   <metadata name="statusStrip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>421, 17</value>
   </metadata>
+  <data name="richTextBoxScriptInput.Text" xml:space="preserve">
+    <value>// ============================================
+// C# Script Editor - Örnek Kodlar
+// ============================================
+// Objects  : algoTrader, stockData, Trader, Equity, TotalBars
+// Logging  : Log(msg), ClearOutput()
+// Callbacks: SendResult(key, value), SendMessage(msg)
+// Events   : OnProgress(cb), OnSignal(cb), OnTrade(cb)
+// Helpers  : Setup(strategy, params), RunAll(progressInterval)
+// ============================================
+
+// 1. TEMEL TEST - Hemen çalıştırabilirsin
+Log("=== Temel Bilgiler ===");
+Log($"AlgoTrader initialized: {algoTrader?.IsInitialized}");
+Log($"Stock data count: {stockData?.Count ?? 0}");
+Log($"TotalBars: {TotalBars}");
+
+/*
+// ============================================
+// 2. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (KISA)
+// Önce: StockDataReader tab'ında data yükle
+// Sonra: Bu kodu çalıştır
+// ============================================
+
+if (TotalBars == 0) { Log("HATA: Önce data yükle!"); return; }
+
+// Kısa yol: Setup + RunAll
+// RSI: period, oversold, overbought
+Setup("SimpleRSIStrategy", new Dictionary&lt;string, object&gt; {
+    { "period", 14 },
+    { "oversold", 30.0 },
+    { "overbought", 70.0 }
+});
+RunAll(10000);  // Her 10000 bar'da progress logla
+
+// Sonuçlar
+Log($"=== Sonuçlar ===");
+Log($"Equity: {Equity:F2}");
+Log($"Son Yön: {Trader?.SonYon}");
+SendResult("Equity", Equity);
+*/
+
+/*
+// ============================================
+// 3. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (DETAYLI)
+// Event'lerle birlikte
+// ============================================
+
+if (TotalBars == 0) { Log("HATA: Önce data yükle!"); return; }
+
+// Event'lere subscribe ol
+OnProgress((current, total) =&gt; {
+    Log($"Progress: {current}/{total} ({100.0*current/total:F1}%)");
+}, 10000);
+
+OnTrade((type, price, bar, pnl) =&gt; {
+    Log($"Trade: {type} @ {price:F2} - Bar: {bar}");
+});
+
+// Manuel yol
+algoTrader.Initialize(stockData);
+var p = new Dictionary&lt;string, object&gt; {
+    { "period", 14 },
+    { "oversold", 30.0 },
+    { "overbought", 70.0 }
+};
+algoTrader.ConfigureStrategy("SimpleRSIStrategy", p);
+algoTrader.PrepareSingleTrader();  // SingleTrader'ı oluştur!
+
+Log("Başlıyor...");
+for (int i = 0; i &lt; TotalBars; i++)
+{
+    algoTrader.singleTrader.Run(i);
+}
+Log("Bitti!");
+
+Log($"Equity: {Equity:F2}");
+*/
+</value>
+  </data>
   <metadata name="openFileDialog1.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>527, 17</value>
   </metadata>

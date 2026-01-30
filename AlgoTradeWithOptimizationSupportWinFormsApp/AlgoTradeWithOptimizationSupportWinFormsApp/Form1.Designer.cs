@@ -35,6 +35,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             mainMenuStrip = new MenuStrip();
             fileToolStripMenuItem = new ToolStripMenuItem();
             newToolStripMenuItem = new ToolStripMenuItem();
@@ -149,16 +150,6 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblDataFileName = new Label();
             tabPageSingleTrader = new TabPage();
             panel4 = new Panel();
-            // SingleTraderScript Tab Controls
-            tabPageSingleTraderScript = new TabPage();
-            panelSingleTraderScript = new Panel();
-            splitContainerScript = new SplitContainer();
-            richTextBoxScriptInput = new RichTextBox();
-            richTextBoxScriptOutput = new RichTextBox();
-            btnExecuteScript = new Button();
-            btnClearScript = new Button();
-            btnStopScript = new Button();
-            lblScriptStatus = new Label();
             txtStrategyConfigInfo = new TextBox();
             dgvStrategyParameters = new DataGridView();
             lblStrategyChoice = new Label();
@@ -175,6 +166,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblSingleTraderProgress = new Label();
             button1 = new Button();
             richTextBoxSingleTrader = new RichTextBox();
+            tabPageSingleTraderScript = new TabPage();
+            panelSingleTraderScript = new Panel();
+            splitContainerScript = new SplitContainer();
+            richTextBoxScriptInput = new RichTextBox();
+            richTextBoxScriptOutput = new RichTextBox();
+            btnExecuteScript = new Button();
+            btnClearScript = new Button();
+            btnStopScript = new Button();
+            lblScriptStatus = new Label();
             tabPageMultipleTraders = new TabPage();
             panel7 = new Panel();
             btnPlotMultipleTraderData = new Button();
@@ -282,13 +282,13 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1.SuspendLayout();
             tabPageSingleTrader.SuspendLayout();
             panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).BeginInit();
             tabPageSingleTraderScript.SuspendLayout();
             panelSingleTraderScript.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)splitContainerScript).BeginInit();
             splitContainerScript.Panel1.SuspendLayout();
             splitContainerScript.Panel2.SuspendLayout();
             splitContainerScript.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).BeginInit();
             tabPageMultipleTraders.SuspendLayout();
             panel7.SuspendLayout();
             tabPageSingleTraderOptimization.SuspendLayout();
@@ -1344,6 +1344,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             dgvStrategyParameters.Size = new Size(750, 250);
             dgvStrategyParameters.TabIndex = 13;
             // 
+            // lblStrategyChoice
+            // 
+            lblStrategyChoice.AutoSize = true;
+            lblStrategyChoice.Location = new Point(780, 76);
+            lblStrategyChoice.Name = "lblStrategyChoice";
+            lblStrategyChoice.Size = new Size(47, 15);
+            lblStrategyChoice.TabIndex = 14;
+            lblStrategyChoice.Text = "Choice:";
+            // 
+            // cmbStrategyChoice
+            // 
+            cmbStrategyChoice.FormattingEnabled = true;
+            cmbStrategyChoice.Location = new Point(880, 73);
+            cmbStrategyChoice.Name = "cmbStrategyChoice";
+            cmbStrategyChoice.Size = new Size(305, 23);
+            cmbStrategyChoice.TabIndex = 15;
+            cmbStrategyChoice.SelectedIndexChanged += cmbStrategyChoice_SelectedIndexChanged;
+            cmbStrategyChoice.TextChanged += cmbStrategyChoice_TextChanged;
+            // 
             // lblStrategyVersion
             // 
             lblStrategyVersion.AutoSize = true;
@@ -1352,37 +1371,16 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblStrategyVersion.Size = new Size(82, 15);
             lblStrategyVersion.TabIndex = 11;
             lblStrategyVersion.Text = "Select Version:";
-            //
+            // 
             // cmbStrategyVersion
-            //
-            cmbStrategyVersion.DropDownStyle = ComboBoxStyle.DropDown;
+            // 
             cmbStrategyVersion.FormattingEnabled = true;
             cmbStrategyVersion.Location = new Point(880, 44);
             cmbStrategyVersion.Name = "cmbStrategyVersion";
             cmbStrategyVersion.Size = new Size(305, 23);
             cmbStrategyVersion.TabIndex = 12;
             cmbStrategyVersion.SelectedIndexChanged += cmbStrategyVersion_SelectedIndexChanged;
-            //
-            // lblStrategyChoice
-            //
-            lblStrategyChoice.AutoSize = true;
-            lblStrategyChoice.Location = new Point(780, 76);
-            lblStrategyChoice.Name = "lblStrategyChoice";
-            lblStrategyChoice.Size = new Size(48, 15);
-            lblStrategyChoice.TabIndex = 14;
-            lblStrategyChoice.Text = "Choice:";
-            //
-            // cmbStrategyChoice
-            //
-            cmbStrategyChoice.DropDownStyle = ComboBoxStyle.DropDown;
-            cmbStrategyChoice.FormattingEnabled = true;
-            cmbStrategyChoice.Location = new Point(880, 73);
-            cmbStrategyChoice.Name = "cmbStrategyChoice";
-            cmbStrategyChoice.Size = new Size(305, 23);
-            cmbStrategyChoice.TabIndex = 15;
-            cmbStrategyChoice.SelectedIndexChanged += cmbStrategyChoice_SelectedIndexChanged;
-            cmbStrategyChoice.TextChanged += cmbStrategyChoice_TextChanged;
-            //
+            // 
             // lblStrategySelector
             // 
             lblStrategySelector.AutoSize = true;
@@ -1391,10 +1389,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             lblStrategySelector.Size = new Size(87, 15);
             lblStrategySelector.TabIndex = 9;
             lblStrategySelector.Text = "Select Strategy:";
-            //
+            // 
             // cmbStrategySelector
-            //
-            cmbStrategySelector.DropDownStyle = ComboBoxStyle.DropDown;
+            // 
             cmbStrategySelector.FormattingEnabled = true;
             cmbStrategySelector.Location = new Point(880, 15);
             cmbStrategySelector.Name = "cmbStrategySelector";
@@ -1423,7 +1420,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnStopSingleTrader.Click += btnStopSingleTrader_Click;
             // 
             // btnStartSingleTrader
-            //
+            // 
             btnStartSingleTrader.Location = new Point(780, 160);
             btnStartSingleTrader.Name = "btnStartSingleTrader";
             btnStartSingleTrader.Size = new Size(131, 23);
@@ -1431,17 +1428,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnStartSingleTrader.Text = "Start Single Trader";
             btnStartSingleTrader.UseVisualStyleBackColor = true;
             btnStartSingleTrader.Click += btnStartSingleTrader_Click;
-            //
+            // 
             // btnStartSingleTraderQuery
-            //
+            // 
             btnStartSingleTraderQuery.Location = new Point(780, 189);
             btnStartSingleTraderQuery.Name = "btnStartSingleTraderQuery";
-            btnStartSingleTraderQuery.Size = new Size(131, 23);
+            btnStartSingleTraderQuery.Size = new Size(268, 23);
             btnStartSingleTraderQuery.TabIndex = 6;
             btnStartSingleTraderQuery.Text = "Start SingleTrader Query";
             btnStartSingleTraderQuery.UseVisualStyleBackColor = true;
             btnStartSingleTraderQuery.Click += btnStartSingleTraderQuery_Click;
-            //
+            // 
             // progressBarSingleTrader
             // 
             progressBarSingleTrader.Location = new Point(780, 131);
@@ -1477,9 +1474,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             richTextBoxSingleTrader.Size = new Size(750, 261);
             richTextBoxSingleTrader.TabIndex = 1;
             richTextBoxSingleTrader.Text = "";
-            //
+            // 
             // tabPageSingleTraderScript
-            //
+            // 
             tabPageSingleTraderScript.BackColor = Color.White;
             tabPageSingleTraderScript.Controls.Add(panelSingleTraderScript);
             tabPageSingleTraderScript.Location = new Point(4, 24);
@@ -1488,9 +1485,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             tabPageSingleTraderScript.Size = new Size(1415, 793);
             tabPageSingleTraderScript.TabIndex = 8;
             tabPageSingleTraderScript.Text = "SingleTraderScript";
-            //
+            // 
             // panelSingleTraderScript
-            //
+            // 
             panelSingleTraderScript.Controls.Add(splitContainerScript);
             panelSingleTraderScript.Controls.Add(btnExecuteScript);
             panelSingleTraderScript.Controls.Add(btnClearScript);
@@ -1501,119 +1498,42 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             panelSingleTraderScript.Name = "panelSingleTraderScript";
             panelSingleTraderScript.Size = new Size(1409, 787);
             panelSingleTraderScript.TabIndex = 0;
-            //
+            // 
             // splitContainerScript
-            //
+            // 
             splitContainerScript.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             splitContainerScript.Location = new Point(10, 45);
             splitContainerScript.Name = "splitContainerScript";
             splitContainerScript.Orientation = Orientation.Horizontal;
+            // 
+            // splitContainerScript.Panel1
+            // 
+            splitContainerScript.Panel1.Controls.Add(richTextBoxScriptInput);
+            // 
+            // splitContainerScript.Panel2
+            // 
+            splitContainerScript.Panel2.Controls.Add(richTextBoxScriptOutput);
             splitContainerScript.Size = new Size(1389, 732);
             splitContainerScript.SplitterDistance = 450;
             splitContainerScript.TabIndex = 0;
-            //
-            // splitContainerScript.Panel1
-            //
-            splitContainerScript.Panel1.Controls.Add(richTextBoxScriptInput);
-            //
-            // splitContainerScript.Panel2
-            //
-            splitContainerScript.Panel2.Controls.Add(richTextBoxScriptOutput);
-            //
+            // 
             // richTextBoxScriptInput
-            //
+            // 
             richTextBoxScriptInput.AcceptsTab = true;
             richTextBoxScriptInput.Dock = DockStyle.Fill;
-            richTextBoxScriptInput.Font = new Font("Consolas", 11F, FontStyle.Regular, GraphicsUnit.Point);
+            richTextBoxScriptInput.Font = new Font("Consolas", 11F);
             richTextBoxScriptInput.Location = new Point(0, 0);
             richTextBoxScriptInput.Name = "richTextBoxScriptInput";
             richTextBoxScriptInput.Size = new Size(1389, 450);
             richTextBoxScriptInput.TabIndex = 0;
-            richTextBoxScriptInput.Text = @"// ============================================
-// C# Script Editor - Örnek Kodlar
-// ============================================
-// Objects  : algoTrader, stockData, Trader, Equity, TotalBars
-// Logging  : Log(msg), ClearOutput()
-// Callbacks: SendResult(key, value), SendMessage(msg)
-// Events   : OnProgress(cb), OnSignal(cb), OnTrade(cb)
-// Helpers  : Setup(strategy, params), RunAll(progressInterval)
-// ============================================
-
-// 1. TEMEL TEST - Hemen çalıştırabilirsin
-Log(""=== Temel Bilgiler ==="");
-Log($""AlgoTrader initialized: {algoTrader?.IsInitialized}"");
-Log($""Stock data count: {stockData?.Count ?? 0}"");
-Log($""TotalBars: {TotalBars}"");
-
-/*
-// ============================================
-// 2. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (KISA)
-// Önce: StockDataReader tab'ında data yükle
-// Sonra: Bu kodu çalıştır
-// ============================================
-
-if (TotalBars == 0) { Log(""HATA: Önce data yükle!""); return; }
-
-// Kısa yol: Setup + RunAll
-// RSI: period, oversold, overbought
-Setup(""SimpleRSIStrategy"", new Dictionary<string, object> {
-    { ""period"", 14 },
-    { ""oversold"", 30.0 },
-    { ""overbought"", 70.0 }
-});
-RunAll(10000);  // Her 10000 bar'da progress logla
-
-// Sonuçlar
-Log($""=== Sonuçlar ==="");
-Log($""Equity: {Equity:F2}"");
-Log($""Son Yön: {Trader?.SonYon}"");
-SendResult(""Equity"", Equity);
-*/
-
-/*
-// ============================================
-// 3. STRATEJI ÇALIŞTIRMA ÖRNEĞİ (DETAYLI)
-// Event'lerle birlikte
-// ============================================
-
-if (TotalBars == 0) { Log(""HATA: Önce data yükle!""); return; }
-
-// Event'lere subscribe ol
-OnProgress((current, total) => {
-    Log($""Progress: {current}/{total} ({100.0*current/total:F1}%)"");
-}, 10000);
-
-OnTrade((type, price, bar, pnl) => {
-    Log($""Trade: {type} @ {price:F2} - Bar: {bar}"");
-});
-
-// Manuel yol
-algoTrader.Initialize(stockData);
-var p = new Dictionary<string, object> {
-    { ""period"", 14 },
-    { ""oversold"", 30.0 },
-    { ""overbought"", 70.0 }
-};
-algoTrader.ConfigureStrategy(""SimpleRSIStrategy"", p);
-algoTrader.PrepareSingleTrader();  // SingleTrader'ı oluştur!
-
-Log(""Başlıyor..."");
-for (int i = 0; i < TotalBars; i++)
-{
-    algoTrader.singleTrader.Run(i);
-}
-Log(""Bitti!"");
-
-Log($""Equity: {Equity:F2}"");
-*/
-";
+            richTextBoxScriptInput.Text = resources.GetString("richTextBoxScriptInput.Text");
             richTextBoxScriptInput.WordWrap = false;
-            //
+            // 
             // richTextBoxScriptOutput
-            //
+            // 
             richTextBoxScriptOutput.BackColor = Color.FromArgb(30, 30, 30);
             richTextBoxScriptOutput.Dock = DockStyle.Fill;
-            richTextBoxScriptOutput.Font = new Font("Consolas", 10F, FontStyle.Regular, GraphicsUnit.Point);
+            richTextBoxScriptOutput.Font = new Font("Consolas", 10F);
             richTextBoxScriptOutput.ForeColor = Color.LightGreen;
             richTextBoxScriptOutput.Location = new Point(0, 0);
             richTextBoxScriptOutput.Name = "richTextBoxScriptOutput";
@@ -1621,9 +1541,9 @@ Log($""Equity: {Equity:F2}"");
             richTextBoxScriptOutput.Size = new Size(1389, 278);
             richTextBoxScriptOutput.TabIndex = 1;
             richTextBoxScriptOutput.Text = "";
-            //
+            // 
             // btnExecuteScript
-            //
+            // 
             btnExecuteScript.Location = new Point(10, 10);
             btnExecuteScript.Name = "btnExecuteScript";
             btnExecuteScript.Size = new Size(100, 28);
@@ -1631,9 +1551,9 @@ Log($""Equity: {Equity:F2}"");
             btnExecuteScript.Text = "Execute (F5)";
             btnExecuteScript.UseVisualStyleBackColor = true;
             btnExecuteScript.Click += btnExecuteScript_Click;
-            //
+            // 
             // btnClearScript
-            //
+            // 
             btnClearScript.Location = new Point(120, 10);
             btnClearScript.Name = "btnClearScript";
             btnClearScript.Size = new Size(100, 28);
@@ -1641,9 +1561,9 @@ Log($""Equity: {Equity:F2}"");
             btnClearScript.Text = "Clear Output";
             btnClearScript.UseVisualStyleBackColor = true;
             btnClearScript.Click += btnClearScript_Click;
-            //
+            // 
             // btnStopScript
-            //
+            // 
             btnStopScript.Enabled = false;
             btnStopScript.Location = new Point(230, 10);
             btnStopScript.Name = "btnStopScript";
@@ -1652,9 +1572,9 @@ Log($""Equity: {Equity:F2}"");
             btnStopScript.Text = "Stop";
             btnStopScript.UseVisualStyleBackColor = true;
             btnStopScript.Click += btnStopScript_Click;
-            //
+            // 
             // lblScriptStatus
-            //
+            // 
             lblScriptStatus.AutoSize = true;
             lblScriptStatus.ForeColor = Color.Green;
             lblScriptStatus.Location = new Point(320, 17);
@@ -1662,7 +1582,7 @@ Log($""Equity: {Equity:F2}"");
             lblScriptStatus.Size = new Size(39, 15);
             lblScriptStatus.TabIndex = 4;
             lblScriptStatus.Text = "Ready";
-            //
+            // 
             // tabPageMultipleTraders
             // 
             tabPageMultipleTraders.BackColor = Color.White;
@@ -2604,13 +2524,13 @@ Log($""Equity: {Equity:F2}"");
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)dgvStrategyParameters).EndInit();
+            tabPageSingleTraderScript.ResumeLayout(false);
+            panelSingleTraderScript.ResumeLayout(false);
+            panelSingleTraderScript.PerformLayout();
             splitContainerScript.Panel1.ResumeLayout(false);
             splitContainerScript.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)splitContainerScript).EndInit();
             splitContainerScript.ResumeLayout(false);
-            panelSingleTraderScript.ResumeLayout(false);
-            panelSingleTraderScript.PerformLayout();
-            tabPageSingleTraderScript.ResumeLayout(false);
             tabPageMultipleTraders.ResumeLayout(false);
             panel7.ResumeLayout(false);
             panel7.PerformLayout();
