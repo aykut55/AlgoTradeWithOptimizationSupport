@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Windows.Forms;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging;
 using AlgoTradeWithOptimizationSupportWinFormsApp.Logging.Sinks;
@@ -233,6 +234,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (IsNumericColumn(header))
                         {
                             column.ValueType = typeof(double);
+                            // Sayısal değerlerin nokta ile gösterilmesi için InvariantCulture kullan
+                            column.DefaultCellStyle.FormatProvider = CultureInfo.InvariantCulture;
+                            // Varsayılan format (FormatProvider'ın çalışması için gerekli)
+                            column.DefaultCellStyle.Format = "G";
 
                             // percent sütunu için özel format (2 ondalık basamak)
                             if (header.Equals("percent", StringComparison.OrdinalIgnoreCase))
@@ -285,7 +290,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 // Sort by NetProfit (azalan sırada)
                 var sortedData = dataDict.Values.OrderByDescending(values =>
                 {
-                    if (netProfitIndex >= 0 && double.TryParse(values[netProfitIndex], out double netProfit))
+                    // Hem virgüllü hem noktalı değerleri destekle
+                    string val = values[netProfitIndex].Replace(",", ".");
+                    if (netProfitIndex >= 0 && double.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out double netProfit))
                         return netProfit;
                     return double.MinValue;
                 }).ToList();
@@ -427,6 +434,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                         if (IsNumericColumn(header))
                         {
                             column.ValueType = typeof(double);
+                            // Sayısal değerlerin nokta ile gösterilmesi için InvariantCulture kullan
+                            column.DefaultCellStyle.FormatProvider = CultureInfo.InvariantCulture;
+                            // Varsayılan format (FormatProvider'ın çalışması için gerekli)
+                            column.DefaultCellStyle.Format = "G";
 
                             // percent sütunu için özel format (2 ondalık basamak)
                             if (header.Equals("percent", StringComparison.OrdinalIgnoreCase))
@@ -485,7 +496,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 // Sort by NetProfit (azalan sırada)
                 var sortedData = dataDict.Values.OrderByDescending(values =>
                 {
-                    if (netProfitIndex >= 0 && double.TryParse(values[netProfitIndex], out double netProfit))
+                    // Hem virgüllü hem noktalı değerleri destekle
+                    string val = values[netProfitIndex].Replace(",", ".");
+                    if (netProfitIndex >= 0 && double.TryParse(val, NumberStyles.Any, CultureInfo.InvariantCulture, out double netProfit))
                         return netProfit;
                     return double.MinValue;
                 }).ToList();
@@ -1834,7 +1847,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 headerName.Contains("Max") || headerName.Contains("Min") ||
                 headerName.Contains("PF") || headerName.Contains("Factor") ||
                 headerName.Contains("Ratio") || headerName.Contains("Rate") ||
-                headerName.Contains("Percent") || headerName.Contains("Yuzde")) return true;
+                headerName.Contains("Percent") || headerName.Contains("percent") || headerName.Contains("Yuzde")) return true;
 
             // Drawdown columns
             if (headerName.Contains("DD") || headerName.Contains("Drawdown")) return true;
@@ -1867,7 +1880,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // Numeric sütunlar - double
             if (IsNumericColumn(headerName))
             {
-                if (double.TryParse(value, out double doubleVal))
+                // Hem virgüllü (Türkçe) hem noktalı (InvariantCulture) değerleri destekle
+                string normalizedValue = value.Replace(",", ".");
+                if (double.TryParse(normalizedValue, NumberStyles.Any, CultureInfo.InvariantCulture, out double doubleVal))
                 {
                     // percent sütunu için floating point precision sorununu çöz
                     if (headerName.Equals("percent", StringComparison.OrdinalIgnoreCase))

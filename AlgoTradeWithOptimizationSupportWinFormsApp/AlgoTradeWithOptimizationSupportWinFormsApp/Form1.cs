@@ -204,6 +204,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             stockDataGridView.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
             stockDataGridView.DefaultCellStyle.BackColor = Color.White;
 
+            // Sayısal değerlerin nokta ile gösterilmesi için InvariantCulture kullan
+            stockDataGridView.DefaultCellStyle.FormatProvider = CultureInfo.InvariantCulture;
+
             // Kolonları temizle
             stockDataGridView.Columns.Clear();
 
@@ -265,6 +268,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // Alternatif satır renklendirme (Zebra striping - daha okunabilir)
             dataGridViewOptimizationResults.AlternatingRowsDefaultCellStyle.BackColor = Color.LightGray;
             dataGridViewOptimizationResults.DefaultCellStyle.BackColor = Color.White;
+
+            // Sayısal değerlerin nokta ile gösterilmesi için InvariantCulture kullan
+            dataGridViewOptimizationResults.DefaultCellStyle.FormatProvider = CultureInfo.InvariantCulture;
 
             // NOT: Kolonlar CSV/TXT dosyası okunurken dinamik olarak oluşturulacak
             // Bu method sadece grid'in genel ayarlarını yapar

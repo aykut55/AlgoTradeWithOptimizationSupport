@@ -7,6 +7,7 @@ using Serilog.Core;
 using Skender.Stock.Indicators;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection.PortableExecutable;
 using System.Text.Json;
@@ -493,8 +494,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
             // Setup parameters and strategy
             this.AddParameterRange("period", 5, 605, 5);            // 3 değer: 10, 20, 30
-            this.AddParameterRange("percent", 0.5, 5.1, 0.5);       // 4 değer: 0.5, 1.0, 1.5, 2.0
-            int choice = 1;
+            this.AddParameterRange("percent", 0.1, 5.1, 0.1);       // 4 değer: 0.5, 1.0, 1.5, 2.0
+            int choice = 0;
             //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0);  // 3 değer: 1.0, 2.0, 3.0
 
             this.SetStrategyFactory((data, indicators, parameters) =>
@@ -865,12 +866,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 var paramValues = result.Parameters.Values.Select(v => v.ToString()).ToList();
                 var metrics = new[]
                 {
-                    result.NetProfit.ToString("F2"),
-                    result.WinRate.ToString("F2"),
-                    result.ProfitFactor.ToString("F2"),
-                    result.ProfitFactorNet.ToString("F2"),
-                    result.MaxDrawdown.ToString("F2"),
-                    result.SharpeRatio.ToString("F2")
+                    result.NetProfit.ToString("F2", CultureInfo.InvariantCulture),
+                    result.WinRate.ToString("F2", CultureInfo.InvariantCulture),
+                    result.ProfitFactor.ToString("F2", CultureInfo.InvariantCulture),
+                    result.ProfitFactorNet.ToString("F2", CultureInfo.InvariantCulture),
+                    result.MaxDrawdown.ToString("F2", CultureInfo.InvariantCulture),
+                    result.SharpeRatio.ToString("F2", CultureInfo.InvariantCulture)
                 };
                 var line = string.Join(",", paramValues.Concat(metrics));
                 sw.WriteLine(line);
@@ -1266,25 +1267,25 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add("");
 
                 // Add OptimizationResult values
-                dataParts.Add(result.IlkBakiyeFiyat.ToString("F2"));
-                dataParts.Add(result.BakiyeFiyat.ToString("F2"));
-                dataParts.Add(result.GetiriFiyat.ToString("F2"));
-                dataParts.Add(result.GetiriFiyatYuzde.ToString("F2"));
-                dataParts.Add(result.KomisyonFiyat.ToString("F2"));
-                dataParts.Add(result.BakiyeFiyatNet.ToString("F2"));
-                dataParts.Add(result.GetiriFiyatNet.ToString("F2"));
-                dataParts.Add(result.GetiriFiyatYuzdeNet.ToString("F2"));
-                dataParts.Add(result.KomisyonFiyatYuzde.ToString("F4"));
-                dataParts.Add(result.MinBakiyeFiyat.ToString("F2"));
-                dataParts.Add(result.MaxBakiyeFiyat.ToString("F2"));
-                dataParts.Add(result.MinBakiyeFiyatYuzde.ToString("F2"));
-                dataParts.Add(result.MaxBakiyeFiyatYuzde.ToString("F2"));
-                dataParts.Add(result.MinBakiyeFiyatNet.ToString("F2"));
-                dataParts.Add(result.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(result.IlkBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.BakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.GetiriFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.GetiriFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.KomisyonFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.BakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.GetiriFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.GetiriFiyatYuzdeNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.KomisyonFiyatYuzde.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MinBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MinBakiyeFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxBakiyeFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MinBakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxBakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(result.MinBakiyeFiyatNetIndex.ToString());
                 dataParts.Add(result.MaxBakiyeFiyatNetIndex.ToString());
-                dataParts.Add(result.MinBakiyeFiyatNetYuzde.ToString("F2"));
-                dataParts.Add(result.MaxBakiyeFiyatNetYuzde.ToString("F2"));
+                dataParts.Add(result.MinBakiyeFiyatNetYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxBakiyeFiyatNetYuzde.ToString("F2", CultureInfo.InvariantCulture));
 
                 dataParts.Add(result.IslemSayisi.ToString());
                 dataParts.Add(result.AlisSayisi.ToString());
@@ -1297,29 +1298,29 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(result.KazandiranIslemSayisi.ToString());
                 dataParts.Add(result.KaybettirenIslemSayisi.ToString());
                 dataParts.Add(result.NotrIslemSayisi.ToString());
-                dataParts.Add(result.ToplamKarFiyat.ToString("F2"));
-                dataParts.Add(result.ToplamZararFiyat.ToString("F2"));
-                dataParts.Add(result.NetKarFiyat.ToString("F2"));
-                dataParts.Add(result.MaxKarFiyat.ToString("F2"));
-                dataParts.Add(result.MaxZararFiyat.ToString("F2"));
-                dataParts.Add(result.KarliIslemOrani.ToString("F2"));
-                dataParts.Add(result.GetiriMaxDD.ToString("F2"));
+                dataParts.Add(result.ToplamKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.ToplamZararFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.NetKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxZararFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.KarliIslemOrani.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.GetiriMaxDD.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(result.GetiriMaxDDTarih.ToString("yyyy.MM.dd HH:mm:ss"));
-                dataParts.Add(result.GetiriMaxKayip.ToString("F2"));
-                dataParts.Add(result.ProfitFactor.ToString("F2"));
-                dataParts.Add(result.ProfitFactorNet.ToString("F2"));
-                dataParts.Add(result.NetProfit.ToString("F2"));
-                dataParts.Add(result.WinRate.ToString("F2"));
-                dataParts.Add(result.MaxDrawdown.ToString("F2"));
-                dataParts.Add(result.SharpeRatio.ToString("F2"));
+                dataParts.Add(result.GetiriMaxKayip.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.ProfitFactor.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.ProfitFactorNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.NetProfit.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.WinRate.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxDrawdown.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.SharpeRatio.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(result.TotalTrades.ToString());
                 dataParts.Add(result.WinningTrades.ToString());
                 dataParts.Add(result.LosingTrades.ToString());
-                dataParts.Add(result.TotalProfit.ToString("F2"));
-                dataParts.Add(result.TotalLoss.ToString("F2"));
-                dataParts.Add(result.AverageWin.ToString("F2"));
-                dataParts.Add(result.AverageLoss.ToString("F2"));
-                dataParts.Add(result.MaxDrawdownPct.ToString("F2"));
+                dataParts.Add(result.TotalProfit.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.TotalLoss.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.AverageWin.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.AverageLoss.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(result.MaxDrawdownPct.ToString("F2", CultureInfo.InvariantCulture));
 
                 dataParts.Add(result.TraderId.ToString());
                 dataParts.Add(result.TraderName);
@@ -1369,52 +1370,52 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(optSummary.SonBarSaati);
                 dataParts.Add(optSummary.IlkBarIndex.ToString());
                 dataParts.Add(optSummary.SonBarIndex.ToString());
-                dataParts.Add(optSummary.SonBarAcilisFiyati.ToString("F4"));
-                dataParts.Add(optSummary.SonBarYuksekFiyati.ToString("F4"));
-                dataParts.Add(optSummary.SonBarDusukFiyati.ToString("F4"));
-                dataParts.Add(optSummary.SonBarKapanisFiyati.ToString("F4"));
-                dataParts.Add(optSummary.ToplamGecenSureAy.ToString("F1"));
+                dataParts.Add(optSummary.SonBarAcilisFiyati.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonBarYuksekFiyati.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonBarDusukFiyati.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonBarKapanisFiyati.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ToplamGecenSureAy.ToString("F1", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.ToplamGecenSureGun.ToString());
                 dataParts.Add(optSummary.ToplamGecenSureSaat.ToString());
                 dataParts.Add(optSummary.ToplamGecenSureDakika.ToString());
-                dataParts.Add(optSummary.OrtAylikIslemSayisi.ToString("F2"));
-                dataParts.Add(optSummary.OrtHaftalikIslemSayisi.ToString("F2"));
-                dataParts.Add(optSummary.OrtGunlukIslemSayisi.ToString("F2"));
-                dataParts.Add(optSummary.OrtSaatlikIslemSayisi.ToString("F2"));
-                dataParts.Add(optSummary.IlkBakiyeFiyat.ToString("F2"));
-                dataParts.Add(optSummary.IlkBakiyePuan.ToString("F2"));
-                dataParts.Add(optSummary.BakiyeFiyat.ToString("F2"));
-                dataParts.Add(optSummary.BakiyePuan.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyat.ToString("F2"));
-                dataParts.Add(optSummary.GetiriPuan.ToString("F4"));
-                dataParts.Add(optSummary.GetiriFiyatYuzde.ToString("F2"));
-                dataParts.Add(optSummary.GetiriPuanYuzde.ToString("F2"));
-                dataParts.Add(optSummary.BakiyeFiyatNet.ToString("F2"));
-                dataParts.Add(optSummary.BakiyePuanNet.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatNet.ToString("F2"));
-                dataParts.Add(optSummary.GetiriPuanNet.ToString("F4"));
-                dataParts.Add(optSummary.GetiriFiyatYuzdeNet.ToString("F2"));
-                dataParts.Add(optSummary.GetiriPuanYuzdeNet.ToString("F2"));
-                dataParts.Add(optSummary.GetiriKz.ToString("F4"));
-                dataParts.Add(optSummary.GetiriKzNet.ToString("F4"));
-                dataParts.Add(optSummary.GetiriKzSistem.ToString("F4"));
-                dataParts.Add(optSummary.GetiriKzSistemYuzde.ToString("F2"));
-                dataParts.Add(optSummary.GetiriKzNetSistem.ToString("F4"));
-                dataParts.Add(optSummary.GetiriKzNetSistemYuzde.ToString("F2"));
-                dataParts.Add(optSummary.MinBakiyeFiyat.ToString("F2"));
-                dataParts.Add(optSummary.MaxBakiyeFiyat.ToString("F2"));
-                dataParts.Add(optSummary.MinBakiyePuan.ToString("F2"));
-                dataParts.Add(optSummary.MaxBakiyePuan.ToString("F2"));
-                dataParts.Add(optSummary.MinBakiyeFiyatYuzde.ToString("F2"));
-                dataParts.Add(optSummary.MaxBakiyeFiyatYuzde.ToString("F2"));
+                dataParts.Add(optSummary.OrtAylikIslemSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.OrtHaftalikIslemSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.OrtGunlukIslemSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.OrtSaatlikIslemSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.IlkBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.IlkBakiyePuan.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.BakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.BakiyePuan.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.BakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.BakiyePuanNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanNet.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatYuzdeNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanYuzdeNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKz.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKzNet.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKzSistem.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKzSistemYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKzNetSistem.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriKzNetSistemYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MinBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxBakiyeFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MinBakiyePuan.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxBakiyePuan.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MinBakiyeFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxBakiyeFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.MinBakiyeFiyatIndex.ToString());
                 dataParts.Add(optSummary.MaxBakiyeFiyatIndex.ToString());
-                dataParts.Add(optSummary.MinBakiyeFiyatNet.ToString("F2"));
-                dataParts.Add(optSummary.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxBakiyeFiyatNet.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.MinBakiyeFiyatNetIndex.ToString());
                 dataParts.Add(optSummary.MaxBakiyeFiyatNetIndex.ToString());
-                dataParts.Add(optSummary.MinBakiyeFiyatNetYuzde.ToString("F2"));
-                dataParts.Add(optSummary.MaxBakiyeFiyatNetYuzde.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyatNetYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxBakiyeFiyatNetYuzde.ToString("F2", CultureInfo.InvariantCulture));
 
                 dataParts.Add(optSummary.IslemSayisi.ToString());
                 dataParts.Add(optSummary.AlisSayisi.ToString());
@@ -1439,76 +1440,76 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(optSummary.ZararKesKomutSayisi.ToString());
                 dataParts.Add(optSummary.FlatOlKomutSayisi.ToString());
                 dataParts.Add(optSummary.KomisyonIslemSayisi.ToString());
-                dataParts.Add(optSummary.KomisyonVarlikAdedSayisi.ToString("F2"));
-                dataParts.Add(optSummary.KomisyonVarlikAdedSayisiMicro.ToString("F4"));
-                dataParts.Add(optSummary.KomisyonCarpan.ToString("F4"));
-                dataParts.Add(optSummary.KomisyonFiyat.ToString("F2"));
-                dataParts.Add(optSummary.KomisyonFiyatYuzde.ToString("F4"));
+                dataParts.Add(optSummary.KomisyonVarlikAdedSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KomisyonVarlikAdedSayisiMicro.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KomisyonCarpan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KomisyonFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KomisyonFiyatYuzde.ToString("F4", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.KomisyonuDahilEt.ToString());
-                dataParts.Add(optSummary.KarZararFiyat.ToString("F2"));
-                dataParts.Add(optSummary.KarZararFiyatYuzde.ToString("F2"));
-                dataParts.Add(optSummary.KarZararPuan.ToString("F4"));
-                dataParts.Add(optSummary.ToplamKarFiyat.ToString("F2"));
-                dataParts.Add(optSummary.ToplamZararFiyat.ToString("F2"));
-                dataParts.Add(optSummary.NetKarFiyat.ToString("F2"));
-                dataParts.Add(optSummary.ToplamKarPuan.ToString("F4"));
-                dataParts.Add(optSummary.ToplamZararPuan.ToString("F4"));
-                dataParts.Add(optSummary.NetKarPuan.ToString("F4"));
-                dataParts.Add(optSummary.MaxKarFiyat.ToString("F2"));
-                dataParts.Add(optSummary.MaxZararFiyat.ToString("F2"));
-                dataParts.Add(optSummary.MaxKarPuan.ToString("F4"));
-                dataParts.Add(optSummary.MaxZararPuan.ToString("F4"));
+                dataParts.Add(optSummary.KarZararFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KarZararFiyatYuzde.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KarZararPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ToplamKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ToplamZararFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.NetKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ToplamKarPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ToplamZararPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.NetKarPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxKarFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxZararFiyat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxKarPuan.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxZararPuan.ToString("F4", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.KardaBarSayisi.ToString());
                 dataParts.Add(optSummary.ZarardaBarSayisi.ToString());
-                dataParts.Add(optSummary.KarliIslemOrani.ToString("F2"));
-                dataParts.Add(optSummary.GetiriMaxDD.ToString("F2"));
+                dataParts.Add(optSummary.KarliIslemOrani.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriMaxDD.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.GetiriMaxDDTarih);
-                dataParts.Add(optSummary.GetiriMaxKayip.ToString("F2"));
-                dataParts.Add(optSummary.ProfitFactor.ToString("F2"));
-                dataParts.Add(optSummary.ProfitFactorNet.ToString("F2"));
-                dataParts.Add(optSummary.ProfitFactorSistem.ToString("F2"));
+                dataParts.Add(optSummary.GetiriMaxKayip.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ProfitFactor.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ProfitFactorNet.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.ProfitFactorSistem.ToString("F2", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.Sinyal);
                 dataParts.Add(optSummary.SonYon);
                 dataParts.Add(optSummary.PrevYon);
-                dataParts.Add(optSummary.SonFiyat.ToString("F4"));
-                dataParts.Add(optSummary.SonAFiyat.ToString("F4"));
-                dataParts.Add(optSummary.SonSFiyat.ToString("F4"));
-                dataParts.Add(optSummary.SonFFiyat.ToString("F4"));
-                dataParts.Add(optSummary.SonPFiyat.ToString("F4"));
-                dataParts.Add(optSummary.PrevFiyat.ToString("F4"));
+                dataParts.Add(optSummary.SonFiyat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonAFiyat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonSFiyat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonFFiyat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.SonPFiyat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.PrevFiyat.ToString("F4", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.SonBarNo.ToString());
                 dataParts.Add(optSummary.SonABarNo.ToString());
                 dataParts.Add(optSummary.SonSBarNo.ToString());
                 dataParts.Add(optSummary.EmirKomut);
                 dataParts.Add(optSummary.EmirStatus);
-                dataParts.Add(optSummary.HisseSayisi.ToString("F2"));
-                dataParts.Add(optSummary.KontratSayisi.ToString("F2"));
-                dataParts.Add(optSummary.VarlikAdedCarpani.ToString("F2"));
-                dataParts.Add(optSummary.VarlikAdedSayisi.ToString("F2"));
-                dataParts.Add(optSummary.VarlikAdedSayisiMicro.ToString("F4"));
-                dataParts.Add(optSummary.KaymaMiktari.ToString("F4"));
+                dataParts.Add(optSummary.HisseSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KontratSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.VarlikAdedCarpani.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.VarlikAdedSayisi.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.VarlikAdedSayisiMicro.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.KaymaMiktari.ToString("F4", CultureInfo.InvariantCulture));
                 dataParts.Add(optSummary.KaymayiDahilEt.ToString());
                 dataParts.Add(optSummary.MicroLotSizeEnabled.ToString());
                 dataParts.Add(optSummary.PyramidingEnabled.ToString());
                 dataParts.Add(optSummary.MaxPositionSizeEnabled.ToString());
-                dataParts.Add(optSummary.MaxPositionSize.ToString("F4"));
-                dataParts.Add(optSummary.MaxPositionSizeMicro.ToString("F4"));
-                dataParts.Add(optSummary.GetiriFiyatBuAy.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatAy1.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatBuHafta.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatHafta1.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatBuGun.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatGun1.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatBuSaat.ToString("F2"));
-                dataParts.Add(optSummary.GetiriFiyatSaat1.ToString("F2"));
-                dataParts.Add(optSummary.GetiriPuanBuAy.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanAy1.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanBuHafta.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanHafta1.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanBuGun.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanGun1.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanBuSaat.ToString("F4"));
-                dataParts.Add(optSummary.GetiriPuanSaat1.ToString("F4"));
+                dataParts.Add(optSummary.MaxPositionSize.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.MaxPositionSizeMicro.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatBuAy.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatAy1.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatBuHafta.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatHafta1.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatBuGun.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatGun1.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatBuSaat.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriFiyatSaat1.ToString("F2", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanBuAy.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanAy1.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanBuHafta.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanHafta1.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanBuGun.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanGun1.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanBuSaat.ToString("F4", CultureInfo.InvariantCulture));
+                dataParts.Add(optSummary.GetiriPuanSaat1.ToString("F4", CultureInfo.InvariantCulture));
 
                 sw.WriteLine(string.Join(";", dataParts));
                 sw.Flush();
@@ -2107,12 +2108,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     var paramValues = result.Parameters.Values.Select(v => v.ToString()).ToList();
                     var metrics = new[]
                     {
-                        result.NetProfit.ToString("F2"),
-                        result.WinRate.ToString("F2"),
-                        result.ProfitFactor.ToString("F2"),
-                        result.ProfitFactorNet.ToString("F2"),
-                        result.MaxDrawdown.ToString("F2"),
-                        result.SharpeRatio.ToString("F2")
+                        result.NetProfit.ToString("F2", CultureInfo.InvariantCulture),
+                        result.WinRate.ToString("F2", CultureInfo.InvariantCulture),
+                        result.ProfitFactor.ToString("F2", CultureInfo.InvariantCulture),
+                        result.ProfitFactorNet.ToString("F2", CultureInfo.InvariantCulture),
+                        result.MaxDrawdown.ToString("F2", CultureInfo.InvariantCulture),
+                        result.SharpeRatio.ToString("F2", CultureInfo.InvariantCulture)
                     };
                     var line = string.Join(",", paramValues.Concat(metrics));
                     sw.WriteLine(line);
