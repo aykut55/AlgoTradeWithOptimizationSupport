@@ -198,6 +198,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
         public int MaxBakiyeFiyatIndex { get; set; }
         public int MinBakiyePuanIndex { get; set; }
         public int MaxBakiyePuanIndex { get; set; }
+
         public double MinBakiyeFiyatNet { get; set; }
         public double MaxBakiyeFiyatNet { get; set; }
         public int MinBakiyeFiyatNetIndex { get; set; }
@@ -700,6 +701,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
             Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
             Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+            Add("MinBakiyeFiyatNetIndex", MinBakiyeFiyatNetIndex);
+            Add("MaxBakiyeFiyatNetIndex", MaxBakiyeFiyatNetIndex);
+            Add("MinBakiyeFiyatNetYuzde", MinBakiyeFiyatNetYuzde, "F2");
+            Add("MaxBakiyeFiyatNetYuzde", MaxBakiyeFiyatNetYuzde, "F2");
 
             StatisticsMap[SEPARATOR + keyId++.ToString()] = "";
 
@@ -1202,6 +1207,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             sb.AppendLine($"│ Max Balance Index        : {GetValue("MaxBakiyeFiyatIndex"),-50} │");
             sb.AppendLine($"│ Min Balance Net          : {GetValue("MinBakiyeFiyatNet"),-50} │");
             sb.AppendLine($"│ Max Balance Net          : {GetValue("MaxBakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Min Balance Net Index    : {GetValue("MinBakiyeFiyatNetIndex"),-50} │");
+            sb.AppendLine($"│ Max Balance Net Index    : {GetValue("MaxBakiyeFiyatNetIndex"),-50} │");
+            sb.AppendLine($"│ Min Balance Net %        : {GetValue("MinBakiyeFiyatNetYuzde"),-50} │");
+            sb.AppendLine($"│ Max Balance Net %        : {GetValue("MaxBakiyeFiyatNetYuzde"),-50} │");
             sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
             sb.AppendLine();
 
@@ -1440,6 +1449,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             Add("MaxBakiyeFiyatIndex", MaxBakiyeFiyatIndex);
             Add("MinBakiyeFiyatNet", MinBakiyeFiyatNet, "F2");
             Add("MaxBakiyeFiyatNet", MaxBakiyeFiyatNet, "F2");
+            Add("MinBakiyeFiyatNetIndex", MinBakiyeFiyatNetIndex);
+            Add("MaxBakiyeFiyatNetIndex", MaxBakiyeFiyatNetIndex);
+            Add("MinBakiyeFiyatNetYuzde", MinBakiyeFiyatNetYuzde, "F2");
+            Add("MaxBakiyeFiyatNetYuzde", MaxBakiyeFiyatNetYuzde, "F2");
 
             StatisticsMapMinimal[SEPARATOR + keyId++.ToString()] = "";
 
@@ -1750,6 +1763,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             sb.AppendLine($"│ Max Balance Index        : {GetValue("MaxBakiyeFiyatIndex"),-50} │");
             sb.AppendLine($"│ Min Balance Net          : {GetValue("MinBakiyeFiyatNet"),-50} │");
             sb.AppendLine($"│ Max Balance Net          : {GetValue("MaxBakiyeFiyatNet"),-50} │");
+            sb.AppendLine($"│ Min Balance Net Index    : {GetValue("MinBakiyeFiyatNetIndex"),-50} │");
+            sb.AppendLine($"│ Max Balance Net Index    : {GetValue("MaxBakiyeFiyatNetIndex"),-50} │");
+            sb.AppendLine($"│ Min Balance Net %        : {GetValue("MinBakiyeFiyatNetYuzde"),-50} │");
+            sb.AppendLine($"│ Max Balance Net %        : {GetValue("MaxBakiyeFiyatNetYuzde"),-50} │");
             sb.AppendLine("└────────────────────────────────────────────────────────────────────────────┘");
             sb.AppendLine();
 
@@ -1889,6 +1906,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
             public int MaxBakiyeFiyatIndex;
             public double MinBakiyeFiyatNet;
             public double MaxBakiyeFiyatNet;
+            public int MinBakiyeFiyatNetIndex;
+            public int MaxBakiyeFiyatNetIndex;
+            public double MinBakiyeFiyatNetYuzde;
+            public double MaxBakiyeFiyatNetYuzde;
 
             // --- Trade Counts ---
             public int IslemSayisi;
@@ -2225,6 +2246,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics
                 MaxBakiyeFiyatIndex = MaxBakiyeFiyatIndex,
                 MinBakiyeFiyatNet = MinBakiyeFiyatNet,
                 MaxBakiyeFiyatNet = MaxBakiyeFiyatNet,
+                MinBakiyeFiyatNetIndex = MinBakiyeFiyatNetIndex,
+                MaxBakiyeFiyatNetIndex = MaxBakiyeFiyatNetIndex,
+                MinBakiyeFiyatNetYuzde = MinBakiyeFiyatNetYuzde,
+                MaxBakiyeFiyatNetYuzde = MaxBakiyeFiyatNetYuzde,
 
                 // --- Trade Counts ---
                 IslemSayisi = IslemSayisi,

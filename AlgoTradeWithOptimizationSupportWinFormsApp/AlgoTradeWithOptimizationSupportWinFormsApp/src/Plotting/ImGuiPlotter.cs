@@ -41,6 +41,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
 
         private string FindPythonDll()
         {
+            // NOT: pythonnet 3.0.5, Python 3.14'ü henüz desteklemiyor.
+            // Python 3.14 desteği geldiğinde buraya eklenebilir.
             string[] possiblePaths = new[]
             {
                 @"C:\Program Files\Python313\python313.dll",
@@ -109,6 +111,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         // 1. Venv site-packages yolu ekle
                         string[] venvPaths = new[]
                         {
+                            @"D:\sage1\AlgoTrade\AlgoTradeWithPaythonWithGemini\.venv\Lib\site-packages",
+                            @"D:\sage1\AlgoTrade\AlgoTradeWithPaythonWithGemini\venv\Lib\site-packages",
                             @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\venv\Lib\site-packages",
                             @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\.venv\Lib\site-packages",
                             @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\Aykut\venv\Lib\site-packages",
@@ -125,11 +129,19 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Plotting
                         }
 
                         // 2. AlgoTradeWithPythonWithGemini/src yolu ekle (DataPlotterImgBundle.py için)
-                        string srcPath = @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\src";
-                        if (Directory.Exists(srcPath))
+                        string[] srcPaths = new[]
                         {
-                            sys.path.insert(0, srcPath);
-                            System.Diagnostics.Debug.WriteLine($"✓ AlgoTradeWithPythonWithGemini/src eklendi: {srcPath}");
+                            @"D:\sage1\AlgoTrade\AlgoTradeWithPaythonWithGemini\src",
+                            @"D:\Aykut\Projects\AlgoTradeWithPaythonWithGemini\src",
+                        };
+                        foreach (var srcPath in srcPaths)
+                        {
+                            if (Directory.Exists(srcPath))
+                            {
+                                sys.path.insert(0, srcPath);
+                                System.Diagnostics.Debug.WriteLine($"✓ AlgoTradeWithPythonWithGemini/src eklendi: {srcPath}");
+                                break;
+                            }
                         }
                     }
 

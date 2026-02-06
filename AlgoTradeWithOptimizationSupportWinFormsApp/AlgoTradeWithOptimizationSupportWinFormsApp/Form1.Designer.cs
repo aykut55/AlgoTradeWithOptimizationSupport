@@ -1411,9 +1411,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             // btnStopSingleTrader
             // 
-            btnStopSingleTrader.Location = new Point(917, 160);
+            btnStopSingleTrader.Location = new Point(947, 160);
             btnStopSingleTrader.Name = "btnStopSingleTrader";
-            btnStopSingleTrader.Size = new Size(131, 23);
+            btnStopSingleTrader.Size = new Size(101, 23);
             btnStopSingleTrader.TabIndex = 7;
             btnStopSingleTrader.Text = "Stop Single Trader";
             btnStopSingleTrader.UseVisualStyleBackColor = true;
@@ -1423,9 +1423,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             btnStartSingleTrader.Location = new Point(780, 160);
             btnStartSingleTrader.Name = "btnStartSingleTrader";
-            btnStartSingleTrader.Size = new Size(131, 23);
+            btnStartSingleTrader.Size = new Size(161, 23);
             btnStartSingleTrader.TabIndex = 5;
-            btnStartSingleTrader.Text = "Start Single Trader";
+            btnStartSingleTrader.Text = "Start Single Trader Strategy";
             btnStartSingleTrader.UseVisualStyleBackColor = true;
             btnStartSingleTrader.Click += btnStartSingleTrader_Click;
             // 

@@ -101,6 +101,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
         public double MaxBakiyeFiyatYuzde { get; set; }
         public double MinBakiyeFiyatNet { get; set; }
         public double MaxBakiyeFiyatNet { get; set; }
+        public int MinBakiyeFiyatNetIndex { get; set; }
+        public int MaxBakiyeFiyatNetIndex { get; set; }
+        public double MinBakiyeFiyatNetYuzde { get; set; }
+        public double MaxBakiyeFiyatNetYuzde { get; set; }
 
         // Trade Counts
         public int IslemSayisi { get; set; }
@@ -1141,6 +1145,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     headerParts.Add("MaxBakIdx");
                     headerParts.Add("MinBakNet");
                     headerParts.Add("MaxBakNet");
+                    headerParts.Add("MinBakNetIdx");
+                    headerParts.Add("MaxBakNetIdx");
+                    headerParts.Add("MinBakNet%");
+                    headerParts.Add("MaxBakNet%");
                     headerParts.Add("Islem");
                     headerParts.Add("Alis");
                     headerParts.Add("Satis");
@@ -1266,6 +1274,9 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(result.MaxBakiyeFiyatYuzde.ToString("F2"));
                 dataParts.Add(result.MinBakiyeFiyatNet.ToString("F2"));
                 dataParts.Add(result.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(result.MinBakiyeFiyatNetYuzde.ToString("F2"));
+                dataParts.Add(result.MaxBakiyeFiyatNetYuzde.ToString("F2"));
+
                 dataParts.Add(result.IslemSayisi.ToString());
                 dataParts.Add(result.AlisSayisi.ToString());
                 dataParts.Add(result.SatisSayisi.ToString());
@@ -1391,6 +1402,11 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 dataParts.Add(optSummary.MaxBakiyeFiyatIndex.ToString());
                 dataParts.Add(optSummary.MinBakiyeFiyatNet.ToString("F2"));
                 dataParts.Add(optSummary.MaxBakiyeFiyatNet.ToString("F2"));
+                dataParts.Add(optSummary.MinBakiyeFiyatNetIndex.ToString());
+                dataParts.Add(optSummary.MaxBakiyeFiyatNetIndex.ToString());
+                dataParts.Add(optSummary.MinBakiyeFiyatNetYuzde.ToString("F2"));
+                dataParts.Add(optSummary.MaxBakiyeFiyatNetYuzde.ToString("F2"));
+
                 dataParts.Add(optSummary.IslemSayisi.ToString());
                 dataParts.Add(optSummary.AlisSayisi.ToString());
                 dataParts.Add(optSummary.SatisSayisi.ToString());
@@ -1681,6 +1697,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                         $"{"MaxBakIdx",10} | " +
                         $"{"MinBakNet",15} | " +
                         $"{"MaxBakNet",15} | " +
+                        $"{"MinBakNetIdx",10} | " +
+                        $"{"MaxBakNetIdx",10} | " +
+                        $"{"MinBakNet%",10} | " +
+                        $"{"MaxBakNet%",10} | " +
                         $"{"Islem",10} | " +
                         $"{"Alis",10} | " +
                         $"{"Satis",10} | " +
@@ -1811,6 +1831,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     $"{optResult.MaxBakiyeFiyatYuzde,10:F2} | " +
                     $"{optResult.MinBakiyeFiyatNet,15:F2} | " +
                     $"{optResult.MaxBakiyeFiyatNet,15:F2} | " +
+                    $"{optResult.MinBakiyeFiyatNetYuzde,10:F2} | " +
+                    $"{optResult.MaxBakiyeFiyatNetYuzde,10:F2} | " +
                     $"{optResult.IslemSayisi,10} | " +
                     $"{optResult.AlisSayisi,10} | " +
                     $"{optResult.SatisSayisi,10} | " +
@@ -1936,6 +1958,10 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                     $"{optSummary.MaxBakiyeFiyatIndex,10} | " +
                     $"{optSummary.MinBakiyeFiyatNet,15:F2} | " +
                     $"{optSummary.MaxBakiyeFiyatNet,15:F2} | " +
+                    $"{optSummary.MinBakiyeFiyatNetIndex,10} | " +
+                    $"{optSummary.MaxBakiyeFiyatNetIndex,10} | " +
+                    $"{optSummary.MinBakiyeFiyatNetYuzde,10:F2} | " +
+                    $"{optSummary.MaxBakiyeFiyatNetYuzde,10:F2} | " +
                     $"{optSummary.IslemSayisi,10} | " +
                     $"{optSummary.AlisSayisi,10} | " +
                     $"{optSummary.SatisSayisi,10} | " +
@@ -2265,6 +2291,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
                 MaxBakiyeFiyatYuzde = optSummary.MaxBakiyeFiyatYuzde,
                 MinBakiyeFiyatNet = optSummary.MinBakiyeFiyatNet,
                 MaxBakiyeFiyatNet = optSummary.MaxBakiyeFiyatNet,
+                MinBakiyeFiyatNetYuzde = optSummary.MinBakiyeFiyatNetYuzde,
+                MaxBakiyeFiyatNetYuzde = optSummary.MaxBakiyeFiyatNetYuzde,
 
                 // Trade Counts
                 IslemSayisi = optSummary.IslemSayisi,
