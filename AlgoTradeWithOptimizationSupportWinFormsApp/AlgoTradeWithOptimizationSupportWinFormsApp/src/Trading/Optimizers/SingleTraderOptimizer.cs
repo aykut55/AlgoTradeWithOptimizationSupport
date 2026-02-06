@@ -493,15 +493,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
             ParameterRanges.Clear();
 
             // Setup parameters and strategy
-            this.AddParameterRange("period", 5, 605, 5);            // 3 değer: 10, 20, 30
-            this.AddParameterRange("percent", 0.1, 5.1, 0.1);       // 4 değer: 0.5, 1.0, 1.5, 2.0
-            int choice = 0;
-            //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0);  // 3 değer: 1.0, 2.0, 3.0
+            this.AddParameterRange("period", 10, 605, 5);               // 3 değer: 10, 20, 30
+            this.AddParameterRange("percent", 0.1, 5.1, 0.1);           // 4 değer: 0.5, 1.0, 1.5, 2.0
+            int choice = 1;
+            //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0);      // 3 değer: 1.0, 2.0, 3.0
 
             this.SetStrategyFactory((data, indicators, parameters) =>
             {
                 int period = Convert.ToInt32(parameters["period"]);
-                double percent = Convert.ToDouble(parameters["percent"]);
+                double percent = Convert.ToDouble(parameters["percent"], CultureInfo.InvariantCulture);
                 return new SimpleMostStrategy(data, indicators, period, percent, choice);
             });
             // Kombinasyon sayısı: 3 × 4 × 3 = 36

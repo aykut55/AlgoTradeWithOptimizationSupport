@@ -689,8 +689,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Traders
             this.signals.PasGecEnabled          = false;
             this.signals.KarAlEnabled           = false;
             this.signals.ZararKesEnabled        = false;
-            this.signals.GunSonuPozKapatEnabled = false;    // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
-            this.signals.TimeFilteringEnabled   = true;     // DEFAULT = False, Ek maliyet getirir : 
+            this.signals.GunSonuPozKapatEnabled = false;        // DEFAULT = False, Ek maliyet getirir : BackTest icin anlamli 
+            this.signals.TimeFilteringEnabled   = false;        // DEFAULT = False, Ek maliyet getirir : 
 
             return this;
         }

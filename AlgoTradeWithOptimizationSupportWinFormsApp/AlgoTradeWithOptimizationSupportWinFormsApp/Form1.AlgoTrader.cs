@@ -151,8 +151,8 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 try
                 {
                     // Extract parameters
-                    double period = result.Parameters.ContainsKey("period") ? Convert.ToDouble(result.Parameters["period"]) : 0;
-                    double percent = result.Parameters.ContainsKey("percent") ? Convert.ToDouble(result.Parameters["percent"]) : 0;
+                    double period = result.Parameters.ContainsKey("period") ? Convert.ToDouble(result.Parameters["period"], CultureInfo.InvariantCulture) : 0;
+                    double percent = result.Parameters.ContainsKey("percent") ? Convert.ToDouble(result.Parameters["percent"], CultureInfo.InvariantCulture) : 0;
 
                     // Format label text
                     string labelText = $"{currentCombination} ; " +

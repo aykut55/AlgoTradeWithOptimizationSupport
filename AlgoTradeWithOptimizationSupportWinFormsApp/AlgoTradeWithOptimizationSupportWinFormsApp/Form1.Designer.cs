@@ -126,6 +126,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             groupBox1 = new GroupBox();
             btnClearStockData = new Button();
             btnClearLogFiles = new Button();
+            btnOpenLogDir = new Button();
             btnSaveFile2 = new Button();
             btnBrowseFile2 = new Button();
             txtConfigFileName = new TextBox();
@@ -1036,6 +1037,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             // 
             groupBox1.Controls.Add(btnClearStockData);
             groupBox1.Controls.Add(btnClearLogFiles);
+            groupBox1.Controls.Add(btnOpenLogDir);
             groupBox1.Controls.Add(btnSaveFile2);
             groupBox1.Controls.Add(btnBrowseFile2);
             groupBox1.Controls.Add(txtConfigFileName);
@@ -1085,7 +1087,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
             btnClearLogFiles.Text = "Clear Log Files";
             btnClearLogFiles.UseVisualStyleBackColor = true;
             btnClearLogFiles.Click += btnClearLogFiles_Click;
-            // 
+            //
+            // btnOpenLogDir
+            //
+            btnOpenLogDir.Location = new Point(976, 75);
+            btnOpenLogDir.Name = "btnOpenLogDir";
+            btnOpenLogDir.Size = new Size(100, 25);
+            btnOpenLogDir.TabIndex = 24;
+            btnOpenLogDir.Text = "Open Log Dir";
+            btnOpenLogDir.UseVisualStyleBackColor = true;
+            btnOpenLogDir.Click += btnOpenLogDir_Click;
+            //
             // btnSaveFile2
             // 
             btnSaveFile2.Location = new Point(671, 45);
@@ -2704,6 +2716,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
         private Label lblPageSize;
         private Button btnClearStockData;
         private Button btnClearLogFiles;
+        private Button btnOpenLogDir;
         private Label lblReadStockDataTime;
         private Panel panel4;
         private RichTextBox richTextBoxSingleTrader;

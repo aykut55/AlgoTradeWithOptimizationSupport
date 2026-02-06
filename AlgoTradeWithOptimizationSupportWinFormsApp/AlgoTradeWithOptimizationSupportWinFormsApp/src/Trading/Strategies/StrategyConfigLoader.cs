@@ -26,13 +26,17 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Strategies
         /// <summary>
         /// Parse parameter value from string based on type
         /// Allows flexible input: "10" or "10.0" can both be parsed as int or double
+        /// Supports both comma (Turkish) and dot (InvariantCulture) decimal separators
         /// </summary>
         public static object ParseValue(string type, string value)
         {
+            // Hem virgül hem nokta destekle - virgülü noktaya çevir
+            string normalizedValue = value.Replace(",", ".");
+
             return type.ToLower() switch
             {
-                "int" => (int)double.Parse(value, System.Globalization.CultureInfo.InvariantCulture),
-                "double" => double.Parse(value, System.Globalization.CultureInfo.InvariantCulture),
+                "int" => (int)double.Parse(normalizedValue, System.Globalization.CultureInfo.InvariantCulture),
+                "double" => double.Parse(normalizedValue, System.Globalization.CultureInfo.InvariantCulture),
                 "bool" => bool.Parse(value),
                 "string" => value,
                 _ => throw new ArgumentException($"Unsupported parameter type: {type}")

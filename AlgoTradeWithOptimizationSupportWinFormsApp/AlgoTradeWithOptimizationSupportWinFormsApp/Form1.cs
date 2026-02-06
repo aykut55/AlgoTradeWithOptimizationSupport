@@ -1349,6 +1349,34 @@ Format           : ";
             }
         }
 
+        /// <summary>
+        /// Open the logs folder in Windows Explorer
+        /// </summary>
+        private void btnOpenLogDir_Click(object sender, EventArgs e)
+        {
+            string logsFolder = Path.Combine(Application.StartupPath, "logs");
+
+            try
+            {
+                // Logs klasörü yoksa oluştur
+                if (!Directory.Exists(logsFolder))
+                {
+                    Directory.CreateDirectory(logsFolder);
+                    LogManager.Log($"Created logs folder: {logsFolder}");
+                }
+
+                // Windows Explorer'da aç
+                System.Diagnostics.Process.Start("explorer.exe", logsFolder);
+                LogManager.Log($"Opened logs folder: {logsFolder}");
+            }
+            catch (Exception ex)
+            {
+                string errorMsg = $"Error opening logs folder: {ex.Message}";
+                LogManager.Log(errorMsg);
+                MessageBox.Show(errorMsg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
         private async void BtnReadStockData_Click(object? sender, EventArgs e)
         {
             string fileName = txtDataFileName.Text;
@@ -2040,8 +2068,18 @@ Format           : ";
                     if (colIndex < dgvStrategyParameters.Columns.Count)
                     {
                         var param = paramList[i];
-                        // Convert to string to preserve exact input format
-                        row.Cells[colIndex].Value = param.DefaultValue.ToString();
+                        // Convert to string with InvariantCulture to ensure dot decimal separator
+                        string valueStr;
+                        if (param.DefaultValue is double d)
+                            valueStr = d.ToString(CultureInfo.InvariantCulture);
+                        else if (param.DefaultValue is float f)
+                            valueStr = f.ToString(CultureInfo.InvariantCulture);
+                        else if (param.DefaultValue is decimal dec)
+                            valueStr = dec.ToString(CultureInfo.InvariantCulture);
+                        else
+                            valueStr = param.DefaultValue?.ToString() ?? "";
+
+                        row.Cells[colIndex].Value = valueStr;
                         row.Cells[colIndex].ToolTipText = $"{param.Name} ({param.Type})";
                     }
                 }
