@@ -197,7 +197,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
 
                 // İlk satır header
                 string headerLine = lines[0];
-                var headers = headerLine.Split(',')
+                var headers = headerLine.Split(';')
                                        .Select(h => h.Trim())
                                        .ToArray();
 
@@ -260,7 +260,7 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                     if (string.IsNullOrWhiteSpace(lines[i]))
                         continue;
 
-                    var values = lines[i].Split(',')
+                    var values = lines[i].Split(';')
                                         .Select(v => v.Trim())
                                         .ToArray();
 
@@ -1899,12 +1899,12 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp
                 using (var sw = new System.IO.StreamWriter(sortedFilePath, false, System.Text.Encoding.UTF8))
                 {
                     // Header yaz
-                    sw.WriteLine(string.Join(",", headers));
+                    sw.WriteLine(string.Join(";", headers));
 
                     // Sorted data yaz
                     foreach (var values in sortedData)
                     {
-                        sw.WriteLine(string.Join(",", values));
+                        sw.WriteLine(string.Join(";", values));
                     }
                 }
 
