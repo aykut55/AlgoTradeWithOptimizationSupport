@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Xml.Linq;
 using Tulip;
 using static AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Statistics.Statistics;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 {
@@ -492,14 +493,15 @@ namespace AlgoTradeWithOptimizationSupportWinFormsApp.Trading.Optimizers
 
             // Setup parameters and strategy
             this.AddParameterRange("period", 5, 605, 5);            // 3 değer: 10, 20, 30
-            this.AddParameterRange("percent", 0.1, 5.1, 0.1);    // 4 değer: 0.5, 1.0, 1.5, 2.0
+            this.AddParameterRange("percent", 0.5, 5.1, 0.5);       // 4 değer: 0.5, 1.0, 1.5, 2.0
+            int choice = 1;
             //this.AddParameterRange("multiplier", 1.0, 3.0, 1.0);  // 3 değer: 1.0, 2.0, 3.0
 
             this.SetStrategyFactory((data, indicators, parameters) =>
             {
                 int period = Convert.ToInt32(parameters["period"]);
                 double percent = Convert.ToDouble(parameters["percent"]);
-                return new SimpleMostStrategy(data, indicators, period, percent);
+                return new SimpleMostStrategy(data, indicators, period, percent, choice);
             });
             // Kombinasyon sayısı: 3 × 4 × 3 = 36
 
